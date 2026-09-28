@@ -10,7 +10,7 @@ def git(*args):
 
 
 def next_version(component, tags):
-    if component not in ('frontend', 'backend'):
+    if component not in ('frontend', 'backend', 'payments'):
         raise ValueError('Unknown component')
     matches = []
     for tag in tags:
@@ -30,7 +30,7 @@ if __name__ == '__main__':
         print(f'version={version}\ntag={component}-v{version}\nprevious={previous}')
     elif sys.argv[1] == 'notes':
         directory, previous = sys.argv[2:4]
-        if directory not in ('client', 'server'):
+        if directory not in ('client', 'server', 'payments.go', 'sdk-go'):
             raise ValueError('Unknown component directory')
         revision = f'{previous}..HEAD' if previous else 'HEAD'
         print(f'Changes in `{directory}/`\n')

@@ -1,7 +1,16 @@
-name: Validate static website
+name: Website CI
 on:
   push:
+    branches: [undefined]
+    paths: ['website/**', '.github/workflows/website-ci.yml']
   pull_request:
+    paths: ['website/**', '.github/workflows/website-ci.yml']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+defaults:
+  run:
+    working-directory: website
 permissions:
   contents: read
 jobs:

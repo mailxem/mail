@@ -60,7 +60,7 @@ const xem = new Xem({ apiKey: 'your-api-key' });
 
 **Go:**
 ```go
-import xem "github.com/xem-email/sdk-go"
+import xem "github.com/mailxem/mail/sdk-go"
 
 client := xem.NewClient(&xem.Config{
     APIKey: "your-api-key",
@@ -171,13 +171,13 @@ go build
 ### Run Examples
 ```bash
 # Basic usage
-go run examples/basic_usage.go
+go run examples/basic/main.go
 
 # Advanced features
-go run examples/advanced_usage.go
+go run examples/advanced/main.go
 
 # Template usage
-go run examples/template_usage.go
+go run examples/templates/main.go
 ```
 
 ## Testing
@@ -188,12 +188,7 @@ go test ./...
 
 ## Publishing
 
-To publish this SDK to a Go module repository:
-
-1. Create a GitHub repository at `github.com/xem-email/sdk-go`
-2. Push the code
-3. Tag a release: `git tag v1.0.0 && git push origin v1.0.0`
-4. Users can then install with: `go get github.com/xem-email/sdk-go@v1.0.0`
+The root `.github/workflows/sdk-go-release.yml` validates the module and creates a release when `version.go` names a new version on the default branch. Go requires the subdirectory prefix in Git tags: for version `0.1.2`, the tag is `sdk-go/v0.1.2` and consumers install `github.com/mailxem/mail/sdk-go@v0.1.2`. Do not create unprefixed SDK tags in the monorepo.
 
 ## Design Decisions
 

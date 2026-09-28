@@ -2,12 +2,16 @@ name: MCP container
 
 on:
   pull_request:
-    branches: [main]
+    paths: ['mcp/**', '.github/workflows/mcp-container.yml']
   push:
-    branches: [main]
-    tags: ['v*']
+    branches: [undefined]
+    paths: ['mcp/**', '.github/workflows/mcp-container.yml']
+    tags: ['mcp-v*']
   workflow_dispatch:
 
+defaults:
+  run:
+    working-directory: mcp
 permissions:
   contents: read
 
@@ -27,6 +31,7 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+          cache-dependency-path: mcp/package-lock.json
       - run: npm ci --ignore-scripts
       - run: npm test
       - name: Check release version
@@ -34,13 +39,13 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          node --input-type=module -e '
+          node --input-type=module <<'JS'
             import fs from "node:fs";
             const { version } = JSON.parse(fs.readFileSync("package.json", "utf8"));
-            if (process.env.RELEASE_TAG !== `v${version}`) {
-              throw new Error("Release tag must match v + package.json version");
+            if (process.env.RELEASE_TAG !== "mcp-v" + version) {
+              throw new Error("Release tag must match mcp-v + package.json version");
             }
-          '
+          JS
       - name: Validate Compose configuration
         run: docker compose config --quiet
       - name: Build and smoke-test the container
@@ -74,7 +79,7 @@ jobs:
 
   publish:
     needs: validate
-    if: github.event_name != 'pull_request' && github.repository == 'mailxem/mcp' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    if: github.event_name != 'pull_request' && github.repository == 'mailxem/mail' && (github.ref == format('refs/heads/{0}', github.event.repository.default_branch) || startsWith(github.ref, 'refs/tags/mcp-v'))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -97,24 +102,24 @@ jobs:
           images: ghcr.io/mailxem/mcp
           flavor: latest=false
           tags: |
-            type=raw,value=main,enable=${{ github.ref == 'refs/heads/main' }}
-            type=ref,event=tag
+            type=raw,value=main,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+            type=match,pattern=mcp-(v.*),group=1
             type=sha,format=long
       - name: Build and publish
         id: image
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
-          context: .
+          context: mcp
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=mcp
+          cache-to: type=gha,mode=max,scope=mcp
           provenance: mode=max
           sbom: true
       - name: Record deployable image
         env:
           IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
         run: |
-          printf 'Deploy with `MCP_IMAGE=ghcr.io/mailxem/mcp@%s`.\n' "$IMAGE_DIGEST" >> "$GITHUB_STEP_SUMMARY"
+          printf 'Deploy with MCP_IMAGE=ghcr.io/mailxem/mcp@%s.\n' "$IMAGE_DIGEST" >> "$GITHUB_STEP_SUMMARY"

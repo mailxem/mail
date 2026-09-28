@@ -1,0 +1,64 @@
+name: Go SDK CI and release
+on:
+  pull_request:
+    paths: ['sdk-go/**', '.github/workflows/sdk-go-release.yml', 'scripts/component-release.py']
+  push:
+    branches: [undefined]
+    paths: ['sdk-go/**', '.github/workflows/sdk-go-release.yml', 'scripts/component-release.py']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sdk-go-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    defaults:
+      run:
+        working-directory: sdk-go
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: sdk-go/go.mod
+          cache-dependency-path: sdk-go/go.sum
+      - run: go test ./...
+      - run: go vet ./...
+      - name: Validate module path and release version
+        id: version
+        run: |
+          test "$(go list -m)" = github.com/mailxem/mail/sdk-go
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import re
+          from pathlib import Path
+          match = re.search(r'^var Version = "(0\.[0-9]+\.[0-9]+|1\.[0-9]+\.[0-9]+)"$', Path('version.go').read_text(), re.M)
+          if not match:
+              raise SystemExit('version.go must contain a stable v0/v1 version; v2+ requires a module-path migration')
+          print('version=' + match.group(1))
+          PY
+  release:
+    needs: validate
+    if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create subdirectory module tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.validate.outputs.version }}
+        run: |
+          tag="sdk-go/v$VERSION"
+          if git show-ref --verify --quiet "refs/tags/$tag"; then
+            echo "Release $tag already exists"
+            exit 0
+          fi
+          previous=$(git tag --list 'sdk-go/v*' --sort=-version:refname | head -n 1)
+          python3 scripts/component-release.py notes sdk-go "$previous" > "$RUNNER_TEMP/sdk-go-notes.md"
+          gh release create "$tag" --target "$GITHUB_SHA" --title "$tag" --notes-file "$RUNNER_TEMP/sdk-go-notes.md"

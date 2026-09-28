@@ -61,17 +61,17 @@ For an existing TLS proxy, run `xem-email-mcp --http`, set `HOST`, `PORT`, `XEM_
 
 ## Container builds in GitHub Actions
 
-`.github/workflows/container.yml` runs package tests, validates Compose, builds the image, and smoke-tests its health and authentication checks on pull requests. It publishes only from this repository's `main` branch or version tags, after validation succeeds. Manual runs can publish from `main` or a version tag too.
+`../.github/workflows/mcp-container.yml` runs package tests, validates Compose, builds the image, and smoke-tests its health and authentication checks on pull requests. It publishes only from the monorepo's `undefined` branch or `mcp-v*` tags, after validation succeeds. Manual runs can publish from the default branch or a matching `mcp-v*` tag too.
 
 Images are pushed to `ghcr.io/mailxem/mcp` for both `linux/amd64` and `linux/arm64`, with an SBOM and build provenance:
 
-- `main`: the current successful main-branch build (Compose default).
-- `v2.0.0`: a release tag; the tag must match the package version.
+- `main`: the current successful default-branch build (existing Compose alias).
+- `v2.0.0`: an image release tag, produced from a Git tag such as `mcp-v2.0.0`; the version must match `package.json`.
 - `sha-<full-commit-sha>`: a build identified by its source commit.
 
 The workflow summary provides a digest for reproducible deployments. Set `MCP_IMAGE=ghcr.io/mailxem/mcp@sha256:...` in `.env`, then run `docker compose pull && docker compose up -d`. Keep the previous digest to roll back by changing `MCP_IMAGE` and running those commands again. Publishing an image does not automatically restart your production service.
 
-Publishing uses the repository's `GITHUB_TOKEN` with job-scoped `packages:write`; no Docker Hub secret is needed. After the first publish, make the GHCR package **public** in its package settings for unauthenticated pulls, or authenticate the deployment host with a read-only package credential. Organization package policies may require an administrator to grant publishing access. This workflow does not publish the npm package.
+Publishing uses `mailxem/mail`'s `GITHUB_TOKEN` with job-scoped `packages:write`; no Docker Hub secret is needed. After the first publish, make the GHCR package **public** in its package settings for unauthenticated pulls, or authenticate the deployment host with a read-only package credential. The existing GHCR package must grant `mailxem/mail` write access under its package settings → Manage Actions access; access inherited from the old `mailxem/mcp` repository is not sufficient. This workflow does not publish the npm package.
 
 For local development, build directly with `docker build -t xem-mcp:local .`, then use `MCP_IMAGE=xem-mcp:local docker compose up -d` without pulling. Actions are pinned to commit SHAs and Dependabot proposes updates weekly.
 

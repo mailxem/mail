@@ -5,7 +5,7 @@ Get started with the XEM Email SDK for Go in just a few minutes!
 ## Installation
 
 ```bash
-go get github.com/xem-email/sdk-go
+go get github.com/mailxem/mail/sdk-go
 ```
 
 ## Basic Usage
@@ -19,7 +19,7 @@ import (
     "fmt"
     "log"
     
-    xem "github.com/xem-email/sdk-go"
+    xem "github.com/mailxem/mail/sdk-go"
 )
 
 func main() {
@@ -144,7 +144,7 @@ import (
     "fmt"
     "log"
     
-    xem "github.com/xem-email/sdk-go"
+    xem "github.com/mailxem/mail/sdk-go"
 )
 
 func main() {

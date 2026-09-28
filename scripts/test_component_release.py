@@ -8,9 +8,10 @@ next_version = module.next_version
 
 class ReleaseTests(unittest.TestCase):
     def test_components_cannot_bump_each_other(self):
-        tags = ['frontend-v0.2.4', 'backend-v5.6.7', 'v99.99.99', 'frontend-v0.2.4-beta']
+        tags = ['frontend-v0.2.4', 'backend-v5.6.7', 'payments-v3.1.2', 'v99.99.99', 'frontend-v0.2.4-beta']
         self.assertEqual(next_version('frontend', tags), ('0.2.5', 'frontend-v0.2.4'))
         self.assertEqual(next_version('backend', tags), ('5.6.8', 'backend-v5.6.7'))
+        self.assertEqual(next_version('payments', tags), ('3.1.3', 'payments-v3.1.2'))
 
     def test_numeric_order(self):
         self.assertEqual(next_version('backend', ['backend-v0.1.9', 'backend-v0.1.10']), ('0.1.11', 'backend-v0.1.10'))

@@ -1,0 +1,75 @@
+name: Payments CI and release
+on:
+  pull_request:
+    paths: ['payments.go/**', '.github/workflows/payments-release.yml', 'scripts/component-release.py']
+  push:
+    branches: [undefined]
+    paths: ['payments.go/**', '.github/workflows/payments-release.yml', 'scripts/component-release.py']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: payments-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: payments.go
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: payments.go/go.mod
+          cache-dependency-path: payments.go/go.sum
+      - run: go mod verify
+      - run: go test ./...
+      - run: go build -o "$RUNNER_TEMP/xem-payments" ./cmd
+      - run: docker build -t xem-payments:check .
+  publish:
+    needs: validate
+    if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: version
+        run: python3 scripts/component-release.py version payments >> "$GITHUB_OUTPUT"
+      - name: Write build metadata
+        env:
+          VERSION: ${{ steps.version.outputs.tag }}
+        run: |
+          mkdir -p payments.go/public
+          printf 'Version: %s\nCommit: %s\n' "$VERSION" "$GITHUB_SHA" > payments.go/public/build-info.txt
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: payments.go
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/mailxem/payments.go:${{ steps.version.outputs.version }}
+            ghcr.io/mailxem/payments.go:sha-${{ github.sha }}
+            ghcr.io/mailxem/payments.go:sudo
+            ghcr.io/mailxem/payments.go:latest
+          cache-from: type=gha,scope=payments
+          cache-to: type=gha,mode=max,scope=payments
+      - name: Create payments release after publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          PREVIOUS: ${{ steps.version.outputs.previous }}
+        run: |
+          python3 scripts/component-release.py notes payments.go "$PREVIOUS" > "$RUNNER_TEMP/payments-notes.md"
+          gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --notes-file "$RUNNER_TEMP/payments-notes.md"

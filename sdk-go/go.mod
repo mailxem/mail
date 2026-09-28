@@ -1,4 +1,4 @@
-module github.com/mailxem/sdk-go
+module github.com/mailxem/mail/sdk-go
 
 go 1.23.0
 

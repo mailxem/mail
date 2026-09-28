@@ -1,8 +1,16 @@
 name: Infrastructure validation
 on:
   pull_request:
+    paths: ['devops/**', '.github/workflows/infrastructure-ci.yml']
   push:
-    branches: [main]
+    branches: [undefined]
+    paths: ['devops/**', '.github/workflows/infrastructure-ci.yml']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+defaults:
+  run:
+    working-directory: devops
 permissions:
   contents: read
 jobs:

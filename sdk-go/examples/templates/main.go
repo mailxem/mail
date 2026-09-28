@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	xem "github.com/mailxem/sdk-go"
+	xem "github.com/mailxem/mail/sdk-go"
 )
 
 func main() {

@@ -78,7 +78,7 @@ make help
 python3 devops/swarm/install.py
 ```
 
-For frontend development, point the app at a running backend and follow [client setup](docs/client/setup.mdx). Backend configuration and API documentation live in [`server/`](server) and [`docs/`](docs). Components keep their own dependency files; frontend/backend CI and releases live together in `.github/workflows/`. A single PR can change both sides of an API.
+For frontend development, point the app at a running backend and follow [client setup](docs/client/setup.mdx). Backend configuration and API documentation live in [`server/`](server) and [`docs/`](docs). Components keep their own dependency files; component CI and releases live together in `.github/workflows/`. A single PR can change both sides of an API.
 
 | Component | Directory | Original repository / history |
 | --- | --- | --- |
@@ -99,6 +99,7 @@ This is a **monorepo**: all eight components above are normal directories. No su
 - Backend changes run Go vet, race tests, builds, and the relevant PostgreSQL/SMTP integration checks.
 - Changes to either side run the full Docker Swarm smoke test.
 - Default-branch changes publish the affected component's amd64/arm64 images independently, then assemble the combined image and create a component-scoped release.
+- Website, infrastructure, MCP, payments, and Go SDK workflows also run from the root, with checks scoped to their component paths.
 - Images keep `theboringhumane/xemapp` and `theboringhumane/xemgo`; Git tags use `frontend-v*` and `backend-v*` to avoid collisions.
 
 See the [migration and CI guide](migration/README.md) for source provenance, configuration, and the cutover from the original repositories.

@@ -1,13 +1,17 @@
 # XEM Email SDK for Go
 
-[![Release](https://img.shields.io/github/v/release/mailxem/sdk-go)](https://github.com/mailxem/sdk-go/releases)
+[![Release](https://img.shields.io/github/v/release/mailxem/mail?filter=sdk-go%2Fv*)](https://github.com/mailxem/mail/releases)
 
 Official Go SDK for the XEM Email API.
+
+## Monorepo import path
+
+New releases use `github.com/mailxem/mail/sdk-go` and Git tags such as `sdk-go/v0.1.2`. Consumers of the former `github.com/mailxem/sdk-go` module must update their imports; existing versions in the original repository remain available.
 
 ## Installation
 
 ```bash
-go get github.com/xem-email/sdk-go
+go get github.com/mailxem/mail/sdk-go
 ```
 
 ## Quick Start
@@ -19,7 +23,7 @@ import (
     "fmt"
     "log"
     
-    xem "github.com/xem-email/sdk-go"
+    xem "github.com/mailxem/mail/sdk-go"
 )
 
 func main() {
