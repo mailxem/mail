@@ -56,9 +56,14 @@ Connect `mailxem/mail` in Cloudflare **Workers & Pages → Create application �
 - Root directory: `website`
 - Install command: `bun install --frozen-lockfile`
 - Build command: `bun run build`
-- Deploy command: `bunx wrangler deploy`
+- Production deploy command: `bunx wrangler deploy --keep-vars`
+- Production branch: `undefined` (the monorepo's current default branch)
 - Worker name: `xem-website`
 - Build environment: Bun 1.3.5 (or compatible), Node.js 22+; optionally set the two `XEM_BUILD_*` variables above.
+
+Configure **Previews Base** separately: use root directory `website`, build command `bun run build`, and preview command `bunx wrangler versions upload --keep-vars`. This uploads a version for review without changing the production deployment. The project uses version uploads with its pinned Wrangler; the dashboard's `wrangler preview` default requires a separate previews configuration that this project does not have.
+
+If a build reports no project tooling or cannot find the Wrangler configuration, check the root directory in both tabs. Saved settings apply to the next build, including retries of failed builds. Keep the existing build token when correcting commands or directories.
 
 After the first deployment, add the intended production hostname under **Settings → Domains & Routes**. This configuration does not change the existing live `xem.email` domain or replace the old website automatically. Verify the new deployment before switching the domain. Submit the production `/sitemap.xml` in Search Console when the domain points to the new site.
 
