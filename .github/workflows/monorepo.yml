@@ -26,3 +26,12 @@ jobs:
             echo 'Git submodules must not be introduced into the monorepo'
             exit 1
           fi
+  registry-credential:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      # No checkout or PR-authored scripts run in this job. Validate login only.
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_HUB_USERNAME || 'theboringhumane' }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
