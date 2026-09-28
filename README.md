@@ -82,16 +82,16 @@ python3 devops/swarm/install.py
 
 For frontend development, point the app at a running backend and follow [client setup](docs/client/setup.mdx). Backend configuration and API documentation live in [`server/`](server) and [`docs/`](docs). Components keep their own dependency files; component CI and releases live together in `.github/workflows/`. A single PR can change both sides of an API.
 
-| Component | Directory | Original repository / history |
-| --- | --- | --- |
-| Go API and workers | `server/` | [xem.go](https://github.com/mailxem/xem.go) |
-| Next.js application | `client/` | [xem-app.ts](https://github.com/mailxem/xem-app.ts) |
-| Deployment infrastructure | `devops/` | [devops](https://github.com/mailxem/devops) |
-| MCP integration | `mcp/` | [mcp](https://github.com/mailxem/mcp) |
-| Payments | `payments.go/` | [payments.go](https://github.com/mailxem/payments.go) |
-| TypeScript SDK | `sdk/` | [sdk](https://github.com/mailxem/sdk) |
-| Go SDK | `sdk-go/` | [sdk-go](https://github.com/mailxem/sdk-go) |
-| Marketing website | `website/` | [xem-website](https://github.com/mailxem/xem-website) |
+| Component | Source |
+| --- | --- |
+| Go API and workers | [server/](server) |
+| Next.js application | [client/](client) |
+| Deployment infrastructure | [devops/](devops) |
+| MCP integration | [mcp/](mcp) |
+| Payments | [payments.go/](payments.go) |
+| TypeScript SDK | [sdk/](sdk) |
+| Go SDK | [sdk-go/](sdk-go) |
+| Marketing website | [website/](website) |
 
 This is a **monorepo**: all eight components above are normal directories. No submodule initialization or second repository checkout is required. The starter deploys the app, backend, and their data services.
 

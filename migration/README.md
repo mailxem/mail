@@ -2,7 +2,7 @@
 
 ## Source import
 
-All eight former submodules are ordinary tracked directories. `component-sources.json` records the exact published source commit for each import. This is a snapshot migration: the earlier component commit histories remain in their original repositories and are linked by that manifest. They have not been rewritten, deleted, or archived. One monorepo commit now identifies the matching frontend and backend source used by the installer.
+All eight former submodules are ordinary tracked directories. `component-sources.json` records the original repository and exact published source commit for each import. This was a snapshot migration; it did not import the earlier component commit histories. The former component repositories have since been retired, so their historical URLs may no longer resolve. One monorepo commit now identifies the matching frontend and backend source used by the installer.
 
 The import uses published trees, not the contents of a developer's working directory. Local `.env` files, private keys, dependencies, and uncommitted work are excluded. The backend's previously tracked `bin/server` executable is intentionally omitted; CI rebuilds binaries from source. Original component workflow files are relocated/adapted as described below.
 
@@ -60,7 +60,7 @@ Each receives version and full-SHA tags, plus the existing `sudo` and `latest` a
 
 MCP retains `ghcr.io/mailxem/mcp:main` and payments retains `ghcr.io/mailxem/payments.go:latest`, so image-based deployment references do not change. Both workflows use the monorepo's `GITHUB_TOKEN`. Before publishing, the existing package settings must allow `mailxem/mail` **write** access under **Manage Actions access**. Package access is separate from repository secrets and is not inherited simply by copying a workflow. This task validates builds without publishing images; GHCR package permissions must be verified before release. CLI package inspection may require the `read:packages` scope.
 
-Go SDK consumers should replace `github.com/mailxem/sdk-go` imports with `github.com/mailxem/mail/sdk-go`. Its release tags use Go's subdirectory convention (`sdk-go/v0.1.2`), not the frontend/backend `*-v*` convention. Examples are in separate package directories and compile against the local SDK. Existing releases at the former module path remain available.
+Go SDK consumers should replace `github.com/mailxem/sdk-go` imports with `github.com/mailxem/mail/sdk-go`. Its release tags use Go's subdirectory convention (`sdk-go/v0.1.2`), not the frontend/backend `*-v*` convention. Examples are in separate package directories and compile against the local SDK. The former repository has been retired; update module requirements and imports to use releases from this repository.
 
 ## Repository configuration
 
@@ -87,4 +87,4 @@ Secrets cannot be read back through GitHub's API. Never print them in Actions lo
 4. After successful publication from this repo, disable all former component repositories' publishing workflows so two pipelines cannot race to update `sudo`/`latest`. Until cutover, avoid merging publication-triggering changes into both locations.
 5. Point deployment/build integrations at `mailxem/mail`, using `server/` and `client/` as build contexts. Keeping the Docker Hub image names preserves image-based deployment references; external source-build webhooks still need an explicit repository/context change.
 
-The original repositories are left intact as history and rollback references. The migration does not archive them or alter production deployment integrations automatically.
+The former component repositories have been retired. Active source, issues, workflows, and releases now belong in this monorepo. External deployment integrations still need to point at this repository and the appropriate component directory; retiring a repository does not update those integrations automatically.
