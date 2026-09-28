@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/xem-banner.svg" alt="Xem — Email, on your terms. Campaigns, automations, and APIs in one stack you control." width="100%" />
+  <img src="assets/xem-social.png" alt="Xem — Every email, a little more human. Design. Connect. Grow." width="100%" />
 </p>
 
 <p align="center">
@@ -10,10 +10,10 @@
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-c4e29b?labelColor=262b20" alt="MIT license" /></a>
-  <img src="https://img.shields.io/badge/backend-Go-00ADD8?labelColor=262b20" alt="Go backend" />
-  <img src="https://img.shields.io/badge/app-Next.js-f2f1ed?labelColor=262b20" alt="Next.js app" />
-  <img src="https://img.shields.io/badge/self_host-Docker_Swarm-2496ED?labelColor=262b20" alt="Docker Swarm self hosting" />
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-e7d8fa?labelColor=22251f" alt="MIT license" /></a>
+  <img src="https://img.shields.io/badge/backend-Go-5b3cc4?labelColor=22251f" alt="Go backend" />
+  <img src="https://img.shields.io/badge/app-Next.js-ffffef?labelColor=22251f" alt="Next.js app" />
+  <img src="https://img.shields.io/badge/self_host-Docker_Swarm-5b3cc4?labelColor=22251f" alt="Docker Swarm self hosting" />
 </p>
 
 **Xem** (formerly Posthoot) is an open-source email platform for teams that want control over their delivery infrastructure. Bring your SMTP provider, create campaigns and templates, manage audiences, and build multi-step automations through a web app or API.
