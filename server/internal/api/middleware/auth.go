@@ -149,6 +149,12 @@ func (m *AuthMiddleware) validateAPIKeyPermissions(c echo.Context, apiKey *model
 func (m *AuthMiddleware) getResourceFromPath(path string) string {
 	// Remove API version prefix if exists
 	path = strings.TrimPrefix(path, "/api/v1")
+	if path == "/imap" || strings.HasPrefix(path, "/imap/") || path == "/mail-connections/mailboxes" {
+		return "imap_configs"
+	}
+	if path == "/mail-connections/senders" {
+		return "smtp_configs"
+	}
 
 	// Marketing routes use the existing resource permissions rather than an
 	// unrelated marketing-wide grant.

@@ -1,5 +1,8 @@
 export interface IMAPEmail {
   id?: string;
+  uid?: number;
+  uidValidity?: number;
+  reply_to?: string;
   subject: string;
   from: string;
   to: string;

@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-e7d8fa?labelColor=22251f" alt="MIT license" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-e7d8fa?labelColor=22251f" alt="GPL-3.0 license" /></a>
   <img src="https://img.shields.io/badge/backend-Go-5b3cc4?labelColor=22251f" alt="Go backend" />
   <img src="https://img.shields.io/badge/app-Next.js-ffffef?labelColor=22251f" alt="Next.js app" />
   <img src="https://img.shields.io/badge/self_host-Docker_Swarm-5b3cc4?labelColor=22251f" alt="Docker Swarm self hosting" />
@@ -108,6 +108,8 @@ See the [migration and CI guide](migration/README.md) for source provenance, con
 
 ## Contribute
 
+Working on inboxes or provider integrations? See the [connected-mail setup and implementation notes](docs/connected-mail.md) for Gmail, Workspace, IMAP, and Cloudflare, including current limitations and release checks. The [commercial roadmap](docs/connected-mail-commercial.md) describes planned hosted and self-hosted offers; existing free features remain available.
+
 Report bugs with reproduction steps, open a focused PR, or improve the docs. Keep credentials and local `.env` files out of commits. Make component changes directly in this repository and include related frontend/backend updates in the same PR.
 
-Xem's code is [MIT licensed](LICENSE). Bundled third-party services retain their own licenses, including RustFS's Apache-2.0 license.
+Xem's code is [GPL-3.0 licensed](LICENSE). Bundled third-party services retain their own licenses, including RustFS's Apache-2.0 license.

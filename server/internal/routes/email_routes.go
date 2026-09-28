@@ -6,6 +6,7 @@ import (
 	"kori/internal/handlers"
 
 	"github.com/labstack/echo/v4"
+	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +21,7 @@ func SetupEMAILRoutes(e *echo.Echo, config *config.Config, db *gorm.DB) {
 	})
 
 	// Create EMAIL routes group
-	email := e.Group("/api/v1/emails")
+	email := e.Group("/api/v1/emails", echoMiddleware.BodyLimit("6M"))
 
 	// Add authentication middleware
 	auth := middleware.NewAuthMiddleware(config.JWT.Secret)

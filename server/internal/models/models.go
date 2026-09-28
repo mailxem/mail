@@ -358,6 +358,8 @@ type Email struct {
 	CC                   string         `json:"cc" validate:"omitempty,email"`
 	BCC                  string         `json:"bcc" validate:"omitempty,email"`
 	ReplyTo              string         `json:"replyTo" validate:"omitempty,email"`
+	InReplyTo            string         `json:"inReplyTo,omitempty"`
+	ProviderResult       datatypes.JSON `gorm:"type:jsonb" json:"providerResult,omitempty"`
 	Test                 bool           `gorm:"not null;default:false" json:"test"`
 }
 

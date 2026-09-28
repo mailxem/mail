@@ -7,6 +7,7 @@ import (
 	"kori/internal/config"
 	"kori/internal/db"
 	"kori/internal/events"
+	"kori/internal/mailconnect"
 	"kori/internal/models"
 	"kori/internal/tasks"
 	"kori/internal/utils"
@@ -52,9 +53,25 @@ type sendEmailHandlerBody struct {
 	cc             string
 	bcc            string
 	replyTo        string
+	inReplyTo      string
+	durable        bool
 	testMail       bool
 	sendAt         time.Time
 	isWelcomeEmail bool
+}
+
+// QueueAPIEmail persists an outbox record before acknowledging the request.
+// The existing periodic dispatcher retries enqueue when Redis is unavailable.
+func QueueAPIEmail(email *models.Email) error {
+	variables := map[string]string{}
+	if email.Data != nil {
+		var err error
+		variables, err = utils.JSONToMap(email.Data)
+		if err != nil {
+			return err
+		}
+	}
+	return sendEmail(&sendEmailHandlerBody{teamId: email.TeamID, templateId: email.TemplateID, to: email.To, SMTPProvider: email.SMTPConfigID, categoryId: email.CategoryID, variables: variables, subject: email.Subject, body: email.Body, cc: email.CC, bcc: email.BCC, replyTo: email.ReplyTo, inReplyTo: email.InReplyTo, testMail: email.Test, sendAt: email.SendAt, durable: true})
 }
 
 func registerEmailEventHandlers() {
@@ -180,6 +197,7 @@ func registerEmailEventHandlers() {
 			cc:           email.CC,
 			bcc:          email.BCC,
 			replyTo:      email.ReplyTo,
+			inReplyTo:    email.InReplyTo,
 			testMail:     email.Test,
 			sendAt:       email.SendAt,
 		}
@@ -475,6 +493,10 @@ func sendEmail(
 		tx.Rollback()
 		return log.Error("failed to get category ❌", err)
 	}
+	if smtpConfig.Provider == mailconnect.Cloudflare && (handler.campaignId != "" || category.Name != "Transactional") {
+		tx.Rollback()
+		return errors.New("Cloudflare Email Sending only supports transactional email")
+	}
 
 	htmlFromTemplate := handler.body
 
@@ -525,10 +547,15 @@ func sendEmail(
 		CC:           handler.cc,
 		BCC:          handler.bcc,
 		ReplyTo:      handler.replyTo,
+		InReplyTo:    handler.inReplyTo,
 		SendAt:       handler.sendAt,
 	}
 
 	email.ID = definedID.String()
+	if handler.durable {
+		key := "api:" + email.ID
+		email.DeliveryKey = &key
+	}
 	if err := tx.Create(email).Error; err != nil {
 		tx.Rollback()
 		return log.Error("failed to create email ❌", err)

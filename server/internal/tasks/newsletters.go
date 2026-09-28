@@ -37,7 +37,7 @@ func (h *TaskHandler) HandleNewsletterTick(ctx context.Context, t *asynq.Task) e
 	}
 	// Durable database outbox: retry enqueue after a Redis outage without recreating mail.
 	var messages []models.Email
-	if err := h.db.Where("delivery_key IS NOT NULL AND status = ?", models.EmailStatusPending).Order("created_at").Limit(500).Find(&messages).Error; err != nil {
+	if err := h.db.Where("delivery_key IS NOT NULL AND status = ? AND (send_at IS NULL OR send_at <= ?)", models.EmailStatusPending, time.Now()).Order("created_at").Limit(500).Find(&messages).Error; err != nil {
 		return err
 	}
 	for _, message := range messages {

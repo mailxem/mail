@@ -3,6 +3,7 @@
 import { workspaceClassName } from "@/lib/workspace-styles";
 import { IMAPProvider } from "@/app/providers/imap-provider";
 import { IMAPSettings } from "@/components/settings/imap-settings";
+import { MailConnections } from "@/components/settings/mail-connections";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function SMTPPage() {
@@ -17,6 +18,7 @@ export default function SMTPPage() {
   return (
     <div className="flex-1 space-y-4">
       <div className={workspaceClassName("workspace-page-body")}>
+        <MailConnections provider="google"/>
         <IMAPProvider>
           <IMAPSettings
             isDialogOpen={isDialogOpen}

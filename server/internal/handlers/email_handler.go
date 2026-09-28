@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"kori/internal/db"
-	"kori/internal/events"
 	"kori/internal/models"
+	"kori/internal/services"
 	"net/http"
+	"net/mail"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -16,11 +18,13 @@ type SendEmailRequest struct {
 	To                 string         `json:"to" validate:"required,email"`
 	Variables          datatypes.JSON `json:"data" validate:"required,json"`
 	SMTPConfigProvider string         `json:"provider" validate:"omitempty,oneof=CUSTOM GMAIL OUTLOOK AMAZON"`
+	SMTPConfigID       string         `json:"smtpConfigId"`
 	Subject            string         `json:"subject"`
 	Body               string         `json:"html"`
 	CC                 string         `json:"cc"`
 	BCC                string         `json:"bcc"`
 	ReplyTo            string         `json:"replyTo"`
+	InReplyTo          string         `json:"inReplyTo"`
 	Test               bool           `json:"test"`
 	SendAt             time.Time      `json:"scheduleAt"`
 }
@@ -38,8 +42,28 @@ type SendEmailRequest struct {
 // @Router /emails [post]
 func SendEmail(c echo.Context) error {
 	var req SendEmailRequest
+	c.Request().Body = http.MaxBytesReader(c.Response(), c.Request().Body, 6*1024*1024)
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body")
+	}
+	if _, err := mail.ParseAddress(req.To); err != nil {
+		return echo.NewHTTPError(400, "A valid recipient is required")
+	}
+	for _, value := range []string{req.CC, req.BCC, req.ReplyTo} {
+		if value != "" {
+			if _, err := mail.ParseAddressList(value); err != nil {
+				return echo.NewHTTPError(400, "Invalid recipient or reply address")
+			}
+		}
+	}
+	if strings.ContainsAny(req.Subject+req.InReplyTo+req.ReplyTo+req.To+req.CC+req.BCC, "\r\n") || len(req.InReplyTo) > 998 {
+		return echo.NewHTTPError(400, "Invalid email headers")
+	}
+	if req.InReplyTo != "" && (!strings.HasPrefix(req.InReplyTo, "<") || !strings.HasSuffix(req.InReplyTo, ">")) {
+		return echo.NewHTTPError(400, "Invalid reply Message-ID")
+	}
+	if req.Body == "" && req.TemplateID == "" {
+		return echo.NewHTTPError(400, "Email content or a template is required")
 	}
 
 	// Get teamID from context (set by auth middleware)
@@ -56,10 +80,13 @@ func SendEmail(c echo.Context) error {
 	}
 	tx := db.GetDB().WithContext(c.Request().Context())
 
-	smtpConfig, err := models.GetSMTPConfig(teamID, "", req.SMTPConfigProvider, tx)
+	smtpConfig, err := models.GetSMTPConfig(teamID, req.SMTPConfigID, req.SMTPConfigProvider, tx)
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get SMTP config")
+	}
+	if !smtpConfig.IsActive {
+		return echo.NewHTTPError(400, "Selected sender is inactive")
 	}
 
 	email := models.Email{
@@ -73,13 +100,16 @@ func SendEmail(c echo.Context) error {
 		CC:           req.CC,
 		BCC:          req.BCC,
 		ReplyTo:      req.ReplyTo,
+		InReplyTo:    req.InReplyTo,
 		Test:         req.Test,
 		SendAt:       req.SendAt,
 	}
 
-	events.Emit("email.send", &email)
+	if err := services.QueueAPIEmail(&email); err != nil {
+		return echo.NewHTTPError(500, "Unable to save email to the outbox. Check the sender, template, and workspace configuration.")
+	}
 
 	return c.JSON(http.StatusOK, map[string]string{
-		"status": "Email queued successfully",
+		"status": "Email saved to outbox",
 	})
 }

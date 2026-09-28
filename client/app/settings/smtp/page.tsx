@@ -3,6 +3,7 @@
 import { workspaceClassName } from "@/lib/workspace-styles";
 import { SMTPProvider as SmtpContextProvider } from "@/app/providers/smtp-provider";
 import { SMTPSettings } from "@/components/settings/smtp-settings";
+import { MailConnections } from "@/components/settings/mail-connections";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 export default function SMTPPage() {  
@@ -15,6 +16,7 @@ export default function SMTPPage() {
   return (
     <div className="flex-1 space-y-4">
       <div className={workspaceClassName("workspace-page-body")}>
+        <MailConnections provider="cloudflare"/>
         <SmtpContextProvider>
           <SMTPSettings
             isDialogOpen={isDialogOpen}

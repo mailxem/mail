@@ -4,7 +4,7 @@ import type { Editor as TiptapEditor } from "@tiptap/core";
 import { Maily } from "@maily-to/render";
 import { EmailWriter } from "@/components/ai/email-writer";
 import { workspaceClassName } from "@/lib/workspace-styles";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import {
   Mail,
@@ -22,6 +22,8 @@ import {
   Pin,
   Archive,
   FileText,
+  Star,
+  MailCheck,
 } from "lucide-react";
 import { useMarketing, useMarketingQuery } from "@/lib/marketing/api";
 import { IMAPEmail, IMAPEmailResponse } from "@/types/imap";
@@ -48,30 +50,35 @@ function text(body: string) {
   );
 }
 type MailMessage = IMAPEmail & {status?: string; error?: string};
+type Mailbox = {id: string; username: string; host: string; smtpConfigId?: string};
+type MailSender = {id: string; fromEmail: string; provider: string; isDefault: boolean};
+type ComposeValue = {to: string; subject: string; inReplyTo?: string; smtpConfigId?: string};
+const messageKey = (m: MailMessage) => m.id || m.messageId;
 export function InboxPage() { return <MailboxPage mode="inbox"/>; }
 export function OutboxPage() { return <MailboxPage mode="outbox"/>; }
 function MailboxPage({mode}: {mode: "inbox" | "outbox"}) {
   const outbox = mode === "outbox";
   const title = outbox ? "Outbox" : "Inbox";
   const { request, scope, ready } = useMarketing();
-  const folders = useMarketingQuery<{
-    folders: { Name: string; Total: number }[];
-  }>("imap/folders", !outbox);
+  const mailboxes = useMarketingQuery<Mailbox[]>("mail-connections/mailboxes", !outbox);
+  const [chosenMailbox, setChosenMailbox] = useState("");
+  const mailbox = mailboxes.data?.find(m => m.id === chosenMailbox) ?? mailboxes.data?.[0];
+  const configId = mailbox?.id ?? "";
+  const folders = useMarketingQuery<{Name:string; Total?:number; Attributes?:string[]}[]>(`imap/folders?${new URLSearchParams({config_id:configId})}`, !outbox && !!configId);
   const [folder, setFolder] = useState(outbox ? "SENT" : "INBOX");
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<MailMessage | null>(null);
-  const [compose, setCompose] = useState<{
-    to: string;
-    subject: string;
-  } | null>(null);
+  const [compose, setCompose] = useState<ComposeValue | null>(null);
+  const [flagBusy, setFlagBusy] = useState(false);
+  useEffect(() => { setSelected(null); setImages(false); }, [scope, configId, folder, query]);
   const [images, setImages] = useState(false);
   const emails = useInfiniteQuery({
-    queryKey: ["marketing", scope, mode, folder, query],
-    enabled: ready,
+    queryKey: ["marketing", scope, mode, configId, folder, query],
+    enabled: ready && (outbox || !!configId),
     initialPageParam: outbox ? 1 : 0,
     queryFn: async ({ pageParam }): Promise<IMAPEmailResponse> => {
-      if (!outbox) return request<IMAPEmailResponse>(`imap/emails?${new URLSearchParams({folder, page:String(pageParam), limit:"20", subject:query, body:query})}`);
+      if (!outbox) return request<IMAPEmailResponse>(`imap/emails?${new URLSearchParams({folder, offset:String(pageParam), limit:"20", q:query, config_id:configId})}`);
       const result = await request<{data: (MailMessage & {id:string; createdAt:string; sentAt?:string})[]; total:number; page:number}>(`emails?${new URLSearchParams({page:String(pageParam), sort:"created_at", order:"desc", status:folder, limit:"20"})}`);
       return {emails:(result.data || []).map(email => {
         let body = "";
@@ -79,18 +86,35 @@ function MailboxPage({mode}: {mode: "inbox" | "outbox"}) {
         return {...email, body, messageId:email.id, date:email.sentAt && !email.sentAt.startsWith("0001") ? email.sentAt : email.createdAt, flags:[], attachments:[]};
       }), total_emails:result.total, offset:(result.page - 1) * 20, limit:20};
     },
-    getNextPageParam: (last, pages) => last.offset + last.emails.length < last.total_emails ? pages.length + (outbox ? 1 : 0) : undefined,
+    getNextPageParam: (last, pages) => last.emails.length > 0 && last.offset + last.limit < last.total_emails ? (outbox ? pages.length + 1 : last.offset + last.limit) : undefined,
     retry: 1,
   });
   const allRows: MailMessage[] = emails.data?.pages.flatMap((p) => p.emails) || [];
   const rows = outbox && query ? allRows.filter(m => `${m.to} ${m.subject} ${text(m.body)}`.toLowerCase().includes(query.toLowerCase())) : allRows;
   const total = emails.data?.pages[0]?.total_emails || 0;
-  const index = rows.findIndex((e) => e.messageId === selected?.messageId);
+  const index = rows.findIndex((e) => messageKey(e) === (selected ? messageKey(selected) : undefined));
   const current = selected;
   const choose = (m: MailMessage) => {
     setSelected(m);
     setImages(false);
   };
+  async function changeFlag(flag: string) {
+    if (!current?.uid || !current.uidValidity || flagBusy) return;
+    const message = current;
+    const enabled = !message.flags?.includes(flag);
+    setFlagBusy(true);
+    try {
+      await request(`imap/flags?${new URLSearchParams({config_id:configId})}`, "PATCH", {folder, uid:message.uid, uidValidity:message.uidValidity, flag, enabled});
+      const flags = enabled ? [...(message.flags ?? []), flag] : (message.flags ?? []).filter(f => f !== flag);
+      setSelected(previous => previous && messageKey(previous) === messageKey(message) ? {...previous, flags} : previous);
+      await emails.refetch();
+    } catch (error) { toast.error((error as Error).message); } finally { setFlagBusy(false); }
+  }
+  function reply(message: MailMessage): ComposeValue {
+    const address = outbox ? message.to : (message.reply_to || message.from);
+    const rawId = message.messageId;
+    return {to:address.match(/<([^>]+)>/)?.[1] || address, subject:message.subject.startsWith("Re:") ? message.subject : `Re: ${message.subject}`, smtpConfigId:mailbox?.smtpConfigId, ...(!outbox && rawId ? {inReplyTo:rawId.startsWith("<") ? rawId : `<${rawId}>`} : {})};
+  }
   return (
     <div className={workspaceClassName(`mail-workspace ${current ? "mail-open" : ""}`)}>
       <aside className={workspaceClassName("mail-folders")}>
@@ -103,13 +127,14 @@ function MailboxPage({mode}: {mode: "inbox" | "outbox"}) {
         </div>
         <Button
           className={workspaceClassName("compose-button")}
-          onClick={() => setCompose({ to: "", subject: "" })}
+          onClick={() => setCompose({ to: "", subject: "", smtpConfigId:mailbox?.smtpConfigId })}
         >
           <PencilLine />
           Compose
         </Button>
+        {!outbox && <div className="px-4 pb-3"><label htmlFor="mailbox-choice" className="text-xs text-muted-foreground">Mailbox</label><select id="mailbox-choice" className="mt-1 w-full rounded-md border bg-background p-2 text-xs" value={configId} onChange={e => { setChosenMailbox(e.target.value); setFolder("INBOX"); setSelected(null); }}><option value="" disabled>{mailboxes.isLoading ? "Loading mailboxes…" : "Choose a mailbox"}</option>{mailboxes.data?.map(m => <option key={m.id} value={m.id}>{m.username} · {m.host}</option>)}</select>{mailboxes.error && <p role="alert" className="mt-2 text-xs text-destructive">{mailboxes.error.message}</p>}{!mailboxes.isLoading && !configId && !mailboxes.error && <p className="mt-2 text-xs text-muted-foreground">Connect a mailbox in settings to read your mail.</p>}{folders.error && <p role="alert" className="mt-2 text-xs text-destructive">{folders.error.message}</p>}</div>}
         <div className={workspaceClassName("mail-folder-list")}>
-          {(outbox ? ["SENT", "PENDING", "SENDING", "FAILED", "DELIVERY_UNKNOWN", "SUPPRESSED", "BOUNCED", "OPENED", "CLICKED"].map(Name => ({Name, Total:0})) : folders.data?.folders || [{ Name: "INBOX", Total: total }]).map(
+          {(outbox ? ["SENT", "ACCEPTED", "PARTIAL", "PENDING", "SENDING", "FAILED", "DELIVERY_UNKNOWN", "SUPPRESSED", "BOUNCED", "OPENED", "CLICKED"].map(Name => ({Name, Total:0})) : folders.data?.filter(f => !f.Attributes?.includes("\\Noselect")) || [{ Name: "INBOX", Total: total }]).map(
             (f) => (
               <button
                 key={f.Name}
@@ -198,8 +223,8 @@ function MailboxPage({mode}: {mode: "inbox" | "outbox"}) {
             )
             .map((m, i) => (
               <button
-                key={m.messageId || `${m.date}-${i}`}
-                className={workspaceClassName(`mail-list-item ${current?.messageId === m.messageId ? "selected" : ""}`)}
+                key={messageKey(m) || `${m.date}-${i}`}
+                className={workspaceClassName(`mail-list-item ${current && messageKey(current) === messageKey(m) ? "selected" : ""}`)}
                 onClick={() => choose(m)}
               >
                 <span
@@ -258,16 +283,12 @@ function MailboxPage({mode}: {mode: "inbox" | "outbox"}) {
                 className={workspaceClassName("icon-button")}
                 aria-label={outbox ? "Write to recipient" : "Reply"}
                 onClick={() =>
-                  setCompose({
-                    to: (outbox ? current.to : current.from).match(/<([^>]+)>/)?.[1] || (outbox ? current.to : current.from),
-                    subject: current.subject.startsWith("Re:")
-                      ? current.subject
-                      : `Re: ${current.subject}`,
-                  })
+                  setCompose(reply(current))
                 }
               >
                 <Reply />
               </button>
+              {!outbox && current.uid && <><button className={workspaceClassName("icon-button")} disabled={flagBusy} aria-label={current.flags?.includes("\\Seen") ? "Mark unread" : "Mark read"} title={current.flags?.includes("\\Seen") ? "Mark unread" : "Mark read"} onClick={() => void changeFlag("\\Seen")}><MailCheck/></button><button className={workspaceClassName("icon-button")} disabled={flagBusy} aria-label={current.flags?.includes("\\Flagged") ? "Unstar message" : "Star message"} aria-pressed={current.flags?.includes("\\Flagged") ?? false} onClick={() => void changeFlag("\\Flagged")}><Star fill={current.flags?.includes("\\Flagged") ? "currentColor" : "none"}/></button></>}
               <span className="ml-auto text-xs text-muted-foreground">
                 {index + 1} of {total}
               </span>
@@ -364,10 +385,7 @@ function MailboxPage({mode}: {mode: "inbox" | "outbox"}) {
                 variant="outline"
                 className="mt-5"
                 onClick={() =>
-                  setCompose({
-                    to: (outbox ? current.to : current.from).match(/<([^>]+)>/)?.[1] || (outbox ? current.to : current.from),
-                    subject: `Re: ${current.subject}`,
-                  })
+                  setCompose(reply(current))
                 }
               >
                 <Reply />
@@ -391,10 +409,13 @@ function Compose({
   value,
   close,
 }: {
-  value: { to: string; subject: string };
+  value: ComposeValue;
   close: () => void;
 }) {
   const { request } = useMarketing();
+  const senders = useMarketingQuery<MailSender[]>("mail-connections/senders");
+  const [chosenSender, setChosenSender] = useState(value.smtpConfigId ?? "");
+  const selectedSender = senders.data?.find(s => s.id === chosenSender) ?? senders.data?.find(s => s.isDefault) ?? senders.data?.[0];
   const [to, setTo] = useState(value.to);
   const [subject, setSubject] = useState(value.subject);
   const [body, setBody] = useState("");
@@ -407,7 +428,7 @@ function Compose({
       onOpenChange={() => { if (!busy) close(); }}
       wide
       title="New message"
-      description="Sent from your workspace’s default email sender."
+      description="Choose the connected sender for this message."
     >
       <form
         className={workspaceClassName("product-form")}
@@ -424,8 +445,10 @@ function Compose({
               subject,
               html,
               data: {},
+              smtpConfigId: selectedSender?.id,
+              inReplyTo: value.inReplyTo,
             });
-            toast.success("Message queued");
+            toast.success("Message saved to outbox");
             close();
           } catch (e) {
             setError((e as Error).message);
@@ -434,6 +457,9 @@ function Compose({
           }
         }}
       >
+        <Field label="From"><select required value={selectedSender?.id ?? ""} onChange={e => setChosenSender(e.target.value)}><option value="" disabled>Choose a sender</option>{senders.data?.map(s => <option key={s.id} value={s.id}>{s.fromEmail} · {s.provider === "GOOGLE_OAUTH" ? "Google" : s.provider}</option>)}</select></Field>
+        {senders.error && <p role="alert" className="text-sm text-destructive">{senders.error.message}</p>}
+        {selectedSender?.provider === "CLOUDFLARE" && <p className="text-sm text-muted-foreground">Cloudflare is for transactional messages such as receipts and account notifications. Use another sender for marketing or newsletters.</p>}
         <Field label="To">
           <input
             required
@@ -477,7 +503,7 @@ function Compose({
           <Button type="button" variant="outline" disabled={busy} onClick={close}>
             Cancel
           </Button>
-          <Button type="submit" className={workspaceClassName("compose-button")} disabled={busy || !messageEditor}>
+          <Button type="submit" className={workspaceClassName("compose-button")} disabled={busy || !messageEditor || !selectedSender}>
             <Send />
             {busy ? "Sending…" : "Send message"}
           </Button>

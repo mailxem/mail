@@ -62,6 +62,9 @@ func (h *TaskHandler) HandleEmailSend(ctx context.Context, t *asynq.Task) error 
 	}
 
 	// Suppression is checked at delivery time, including messages prepared before opt-out.
+	if email.Status == "ACCEPTED" || email.Status == "PARTIAL" {
+		return nil
+	}
 	if email.Status == models.EmailStatusSent || email.Status == models.EmailStatusOpened || email.Status == models.EmailStatusClicked || email.Status == "SUPPRESSED" || (email.Status == "QUEUED" && email.SMTPConfig != nil && email.SMTPConfig.Provider == "MANAGED") || email.Status == "DELIVERY_UNKNOWN" || email.Status == "DELIVERED" || email.Status == "BOUNCED" || email.Status == "COMPLAINED" {
 		return nil
 	}

@@ -324,6 +324,8 @@ func runMigrations() error {
 
 		// IMAP models
 		&models.IMAPConfig{},
+		&models.MailConnection{},
+		&models.MailOAuthState{},
 	); err != nil {
 		tx.Rollback()
 		return err

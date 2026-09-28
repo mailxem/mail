@@ -1,9 +1,12 @@
 package utils
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"gopkg.in/gomail.v2"
+	"kori/internal/db"
+	"kori/internal/mailconnect"
 	"kori/internal/models"
 	"net"
 	"net/mail"
@@ -17,6 +20,30 @@ import (
 // sendSecureSMTP requires TLS before authentication and never skips certificate checks.
 func sendSecureSMTP(message *gomail.Message, email *models.Email) error {
 	config := email.SMTPConfig
+	var auth smtp.Auth = smtp.PlainAuth("", config.Username, config.Password, config.Host)
+	if config.Provider == mailconnect.Google {
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		connection, err := mailconnect.Find(db.GetDB(), email.TeamID, config.ID, false)
+		if err != nil || connection == nil || connection.Provider != mailconnect.Google {
+			return fmt.Errorf("Google mailbox is disconnected")
+		}
+		from, err := mail.ParseAddress(email.From)
+		if err != nil || from.Address != connection.Address {
+			return fmt.Errorf("sender must match the connected Google mailbox")
+		}
+		token, err := mailconnect.GoogleToken(ctx, db.GetDB(), connection)
+		if err != nil {
+			return err
+		}
+		// Never send a bearer token to a host editable through generic SMTP CRUD.
+		fixed := *config
+		fixed.Host = "smtp.gmail.com"
+		fixed.Port = 465
+		fixed.Username = connection.Address
+		config = &fixed
+		auth = googleSMTPAuth{mailconnect.XOAUTH2{Username: connection.Address, Token: token}}
+	}
 	address := net.JoinHostPort(config.Host, fmt.Sprint(config.Port))
 	tlsConfig := &tls.Config{MinVersion: tls.VersionTLS12, ServerName: config.Host}
 	dialer := &net.Dialer{Timeout: 20 * time.Second, Control: func(network, addr string, conn syscall.RawConn) error {
@@ -60,11 +87,26 @@ func sendSecureSMTP(message *gomail.Message, email *models.Email) error {
 		}
 	}
 	if config.Username != "" {
-		if err := client.Auth(smtp.PlainAuth("", config.Username, config.Password, config.Host)); err != nil {
+		if err := client.Auth(auth); err != nil {
 			return err
 		}
 	}
 	return sendSMTPMessage(client, message, email.From)
+}
+
+type googleSMTPAuth struct{ mailconnect.XOAUTH2 }
+
+func (a googleSMTPAuth) Start(info *smtp.ServerInfo) (string, []byte, error) {
+	if !info.TLS || info.Name != "smtp.gmail.com" {
+		return "", nil, fmt.Errorf("Google authentication requires verified Gmail TLS")
+	}
+	return a.XOAUTH2.Start()
+}
+func (a googleSMTPAuth) Next(challenge []byte, more bool) ([]byte, error) {
+	if !more {
+		return nil, nil
+	}
+	return a.XOAUTH2.Next(challenge)
 }
 
 func sendSMTPMessage(client *smtp.Client, message *gomail.Message, from string) error {

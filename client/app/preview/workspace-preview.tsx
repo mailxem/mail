@@ -12,6 +12,7 @@ import { TemplatesPage } from "@/components/marketing/templates";
 import { CRMPage } from "@/components/marketing/crm";
 import { AutomationsPage } from "@/components/marketing/automations";
 import { InboxPage, OutboxPage } from "@/components/marketing/inbox";
+import { MailConnections } from "@/components/settings/mail-connections";
 const stamp = "2026-09-09T08:45:00Z";
 const emailHTML =
   '<html><body style="font:15px/1.8 Arial;color:#5d5664;padding:25px"><p>Hi team,</p><p>I’ve gathered our latest product updates and a few ideas for the next edition. The focus is on making the experience feel simpler, more thoughtful, and easier to use.</p><p>Take a look and let me know what you think. I’d love to hear your feedback before we share it with the community.</p><p>Thanks,<br>Ava</p></body></html>';
@@ -171,7 +172,10 @@ const newsletters = [
   },
 ];
 const mail = contacts.map((c, i) => ({
-  messageId: `message-${i}`,
+  id: `preview-mailbox:INBOX:1:${i+1}`,
+  uid: i+1,
+  uidValidity: 1,
+  messageId: `<message-${i}@example.com>`,
   subject: [
     "Re: Sitemap refinements",
     "A few ideas for Sunday’s edition",
@@ -197,6 +201,10 @@ const transport: Transport = async <T,>(
     throw new Error(
       "Visual preview only. Changes and email sending are available in your authenticated workspace.",
     );
+  if (path === "mail-connections/mailboxes") return [{id:"preview-mailbox", username:"alex@example.com", host:"imap.gmail.com", smtpConfigId:"preview-sender"}] as T;
+  if (path === "mail-connections/senders") return [{id:"preview-sender", fromEmail:"alex@example.com", provider:"GOOGLE_OAUTH", isDefault:true}, {id:"preview-cloudflare", fromEmail:"notifications@example.com", provider:"CLOUDFLARE", isDefault:false}] as T;
+  if (path === "mail-connections") return {googleConfigured:true, connections:[{id:"preview-google", provider:"GOOGLE_OAUTH", address:"alex@example.com", smtpConfigId:"preview-sender", imapConfigId:"preview-mailbox"}]} as T;
+  if (path.startsWith("imap/folders")) return [{Name:"INBOX", Total:6}, {Name:"Sent", Total:24}, {Name:"Drafts", Total:2}, {Name:"Archive", Total:18}] as T;
   if (path.startsWith("marketing/contacts?")) {
     const params = new URLSearchParams(path.split("?")[1]);
     const search = (params.get("search") || "").toLowerCase();
@@ -243,16 +251,7 @@ const transport: Transport = async <T,>(
             ? { data: contacts }
             : path === "automations"
               ? []
-              : path === "imap/folders"
-                ? {
-                    folders: [
-                      { Name: "INBOX", Total: 6 },
-                      { Name: "Sent", Total: 24 },
-                      { Name: "Drafts", Total: 2 },
-                      { Name: "Archive", Total: 18 },
-                    ],
-                  }
-                : path.startsWith("emails?")
+              : path.startsWith("emails?")
                   ? {
                       data: mail.map((m, i) => ({
                         ...m,
@@ -309,6 +308,8 @@ export function WorkspacePreview() {
             <AutomationsPage />
           ) : page === "/inbox" ? (
             <InboxPage />
+          ) : page === "/settings/imap" || page === "/settings/smtp" ? (
+            <div className="p-6"><MailConnections provider={page === "/settings/imap" ? "google" : "cloudflare"}/></div>
           ) : page === "/forms" ? (
             <FormsPage />
           ) : (

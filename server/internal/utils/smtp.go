@@ -1,8 +1,11 @@
 package utils
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"kori/internal/db"
+	"kori/internal/mailconnect"
 	"kori/internal/models"
 	"kori/internal/utils/base64"
 	"strings"
@@ -84,6 +87,10 @@ func (h *EmailHandler) SendEmail(email *models.Email) error {
 	if email.ReplyTo != "" {
 		m.SetHeader("Reply-To", email.ReplyTo)
 	}
+	if email.InReplyTo != "" {
+		m.SetHeader("In-Reply-To", email.InReplyTo)
+		m.SetHeader("References", email.InReplyTo)
+	}
 
 	if email.CC != "" {
 		m.SetHeader("Cc", strings.Split(email.CC, ",")...)
@@ -116,7 +123,14 @@ func (h *EmailHandler) SendEmail(email *models.Email) error {
 		return ManagedDelivery(email, m)
 	}
 	// Send email
-	if err := sendSecureSMTP(m, email); err != nil {
+	var deliveryErr error
+	var providerStatus string
+	if email.SMTPConfig.Provider == mailconnect.Cloudflare {
+		providerStatus, deliveryErr = sendCloudflareEmail(email, m, decodedBody)
+	} else {
+		deliveryErr = sendSecureSMTP(m, email)
+	}
+	if err := deliveryErr; err != nil {
 		email.Error = err.Error()
 		email.Status = models.EmailStatusFailed
 		if strings.Contains(err.Error(), "delivery outcome unknown") {
@@ -134,6 +148,9 @@ func (h *EmailHandler) SendEmail(email *models.Email) error {
 	}
 	email.SentAt = time.Now()
 	email.Status = models.EmailStatusSent
+	if providerStatus != "" {
+		email.Status = models.EmailStatus(providerStatus)
+	}
 	email.Error = ""
 
 	if err := h.UpdateEmail(email); err != nil {
@@ -143,6 +160,45 @@ func (h *EmailHandler) SendEmail(email *models.Email) error {
 	h.logger.Success("✅ Email sent successfully to: %s", email.To)
 
 	return nil
+}
+
+func sendCloudflareEmail(email *models.Email, message *gomail.Message, html string) (string, error) {
+	if email.CampaignID != "" || email.UnsubscribeURL != "" {
+		return "", fmt.Errorf("Cloudflare does not support marketing or campaign email")
+	}
+	var category models.EmailCategory
+	if err := db.GetDB().Where("id = ? AND team_id = ?", email.CategoryID, email.TeamID).First(&category).Error; err != nil || category.Name != "Transactional" {
+		return "", fmt.Errorf("Cloudflare only supports transactional email")
+	}
+	c, err := mailconnect.Find(db.GetDB(), email.TeamID, email.SMTPConfigID, false)
+	if err != nil || c == nil || c.Provider != mailconnect.Cloudflare {
+		return "", fmt.Errorf("Cloudflare sender is disconnected")
+	}
+	if email.From != c.Address {
+		return "", fmt.Errorf("sender must match the connected Cloudflare sender")
+	}
+	var token string
+	if err := mailconnect.Open(c, &token); err != nil {
+		return "", fmt.Errorf("unable to load Cloudflare credentials")
+	}
+	headers := map[string]string{}
+	for _, name := range []string{"Message-ID", "In-Reply-To", "References"} {
+		if values := message.GetHeader(name); len(values) > 0 {
+			headers[name] = values[0]
+		}
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 35*time.Second)
+	defer cancel()
+	result, err := mailconnect.SendCloudflare(ctx, mailconnect.HTTPClient(), c.AccountID, token, mailconnect.CloudflareMessage{From: c.Address, To: message.GetHeader("To"), CC: message.GetHeader("Cc"), BCC: message.GetHeader("Bcc"), Subject: email.Subject, HTML: html, ReplyTo: email.ReplyTo, Headers: headers})
+	if err != nil {
+		return "", err
+	}
+	raw, err := json.Marshal(result)
+	if err != nil {
+		return "", fmt.Errorf("delivery outcome unknown: unable to encode provider response")
+	}
+	email.ProviderResult = raw
+	return result.Status(), nil
 }
 
 // SendBatchEmails sends multiple emails in parallel with rate limiting

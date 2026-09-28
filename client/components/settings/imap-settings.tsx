@@ -26,6 +26,7 @@ import { IMAPProviders } from "./imap-providers";
 import { useApi } from "@/hooks/use-api";
 import { CollectionCard } from "@/components/ui/collection-card";
 import { QueryState, Empty, Metric } from "@/components/marketing/shared";
+import { useMarketingQuery } from "@/lib/marketing/api";
 import { workspaceClassName } from "@/lib/workspace-styles";
 
 export function IMAPSettings({
@@ -36,6 +37,7 @@ export function IMAPSettings({
   setIsDialogOpen: (open: boolean) => void;
 }) {
   const confirm = useConfirmSheet();
+  const linkedMailboxes = useMarketingQuery<{id:string; smtpConfigId?:string}[]>("mail-connections/mailboxes");
   const [editConfig, setEditConfig] = useState<IMAPConfig | null>(null);
   const { configs: imapConfigs, isLoading, refresh, error } = useIMAP();
   const { apiFetch } = useApi();
@@ -128,7 +130,7 @@ export function IMAPSettings({
       <section className={workspaceClassName("product-panel")}>
         <div className={workspaceClassName("panel-toolbar")}><h2>IMAP mailboxes</h2><span className="text-xs text-muted-foreground">{imapConfigs.length} connections</span></div>
         {isLoading || error ? <QueryState loading={isLoading} error={error} retry={refresh}/> : imapConfigs.length === 0 ? <Empty title="Connect your first mailbox" description="Use your existing email provider to read and reply from your inbox." action={<Button onClick={() => setIsDialogOpen(true)}>Add IMAP connection</Button>}/> : <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {imapConfigs.map(config => <CollectionCard key={config.id} icon={<Mail size={22}/>} badge={"IMAP"} title={config.username} description={`Server: ${config.host}:${config.port}`} action="Edit connection" onAction={() => edit(config)} menu={
+          {imapConfigs.map(config => linkedMailboxes.data?.some(mailbox => mailbox.id === config.id && mailbox.smtpConfigId) ? <CollectionCard key={config.id} icon={<ShieldCheck size={22}/>} badge="Google OAuth" title={config.username} description="Google manages authentication for this mailbox." action="Manage Google connection" onAction={() => document.getElementById("connected-mail-google")?.scrollIntoView({behavior:"smooth"})}/> : <CollectionCard key={config.id} icon={<Mail size={22}/>} badge={"IMAP"} title={config.username} description={`Server: ${config.host}:${config.port}`} action="Edit connection" onAction={() => edit(config)} menu={
             <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="size-8" aria-label={`Actions for ${config.host}`}><MoreHorizontal size={18}/></Button></DropdownMenuTrigger><DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => edit(config)}><Pencil className="mr-2 size-4"/>Edit connection</DropdownMenuItem>
               <DropdownMenuItem onClick={() => { void testConfiguration(config).catch(() => {}); }}><TestTube className="mr-2 size-4"/>Test connection</DropdownMenuItem>
