@@ -26,7 +26,9 @@ On a Linux host with **Docker Engine, Git, Python 3, and OpenSSL**, run:
 curl -fsSL https://raw.githubusercontent.com/mailxem/mail/undefined/scripts/install.sh | bash
 ```
 
-The wizard asks for the app, API, and storage addresses. It builds the app and backend from the same repository revision, generates credentials, initializes Swarm when needed, and starts **Next.js + Go + PostgreSQL + Redis + RustFS**. No cloud storage account is required. Allow time and disk space for the first build; a practical starting point is 4 CPU cores, 8 GB RAM, and 20 GB free disk.
+The wizard asks for the app, API, and storage addresses. It builds the app and backend from the same repository revision, generates credentials, initializes Swarm when needed, and starts **Next.js + Go + PostgreSQL + Redis + RustFS**. No cloud storage account is required.
+
+**Basic runtime target: 2 CPU cores, 2 GB RAM, and 20 GB free disk** for a small installation. Source builds can need additional memory or swap, especially while building the Next.js app. Allow room for build caches and growing data; scale with your workload. See the [requirements](devops/swarm/README.md#requirements) before installing.
 
 Use a host IP or DNS name reachable from both browsers and containers. The default ports are **3000** (app), **9001** (API), and **9000** (object storage). HTTP is intended for a trusted local network; configure HTTPS before exposing the installation publicly.
 

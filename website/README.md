@@ -1,6 +1,6 @@
 # Xem website
 
-The independent Next.js marketing site and Markdown journal for Xem. It exports to plain HTML, CSS, JavaScript, and local images in `out/`, served by **Cloudflare Workers Static Assets**. There is no Next.js server, Worker application code, database, or image-optimization endpoint in production.
+The Next.js marketing site and Markdown journal for Xem, maintained in the monorepo’s `website/` directory. It exports to plain HTML, CSS, JavaScript, and local images in `out/`, served by **Cloudflare Workers Static Assets**. There is no Next.js server, Worker application code, database, or image-optimization endpoint in production.
 
 ## Development
 
@@ -51,9 +51,9 @@ For noninteractive deployment, supply `CLOUDFLARE_API_TOKEN` (with the required 
 
 ### Cloudflare Workers Builds / Git integration
 
-Connect this repository in Cloudflare **Workers & Pages → Create application → Import a repository** and choose Workers:
+Connect `mailxem/mail` in Cloudflare **Workers & Pages → Create application → Import a repository** and choose Workers:
 
-- Root directory: repository root
+- Root directory: `website`
 - Install command: `bun install --frozen-lockfile`
 - Build command: `bun run build`
 - Deploy command: `bunx wrangler deploy`

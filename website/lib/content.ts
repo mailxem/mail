@@ -100,6 +100,6 @@ export const faqs = [
   },
   {
     q: "How can I help improve the new setup?",
-    a: "Xem is open source. DNS provider guides, clearer onboarding copy, accessibility improvements, and reproducible SMTP integration examples are useful places to contribute. Explore the repositories on GitHub and discuss your idea before starting a larger change. Use sample data and never include credentials in an issue.",
+    a: "Xem is open source, with the app, backend, SDKs, and self-hosting tools together in the mailxem/mail repository. Start with a small fix, a clearer guide, an accessibility improvement, or a reproducible bug report. If you’re just exploring, a GitHub star helps others find the project. Discuss larger changes in an issue first, and keep credentials out of examples.",
   },
 ];

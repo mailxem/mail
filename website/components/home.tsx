@@ -19,6 +19,7 @@ import {
   Send,
   ShieldCheck,
   Sparkles,
+  Star,
   Users,
   Workflow,
   X,
@@ -27,7 +28,7 @@ import {
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { productViews, templates, faqs } from "@/lib/content";
-import { appLink, githubUrl } from "@/lib/site";
+import { appLink, githubUrl, selfHostUrl, contributeUrl } from "@/lib/site";
 import { SiteDialog } from "./site-dialog";
 import { McpSection } from "./mcp-section";
 import { AnalyticsSection } from "./analytics-section";
@@ -288,6 +289,15 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
                 Take a little tour
               </button>
             </div>
+            <p data-intro className="mt-4 text-xs text-muted">
+              Prefer your own server?{" "}
+              <a
+                href={selfHostUrl}
+                className="font-medium text-forest underline decoration-forest/30 underline-offset-4 hover:decoration-forest"
+              >
+                Self-host Xem <span aria-hidden="true">↗</span>
+              </a>
+            </p>
           </div>
           <HeroFilm suspended={tour !== null || template !== null || menu} />
           <div className="mx-auto flex max-w-[1240px] items-center justify-between px-5 pb-7 text-[10px] uppercase tracking-[.13em] text-muted md:px-10">
@@ -301,7 +311,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               href={githubUrl}
               className="inline-flex items-center gap-2 hover:text-ink"
             >
-              <Github size={14} aria-hidden="true" /> Explore the code
+              <Star size={14} aria-hidden="true" /> Star on GitHub
               <ArrowUpRight size={13} aria-hidden="true" />
             </a>
           </div>
@@ -912,15 +922,15 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
             </div>
             <div data-reveal>
               <p className="text-base leading-relaxed text-muted md:text-lg">
-                Xem is open-source email marketing. Look under the hood, explore
-                how it works, and help shape what comes next. The code is there
-                for you to learn from, build on, and contribute to.
+                The app, Go backend, SDKs, and self-hosting tools live in one
+                repository. Run Xem on your own server, see how it works, and
+                help shape what comes next. There’s room for your ideas here.
               </p>
               <ul className="mt-6 space-y-3 text-sm">
                 {[
-                  "Write a DNS setup guide for your provider",
-                  "Improve onboarding copy and accessibility",
-                  "Share SMTP integration recipes and delivery test cases",
+                  "Clone once to explore the whole product",
+                  "Make a small fix, improve a guide, or share an idea",
+                  "Keep your SMTP provider and your infrastructure",
                 ].map((item) => (
                   <li key={item} className="flex items-center gap-2.5">
                     <Check
@@ -932,10 +942,25 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
                   </li>
                 ))}
               </ul>
-              <a href={githubUrl} className={`${primary} mt-8`}>
-                <Github size={18} aria-hidden="true" /> Explore Xem on GitHub{" "}
-                <Arrow />
-              </a>
+              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+                <a href={githubUrl} className={primary}>
+                  <Github size={18} aria-hidden="true" /> Explore the repository
+                  <Arrow />
+                </a>
+                <a href={contributeUrl} className={textLink}>
+                  Find a way to contribute <Arrow />
+                </a>
+              </div>
+              <p className="mt-5 text-sm text-muted">
+                Ready to try it on your server?{" "}
+                <a
+                  href={selfHostUrl}
+                  className="font-medium text-forest underline decoration-forest/30 underline-offset-4 hover:decoration-forest"
+                >
+                  Follow the self-hosting guide{" "}
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </p>
             </div>
           </div>
         </section>
@@ -1154,6 +1179,12 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
                 </a>
                 <a className="mb-3 block hover:underline" href={githubUrl}>
                   Open source on GitHub <span aria-hidden="true">↗</span>
+                </a>
+                <a className="mb-3 block hover:underline" href={selfHostUrl}>
+                  Self-host Xem <span aria-hidden="true">↗</span>
+                </a>
+                <a className="mb-3 block hover:underline" href={contributeUrl}>
+                  Contribute to Xem <span aria-hidden="true">↗</span>
                 </a>
                 <a className="block hover:underline" href="#questions">
                   FAQs

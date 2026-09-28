@@ -5,7 +5,8 @@ This starter builds the monorepo's frontend and backend at the same commit and d
 ## Requirements
 
 - A Linux host running Docker Engine with the build plugin, Git, Python 3, and OpenSSL. The invoking user needs Docker access and write access to the state directory. Docker installation and system firewall changes are left to the operator.
-- Start with 4 CPU cores, 8 GB RAM, and 20 GB free disk for builds and data; usage will determine your actual capacity needs.
+- Basic runtime target for a small installation: **2 CPU cores, 2 GB RAM, and 20 GB free disk**. This is a starting target for light use, not a measured capacity guarantee or a memory cap; increase resources as your workload and data grow.
+- Allow additional memory or swap for source builds, particularly the Next.js frontend. The installer builds on the same host before starting or updating the services; an update can overlap a build with the running stack. Runtime sizing alone does not guarantee a build will fit in memory.
 - An IP or hostname reachable from **both your browser and containers**. Do not use `localhost`: the frontend's authentication also calls the public API URL from inside its container, and signed storage URLs must work in the browser.
 - Available app/API/storage ports, defaulting to 3000/9001/9000. PostgreSQL, Redis, and the storage console are not published.
 - Outbound HTTPS for source/image downloads. Sending email also requires connectivity to your SMTP provider.

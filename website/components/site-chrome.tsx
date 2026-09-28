@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { appLink, githubUrl } from "@/lib/site";
+import { appLink, githubUrl, selfHostUrl, contributeUrl } from "@/lib/site";
 import { primaryButton } from "@/lib/brand";
 
 export function Brand({ light = false }: { light?: boolean }) {
@@ -82,6 +82,8 @@ export function SiteFooter() {
             <a href="https://docs.xem.email">Documentation</a>
             <a href="/feed.xml">RSS feed</a>
             <a href={githubUrl}>Open source on GitHub ↗</a>
+            <a href={selfHostUrl}>Self-host Xem ↗</a>
+            <a href={contributeUrl}>Contribute to Xem ↗</a>
           </nav>
         </div>
         <div className="mt-10 flex flex-wrap justify-between gap-4 border-t border-cream/20 pt-6 text-xs text-cream/70">
