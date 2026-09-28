@@ -18,6 +18,19 @@
 
 **Xem** (formerly Posthoot) is an open-source email platform for teams that want control over their delivery infrastructure. Bring your SMTP provider, create campaigns and templates, manage audiences, and build multi-step automations through a web app or API.
 
+## Choose where to deploy
+
+<p>
+  <a href="devops/hosting/README.md#vultr"><img src="https://img.shields.io/badge/Deploy_on-Vultr-5b3cc4?style=for-the-badge&amp;labelColor=22251f" alt="Deploy Xem on Vultr — setup guide" /></a>
+  <a href="devops/hosting/README.md#hetzner"><img src="https://img.shields.io/badge/Deploy_on-Hetzner-5b3cc4?style=for-the-badge&amp;labelColor=22251f" alt="Deploy Xem on Hetzner — setup guide" /></a>
+  <a href="devops/hosting/README.md#digitalocean"><img src="https://img.shields.io/badge/Deploy_on-DigitalOcean-5b3cc4?style=for-the-badge&amp;labelColor=22251f" alt="Deploy Xem on DigitalOcean — setup guide and SMTP limitations" /></a>
+  <a href="devops/swarm/README.md"><img src="https://img.shields.io/badge/Use_your_own-Docker_host-e7d8fa?style=for-the-badge&amp;labelColor=22251f" alt="Deploy Xem on your own Docker host" /></a>
+</p>
+
+Choose a provider, create a Linux VPS, and follow its setup guide to run the installer below. Hosting is billed by your provider. These buttons open guided setup instructions; they do not provision a server automatically.
+
+**Check email connectivity before choosing a host.** DigitalOcean blocks outbound SMTP ports 25, 465 and 587 by default, so its Droplets cannot send through this starter's standard SMTP setup. Hetzner allows port 587 but blocks 25 and 465 by default. See the [provider comparison and sending requirements](devops/hosting/README.md) before paying for a server.
+
 ## Start your own Xem
 
 On a Linux host with **Docker Engine, Git, Python 3, and OpenSSL**, run:
