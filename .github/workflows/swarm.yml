@@ -1,0 +1,47 @@
+name: Swarm starter
+on:
+  pull_request:
+    paths: ['deploy/swarm/**', 'scripts/install.sh', '.github/workflows/swarm.yml', 'server', 'client']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash -n scripts/install.sh && shellcheck scripts/install.sh
+      - run: python3 -m unittest discover -s deploy/swarm -p 'test_*.py'
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - run: git submodule update --init server client
+      - name: Configure disposable endpoints
+        run: |
+          python3 - <<'PY'
+          import json, socket
+          from pathlib import Path
+          host = socket.gethostbyname(socket.gethostname())
+          config = {f'{name}_url': f'http://{host}:{port}' for name, port in [('app', 3000), ('api', 9001), ('storage', 9000)]}
+          config.update(app_port=3000, api_port=9001, storage_port=9000)
+          Path('/tmp/xem-smoke.json').write_text(json.dumps(config))
+          PY
+      - name: Build and deploy
+        run: python3 deploy/swarm/install.py --config /tmp/xem-smoke.json --state /tmp/xem-state
+      - name: Check signup and authenticated API
+        run: python3 deploy/swarm/smoke.py /tmp/xem-state/config.json
+      - name: Check repeat install preserves state
+        run: |
+          cp /tmp/xem-state/config.json /tmp/xem-before.json
+          python3 deploy/swarm/install.py --state /tmp/xem-state
+          cmp /tmp/xem-before.json /tmp/xem-state/config.json
+      - name: Task diagnostics
+        if: failure()
+        run: docker stack ps xem --no-trunc
+      - name: Stop disposable services
+        if: always()
+        run: docker stack rm xem || true

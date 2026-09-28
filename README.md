@@ -1,102 +1,102 @@
-# Posthoot — Open‑source Email Marketing Engine
+<p align="center">
+  <img src="assets/xem-banner.svg" alt="Xem — Email, on your terms. Campaigns, automations, and APIs in one stack you control." width="100%" />
+</p>
 
-[![Docs](https://img.shields.io/badge/docs-docs.posthoot.com-0ea5e9?style=for-the-badge)](https://docs.posthoot.com)
+<p align="center">
+  <a href="https://xem.email">Website</a> ·
+  <a href="deploy/swarm/README.md">Self-host</a> ·
+  <a href="docs">Documentation</a> ·
+  <a href="https://github.com/mailxem/mail/issues">Issues</a>
+</p>
 
-<div align="center">
- <img alt="image" src="https://framerusercontent.com/images/REPwDVgxt71ZwZbIiQTntxA9h8Y.png" />
-  <p><em>First-class email automation for modern enterprises</em></p>
-</div>
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-c4e29b?labelColor=262b20" alt="MIT license" /></a>
+  <img src="https://img.shields.io/badge/backend-Go-00ADD8?labelColor=262b20" alt="Go backend" />
+  <img src="https://img.shields.io/badge/app-Next.js-f2f1ed?labelColor=262b20" alt="Next.js app" />
+  <img src="https://img.shields.io/badge/self_host-Docker_Swarm-2496ED?labelColor=262b20" alt="Docker Swarm self hosting" />
+</p>
 
-Posthoot is an open-source, developer-first email marketing engine that gives you full control over your email infrastructure: connect multiple SMTP providers, manage campaigns and templates, bring AI into the workflow, and run marketing on autopilot.
+**Xem** (formerly Posthoot) is an open-source email platform for teams that want control over their delivery infrastructure. Bring your SMTP provider, create campaigns and templates, manage audiences, and build multi-step automations through a web app or API.
 
-## Vision
+## Start your own Xem
 
-We built Posthoot to put teams back in control of their email stack.
+On a Linux host with **Docker Engine, Git, Python 3, and OpenSSL**, run:
 
-- No vendor lock‑in; switch providers without replatforming
-- Transparent, customizable, and self-hostable
-- Real AI features to optimize content, timing, and segmentation
-- Campaign automation that can run itself while you sleep
-
-## Why Posthoot
-
-- Multi‑provider SMTP routing for cost, reliability, and flexibility
-- First‑class template control (HTML/CSS, dynamic content, A/B testing)
-- Campaign automation (multi‑step sequences, triggers, goals)
-- Rich analytics (opens, clicks, heatmaps, trends, audience insights)
-- Enterprise‑ready: RBAC, API keys, rate limiting, auditability
-
-## Architecture
-
-- Server: Go (REST API, Swagger/OpenAPI), PostgreSQL, Redis
-- Client: Next.js (App Router), TypeScript, Tailwind/shadcn, NextAuth
-- Infra: Docker, optional K8s, Nginx, object storage
-
-```
-repo/
-  server/   # Go API, OpenAPI, services, middleware
-  client/   # Next.js web app
-  docs/     # Documentation site (API Reference, Guides, Knowledge Base)
+```bash
+curl -fsSL https://raw.githubusercontent.com/mailxem/mail/undefined/scripts/install.sh | bash
 ```
 
-## Quick Start
+The wizard asks for the app, API, and storage addresses. It builds the pinned app and backend, generates credentials, initializes Swarm when needed, and starts **Next.js + Go + PostgreSQL + Redis + RustFS**. No cloud storage account is required. Allow time and disk space for the first build; a practical starting point is 4 CPU cores, 8 GB RAM, and 20 GB free disk.
 
-- Self-hosting (server): see Guides → Self‑Hosting
-  - Docker, Systemd, or Kubernetes deployment
-- Client (Next.js UI): see Client → Setup
-- OpenAPI/SDKs: see API Reference tab
+Use a host IP or DNS name reachable from both browsers and containers. The default ports are **3000** (app), **9001** (API), and **9000** (object storage). HTTP is intended for a trusted local network; configure HTTPS before exposing the installation publicly.
 
-Links:
-- Docs home: https://docs.posthoot.com
-- Self-hosting: https://docs.posthoot.com/guides/self-hosting
-- Client setup: https://docs.posthoot.com/client/setup
-- Rate limiting: https://docs.posthoot.com/rate-limiting
+Open the printed `/auth/register` URL, create your account, and connect your own SMTP provider. Managed SES sending, hosted billing, Google OAuth, and the AI assistant require additional configuration and are not provisioned by this starter.
 
-## API Reference
+> The installer URL becomes available after this change is merged into `undefined`, the repository's current default branch. Until then, use the PR branch commands in the [self-hosting guide](deploy/swarm/README.md).
 
-- Generated OpenAPI 3.0 (paths grouped under the API Reference tab)
-- File uploads via multipart/form‑data requestBody
-- Consistent error shape; rate‑limit headers on all responses
+Prefer to inspect the script first?
 
-If your hosted OpenAPI isn’t publicly fetchable by your docs host, point docs to a local `./server/openapi.json` (ensuring valid OAS3 and permissive CORS when hosted).
+```bash
+curl -fsSLo install-xem.sh https://raw.githubusercontent.com/mailxem/mail/undefined/scripts/install.sh
+less install-xem.sh
+bash install-xem.sh
+```
 
-## Knowledge Base (Literature)
+See the **[Swarm guide](deploy/swarm/README.md)** for unattended setup, HTTPS, updates, backups, troubleshooting, and removal. This is a single-node starter, not a high-availability deployment.
 
-Curated, practical guidance for operating email at scale:
+## What you can build
 
-- Troubleshooting: https://docs.posthoot.com/knowledge-base/troubleshooting/common-errors
-- Deliverability best practices: https://docs.posthoot.com/knowledge-base/best-practices/email-deliverability
-- Rate‑limit optimization: https://docs.posthoot.com/knowledge-base/performance/rate-limit-optimization
+| Capability | Use it for |
+| --- | --- |
+| Campaigns and templates | Compose email, reuse designs, and send through your chosen provider. |
+| Audiences | Organize contacts with lists, tags, segments, and custom data. |
+| Automations | Combine email, conditions, waits, splits, webhooks, and subscriber updates. |
+| Delivery APIs | Integrate email into your product using REST, Go, or TypeScript. |
+| Reporting | Inspect campaign activity and delivery outcomes. |
 
-## Client (Next.js)
+## How the pieces fit
 
-- Overview: https://docs.posthoot.com/client/overview
-- Environment: https://docs.posthoot.com/client/env
-- Development: https://docs.posthoot.com/client/development
-- Testing: https://docs.posthoot.com/client/testing
-- Deployment: https://docs.posthoot.com/client/deployment
+```mermaid
+flowchart LR
+  Browser[Browser] --> App[Next.js app]
+  Browser --> API[Go API and workers]
+  App --> API
+  API --> Postgres[(PostgreSQL)]
+  API --> Redis[(Redis / task queue)]
+  API --> Storage[(RustFS / S3)]
+  Browser --> Storage
+  API --> SMTP[Your SMTP provider]
+```
 
-## Server (Go)
+## Clone and develop
 
-- Middleware: rate limiting, auth, observability
-- OpenAPI generation: `server/scripts/generate-openapi.sh`
-- Swagger2 → OpenAPI3 conversion with body/formData normalization
+```bash
+git clone --recurse-submodules https://github.com/mailxem/mail.git
+cd mail
+# Or initialize an existing clone at this repository's pinned revisions:
+git submodule update --init --recursive
 
-## Contributing
+# Run the same Swarm installer from the checkout:
+python3 deploy/swarm/install.py
+```
 
-- Fork, branch, PR (conventional commits appreciated)
-- Write tests where it matters
-- Keep code small, typed, and composable
+For frontend development, point the app at a running backend and follow [client setup](docs/client/setup.mdx). Backend configuration and API documentation live in [`server/`](server) and [`docs/`](docs). Each component has its own build and contribution workflow.
 
-## License
+| Component | Directory | Repository |
+| --- | --- | --- |
+| Go API and workers | `server/` | [xem.go](https://github.com/mailxem/xem.go) |
+| Next.js application | `client/` | [xem-app.ts](https://github.com/mailxem/xem-app.ts) |
+| Deployment infrastructure | `devops/` | [devops](https://github.com/mailxem/devops) |
+| MCP integration | `mcp/` | [mcp](https://github.com/mailxem/mcp) |
+| Payments | `payments.go/` | [payments.go](https://github.com/mailxem/payments.go) |
+| TypeScript SDK | `sdk/` | [sdk](https://github.com/mailxem/sdk) |
+| Go SDK | `sdk-go/` | [sdk-go](https://github.com/mailxem/sdk-go) |
+| Marketing website | `website/` | [xem-website](https://github.com/mailxem/xem-website) |
 
-MIT — see `LICENSE`.
+Submodules are pinned to specific commits so releases can be reproduced. `git submodule update --remote` deliberately changes those revisions; maintainers should review and commit the updated pins together. The starter deploys only the app, backend, and their data services.
 
----
+## Contribute
 
-If you’re new here, start with:
-1) Vision (https://docs.posthoot.com/vision) → 2) Introduction (https://docs.posthoot.com/introduction) → 3) Quickstart (https://docs.posthoot.com/guides/quickstart) → 4) API Reference (see the API Reference tab in docs).
+Report bugs with reproduction steps, open a focused PR, or improve the docs. Keep credentials and local `.env` files out of commits. Component changes belong in the corresponding repository; update the parent pin after the component commit is published.
 
-## Component repositories
-
-Clone with `git clone --recurse-submodules` to retrieve the API (`server`), app (`client`), marketing website (`website`), infrastructure (`devops`), MCP server (`mcp`), payments service (`payments.go`), TypeScript SDK (`sdk`), and Go SDK (`sdk-go`). For an existing checkout, run `git submodule update --init --recursive`. Each component is pinned to its published commit; documentation lives in this repository under `docs/`.
+Xem's code is [MIT licensed](LICENSE). Bundled third-party services retain their own licenses, including RustFS's Apache-2.0 license.

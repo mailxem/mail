@@ -1,9 +1,11 @@
 [submodule "backend"]
 	path = server
 	url = https://github.com/mailxem/xem.go
+	branch = sudo
 [submodule "client"]
 	path = client
 	url = https://github.com/mailxem/xem-app.ts
+	branch = sudo
 [submodule "devops"]
 	path = devops
 	url = https://github.com/mailxem/devops.git
