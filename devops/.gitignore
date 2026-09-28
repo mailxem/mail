@@ -1,0 +1,24 @@
+# Kubernetes secrets with actual values
+*-secrets.local.yaml
+secrets.yaml
+/manifests/xemapp-secrets.yaml
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+*.backend.hcl
+crash.log
+crash.*.log
+**/values.local.yaml
+**/values.secret*.yaml
+*.pem
+*.key
+*.p12
+*.pfx
+*.zip
+*.tgz
+.validation/
+__pycache__/
+*.local.yaml

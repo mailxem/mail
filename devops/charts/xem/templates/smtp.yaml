@@ -1,0 +1,25 @@
+{{- if .Values.managedSending.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "xem.name" . }}-smtp
+  labels:
+    {{- include "xem.labels" . | nindent 4 }}
+  {{- with .Values.managedSending.service.annotations }}
+  annotations: {{ toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.managedSending.service.type }}
+  externalTrafficPolicy: {{ .Values.managedSending.service.externalTrafficPolicy }}
+  {{- with .Values.managedSending.service.loadBalancerClass }}
+  loadBalancerClass: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.managedSending.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges: {{ toYaml . | nindent 4 }}
+  {{- end }}
+  selector:
+    {{- include "xem.selector" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+  ports:
+    - {name: smtp, port: 587, targetPort: smtp, protocol: TCP}
+{{- end }}

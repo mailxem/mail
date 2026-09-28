@@ -1,0 +1,77 @@
+name: CoriAI ✨ Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths: ['server/**', '.github/workflows/backend-review.yml']
+
+jobs:
+  code-review:
+    if: vars.CORI_REVIEW_ENABLED == 'true' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cori Auth Step
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.CORI_APP_ID }}
+          private-key: ${{ secrets.CORI_APP_PRIVATE_KEY }}
+
+      - name: CoriAI ✨ Code Review
+        uses: theboringhumane/cori-ai@1.2.12
+        with:
+          provider: "openai"
+          model: 'codellama/CodeLlama-34b-Instruct-hf'
+          github_token: ${{ steps.generate-token.outputs.token }}
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          openai_base_url: ${{ secrets.OPENAI_BASE_URL }}
+          extra_prompt: |
+            Xem is an email orchestration platform. Review the Go backend under server/. The backend follows Clean Architecture principles and includes:
+
+            Core Features:
+            - JWT-based authentication with refresh tokens and RBAC
+            - PostgreSQL database with GORM ORM
+            - Redis for rate limiting and caching
+            - SMTP configuration with multiple provider support
+            - Echo framework for REST API with Swagger documentation
+            - Containerized with Docker and managed via Docker Compose
+
+            Key Modules:
+            - Campaign Management: Email campaign creation and automation
+            - Template Management: HTML email template system
+            - Contact Management: Mailing lists and contact organization
+            - Team Management: Multi-team support with role-based permissions
+            - User Management: Role-based access with Super Admin, Admin, Member roles
+            - API Key Management: Secure API access with granular permissions
+            - Automation: Email workflow automation with custom triggers
+            - Domain Management: Multi-domain support with DNS verification
+            - Webhook System: Event-based integrations
+
+            The codebase follows Go best practices with a clear project structure:
+            - Clean separation of concerns (handlers, services, models)
+            - Comprehensive test coverage
+            - Swagger API documentation
+            - Air for live reload during development
+            - Make-based build system
+
+            Please review for:
+            - Code quality and Go best practices
+            - Security considerations in auth flows
+            - API design and REST principles
+            - Database query optimization
+            - Error handling patterns
+            - Code readability and maintainability
+
+            IMPORTANT GUIDELINES
+            - Mandatory to Use emojis in your comments add code examples as well with your comments (markdown format)
+            - Do not repeat the commit message or what user is doing right, just point out issues and things which can be improved. Do not bombard with too much comments decide what's important.

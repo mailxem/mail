@@ -1,0 +1,436 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "imagePullSecrets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    "nodeSelector": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "tolerations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "components": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "backend": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/component"
+            },
+            {
+              "properties": {
+                "port": {
+                  "const": 9001
+                }
+              }
+            }
+          ]
+        },
+        "frontend": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/component"
+            },
+            {
+              "properties": {
+                "port": {
+                  "const": 3000
+                }
+              }
+            }
+          ]
+        },
+        "payments": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/component"
+            },
+            {
+              "properties": {
+                "port": {
+                  "const": 8080
+                }
+              }
+            }
+          ]
+        },
+        "mcp": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/component"
+            },
+            {
+              "properties": {
+                "port": {
+                  "const": 3000
+                }
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "backend",
+        "frontend",
+        "payments",
+        "mcp"
+      ]
+    },
+    "managedSending": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "hostname": {
+          "type": "string"
+        },
+        "tlsSecretName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "service": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "LoadBalancer"
+            },
+            "annotations": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "loadBalancerClass": {
+              "type": "string"
+            },
+            "externalTrafficPolicy": {
+              "const": "Local"
+            },
+            "loadBalancerSourceRanges": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "required": [
+            "type",
+            "annotations",
+            "loadBalancerClass",
+            "externalTrafficPolicy",
+            "loadBalancerSourceRanges"
+          ]
+        }
+      },
+      "required": [
+        "enabled",
+        "hostname",
+        "tlsSecretName",
+        "service"
+      ]
+    },
+    "workloadIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "roleArn": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string",
+          "minLength": 1
+        },
+        "serviceAccountName": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "enabled",
+        "roleArn",
+        "region",
+        "serviceAccountName"
+      ]
+    },
+    "certificate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "issuerRef": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "kind": {
+              "enum": [
+                "Issuer",
+                "ClusterIssuer"
+              ]
+            }
+          },
+          "required": [
+            "name",
+            "kind"
+          ]
+        },
+        "createIssuer": {
+          "type": "boolean"
+        },
+        "email": {
+          "type": "string"
+        },
+        "acmeServer": {
+          "enum": [
+            "https://acme-v02.api.letsencrypt.org/directory",
+            "https://acme-staging-v02.api.letsencrypt.org/directory"
+          ]
+        },
+        "cloudflare": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "zoneName": {
+              "type": "string"
+            },
+            "existingSecret": {
+              "type": "string",
+              "minLength": 1
+            },
+            "secretKey": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "zoneName",
+            "existingSecret",
+            "secretKey"
+          ]
+        }
+      },
+      "required": [
+        "enabled",
+        "issuerRef",
+        "createIssuer",
+        "email",
+        "acmeServer",
+        "cloudflare"
+      ]
+    },
+    "webIngress": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "className": {
+          "type": "string",
+          "minLength": 1
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "tlsSecretName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hosts": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "backend": {
+              "type": "string"
+            },
+            "frontend": {
+              "type": "string"
+            },
+            "payments": {
+              "type": "string"
+            },
+            "mcp": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "backend",
+            "frontend",
+            "payments",
+            "mcp"
+          ]
+        }
+      },
+      "required": [
+        "enabled",
+        "className",
+        "annotations",
+        "tlsSecretName",
+        "hosts"
+      ]
+    },
+    "networkPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "ingressNamespaceSelector": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "matchLabels": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "matchLabels"
+          ]
+        }
+      },
+      "required": [
+        "enabled",
+        "ingressNamespaceSelector"
+      ]
+    }
+  },
+  "required": [
+    "imagePullSecrets",
+    "nodeSelector",
+    "tolerations",
+    "components",
+    "managedSending",
+    "workloadIdentity",
+    "certificate",
+    "webIngress",
+    "networkPolicy"
+  ],
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "image": {
+          "type": "string",
+          "minLength": 1
+        },
+        "imagePullPolicy": {
+          "enum": [
+            "Always",
+            "IfNotPresent"
+          ]
+        },
+        "replicas": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "port": {
+          "type": "integer"
+        },
+        "uid": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "healthPath": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "existingSecret": {
+          "type": "string",
+          "minLength": 1
+        },
+        "env": {
+          "type": "object",
+          "propertyNames": {
+            "not": {
+              "pattern": "^(MANAGED_|AWS_|INTERNAL_API_URL$)"
+            }
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "requests": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "limits": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "requests",
+            "limits"
+          ]
+        }
+      },
+      "required": [
+        "enabled",
+        "image",
+        "imagePullPolicy",
+        "replicas",
+        "port",
+        "uid",
+        "healthPath",
+        "existingSecret",
+        "env",
+        "resources"
+      ]
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # Self-host Xem with Docker Swarm
 
-This starter builds the repository's pinned frontend and backend and deploys them alongside PostgreSQL 16, Redis 7, and RustFS. It creates one replica per long-running service on the selected manager and keeps data in named Docker volumes. A short-lived `storage-init` service creates the private `xem` bucket and exits successfully.
+This starter builds the monorepo's frontend and backend at the same commit and deploys them alongside PostgreSQL 16, Redis 7, and RustFS. It creates one replica per long-running service on the selected manager and keeps data in named Docker volumes. A short-lived `storage-init` service creates the private `xem` bucket and exits successfully.
 
 ## Requirements
 
@@ -74,17 +74,17 @@ If a process is killed abruptly, its `.install-lock` directory may remain. After
 
 Back up before an update: the API applies database migrations at startup, so reverting images alone is not a database rollback.
 
-Run the curl command again with the same user and state directory. It fetches a fresh parent revision, checks out the **pinned** backend/app commits, rebuilds, and updates the services. This uses stop-first updates and can briefly interrupt service. It does not rotate existing credentials or delete volumes. To change origins or published ports, pass an updated `--config`; the app is rebuilt because its public API URL is a build-time setting.
+Run the curl command again with the same user and state directory. It fetches a fresh parent revision, checks out the app and backend together, rebuilds, and updates the services. This uses stop-first updates and can briefly interrupt service. It does not rotate existing credentials or delete volumes. To change origins or published ports, pass an updated `--config`; the app is rebuilt because its public API URL is a build-time setting.
 
-For reproducibility, set `XEM_REF` to a reviewed parent commit SHA and download the script from that same SHA:
+For reproducibility, set `XEM_REF` to a reviewed monorepo commit SHA and download the script from that same SHA:
 
 ```bash
-XEM_REV=<reviewed-parent-commit-sha>
+XEM_REV=<reviewed-monorepo-commit-sha>
 curl -fsSLo install-xem.sh "https://raw.githubusercontent.com/mailxem/mail/$XEM_REV/scripts/install.sh"
 XEM_REF="$XEM_REV" bash install-xem.sh
 ```
 
-The state directory's `release.json` records the last HTTP-ready parent revision and image tag. Keep the prior release information and backups before updating; the installer does not prune old images.
+The state directory's `release.json` records the last HTTP-ready monorepo revision and image tag. Keep the prior release information and backups before updating; the installer does not prune old images.
 
 ## Backup and restore
 

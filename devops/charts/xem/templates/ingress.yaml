@@ -1,0 +1,35 @@
+{{- if .Values.webIngress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "xem.name" . }}
+  labels:
+    {{- include "xem.labels" . | nindent 4 }}
+  {{- with .Values.webIngress.annotations }}
+  annotations: {{ toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.webIngress.className }}
+  tls:
+    - secretName: {{ .Values.webIngress.tlsSecretName }}
+      hosts:
+        {{- range $name, $component := .Values.components }}
+        {{- if $component.enabled }}
+        - {{ index $.Values.webIngress.hosts $name | quote }}
+        {{- end }}
+        {{- end }}
+  rules:
+    {{- range $name, $component := .Values.components }}
+    {{- if $component.enabled }}
+    - host: {{ index $.Values.webIngress.hosts $name | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "xem.name" $ }}-{{ $name }}
+                port: {number: {{ $component.port }}}
+    {{- end }}
+    {{- end }}
+{{- end }}

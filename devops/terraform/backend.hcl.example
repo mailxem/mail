@@ -1,0 +1,7 @@
+# Pre-create a private, versioned S3 bucket with encryption and restricted IAM.
+# Copy separately per environment; NEVER share a state key between roots.
+bucket = "REPLACE_WITH_STATE_BUCKET"
+key = "xem/dokploy/terraform.tfstate"
+region = "us-east-2"
+encrypt = true
+use_lockfile = true

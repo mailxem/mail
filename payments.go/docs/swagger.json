@@ -1,0 +1,2367 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for managing subscription plans and payments with Dodo Payments integration",
+        "title": "Diagonal Payments API",
+        "termsOfService": "https://diagonal.com/terms",
+        "contact": {
+            "name": "Diagonal Support",
+            "url": "https://diagonal.com/support",
+            "email": "support@diagonal.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/api/admin/plans": {
+            "get": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "List all subscription plans including inactive ones. Requires admin authentication.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plans"
+                ],
+                "summary": "List all subscription plans (admin)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Admin secret for authentication",
+                        "name": "X-Admin-Secret",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Include inactive plans in the response",
+                        "name": "include_inactive",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of plans with subscription counts",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.PlanResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - missing admin secret",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - invalid admin secret",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "Create a new subscription plan with comprehensive configuration options. Requires admin authentication.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plans"
+                ],
+                "summary": "Create a new subscription plan",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Admin secret for authentication",
+                        "name": "X-Admin-Secret",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Plan creation request",
+                        "name": "plan",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreatePlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Plan created successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/models.PlanResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - validation error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - missing admin secret",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - invalid admin secret",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/plans/{planId}": {
+            "put": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "Update an existing subscription plan. All fields are optional for partial updates. Requires admin authentication.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plans"
+                ],
+                "summary": "Update an existing subscription plan",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Admin secret for authentication",
+                        "name": "X-Admin-Secret",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Plan ID",
+                        "name": "planId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Plan update request",
+                        "name": "plan",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdatePlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Plan updated successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/models.PlanResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - validation error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - missing admin secret",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - invalid admin secret",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Plan not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "Delete a subscription plan. Plans with active subscriptions cannot be deleted. Requires admin authentication.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plans"
+                ],
+                "summary": "Delete a subscription plan",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Admin secret for authentication",
+                        "name": "X-Admin-Secret",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Plan ID",
+                        "name": "planId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Plan deleted successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - plan has active subscriptions",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - missing admin secret",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - invalid admin secret",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Plan not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/plans/{planId}/archive": {
+            "post": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "Archive a subscription plan. Archived plans are hidden from customers but existing subscriptions continue. Requires admin authentication.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plans"
+                ],
+                "summary": "Archive a subscription plan",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Admin secret for authentication",
+                        "name": "X-Admin-Secret",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Plan ID",
+                        "name": "planId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Plan archived successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - validation error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - missing admin secret",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - invalid admin secret",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Plan not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/plans/{planId}/stats": {
+            "get": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "Retrieve a specific plan with detailed subscription statistics. Requires admin authentication.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plans"
+                ],
+                "summary": "Get plan with subscription statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Admin secret for authentication",
+                        "name": "X-Admin-Secret",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Plan ID",
+                        "name": "planId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Plan details with statistics",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/models.PlanResponse"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - missing admin secret",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - invalid admin secret",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Plan not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plans": {
+            "get": {
+                "description": "List all active subscription plans available for customer subscriptions. Available to all users.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plans"
+                ],
+                "summary": "List active subscription plans (public)",
+                "responses": {
+                    "200": {
+                        "description": "List of active plans",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.PlanResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plans/dodo/{dodoPlanId}": {
+            "get": {
+                "description": "Retrieve a specific subscription plan by its Dodo Payments plan ID. Available to all users.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plans"
+                ],
+                "summary": "Get a subscription plan by Dodo Plan ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Dodo Plan ID",
+                        "name": "dodoPlanId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Plan details",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/models.PlanResponse"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Plan not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/plans/{planId}": {
+            "get": {
+                "description": "Retrieve a specific subscription plan by its ID. Available to all users.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plans"
+                ],
+                "summary": "Get a subscription plan by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Plan ID",
+                        "name": "planId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Plan details",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/models.PlanResponse"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Plan not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/maintenance/run": {
+            "post": {
+                "security": [
+                    {
+                        "AdminAuth": []
+                    }
+                ],
+                "description": "Manually trigger daily maintenance to expire overdue trials and reset usage",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Run daily maintenance",
+                "responses": {
+                    "200": {
+                        "description": "Maintenance run status",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/billing/details": {
+            "post": {
+                "description": "Create a billing details record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "billing"
+                ],
+                "summary": "Create billing details",
+                "parameters": [
+                    {
+                        "description": "Billing details",
+                        "name": "billingDetails",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BillingDetails"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Billing details created",
+                        "schema": {
+                            "$ref": "#/definitions/models.BillingDetails"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - validation error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/billing/details/{id}": {
+            "put": {
+                "description": "Update a billing details record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "billing"
+                ],
+                "summary": "Update billing details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Billing details ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Billing details",
+                        "name": "billingDetails",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BillingDetails"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Billing details updated",
+                        "schema": {
+                            "$ref": "#/definitions/models.BillingDetails"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - validation error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/billing/details/{teamId}": {
+            "get": {
+                "description": "Get a billing details record",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "billing"
+                ],
+                "summary": "Get billing details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Billing details",
+                        "schema": {
+                            "$ref": "#/definitions/models.BillingDetails"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - missing billing details ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/health": {
+            "get": {
+                "description": "Check the health status of the payments service",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "Service health status",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/payments/checkout": {
+            "post": {
+                "description": "Create a new payment checkout session for subscription purchase",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "Create payment checkout session",
+                "parameters": [
+                    {
+                        "description": "Checkout session request",
+                        "name": "checkout",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.CheckoutSessionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Checkout session created",
+                        "schema": {
+                            "$ref": "#/definitions/services.CheckoutSessionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - validation error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/plans": {
+            "get": {
+                "description": "Get all available subscription plans. This is a legacy endpoint, use /api/plans instead.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Get available subscription plans (legacy)",
+                "deprecated": true,
+                "responses": {
+                    "200": {
+                        "description": "Available plans",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/subscriptions/team/{teamId}": {
+            "get": {
+                "description": "Get subscription details for a specific team by team ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Get team subscription",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subscription details",
+                        "schema": {
+                            "$ref": "#/definitions/models.Subscription"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - missing team ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Subscription not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/subscriptions/{id}": {
+            "put": {
+                "description": "Update an existing subscription with new plan or seat count. When the current subscription is cancelled, expired, failed, paused, or otherwise inactive, the old subscription is removed and a new one is created (free plan) or checkout is required (paid plan).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Update subscription",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Subscription ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Subscription update request",
+                        "name": "subscription",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.UpdateSubscriptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated subscription",
+                        "schema": {
+                            "$ref": "#/definitions/models.Subscription"
+                        }
+                    },
+                    "202": {
+                        "description": "Checkout required for paid plan (when previous subscription was inactive)",
+                        "schema": {
+                            "$ref": "#/definitions/services.ChangePlanResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - validation error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Subscription not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Cancel an active subscription",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Cancel subscription",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Subscription ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cancellation confirmation",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - missing subscription ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/subscriptions/{id}/payments": {
+            "get": {
+                "description": "Get payment history for a specific subscription",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "Get payment history",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Subscription ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment history",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/models.Payment"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - missing subscription ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/subscriptions/{id}/payments/{payment_id}/invoice": {
+            "get": {
+                "description": "Get a payment PDF for a specific invoice ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "Get invoice payment PDF",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Payment ID",
+                        "name": "payment_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Invoice payment PDF",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - missing invoice ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/subscriptions/{id}/session": {
+            "get": {
+                "description": "Get a customer portal session for a specific subscription",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Get customer portal session",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Subscription ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Customer portal session",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - missing subscription ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/subscriptions/{id}/usage": {
+            "get": {
+                "description": "Get usage statistics for a specific subscription",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Get subscription usage statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Subscription ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usage statistics",
+                        "schema": {
+                            "$ref": "#/definitions/models.UsageRecord"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - missing subscription ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/usage/check/{teamId}/{feature}": {
+            "get": {
+                "description": "Check if a team can perform queries based on their subscription limits",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "usage"
+                ],
+                "summary": "Check usage limit",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Feature",
+                        "name": "feature",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usage limit check result",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - missing team ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/usage/record/{teamId}": {
+            "post": {
+                "description": "Record query usage for a team",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "usage"
+                ],
+                "summary": "Record usage",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Usage recording request",
+                        "name": "usage",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/structs.RecordUsageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usage recorded successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - validation error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/webhooks/cleanup": {
+            "post": {
+                "description": "Remove old webhook events and logs to free up storage space",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "webhooks"
+                ],
+                "summary": "Cleanup old webhook data",
+                "parameters": [
+                    {
+                        "description": "Cleanup parameters (days_to_keep, event_types)",
+                        "name": "cleanup",
+                        "in": "body",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cleanup operation result with counts",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid parameters",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/webhooks/events": {
+            "get": {
+                "description": "Retrieve webhook events with optional filtering by type and pagination",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "webhooks"
+                ],
+                "summary": "Get webhook events",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by event type (e.g., payment.succeeded, subscription.active)",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Maximum number of events to return (max: 100)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Number of events to skip for pagination",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of webhook events with pagination info",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/webhooks/logs": {
+            "get": {
+                "description": "Retrieve webhook processing logs for debugging and monitoring purposes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "webhooks"
+                ],
+                "summary": "Get webhook logs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter logs by specific webhook event ID",
+                        "name": "event_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter logs by processing status (success, failed, pending)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Maximum number of logs to return (max: 100)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of webhook processing logs",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/webhooks/retry": {
+            "post": {
+                "description": "Retry processing of failed webhook events within a specified time range",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "webhooks"
+                ],
+                "summary": "Retry failed webhooks",
+                "parameters": [
+                    {
+                        "description": "Optional parameters for retry operation (hours_back, event_types)",
+                        "name": "retry",
+                        "in": "body",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retry operation result with counts",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid parameters",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/webhooks/dodo": {
+            "post": {
+                "description": "Process incoming webhook events from Dodo Payments for subscription and payment updates",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "webhooks"
+                ],
+                "summary": "Process Dodo Payments webhook",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Webhook signature for verification (alternative: X-Dodo-Signature)",
+                        "name": "X-Signature",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Webhook payload from Dodo Payments",
+                        "name": "webhook",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Webhook processed successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - missing signature or invalid payload",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handlers.UpdateSubscriptionRequest": {
+            "type": "object",
+            "properties": {
+                "plan_id": {
+                    "type": "string",
+                    "example": "syne_scale"
+                },
+                "seats": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 5
+                }
+            }
+        },
+        "models.BillingCycle": {
+            "type": "string",
+            "enum": [
+                "MONTHLY",
+                "YEARLY"
+            ],
+            "x-enum-varnames": [
+                "BillingMonthly",
+                "BillingYearly"
+            ]
+        },
+        "models.BillingDetails": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "team_id": {
+                    "type": "string"
+                },
+                "zip": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreatePlanRequest": {
+            "type": "object",
+            "required": [
+                "currency",
+                "dodo_plan_id",
+                "name",
+                "price"
+            ],
+            "properties": {
+                "currency": {
+                    "type": "string",
+                    "example": "USD"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "For growing teams and businesses"
+                },
+                "display_order": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "dodo_plan_id": {
+                    "type": "string",
+                    "example": "pro-plan-2024"
+                },
+                "features": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "is_enterprise": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "is_popular": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "metadata": {
+                    "$ref": "#/definitions/models.JSONMap"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Professional"
+                },
+                "price": {
+                    "type": "number",
+                    "example": 49
+                },
+                "trial_enabled": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "trial_period_days": {
+                    "type": "integer",
+                    "example": 14
+                }
+            }
+        },
+        "models.JSONMap": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "models.Payment": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Metadata",
+                    "type": "string"
+                },
+                "dodo_payment_id": {
+                    "description": "Dodo Payments",
+                    "type": "string"
+                },
+                "failure_reason": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "processed_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/models.PaymentStatus"
+                },
+                "subscription": {
+                    "description": "Relations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Subscription"
+                        }
+                    ]
+                },
+                "subscription_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PaymentStatus": {
+            "type": "string",
+            "enum": [
+                "PENDING",
+                "COMPLETED",
+                "FAILED",
+                "REFUNDED"
+            ],
+            "x-enum-varnames": [
+                "PaymentPending",
+                "PaymentCompleted",
+                "PaymentFailed",
+                "PaymentRefunded"
+            ]
+        },
+        "models.Plan": {
+            "type": "object",
+            "properties": {
+                "billing_cycle": {
+                    "$ref": "#/definitions/models.BillingCycle"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "display_order": {
+                    "description": "Display \u0026 Ordering",
+                    "type": "integer"
+                },
+                "dodo_plan_id": {
+                    "description": "Dodo Payments product ID",
+                    "type": "string"
+                },
+                "features": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PlanFeatures"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_enterprise": {
+                    "type": "boolean"
+                },
+                "is_popular": {
+                    "type": "boolean"
+                },
+                "metadata": {
+                    "description": "Metadata",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.JSONMap"
+                        }
+                    ]
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "description": "Pricing",
+                    "type": "number"
+                },
+                "price_per_seat": {
+                    "description": "Legacy pricing (for backward compatibility)",
+                    "type": "number"
+                },
+                "status": {
+                    "$ref": "#/definitions/models.PlanStatus"
+                },
+                "subscriptions": {
+                    "description": "Relations",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Subscription"
+                    }
+                },
+                "trail_features": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PlanFeatures"
+                    }
+                },
+                "trial_enabled": {
+                    "type": "boolean"
+                },
+                "trial_period_days": {
+                    "description": "Trial settings",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PlanFeatures": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "feature": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "plan": {
+                    "$ref": "#/definitions/models.Plan"
+                },
+                "plan_id": {
+                    "type": "string"
+                },
+                "quota": {
+                    "type": "integer"
+                },
+                "trail": {
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PlanFeaturesResponse": {
+            "type": "object",
+            "properties": {
+                "feature": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "plan_id": {
+                    "type": "string"
+                },
+                "quota": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.PlanResponse": {
+            "type": "object",
+            "properties": {
+                "active_subscriptions": {
+                    "description": "Statistics (optional)",
+                    "type": "integer",
+                    "example": 25
+                },
+                "billing_cycle": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.BillingCycle"
+                        }
+                    ],
+                    "example": "MONTHLY"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:00:00Z"
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "USD"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "For growing teams and businesses"
+                },
+                "display_order": {
+                    "description": "Display \u0026 Ordering",
+                    "type": "integer",
+                    "example": 2
+                },
+                "dodo_plan_id": {
+                    "type": "string",
+                    "example": "pro-plan-2024"
+                },
+                "features": {
+                    "description": "Features \u0026 Limits",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PlanFeaturesResponse"
+                    }
+                },
+                "id": {
+                    "type": "string",
+                    "example": "prof-123e4567-e89b-12d3-a456-426614174000"
+                },
+                "is_enterprise": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "is_popular": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "metadata": {
+                    "description": "Metadata",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.JSONMap"
+                        }
+                    ]
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Professional"
+                },
+                "price": {
+                    "description": "Pricing",
+                    "type": "number",
+                    "example": 49
+                },
+                "price_per_seat": {
+                    "description": "Legacy for backward compatibility",
+                    "type": "number",
+                    "example": 49
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.PlanStatus"
+                        }
+                    ],
+                    "example": "active"
+                },
+                "trail_features": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PlanFeaturesResponse"
+                    }
+                },
+                "trial_enabled": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "trial_period_days": {
+                    "description": "Trial settings",
+                    "type": "integer",
+                    "example": 14
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-01-15T10:00:00Z"
+                }
+            }
+        },
+        "models.PlanStatus": {
+            "type": "string",
+            "enum": [
+                "active",
+                "inactive",
+                "archived"
+            ],
+            "x-enum-comments": {
+                "PlanStatusActive": "@Description Plan is active and available for new subscriptions",
+                "PlanStatusArchived": "@Description Plan is permanently hidden, no new subscriptions allowed",
+                "PlanStatusInactive": "@Description Plan is inactive but existing subscriptions continue"
+            },
+            "x-enum-descriptions": [
+                "@Description Plan is active and available for new subscriptions",
+                "@Description Plan is inactive but existing subscriptions continue",
+                "@Description Plan is permanently hidden, no new subscriptions allowed"
+            ],
+            "x-enum-varnames": [
+                "PlanStatusActive",
+                "PlanStatusInactive",
+                "PlanStatusArchived"
+            ]
+        },
+        "models.Subscription": {
+            "type": "object",
+            "properties": {
+                "billing_cycle": {
+                    "$ref": "#/definitions/models.BillingCycle"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "dodo_customer_id": {
+                    "type": "string"
+                },
+                "dodo_subscription_id": {
+                    "description": "Dodo Payments Integration",
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "ended_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "next_billing_date": {
+                    "type": "string"
+                },
+                "payments": {
+                    "description": "Relations",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Payment"
+                    }
+                },
+                "plan": {
+                    "$ref": "#/definitions/models.Plan"
+                },
+                "plan_id": {
+                    "type": "string"
+                },
+                "price_per_seat": {
+                    "description": "Billing",
+                    "type": "number"
+                },
+                "start_date": {
+                    "description": "Dates",
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "canceled",
+                        "past_due",
+                        "paused",
+                        "pending",
+                        "TRIAL"
+                    ]
+                },
+                "team_id": {
+                    "type": "string"
+                },
+                "total_seats": {
+                    "type": "integer"
+                },
+                "trial_ends_at": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "usage_records": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.UsageRecord"
+                    }
+                }
+            }
+        },
+        "models.UpdatePlanRequest": {
+            "type": "object",
+            "properties": {
+                "currency": {
+                    "type": "string",
+                    "example": "USD"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Enhanced professional plan"
+                },
+                "display_order": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "features": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "is_enterprise": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "is_popular": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "metadata": {
+                    "$ref": "#/definitions/models.JSONMap"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Professional Plus"
+                },
+                "price": {
+                    "type": "number",
+                    "example": 59
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.PlanStatus"
+                        }
+                    ],
+                    "example": "active"
+                },
+                "trial_enabled": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "trial_period_days": {
+                    "type": "integer",
+                    "example": 21
+                }
+            }
+        },
+        "models.UsageRecord": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "feature": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "period": {
+                    "description": "Billing period (month/year)",
+                    "type": "string"
+                },
+                "subscription": {
+                    "description": "Relations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Subscription"
+                        }
+                    ]
+                },
+                "subscription_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "usage": {
+                    "description": "Actual usage amount",
+                    "type": "integer"
+                }
+            }
+        },
+        "services.ChangePlanResult": {
+            "type": "object",
+            "properties": {
+                "checkout_required": {
+                    "$ref": "#/definitions/services.CheckoutRequiredInfo"
+                },
+                "subscription": {
+                    "$ref": "#/definitions/models.Subscription"
+                }
+            }
+        },
+        "services.CheckoutRequiredInfo": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "plan_id": {
+                    "type": "string"
+                },
+                "seats": {
+                    "type": "integer"
+                },
+                "team_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "services.CheckoutSessionRequest": {
+            "type": "object",
+            "properties": {
+                "billing_details": {
+                    "$ref": "#/definitions/models.BillingDetails"
+                },
+                "customer_email": {
+                    "type": "string"
+                },
+                "customer_name": {
+                    "type": "string"
+                },
+                "plan_id": {
+                    "type": "string"
+                },
+                "seats": {
+                    "type": "integer"
+                },
+                "success_url": {
+                    "type": "string"
+                },
+                "team_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "services.CheckoutSessionResponse": {
+            "type": "object",
+            "properties": {
+                "checkout_url": {
+                    "type": "string"
+                },
+                "session_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "structs.RecordUsageRequest": {
+            "type": "object",
+            "required": [
+                "feature"
+            ],
+            "properties": {
+                "feature": {
+                    "type": "string",
+                    "example": "queries"
+                },
+                "usage": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "example": 10
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "AdminAuth": {
+            "description": "Admin secret for accessing admin-only endpoints",
+            "type": "apiKey",
+            "name": "X-Admin-Secret",
+            "in": "header"
+        }
+    }
+}

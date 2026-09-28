@@ -1,0 +1,152 @@
+name: Component image release
+on:
+  workflow_call:
+    inputs:
+      component:
+        required: true
+        type: string
+      directory:
+        required: true
+        type: string
+      image:
+        required: true
+        type: string
+    secrets:
+      DOCKER_HUB_TOKEN:
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ inputs.component }}
+  cancel-in-progress: false
+jobs:
+  version:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      version: ${{ steps.version.outputs.version }}
+      previous: ${{ steps.version.outputs.previous }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: version
+        env:
+          COMPONENT: ${{ inputs.component }}
+        run: python3 scripts/component-release.py version "$COMPONENT" >> "$GITHUB_OUTPUT"
+  build:
+    needs: version
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check registry configuration
+        env:
+          TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+        run: test -n "$TOKEN" || { echo 'Configure DOCKER_HUB_TOKEN in this repository'; exit 1; }
+      - name: Write build metadata
+        env:
+          COMPONENT_DIR: ${{ inputs.directory }}
+          VERSION: ${{ needs.version.outputs.tag }}
+        run: |
+          mkdir -p "$COMPONENT_DIR/public"
+          printf 'Version: %s\nCommit: %s\nBuilt: %s\n' "$VERSION" "$GITHUB_SHA" "$(date -u +%FT%TZ)" > "$COMPONENT_DIR/public/build-info.txt"
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_HUB_USERNAME || 'theboringhumane' }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+        id: buildx
+      - uses: actions/cache@v4
+        if: inputs.component == 'backend'
+        id: go-cache
+        with:
+          path: go-build-cache
+          key: docker-go-${{ matrix.arch }}-${{ hashFiles('server/Dockerfile', 'server/go.mod', 'server/go.sum') }}-${{ github.sha }}
+          restore-keys: docker-go-${{ matrix.arch }}-${{ hashFiles('server/Dockerfile', 'server/go.mod', 'server/go.sum') }}-
+      - uses: reproducible-containers/buildkit-cache-dance@v3
+        if: inputs.component == 'backend'
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          cache-map: '{"go-build-cache": "/root/.cache/go-build"}'
+          skip-extraction: ${{ steps.go-cache.outputs.cache-hit }}
+      - uses: docker/build-push-action@v6
+        id: build
+        with:
+          context: ${{ inputs.directory }}
+          push: true
+          platforms: linux/${{ matrix.arch }}
+          tags: |
+            ${{ inputs.image }}:sha-${{ github.sha }}-${{ matrix.arch }}
+            ${{ inputs.image }}:${{ needs.version.outputs.version }}-${{ matrix.arch }}
+            ${{ inputs.image }}:sudo-${{ matrix.arch }}
+            ${{ inputs.image }}:latest-${{ matrix.arch }}
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_PAYWALL_URL=${{ vars.NEXT_PUBLIC_PAYWALL_URL }}
+          cache-from: type=gha,scope=${{ inputs.component }}-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ inputs.component }}-${{ matrix.arch }}
+          sbom: false
+          provenance: false
+      - name: Export digest
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/digests"
+          touch "$RUNNER_TEMP/digests/${DIGEST#sha256:}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.component }}-digest-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+  publish:
+    needs: [version, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: ${{ inputs.component }}-digest-*
+          merge-multiple: true
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_HUB_USERNAME || 'theboringhumane' }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - name: Publish combined manifest
+        working-directory: ${{ runner.temp }}/digests
+        env:
+          IMAGE: ${{ inputs.image }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          images=()
+          for digest in *; do images+=("$IMAGE@sha256:$digest"); done
+          test "${#images[@]}" -eq 2
+          docker buildx imagetools create \
+            --tag "$IMAGE:sha-$GITHUB_SHA" --tag "$IMAGE:$VERSION" \
+            --tag "$IMAGE:sudo" --tag "$IMAGE:latest" "${images[@]}"
+          docker buildx imagetools inspect "$IMAGE:$VERSION"
+      - name: Create component release after image publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMPONENT: ${{ inputs.component }}
+          COMPONENT_DIR: ${{ inputs.directory }}
+          TAG: ${{ needs.version.outputs.tag }}
+          PREVIOUS: ${{ needs.version.outputs.previous }}
+        run: |
+          python3 scripts/component-release.py notes "$COMPONENT_DIR" "$PREVIOUS" > "$RUNNER_TEMP/release-notes.md"
+          gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --notes-file "$RUNNER_TEMP/release-notes.md"

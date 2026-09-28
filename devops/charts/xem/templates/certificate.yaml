@@ -1,0 +1,36 @@
+{{- if .Values.certificate.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "xem.name" . }}-smtp
+spec:
+  secretName: {{ .Values.managedSending.tlsSecretName }}
+  dnsNames: [{{ .Values.managedSending.hostname | quote }}]
+  privateKey:
+    algorithm: RSA
+    size: 2048
+    rotationPolicy: Always
+  renewBefore: 720h
+  issuerRef: {{ toYaml .Values.certificate.issuerRef | nindent 4 }}
+{{- if .Values.certificate.createIssuer }}
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ .Values.certificate.issuerRef.name }}
+spec:
+  acme:
+    email: {{ .Values.certificate.email | quote }}
+    server: {{ .Values.certificate.acmeServer | quote }}
+    privateKeySecretRef:
+      name: {{ include "xem.name" . }}-acme-account
+    solvers:
+      - selector:
+          dnsZones: [{{ .Values.certificate.cloudflare.zoneName | quote }}]
+        dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: {{ .Values.certificate.cloudflare.existingSecret }}
+              key: {{ .Values.certificate.cloudflare.secretKey }}
+{{- end }}
+{{- end }}

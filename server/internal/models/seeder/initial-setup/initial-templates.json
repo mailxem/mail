@@ -1,0 +1,1049 @@
+{
+  "mailing_lists": [
+    {
+      "name": "PLATFORM WELCOME",
+      "description": "This is a welcome email to the platform"
+    },
+    {
+      "name": "PLATFORM INVITE",
+      "description": "This is an invite email to the platform"
+    }
+  ],
+  "templates": [
+    {
+      "name": "PLATFORM WELCOME",
+      "categoryName": "Transactional",
+      "variables": ["name"],
+      "description": "This is a welcome email to the platform",
+      "subject": "Hey {{name}} 👋🏻! We're glad to have you onboard 🎉",
+      "designJson": {
+        "counters": {
+            "u_column": 4,
+            "u_row": 4,
+            "u_content_image": 2,
+            "u_content_heading": 1,
+            "u_content_text": 4,
+            "u_content_button": 1,
+            "u_content_divider": 1
+        },
+        "body": {
+            "id": "FhodmKfz1_",
+            "rows": [{
+                "id": "BL561mCCUn",
+                "cells": [1],
+                "columns": [{
+                    "id": "CuzH32ujMg",
+                    "contents": [{
+                        "id": "rpEh6p6-EJ",
+                        "type": "image",
+                        "values": {
+                            "containerPadding": "10px",
+                            "anchor": "",
+                            "src": {
+                                "url": "https://assets.unlayer.com/projects/260505/1738231891552-posthoot.png",
+                                "width": 470,
+                                "height": 152,
+                                "id": 27375940,
+                                "contentType": "image/png",
+                                "size": 9314,
+                                "dynamic": true,
+                                "autoWidth": false,
+                                "maxWidth": "35%"
+                            },
+                            "textAlign": "center",
+                            "altText": "",
+                            "action": {
+                                "name": "web",
+                                "values": {
+                                    "href": "",
+                                    "target": "_blank"
+                                }
+                            },
+                            "displayCondition": null,
+                            "_styleGuide": null,
+                            "_meta": {
+                                "htmlID": "u_content_image_1",
+                                "htmlClassNames": "u_content_image",
+                                "description": ""
+                            },
+                            "selectable": true,
+                            "draggable": true,
+                            "duplicatable": true,
+                            "deletable": true,
+                            "hideable": true,
+                            "pending": false
+                        }
+                    }],
+                    "values": {
+                        "border": {},
+                        "padding": "0px",
+                        "backgroundColor": "",
+                        "_meta": {
+                            "htmlID": "u_column_1",
+                            "htmlClassNames": "u_column"
+                        }
+                    }
+                }],
+                "values": {
+                    "displayCondition": null,
+                    "columns": false,
+                    "_styleGuide": null,
+                    "backgroundColor": "",
+                    "columnsBackgroundColor": "",
+                    "backgroundImage": {
+                        "url": "",
+                        "fullWidth": true,
+                        "repeat": "no-repeat",
+                        "size": "custom",
+                        "position": "center"
+                    },
+                    "padding": "0px",
+                    "anchor": "",
+                    "hideDesktop": false,
+                    "_meta": {
+                        "htmlID": "u_row_1",
+                        "htmlClassNames": "u_row",
+                        "description": ""
+                    },
+                    "selectable": true,
+                    "draggable": true,
+                    "duplicatable": true,
+                    "deletable": true,
+                    "hideable": true
+                }
+            }, {
+                "id": "6V6eN2wJuI",
+                "cells": [1],
+                "columns": [{
+                    "id": "LEDT-78XoN",
+                    "contents": [{
+                        "id": "GP8VE6eYhn",
+                        "type": "heading",
+                        "values": {
+                            "containerPadding": "10px",
+                            "anchor": "",
+                            "headingType": "h1",
+                            "fontFamily": {
+                                "label": "Georgia",
+                                "value": "georgia,palatino",
+                                "url": "",
+                                "defaultFont": true,
+                                "weights": null
+                            },
+                            "fontSize": "22px",
+                            "textAlign": "center",
+                            "lineHeight": "140%",
+                            "linkStyle": {
+                                "inherit": true,
+                                "linkColor": "#0000ee",
+                                "linkHoverColor": "#0000ee",
+                                "linkUnderline": true,
+                                "linkHoverUnderline": true
+                            },
+                            "displayCondition": null,
+                            "_styleGuide": null,
+                            "_meta": {
+                                "htmlID": "u_content_heading_1",
+                                "htmlClassNames": "u_content_heading",
+                                "description": ""
+                            },
+                            "selectable": true,
+                            "draggable": true,
+                            "duplicatable": true,
+                            "deletable": true,
+                            "hideable": true,
+                            "text": "<span>Hey 👋🏻 {{ name }}, Welcome to Posthoot<br /></span>",
+                            "_languages": {}
+                        }
+                    }, {
+                        "id": "3I0CI3qKKD",
+                        "type": "image",
+                        "values": {
+                            "containerPadding": "10px",
+                            "anchor": "",
+                            "src": {
+                                "url": "https://assets.unlayer.com/projects/260505/1738232299499-pixeltrue-welcome-1.png",
+                                "width": 3333,
+                                "height": 2500,
+                                "id": 27376102,
+                                "contentType": "image/png",
+                                "size": 204147,
+                                "dynamic": true,
+                                "autoWidth": false,
+                                "maxWidth": "84%"
+                            },
+                            "textAlign": "center",
+                            "altText": "",
+                            "action": {
+                                "name": "web",
+                                "values": {
+                                    "href": "",
+                                    "target": "_blank"
+                                }
+                            },
+                            "displayCondition": null,
+                            "_styleGuide": null,
+                            "_meta": {
+                                "htmlID": "u_content_image_2",
+                                "htmlClassNames": "u_content_image",
+                                "description": ""
+                            },
+                            "selectable": true,
+                            "draggable": true,
+                            "duplicatable": true,
+                            "deletable": true,
+                            "hideable": true,
+                            "pending": false
+                        }
+                    }, {
+                        "id": "1K4I64zrSY",
+                        "type": "text",
+                        "values": {
+                            "containerPadding": "10px",
+                            "anchor": "",
+                            "fontFamily": {
+                                "label": "Raleway",
+                                "value": "'Raleway',sans-serif",
+                                "url": "https://fonts.googleapis.com/css?family=Raleway:400,700",
+                                "defaultFont": true,
+                                "weights": null
+                            },
+                            "fontSize": "14px",
+                            "textAlign": "left",
+                            "lineHeight": "140%",
+                            "linkStyle": {
+                                "inherit": true,
+                                "linkColor": "#0000ee",
+                                "linkHoverColor": "#0000ee",
+                                "linkUnderline": true,
+                                "linkHoverUnderline": true
+                            },
+                            "displayCondition": null,
+                            "_styleGuide": null,
+                            "_meta": {
+                                "htmlID": "u_content_text_1",
+                                "htmlClassNames": "u_content_text",
+                                "description": ""
+                            },
+                            "selectable": true,
+                            "draggable": true,
+                            "duplicatable": true,
+                            "deletable": true,
+                            "hideable": true,
+                            "text": "<p style=\"line-height: 140%;\">We&rsquo;re excited to have you join our community of forward-thinking marketers.</p>\n<p style=\"line-height: 140%;\">&nbsp;</p>\n<p class=\"p1\" style=\"line-height: 140%;\"><strong>Why PostHoot?</strong></p>\n<p class=\"p1\" style=\"line-height: 140%;\">&nbsp;</p>\n<p class=\"p1\" style=\"line-height: 140%;\">Experience AI-driven email creation and intelligent marketing automations that adapt to user behavior, optimizing engagement and conversion rates without manual intervention.<span style=\"line-height: 19.6px;\" class=\"Apple-converted-space\">&nbsp; </span><span style=\"line-height: 19.6px;\" class=\"s1\"></span></p>\n<p class=\"p1\" style=\"line-height: 140%;\">&nbsp;</p>\n<p class=\"p1\" style=\"line-height: 140%;\"><strong>Get Started:</strong></p>\n<p class=\"p2\" style=\"line-height: 140%;\"><span style=\"line-height: 19.6px;\" class=\"Apple-tab-span\"> </span>1.<span style=\"line-height: 19.6px;\" class=\"Apple-tab-span\"> </span><span style=\"line-height: 19.6px;\" class=\"s1\"><strong>Connect Your Accounts:</strong></span> Integrate your existing systems seamlessly.</p>\n<p class=\"p2\" style=\"line-height: 140%;\"><span style=\"line-height: 19.6px;\" class=\"Apple-tab-span\"> </span>2.<span style=\"line-height: 19.6px;\" class=\"Apple-tab-span\"> </span><span style=\"line-height: 19.6px;\" class=\"s1\"><strong>Explore Features:</strong></span> Discover tools to enhance your marketing efforts.</p>\n<p class=\"p2\" style=\"line-height: 140%;\"><span style=\"line-height: 19.6px;\" class=\"Apple-tab-span\"> </span>3.<span style=\"line-height: 19.6px;\" class=\"Apple-tab-span\"> </span><span style=\"line-height: 19.6px;\" class=\"s1\"><strong>Start Your Free Trial:</strong></span> Experience the future of email marketing today.</p>",
+                            "_languages": {}
+                        }
+                    }, {
+                        "id": "VZx4hVPmKF",
+                        "type": "button",
+                        "values": {
+                            "href": {
+                                "name": "web",
+                                "attrs": {
+                                    "href": "{{href}}",
+                                    "target": "{{target}}"
+                                },
+                                "values": {
+                                    "href": "https://office.posthoot.com",
+                                    "target": "_blank"
+                                }
+                            },
+                            "buttonColors": {
+                                "color": "#FFFFFF",
+                                "backgroundColor": "#000000",
+                                "hoverColor": "#FFFFFF",
+                                "hoverBackgroundColor": "#3AAEE0"
+                            },
+                            "size": {
+                                "autoWidth": false,
+                                "width": "100%"
+                            },
+                            "fontFamily": {
+                                "label": "Trebuchet MS",
+                                "value": "trebuchet ms,geneva",
+                                "url": "",
+                                "defaultFont": true,
+                                "weights": null
+                            },
+                            "fontSize": "18px",
+                            "lineHeight": "120%",
+                            "textAlign": "center",
+                            "padding": "10px 20px",
+                            "border": {},
+                            "borderRadius": "4px",
+                            "displayCondition": null,
+                            "_styleGuide": null,
+                            "containerPadding": "10px",
+                            "anchor": "",
+                            "_meta": {
+                                "htmlID": "u_content_button_1",
+                                "htmlClassNames": "u_content_button",
+                                "description": ""
+                            },
+                            "selectable": true,
+                            "draggable": true,
+                            "duplicatable": true,
+                            "deletable": true,
+                            "hideable": true,
+                            "text": "<span style=\"line-height: 21.6px;\">Access your Postoffice<br /></span>",
+                            "_languages": {},
+                            "calculatedWidth": 440,
+                            "calculatedHeight": 42
+                        }
+                    }, {
+                        "id": "H0Qf_JpTiM",
+                        "type": "text",
+                        "values": {
+                            "containerPadding": "10px",
+                            "anchor": "",
+                            "fontFamily": {
+                                "label": "Raleway",
+                                "value": "'Raleway',sans-serif",
+                                "url": "https://fonts.googleapis.com/css?family=Raleway:400,700",
+                                "defaultFont": true,
+                                "weights": null
+                            },
+                            "fontSize": "14px",
+                            "textAlign": "left",
+                            "lineHeight": "140%",
+                            "linkStyle": {
+                                "inherit": true,
+                                "linkColor": "#0000ee",
+                                "linkHoverColor": "#0000ee",
+                                "linkUnderline": true,
+                                "linkHoverUnderline": true
+                            },
+                            "displayCondition": null,
+                            "_styleGuide": null,
+                            "_meta": {
+                                "htmlID": "u_content_text_3",
+                                "htmlClassNames": "u_content_text",
+                                "description": ""
+                            },
+                            "selectable": true,
+                            "draggable": true,
+                            "duplicatable": true,
+                            "deletable": true,
+                            "hideable": true,
+                            "text": "<p class=\"p1\" style=\"line-height: 140%;\"><strong>Need Help?</strong></p>\n<p class=\"p3\" style=\"line-height: 140%;\">&nbsp;</p>\n<p class=\"p4\" style=\"line-height: 140%;\">Our support team is here to assist you. Reply to this email or visit our <a rel=\"noopener\" href=\"https://posthoot.com\" target=\"_blank\" data-u-link-value=\"eyJuYW1lIjoid2ViIiwiYXR0cnMiOnsiaHJlZiI6Int7aHJlZn19IiwidGFyZ2V0Ijoie3t0YXJnZXR9fSJ9LCJ2YWx1ZXMiOnsiaHJlZiI6Imh0dHBzOi8vcG9zdGhvb3QuY29tIiwidGFyZ2V0IjoiX2JsYW5rIn19\">Help Center</a>.</p>\n<p class=\"p4\" style=\"line-height: 140%;\">&nbsp;</p>\n<p class=\"p1\" style=\"line-height: 140%;\">Thank you for choosing PostHoot. We&rsquo;re committed to helping you achieve your marketing goals.</p>",
+                            "_languages": {}
+                        }
+                    }],
+                    "values": {
+                        "backgroundColor": "#ffffff",
+                        "padding": "20px",
+                        "border": {
+                            "borderTopWidth": "0px",
+                            "borderTopStyle": "solid",
+                            "borderLeftWidth": "0px",
+                            "borderLeftStyle": "solid",
+                            "borderRightWidth": "0px",
+                            "borderRightStyle": "solid",
+                            "borderBottomWidth": "0px",
+                            "borderBottomStyle": "solid"
+                        },
+                        "borderRadius": "0px",
+                        "_meta": {
+                            "htmlID": "u_column_2",
+                            "htmlClassNames": "u_column"
+                        }
+                    }
+                }],
+                "values": {
+                    "displayCondition": null,
+                    "columns": false,
+                    "_styleGuide": null,
+                    "backgroundColor": "",
+                    "columnsBackgroundColor": "",
+                    "backgroundImage": {
+                        "url": "",
+                        "fullWidth": true,
+                        "repeat": "no-repeat",
+                        "size": "custom",
+                        "position": "center"
+                    },
+                    "padding": "0px",
+                    "anchor": "",
+                    "_meta": {
+                        "htmlID": "u_row_2",
+                        "htmlClassNames": "u_row",
+                        "description": ""
+                    },
+                    "selectable": true,
+                    "draggable": true,
+                    "duplicatable": true,
+                    "deletable": true,
+                    "hideable": true
+                }
+            }, {
+                "id": "H59-F27HJE",
+                "cells": [1],
+                "columns": [{
+                    "id": "csSMOg7dy5",
+                    "contents": [{
+                        "id": "qH0spxeE7i",
+                        "type": "text",
+                        "values": {
+                            "containerPadding": "10px",
+                            "anchor": "",
+                            "fontFamily": {
+                                "label": "Times New Roman",
+                                "value": "times new roman,times",
+                                "url": "",
+                                "defaultFont": true,
+                                "weights": null
+                            },
+                            "fontSize": "14px",
+                            "textAlign": "center",
+                            "lineHeight": "140%",
+                            "linkStyle": {
+                                "inherit": true,
+                                "linkColor": "#0000ee",
+                                "linkHoverColor": "#0000ee",
+                                "linkUnderline": true,
+                                "linkHoverUnderline": true
+                            },
+                            "displayCondition": null,
+                            "_styleGuide": null,
+                            "_meta": {
+                                "htmlID": "u_content_text_4",
+                                "htmlClassNames": "u_content_text",
+                                "description": ""
+                            },
+                            "selectable": true,
+                            "draggable": true,
+                            "duplicatable": true,
+                            "deletable": true,
+                            "hideable": true,
+                            "text": "<h4 class=\"default-heading4\" style=\"color: #1f2d3d;\"><span style=\"line-height: 19.6px;\">Posthoot</span></h4>\n<p style=\"line-height: 140%;\">Chanakyapuri, New Delhi</p>\n<p style=\"line-height: 140%;\">110014, New Delhi, India</p>\n<p style=\"line-height: 140%;\">hello@posthoot.com</p>",
+                            "_languages": {}
+                        }
+                    }],
+                    "values": {
+                        "backgroundColor": "#ffffff",
+                        "padding": "0px",
+                        "border": {},
+                        "borderRadius": "0px",
+                        "_meta": {
+                            "htmlID": "u_column_4",
+                            "htmlClassNames": "u_column"
+                        }
+                    }
+                }],
+                "values": {
+                    "displayCondition": null,
+                    "columns": false,
+                    "_styleGuide": null,
+                    "backgroundColor": "",
+                    "columnsBackgroundColor": "",
+                    "backgroundImage": {
+                        "url": "",
+                        "fullWidth": true,
+                        "repeat": "no-repeat",
+                        "size": "custom",
+                        "position": "center"
+                    },
+                    "padding": "10px",
+                    "anchor": "",
+                    "_meta": {
+                        "htmlID": "u_row_4",
+                        "htmlClassNames": "u_row",
+                        "description": ""
+                    },
+                    "selectable": true,
+                    "draggable": true,
+                    "duplicatable": true,
+                    "deletable": true,
+                    "hideable": true
+                }
+            }, {
+                "id": "2JOetkgFdH",
+                "cells": [1],
+                "columns": [{
+                    "id": "nziUaS9s2L",
+                    "contents": [],
+                    "values": {
+                        "backgroundColor": "",
+                        "padding": "0px",
+                        "border": {},
+                        "borderRadius": "0px",
+                        "_meta": {
+                            "htmlID": "u_column_3",
+                            "htmlClassNames": "u_column"
+                        }
+                    }
+                }],
+                "values": {
+                    "displayCondition": null,
+                    "columns": false,
+                    "_styleGuide": null,
+                    "backgroundColor": "",
+                    "columnsBackgroundColor": "",
+                    "backgroundImage": {
+                        "url": "",
+                        "fullWidth": true,
+                        "repeat": "no-repeat",
+                        "size": "custom",
+                        "position": "center"
+                    },
+                    "padding": "0px",
+                    "anchor": "",
+                    "_meta": {
+                        "htmlID": "u_row_3",
+                        "htmlClassNames": "u_row",
+                        "description": ""
+                    },
+                    "selectable": true,
+                    "draggable": true,
+                    "duplicatable": true,
+                    "deletable": true,
+                    "hideable": true
+                }
+            }],
+            "headers": [],
+            "footers": [],
+            "values": {
+                "_styleGuide": null,
+                "popupPosition": "center",
+                "popupWidth": "600px",
+                "popupHeight": "auto",
+                "borderRadius": "10px",
+                "contentAlign": "center",
+                "contentVerticalAlign": "center",
+                "contentWidth": "500px",
+                "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                },
+                "textColor": "#000000",
+                "popupBackgroundColor": "#FFFFFF",
+                "popupBackgroundImage": {
+                    "url": "",
+                    "fullWidth": true,
+                    "repeat": "no-repeat",
+                    "size": "cover",
+                    "position": "center"
+                },
+                "popupOverlay_backgroundColor": "rgba(0, 0, 0, 0.1)",
+                "popupCloseButton_position": "top-right",
+                "popupCloseButton_backgroundColor": "#DDDDDD",
+                "popupCloseButton_iconColor": "#000000",
+                "popupCloseButton_borderRadius": "0px",
+                "popupCloseButton_margin": "0px",
+                "popupCloseButton_action": {
+                    "name": "close_popup",
+                    "attrs": {
+                        "onClick": "document.querySelector('.u-popup-container').style.display = 'none';"
+                    }
+                },
+                "language": {},
+                "backgroundColor": "#F9F9F9",
+                "preheaderText": "",
+                "linkStyle": {
+                    "body": true,
+                    "linkColor": "#0000ee",
+                    "linkHoverColor": "#0000ee",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                },
+                "backgroundImage": {
+                    "url": "",
+                    "fullWidth": true,
+                    "repeat": "no-repeat",
+                    "size": "custom",
+                    "position": "center"
+                },
+                "_meta": {
+                    "htmlID": "u_body",
+                    "htmlClassNames": "u_body",
+                    "description": ""
+                }
+            }
+        },
+        "schemaVersion": 18
+    },
+      "htmlFileId": "welcome.html"
+    },
+    {
+      "name": "PLATFORM INVITE",
+      "categoryName": "Transactional",
+      "variables": ["name", "inviter", "role", "url"],
+      "description": "This is an invite email to the platform",
+      "subject": "Hey {{name}} 👋🏻! You've been invited to join a team on Posthoot",
+      "designJson": {
+        "counters": {
+            "u_row": 4,
+            "u_column": 4,
+            "u_content_text": 4,
+            "u_content_image": 2,
+            "u_content_button": 1,
+            "u_content_divider": 1,
+            "u_content_heading": 1
+        },
+        "body": {
+            "id": "FhodmKfz1_",
+            "rows": [{
+                "id": "BL561mCCUn",
+                "cells": [1],
+                "columns": [{
+                    "id": "CuzH32ujMg",
+                    "contents": [{
+                        "id": "rpEh6p6-EJ",
+                        "type": "image",
+                        "values": {
+                            "containerPadding": "10px",
+                            "anchor": "",
+                            "src": {
+                                "url": "https://assets.unlayer.com/projects/260505/1738231891552-posthoot.png",
+                                "width": 470,
+                                "height": 152,
+                                "id": 27375940,
+                                "size": 9314,
+                                "dynamic": true,
+                                "maxWidth": "35%",
+                                "autoWidth": false,
+                                "contentType": "image/png"
+                            },
+                            "textAlign": "center",
+                            "altText": "",
+                            "action": {
+                                "name": "web",
+                                "values": {
+                                    "href": "",
+                                    "target": "_blank"
+                                }
+                            },
+                            "hideDesktop": false,
+                            "displayCondition": null,
+                            "_styleGuide": null,
+                            "_meta": {
+                                "htmlID": "u_content_image_1",
+                                "description": "",
+                                "htmlClassNames": "u_content_image"
+                            },
+                            "selectable": true,
+                            "draggable": true,
+                            "duplicatable": true,
+                            "deletable": true,
+                            "hideable": true,
+                            "pending": false
+                        }
+                    }],
+                    "values": {
+                        "_meta": {
+                            "htmlID": "u_column_1",
+                            "htmlClassNames": "u_column"
+                        },
+                        "border": {},
+                        "padding": "0px",
+                        "backgroundColor": ""
+                    }
+                }],
+                "values": {
+                    "displayCondition": null,
+                    "columns": false,
+                    "_styleGuide": null,
+                    "backgroundColor": "",
+                    "columnsBackgroundColor": "",
+                    "backgroundImage": {
+                        "url": "",
+                        "fullWidth": true,
+                        "repeat": "no-repeat",
+                        "size": "custom",
+                        "position": "center"
+                    },
+                    "padding": "0px",
+                    "anchor": "",
+                    "hideDesktop": false,
+                    "_meta": {
+                        "htmlID": "u_row_1",
+                        "description": "",
+                        "htmlClassNames": "u_row"
+                    },
+                    "selectable": true,
+                    "draggable": true,
+                    "duplicatable": true,
+                    "deletable": true,
+                    "hideable": true
+                }
+            }, {
+                "id": "6V6eN2wJuI",
+                "cells": [1],
+                "columns": [{
+                    "id": "LEDT-78XoN",
+                    "contents": [{
+                        "id": "GP8VE6eYhn",
+                        "type": "heading",
+                        "values": {
+                            "containerPadding": "10px",
+                            "anchor": "",
+                            "headingType": "h1",
+                            "fontFamily": {
+                                "url": "",
+                                "label": "Georgia",
+                                "value": "georgia,palatino",
+                                "weights": null,
+                                "defaultFont": true
+                            },
+                            "fontSize": "22px",
+                            "textAlign": "center",
+                            "lineHeight": "140%",
+                            "linkStyle": {
+                                "inherit": true,
+                                "linkColor": "#0000ee",
+                                "linkHoverColor": "#0000ee",
+                                "linkUnderline": true,
+                                "linkHoverUnderline": true
+                            },
+                            "hideDesktop": false,
+                            "displayCondition": null,
+                            "_styleGuide": null,
+                            "_meta": {
+                                "htmlID": "u_content_heading_1",
+                                "description": "",
+                                "htmlClassNames": "u_content_heading"
+                            },
+                            "selectable": true,
+                            "draggable": true,
+                            "duplicatable": true,
+                            "deletable": true,
+                            "hideable": true,
+                            "text": "<span>Hey 👋🏻 {{ name }}, Welcome to Posthoot<br /></span>",
+                            "_languages": {}
+                        }
+                    }, {
+                        "id": "3I0CI3qKKD",
+                        "type": "image",
+                        "values": {
+                            "containerPadding": "10px",
+                            "anchor": "",
+                            "src": {
+                                "url": "https://assets.unlayer.com/projects/260505/1738233774238-stripy-107.png",
+                                "width": 2500,
+                                "height": 1496,
+                                "id": 27376658,
+                                "size": 178889,
+                                "dynamic": true,
+                                "maxWidth": "84%",
+                                "autoWidth": false,
+                                "contentType": "image/png"
+                            },
+                            "textAlign": "center",
+                            "altText": "",
+                            "action": {
+                                "name": "web",
+                                "values": {
+                                    "href": "",
+                                    "target": "_blank"
+                                }
+                            },
+                            "hideDesktop": false,
+                            "displayCondition": null,
+                            "_styleGuide": null,
+                            "_meta": {
+                                "htmlID": "u_content_image_2",
+                                "description": "",
+                                "htmlClassNames": "u_content_image"
+                            },
+                            "selectable": true,
+                            "draggable": true,
+                            "duplicatable": true,
+                            "deletable": true,
+                            "hideable": true,
+                            "pending": false
+                        }
+                    }, {
+                        "id": "1K4I64zrSY",
+                        "type": "text",
+                        "values": {
+                            "containerPadding": "10px",
+                            "anchor": "",
+                            "fontFamily": {
+                                "url": "https://fonts.googleapis.com/css?family=Raleway:400,700",
+                                "label": "Raleway",
+                                "value": "'Raleway',sans-serif",
+                                "weights": null,
+                                "defaultFont": true
+                            },
+                            "fontSize": "14px",
+                            "textAlign": "left",
+                            "lineHeight": "140%",
+                            "linkStyle": {
+                                "inherit": true,
+                                "linkColor": "#0000ee",
+                                "linkHoverColor": "#0000ee",
+                                "linkUnderline": true,
+                                "linkHoverUnderline": true
+                            },
+                            "hideDesktop": false,
+                            "displayCondition": null,
+                            "_styleGuide": null,
+                            "_meta": {
+                                "htmlID": "u_content_text_1",
+                                "description": "",
+                                "htmlClassNames": "u_content_text"
+                            },
+                            "selectable": true,
+                            "draggable": true,
+                            "duplicatable": true,
+                            "deletable": true,
+                            "hideable": true,
+                            "text": "<p style=\"line-height: 140%;\">We&rsquo;re excited to inform you that {{ inviter }} has added you to their team on PostHoot as a {{role}}.</p>\n<p style=\"line-height: 140%;\">&nbsp;</p>\n<p style=\"line-height: 140%;\"><strong>Getting Started:</strong></p>\n<p style=\"line-height: 140%;\">1. <strong>Log In:</strong> Access your account <a rel=\"noopener\" href=\"{{ url }}\" target=\"_blank\" data-u-link-value=\"eyJuYW1lIjoid2ViIiwiYXR0cnMiOnsiaHJlZiI6Int7aHJlZn19IiwidGFyZ2V0Ijoie3t0YXJnZXR9fSJ9LCJ2YWx1ZXMiOnsiaHJlZiI6Int7IHVybCB9fSIsInRhcmdldCI6IiJ9fQ==\">here</a>.</p>\n<p style=\"line-height: 140%;\">2. <strong>Explore Features:</strong> Familiarize yourself with our tools to enhance your email marketing efforts.</p>\n<p style=\"line-height: 140%;\">3. <strong>Collaborate:</strong> Work seamlessly with your team to achieve your marketing goals.</p>\n<p style=\"line-height: 140%;\">&nbsp;</p>\n<p style=\"line-height: 140%;\"><strong>Need Assistance?</strong></p>\n<p style=\"line-height: 140%;\">&nbsp;</p>\n<p style=\"line-height: 140%;\">Our support team is here to help! If you have any questions or need guidance, feel free to reply to this email or visit our <a rel=\"noopener\" href=\"https://posthoot.com\" target=\"_blank\" data-u-link-value=\"eyJuYW1lIjoid2ViIiwiYXR0cnMiOnsiaHJlZiI6Int7aHJlZn19IiwidGFyZ2V0Ijoie3t0YXJnZXR9fSJ9LCJ2YWx1ZXMiOnsiaHJlZiI6Imh0dHBzOi8vcG9zdGhvb3QuY29tIiwidGFyZ2V0IjoiIn19\">Help Center</a>.</p>",
+                            "_languages": {}
+                        }
+                    }, {
+                        "id": "VZx4hVPmKF",
+                        "type": "button",
+                        "values": {
+                            "href": {
+                                "name": "web",
+                                "attrs": {
+                                    "href": "{{href}}",
+                                    "target": "{{target}}"
+                                },
+                                "values": {
+                                    "href": "{{ url }}",
+                                    "target": "_blank"
+                                }
+                            },
+                            "buttonColors": {
+                                "color": "#FFFFFF",
+                                "backgroundColor": "#000000",
+                                "hoverColor": "#FFFFFF",
+                                "hoverBackgroundColor": "#3AAEE0"
+                            },
+                            "size": {
+                                "autoWidth": false,
+                                "width": "100%"
+                            },
+                            "fontFamily": {
+                                "url": "",
+                                "label": "Trebuchet MS",
+                                "value": "trebuchet ms,geneva",
+                                "weights": null,
+                                "defaultFont": true
+                            },
+                            "fontSize": "18px",
+                            "lineHeight": "120%",
+                            "textAlign": "center",
+                            "padding": "10px 20px",
+                            "border": {},
+                            "borderRadius": "4px",
+                            "hideDesktop": false,
+                            "displayCondition": null,
+                            "_styleGuide": null,
+                            "containerPadding": "10px",
+                            "anchor": "",
+                            "_meta": {
+                                "htmlID": "u_content_button_1",
+                                "description": "",
+                                "htmlClassNames": "u_content_button"
+                            },
+                            "selectable": true,
+                            "draggable": true,
+                            "duplicatable": true,
+                            "deletable": true,
+                            "hideable": true,
+                            "text": "<span style=\"line-height: 21.6px;\">Join the office<br /></span>",
+                            "_languages": {},
+                            "calculatedWidth": 440,
+                            "calculatedHeight": 42
+                        }
+                    }],
+                    "values": {
+                        "_meta": {
+                            "htmlID": "u_column_2",
+                            "htmlClassNames": "u_column"
+                        },
+                        "border": {
+                            "borderTopStyle": "solid",
+                            "borderTopWidth": "0px",
+                            "borderLeftStyle": "solid",
+                            "borderLeftWidth": "0px",
+                            "borderRightStyle": "solid",
+                            "borderRightWidth": "0px",
+                            "borderBottomStyle": "solid",
+                            "borderBottomWidth": "0px"
+                        },
+                        "padding": "20px",
+                        "borderRadius": "0px",
+                        "backgroundColor": "#ffffff"
+                    }
+                }],
+                "values": {
+                    "displayCondition": null,
+                    "columns": false,
+                    "_styleGuide": null,
+                    "backgroundColor": "",
+                    "columnsBackgroundColor": "",
+                    "backgroundImage": {
+                        "url": "",
+                        "fullWidth": true,
+                        "repeat": "no-repeat",
+                        "size": "custom",
+                        "position": "center"
+                    },
+                    "padding": "0px",
+                    "anchor": "",
+                    "hideDesktop": false,
+                    "_meta": {
+                        "htmlID": "u_row_2",
+                        "description": "",
+                        "htmlClassNames": "u_row"
+                    },
+                    "selectable": true,
+                    "draggable": true,
+                    "duplicatable": true,
+                    "deletable": true,
+                    "hideable": true
+                }
+            }, {
+                "id": "H59-F27HJE",
+                "cells": [1],
+                "columns": [{
+                    "id": "csSMOg7dy5",
+                    "contents": [{
+                        "id": "qH0spxeE7i",
+                        "type": "text",
+                        "values": {
+                            "containerPadding": "10px",
+                            "anchor": "",
+                            "fontFamily": {
+                                "url": "",
+                                "label": "Times New Roman",
+                                "value": "times new roman,times",
+                                "weights": null,
+                                "defaultFont": true
+                            },
+                            "fontSize": "14px",
+                            "textAlign": "center",
+                            "lineHeight": "140%",
+                            "linkStyle": {
+                                "inherit": true,
+                                "linkColor": "#0000ee",
+                                "linkHoverColor": "#0000ee",
+                                "linkUnderline": true,
+                                "linkHoverUnderline": true
+                            },
+                            "hideDesktop": false,
+                            "displayCondition": null,
+                            "_styleGuide": null,
+                            "_meta": {
+                                "htmlID": "u_content_text_4",
+                                "description": "",
+                                "htmlClassNames": "u_content_text"
+                            },
+                            "selectable": true,
+                            "draggable": true,
+                            "duplicatable": true,
+                            "deletable": true,
+                            "hideable": true,
+                            "text": "<h4 class=\"default-heading4\" style=\"color: #1f2d3d;\"><span style=\"line-height: 19.6px;\">Posthoot</span></h4>\n<p style=\"line-height: 140%;\">Chanakyapuri, New Delhi</p>\n<p style=\"line-height: 140%;\">110014, New Delhi, India</p>\n<p style=\"line-height: 140%;\">hello@posthoot.com</p>",
+                            "_languages": {}
+                        }
+                    }],
+                    "values": {
+                        "_meta": {
+                            "htmlID": "u_column_4",
+                            "htmlClassNames": "u_column"
+                        },
+                        "border": {},
+                        "padding": "0px",
+                        "borderRadius": "0px",
+                        "backgroundColor": "#ffffff"
+                    }
+                }],
+                "values": {
+                    "displayCondition": null,
+                    "columns": false,
+                    "_styleGuide": null,
+                    "backgroundColor": "",
+                    "columnsBackgroundColor": "",
+                    "backgroundImage": {
+                        "url": "",
+                        "fullWidth": true,
+                        "repeat": "no-repeat",
+                        "size": "custom",
+                        "position": "center"
+                    },
+                    "padding": "10px",
+                    "anchor": "",
+                    "hideDesktop": false,
+                    "_meta": {
+                        "htmlID": "u_row_4",
+                        "description": "",
+                        "htmlClassNames": "u_row"
+                    },
+                    "selectable": true,
+                    "draggable": true,
+                    "duplicatable": true,
+                    "deletable": true,
+                    "hideable": true
+                }
+            }],
+            "headers": [],
+            "footers": [],
+            "values": {
+                "_styleGuide": null,
+                "popupPosition": "center",
+                "popupWidth": "600px",
+                "popupHeight": "auto",
+                "borderRadius": "10px",
+                "contentAlign": "center",
+                "contentVerticalAlign": "center",
+                "contentWidth": "500px",
+                "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                },
+                "textColor": "#000000",
+                "popupBackgroundColor": "#FFFFFF",
+                "popupBackgroundImage": {
+                    "url": "",
+                    "fullWidth": true,
+                    "repeat": "no-repeat",
+                    "size": "cover",
+                    "position": "center"
+                },
+                "popupOverlay_backgroundColor": "rgba(0, 0, 0, 0.1)",
+                "popupCloseButton_position": "top-right",
+                "popupCloseButton_backgroundColor": "#DDDDDD",
+                "popupCloseButton_iconColor": "#000000",
+                "popupCloseButton_borderRadius": "0px",
+                "popupCloseButton_margin": "0px",
+                "popupCloseButton_action": {
+                    "name": "close_popup",
+                    "attrs": {
+                        "onClick": "document.querySelector('.u-popup-container').style.display = 'none';"
+                    }
+                },
+                "language": {},
+                "backgroundColor": "#F9F9F9",
+                "preheaderText": "",
+                "linkStyle": {
+                    "body": true,
+                    "linkColor": "#0000ee",
+                    "linkHoverColor": "#0000ee",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                },
+                "backgroundImage": {
+                    "url": "",
+                    "fullWidth": true,
+                    "repeat": "no-repeat",
+                    "size": "custom",
+                    "position": "center"
+                },
+                "_meta": {
+                    "htmlID": "u_body",
+                    "description": "",
+                    "htmlClassNames": "u_body"
+                }
+            }
+        },
+        "schemaVersion": 18
+    },
+      "htmlFileId": "invite.html"
+    }
+  ]
+}

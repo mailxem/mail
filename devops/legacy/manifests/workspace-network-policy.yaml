@@ -1,0 +1,42 @@
+# The CNI must enforce NetworkPolicy. Restrict inbound traffic to ingress and the
+# frontend; egress remains provider-dependent (SMTP, IMAP, SQL, Redis, storage).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: posthoot-api-ingress
+  namespace: posthoot
+spec:
+  podSelector:
+    matchLabels:
+      app: posthoot
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+        - podSelector:
+            matchLabels:
+              app: xemapp
+      ports:
+        - protocol: TCP
+          port: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: posthoot-web-ingress
+  namespace: posthoot
+spec:
+  podSelector:
+    matchLabels:
+      app: xemapp
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000

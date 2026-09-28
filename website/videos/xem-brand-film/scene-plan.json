@@ -1,0 +1,1139 @@
+{
+  "version": 1,
+  "status": "approved; rendered; see DELIVERY.md",
+  "fps": 30,
+  "frameCount": 901,
+  "rangeConvention": "zero-based; start inclusive, end exclusive",
+  "sourceCanvas": [
+    1280,
+    720
+  ],
+  "outputCanvas": [
+    1920,
+    1080
+  ],
+  "scenes": [
+    {
+      "id": "01",
+      "title": "Identity construction",
+      "start": 0,
+      "end": 41,
+      "poster": 36,
+      "reference": "Faint radial construction lines on warm off-white. Gray circles accumulate around a ring; connected shapes fill with near-black ink.",
+      "xem": "Construct the actual Xem mark from its two circles, two rounded squares, and connecting necks. Preserve the reference's center, construction-diagram scale, and sequential fill rhythm.",
+      "copy": "No headline.",
+      "purpose": "Introduce Xem as a designed, connected system.",
+      "assets": [
+        "assets/brand/xem-logo.svg",
+        "assets/brand/xem-mark.png"
+      ],
+      "keyframes": [
+        [
+          0,
+          "Construction guides appear on cream."
+        ],
+        [
+          2,
+          "First gray circular anchor arrives."
+        ],
+        [
+          7,
+          "Opposite anchor and square modules begin forming."
+        ],
+        [
+          15,
+          "The entire gray mark is readable."
+        ],
+        [
+          23,
+          "Connections resolve and construction motion settles."
+        ],
+        [
+          33,
+          "Dark fill begins."
+        ],
+        [
+          40,
+          "Finish the ink sweep; prepare the wordmark reveal."
+        ]
+      ],
+      "motion": "Shape paths and connecting necks share the original geometry; guide endpoints and fill masks are seekable. Match acceleration from the source's frame sequence. Do not turn the Xem mark into Cyera's ring.",
+      "handoff": "The symbol survives into scene 02; its world position and velocity must be sampled from frame 40 and carried into frame 41.",
+      "review": "The construction motion changes because Xem's mark has different geometry. Identity correctness wins over copying Cyera's final silhouette."
+    },
+    {
+      "id": "02",
+      "title": "Wordmark resolves",
+      "start": 41,
+      "end": 61,
+      "poster": 55,
+      "reference": "The symbol moves left as the lowercase cyera wordmark resolves from a partial reveal. The complete dark lockup holds on cream.",
+      "xem": "Resolve the real symbol beside the site wordmark \u2018Xem\u2019, preserving the source's overall lockup footprint and optical centering.",
+      "copy": "Xem",
+      "purpose": "Make the brand recognizable immediately.",
+      "assets": [
+        "assets/brand/xem-logo.svg"
+      ],
+      "keyframes": [
+        [
+          41,
+          "Reveal begins while the symbol shifts left."
+        ],
+        [
+          46,
+          "All three letters are fully visible."
+        ],
+        [
+          50,
+          "Lockup settles."
+        ],
+        [
+          60,
+          "Hold the complete identity."
+        ]
+      ],
+      "motion": "A horizontal mask and a short position settle; use the site's capital X. Adjust tracking and mark-to-type gap rather than stretching letters.",
+      "handoff": "Preserve the exact lockup into scene 03; only measurement graphics are added.",
+      "review": "Final type bounds must be measured against the source at full size after the Xem wording is fitted."
+    },
+    {
+      "id": "03",
+      "title": "Clear-space study",
+      "start": 61,
+      "end": 83,
+      "poster": 72,
+      "reference": "Lime top/bottom bars and then vertical side bars measure the logo clear space. Fine markers and guides sit around the lockup.",
+      "xem": "Use Xem lemon for the same horizontal-then-vertical clear-space sequence around the Xem lockup.",
+      "copy": "Xem; tiny x-unit measurement labels only.",
+      "purpose": "Carry the reference's precise brand-system character.",
+      "assets": [
+        "assets/brand/xem-logo.svg"
+      ],
+      "keyframes": [
+        [
+          61,
+          "Top measurement bar appears."
+        ],
+        [
+          65,
+          "Bottom bar completes."
+        ],
+        [
+          69,
+          "Side bars sweep in."
+        ],
+        [
+          74,
+          "Clear-space box settles."
+        ],
+        [
+          82,
+          "Last light-frame hold before the dark cut."
+        ]
+      ],
+      "motion": "Straight edge wipes with the source's spacing rhythm; keep guides secondary to the mark.",
+      "handoff": "Hard cut at frame 83; do not add a dissolve.",
+      "review": "Clear-space units are a film graphic, not a claim that a formal public Xem identity manual exists."
+    },
+    {
+      "id": "04",
+      "title": "Dark identity and escaping dot",
+      "start": 83,
+      "end": 126,
+      "poster": 103,
+      "reference": "A smaller cream lockup sits on a very dark ground with fine moving guide lines. The mark dims; one pale node separates and travels toward the upper left.",
+      "xem": "Cream Xem lockup on ink. One circular module separates from the mark and becomes the transition dot.",
+      "copy": "Xem",
+      "purpose": "Establish the dark identity and make one shape carry the story forward.",
+      "assets": [
+        "assets/brand/xem-logo.svg"
+      ],
+      "keyframes": [
+        [
+          83,
+          "Cut to the smaller cream lockup."
+        ],
+        [
+          91,
+          "Fine guide lines travel behind it."
+        ],
+        [
+          109,
+          "Lockup begins losing emphasis."
+        ],
+        [
+          121,
+          "One circle separates."
+        ],
+        [
+          125,
+          "The circle reaches the upper-left transition position."
+        ]
+      ],
+      "motion": "Keep the reference's longer held interval, then accelerate the departing circle. Avoid adding an unrelated background loop.",
+      "handoff": "Circle position, size, and tangent at 125 must align with the dark stroke entering scene 05 at 126.",
+      "review": "The surviving circle must visibly originate from the Xem mark."
+    },
+    {
+      "id": "05",
+      "title": "Dot becomes color",
+      "start": 126,
+      "end": 143,
+      "poster": 135,
+      "reference": "Hard switch to pale lavender; a short dark arc contracts into a dot that settles near the center.",
+      "xem": "Use the escaped Xem module for the same arc-to-dot contraction on pale lavender.",
+      "copy": "None.",
+      "purpose": "Bridge identity geometry into the brand palette without a dead cut.",
+      "assets": [],
+      "keyframes": [
+        [
+          126,
+          "Arc enters on the light ground."
+        ],
+        [
+          130,
+          "Arc compresses."
+        ],
+        [
+          133,
+          "Dot shape is resolved."
+        ],
+        [
+          140,
+          "Dot settles."
+        ],
+        [
+          142,
+          "Last compact state before expansion."
+        ]
+      ],
+      "motion": "Animate the arc geometry, translation, and radius together; preserve the short deceleration.",
+      "handoff": "Scene 06 starts from this dot and expands it into the iris swatch.",
+      "review": "Do not insert a title or extra beat here; this is a 17-frame transition."
+    },
+    {
+      "id": "06",
+      "title": "Palette grid",
+      "start": 143,
+      "end": 192,
+      "poster": 181,
+      "reference": "The dot grows into a purple rounded square. Neighboring colors populate a large grid that drifts vertically, revealing neutral and bright swatches.",
+      "xem": "Populate the same swatch composition with Ink #22251f, Iris #5b3cc4, Forest #164b3f, Cream #ffffef, Lemon #edf09b, and Lavender #e7d8fa. Repeat partial edge swatches where the source grid extends off-screen.",
+      "copy": "Color names and exact Xem hex values.",
+      "purpose": "Translate the reference palette study into Xem's own visual system.",
+      "assets": [],
+      "keyframes": [
+        [
+          143,
+          "The center dot becomes an iris swatch."
+        ],
+        [
+          148,
+          "First card reaches its rounded-square shape."
+        ],
+        [
+          150,
+          "Right neighbor enters."
+        ],
+        [
+          154,
+          "Main row is filled."
+        ],
+        [
+          161,
+          "Top and lower rows enter the crop."
+        ],
+        [
+          184,
+          "The grid drifts upward."
+        ],
+        [
+          191,
+          "Final full palette state."
+        ]
+      ],
+      "motion": "Preserve card corner ratios, stagger, grid spacing, and the source's final upward drift. Labels stay attached to their swatches.",
+      "handoff": "Hard cut at frame 192 into oversized typography.",
+      "review": "All names and hex values come from the website theme; no new palette names are invented."
+    },
+    {
+      "id": "07",
+      "title": "Oversized type field",
+      "start": 192,
+      "end": 226,
+      "poster": 211,
+      "reference": "Huge black type on a purple field deliberately crops at the edges: \u2018from promise / to impact. / The archite\u2026\u2019. Individual words highlight lime and change from sans to serif.",
+      "xem": "Keep the oversized crop and word emphasis, using \u2018From a message / to a connection. / Make it your own.\u2019 The active phrase changes from DM Sans to EB Garamond in the same rhythmic slot.",
+      "copy": "From a message / to a connection. / Make it your own.",
+      "purpose": "State the shift from sending messages to building relationships.",
+      "assets": [],
+      "keyframes": [
+        [
+          192,
+          "Hard cut to edge-cropped type."
+        ],
+        [
+          198,
+          "Highlight \u2018to\u2019."
+        ],
+        [
+          204,
+          "Highlight \u2018a connection\u2019."
+        ],
+        [
+          211,
+          "Begin the editorial type change."
+        ],
+        [
+          218,
+          "Serif phrase holds within the sans field."
+        ],
+        [
+          225,
+          "Final cropped layout."
+        ]
+      ],
+      "motion": "Use glyph swaps/masks rather than font interpolation that changes the line unpredictably. Preserve intentional overscan; do not shrink the whole field to fit.",
+      "handoff": "Hard cut at 226 to the structured type specimen.",
+      "review": "This is proposed Xem copy; the source's exact words do not describe Xem."
+    },
+    {
+      "id": "08",
+      "title": "Type pairing statement",
+      "start": 226,
+      "end": 282,
+      "poster": 270,
+      "reference": "Large purple sans letters assemble \u2018Protect / your data.\u2019 against a dark design grid. \u2018Secure AI.\u2019 arrives below, flashes lime, and changes to a light serif.",
+      "xem": "Use the same three-line, offset hierarchy: \u2018Every / email. / More human.\u2019 The first two lines are DM Sans; the last line changes to EB Garamond, then holds in lavender.",
+      "copy": "Every / email. / More human.",
+      "purpose": "Make the human quality of Xem's email tools the main promise.",
+      "assets": [],
+      "keyframes": [
+        [
+          226,
+          "\u2018Every\u2019 is present; outline guides indicate the remaining lines."
+        ],
+        [
+          230,
+          "Second-line character reveal starts."
+        ],
+        [
+          235,
+          "\u2018More human.\u2019 arrives on the lower baseline."
+        ],
+        [
+          244,
+          "The statement is complete."
+        ],
+        [
+          248,
+          "Lower line receives the lemon highlight."
+        ],
+        [
+          256,
+          "Lower line switches to the editorial serif."
+        ],
+        [
+          281,
+          "Hold the resolved type specimen."
+        ]
+      ],
+      "motion": "Character masks follow the source timing. Keep the lower line's offset, large scale, and grid annotations. Type-family notes use the real Xem fonts.",
+      "handoff": "Hard cut at 282; keep the dark ground's color consistent.",
+      "review": "Brand copy is compact enough for the original reading time; no feature list is inserted."
+    },
+    {
+      "id": "09",
+      "title": "Corner-radius macro",
+      "start": 282,
+      "end": 305,
+      "poster": 299,
+      "reference": "A close-up of one purple panel corner, with a lime control point and construction grid; the radius grows as the camera shifts.",
+      "xem": "Rebuild that exact design-detail beat with an iris panel, lemon control point, and a radius that echoes Xem's rounded modules and editor cards.",
+      "copy": "Corner radius; small measurement annotation.",
+      "purpose": "Connect identity geometry to the product's visual surfaces.",
+      "assets": [],
+      "keyframes": [
+        [
+          282,
+          "Start on the panel-corner macro."
+        ],
+        [
+          291,
+          "Corner begins broadening."
+        ],
+        [
+          299,
+          "Radius approaches the final curve."
+        ],
+        [
+          304,
+          "Curve fills the lower-right quadrant."
+        ]
+      ],
+      "motion": "Animate vector radius and camera crop together. Control point follows the corner mathematically.",
+      "handoff": "Match the enlarged corner to the full rounded viewport beginning at 305.",
+      "review": "Measure the source radius in the layout pass; this plan records timing and geometry intent, not an already-verified pixel match."
+    },
+    {
+      "id": "10",
+      "title": "Viewport pulls back",
+      "start": 305,
+      "end": 316,
+      "poster": 311,
+      "reference": "The camera snaps back to a large rounded purple viewport, with small handles at its corners.",
+      "xem": "Use the same rounded frame and pullback, now iris on Xem ink. This viewport will become the first illustrated email world.",
+      "copy": "None.",
+      "purpose": "Turn the brand's geometry into a storytelling canvas.",
+      "assets": [],
+      "keyframes": [
+        [
+          305,
+          "Pull back to the entire viewport."
+        ],
+        [
+          309,
+          "Corner handles settle."
+        ],
+        [
+          315,
+          "Final empty window before the landscape is drawn."
+        ]
+      ],
+      "motion": "One fast camera pullback with a controlled settle; do not stretch this 11-frame breath.",
+      "handoff": "Identical window bounds, corner radius, and handles continue into scene 11.",
+      "review": "No logo or headline is added during this transition."
+    },
+    {
+      "id": "11",
+      "title": "Illustrated world appears",
+      "start": 316,
+      "end": 349,
+      "poster": 340,
+      "reference": "A purple horizon lights up inside the viewport. Terrain contours and foreground shelves draw forward from the distance; construction guides and a tiny brand mark appear.",
+      "xem": "Rebuild the layered horizon and terrain in iris/lavender, preserving the source's horizon height and depth. Use subtly folded paper contours to connect this world to email. Add the Xem lockup in the source's small lower position.",
+      "copy": "Small Xem lockup.",
+      "purpose": "Give email a visual world beyond interface screenshots.",
+      "assets": [
+        "assets/brand/xem-logo.svg"
+      ],
+      "keyframes": [
+        [
+          316,
+          "Horizon gradient appears."
+        ],
+        [
+          321,
+          "Distant left shelf becomes visible."
+        ],
+        [
+          325,
+          "Right landform enters."
+        ],
+        [
+          331,
+          "Foreground contours build toward camera."
+        ],
+        [
+          338,
+          "Fine framing guides appear."
+        ],
+        [
+          346,
+          "Small Xem mark resolves."
+        ],
+        [
+          348,
+          "Land on the completed illustrated viewport."
+        ]
+      ],
+      "motion": "Layered SVG/2.5D terrain with coordinated depth, not a flat image zoom. Halftone Field supplies a masked light sweep under the sky, with the original silhouette retained.",
+      "handoff": "Keep horizon and central framing into the palette-change cards of scene 12.",
+      "review": "Halftone is an intentional added texture; its contrast must stay below the landscape and type. Landscape layers are still to be authored."
+    },
+    {
+      "id": "12",
+      "title": "Newsletter cover variants",
+      "start": 349,
+      "end": 367,
+      "poster": 361,
+      "reference": "\u2018New Release\u2019 appears over three rapid terrain/color treatments. The last blue-and-green layout settles into a rounded card.",
+      "xem": "Use \u2018Your next newsletter\u2019 in the same editorial headline position. Cycle cream/iris, lavender/forest, then forest/ink worlds while retaining the source's 5-frame, 3-frame, then held rhythm.",
+      "copy": "Your next newsletter",
+      "purpose": "Make the illustrated brand world a recognizable email design use case.",
+      "assets": [
+        "assets/brand/xem-logo.svg"
+      ],
+      "keyframes": [
+        [
+          349,
+          "First titled cover appears."
+        ],
+        [
+          354,
+          "Second terrain palette."
+        ],
+        [
+          357,
+          "Third palette begins."
+        ],
+        [
+          364,
+          "Rounded card boundaries become clear."
+        ],
+        [
+          366,
+          "Card is ready to pull back into the montage."
+        ]
+      ],
+      "motion": "Hold headline anchor through every color cut. No crossfades between variants.",
+      "handoff": "The final cover remains the central card of scene 13; preserve its content and transform.",
+      "review": "\u2018Your next newsletter\u2019 is proposed copy; it is not a product-release announcement."
+    },
+    {
+      "id": "13",
+      "title": "Whole email world montage",
+      "start": 367,
+      "end": 415,
+      "poster": 402,
+      "reference": "The cover shrinks as rounded panels populate a dense mosaic: interfaces, icon objects, landscapes, and brand applications. The camera reveals a larger system.",
+      "xem": "Keep that pullback and mosaic layout. Populate it with the actual editor, newsletter workspace, automation canvas, audience, analytics, forms, and designed cover panels. Circle Carousel 4 runs inside the template-gallery tile using twelve existing Xem template previews.",
+      "copy": "No new master headline. Tiny labels: Design, Send, Automate, Understand where the source has UI labels.",
+      "purpose": "Show that the canvas, audience, timing, and results live in one workspace.",
+      "assets": [
+        "assets/product/editor-figma.webp",
+        "assets/product/newsletters.webp",
+        "assets/product/automations.webp",
+        "assets/product/audience.webp",
+        "assets/product/analytics.webp",
+        "assets/product/forms.webp",
+        "assets/templates/"
+      ],
+      "keyframes": [
+        [
+          367,
+          "Center cover begins shrinking."
+        ],
+        [
+          371,
+          "Left interface panel appears."
+        ],
+        [
+          376,
+          "Upper-right cover enters."
+        ],
+        [
+          380,
+          "Right object panel appears."
+        ],
+        [
+          388,
+          "Lower row arrives."
+        ],
+        [
+          394,
+          "Top center template tile becomes visible."
+        ],
+        [
+          400,
+          "Full mosaic is legible."
+        ],
+        [
+          414,
+          "Final dense system view."
+        ]
+      ],
+      "motion": "One shared camera pullback and staggered tile arrivals. Start the carousel from an already-populated circular layout; use its fast-slow-fast swing within the original 48-frame slot, not a six-second inserted scene.",
+      "handoff": "Hard cut at 415 to the white sketch board.",
+      "review": "Use the exact carousel-circle-4 block, not carousel-circle-5 or a text-carousel variant. This nested carousel is a deliberate difference from the reference. Existing screenshots show sample workspace data."
+    },
+    {
+      "id": "14",
+      "title": "Mail-capsule sketch",
+      "start": 415,
+      "end": 444,
+      "poster": 432,
+      "reference": "A small wireframe pod rotates against an off-white construction grid. Its silhouette has a rounded body and framed windows.",
+      "xem": "Keep the pod scale, rotation, and framing, but build a mail capsule whose seam resembles an envelope fold and whose ports echo Xem's circle-to-square modules.",
+      "copy": "None.",
+      "purpose": "Introduce the traveling message as the recurring visual character.",
+      "assets": [],
+      "keyframes": [
+        [
+          415,
+          "Wireframe capsule appears on the construction grid."
+        ],
+        [
+          424,
+          "Body turns through its side view."
+        ],
+        [
+          434,
+          "Front fold/seam comes back into view."
+        ],
+        [
+          440,
+          "Background brightens."
+        ],
+        [
+          443,
+          "Last unfilled sketch frame."
+        ]
+      ],
+      "motion": "A single 3D model drives both its wireframe and shaded forms so the silhouette does not jump at the material reveal.",
+      "handoff": "Identical camera, mesh, and transform continue at frame 444; only materials and environment change.",
+      "review": "This is a new Xem illustration, not an invented software feature or assistant character."
+    },
+    {
+      "id": "15",
+      "title": "Capsule gains a world",
+      "start": 444,
+      "end": 459,
+      "poster": 453,
+      "reference": "The pod gains purple and peach materials. A pastel sky washes in, followed by left/right canyon walls and green foreground terrain.",
+      "xem": "Resolve the capsule in iris, lavender, and cream; construct the same layered canyon shot with forest foreground and the same left/right occlusion order.",
+      "copy": "None.",
+      "purpose": "Move from the designed object into a living email journey.",
+      "assets": [],
+      "keyframes": [
+        [
+          444,
+          "Material fill appears on the wireframe."
+        ],
+        [
+          446,
+          "Sky color begins entering."
+        ],
+        [
+          448,
+          "Right wall appears."
+        ],
+        [
+          450,
+          "Left canyon face builds."
+        ],
+        [
+          452,
+          "Forest foreground enters."
+        ],
+        [
+          458,
+          "The complete world holds for traversal."
+        ]
+      ],
+      "motion": "Layer reveals use the source's order and short timings. A clipped Halftone Field light band sits behind the sky, never over the capsule edges.",
+      "handoff": "The capsule and every terrain layer remain in place at the start of scene 16.",
+      "review": "Keep the precise silhouette and depth hierarchy even though the colors and object details become Xem's."
+    },
+    {
+      "id": "16",
+      "title": "Travel through the canyon",
+      "start": 459,
+      "end": 487,
+      "poster": 474,
+      "reference": "The pod drifts left through a layered canyon, rotates, and then rises into the upper field while the landscape recedes.",
+      "xem": "Fly the mail capsule along the same path. It carries a folded email shape internally, with no labels competing with the motion.",
+      "copy": "None.",
+      "purpose": "Make movement and connection tangible.",
+      "assets": [],
+      "keyframes": [
+        [
+          459,
+          "Lateral traversal starts."
+        ],
+        [
+          467,
+          "Capsule nears the left canyon edge."
+        ],
+        [
+          475,
+          "Its upward path begins."
+        ],
+        [
+          481,
+          "Capsule scales down as it rises."
+        ],
+        [
+          486,
+          "It reaches the high position for the beam."
+        ]
+      ],
+      "motion": "One camera and a sampled capsule trajectory; terrain parallax follows depth. Preserve the source's direction changes rather than using a generic orbit.",
+      "handoff": "Carry capsule pose and position into scene 17 without a jump.",
+      "review": "Exact x/y/scale/rotation samples must be recorded during the layout/animation pass; the frame timings here are already fixed."
+    },
+    {
+      "id": "17",
+      "title": "A message in the light",
+      "start": 487,
+      "end": 523,
+      "poster": 508,
+      "reference": "A narrow vertical beam opens into a large cone under the pod; a tiny cube floats inside the light.",
+      "xem": "Preserve the narrow-to-wide light cone. Replace the cube with a small folded email card whose shape is readable without an icon label.",
+      "copy": "None.",
+      "purpose": "Give the traveling object a concrete email payload.",
+      "assets": [],
+      "keyframes": [
+        [
+          487,
+          "A narrow beam extends downward."
+        ],
+        [
+          492,
+          "Beam begins widening."
+        ],
+        [
+          496,
+          "Full light cone is visible."
+        ],
+        [
+          501,
+          "Folded email payload appears inside the cone."
+        ],
+        [
+          513,
+          "Payload and capsule continue their small coupled movement."
+        ],
+        [
+          522,
+          "Last pastel-world beam frame."
+        ]
+      ],
+      "motion": "Use a deterministic volumetric cone or layered transparent geometry with the source's falloff and floor reach. Payload stays on the beam axis.",
+      "handoff": "Keep the beam and payload anchor through the world changes in scene 18.",
+      "review": "The beam is an illustration of connection, not a guarantee of delivery or inbox placement."
+    },
+    {
+      "id": "18",
+      "title": "World changes and line bridge",
+      "start": 523,
+      "end": 548,
+      "poster": 539,
+      "reference": "Three worlds flash beneath the same beam: red canyon, purple landscape, green valley. The pod departs; perspective rays converge at the horizon.",
+      "xem": "Preserve the same terrain cuts using cream/iris, lavender, and forest worlds. The message leaves; guide lines remain and become the next scene's geometry.",
+      "copy": "None.",
+      "purpose": "Connect the visual journey to Xem's reusable system of tools.",
+      "assets": [],
+      "keyframes": [
+        [
+          523,
+          "First terrain cut."
+        ],
+        [
+          527,
+          "Second terrain cut."
+        ],
+        [
+          531,
+          "Forest valley cut."
+        ],
+        [
+          534,
+          "Capsule leaves the frame; beam reduces to rays."
+        ],
+        [
+          540,
+          "Rays and perspective point remain."
+        ],
+        [
+          547,
+          "Final landscape frame before the dark match cut."
+        ]
+      ],
+      "motion": "Keep the scene-switch frames exact. Convergence point is the continuity anchor into the icon seed.",
+      "handoff": "The ray intersection and ray angles at frame 547 must match their dark-background continuation at 548.",
+      "review": "No extra scene or explanatory caption fits this rapid transition."
+    },
+    {
+      "id": "19",
+      "title": "Icon seed",
+      "start": 548,
+      "end": 573,
+      "poster": 560,
+      "reference": "The perspective rays persist on a dark field, then shrink into a small geometric star/diagram.",
+      "xem": "Use that match cut to make a small connection/automation-node diagram. Retain the source's off-center placement and shrink timing.",
+      "copy": "None.",
+      "purpose": "Turn the illustrated world into the product's functional vocabulary.",
+      "assets": [],
+      "keyframes": [
+        [
+          548,
+          "Dark match cut; rays remain aligned."
+        ],
+        [
+          555,
+          "Ray field starts shrinking."
+        ],
+        [
+          561,
+          "Node diagram reaches icon scale."
+        ],
+        [
+          568,
+          "Fine endpoint details settle."
+        ],
+        [
+          572,
+          "Hold the seed before adjacent icons arrive."
+        ]
+      ],
+      "motion": "A shared vector path group shrinks with its line width compensated. Draw endpoint circles in the source's sequence.",
+      "handoff": "Seed diagram remains at its grid slot when scene 20 populates the surrounding cells.",
+      "review": "Line weights need full-resolution review; thumbnails alone are insufficient for this shot."
+    },
+    {
+      "id": "20",
+      "title": "Icon system expands",
+      "start": 573,
+      "end": 637,
+      "poster": 620,
+      "reference": "Geometric outline icons arrive around the seed. The grid expands from a few icons to a dense field as the camera pulls back.",
+      "xem": "Use a cohesive thin-line family based on real Xem concepts: envelope, editable blocks, calendar, automation branch, contact group, form, chart, inbox, code brackets, and webhook. Repeat visual variants to match the source's dense field.",
+      "copy": "None.",
+      "purpose": "Show the breadth of the workspace without a rapid feature checklist.",
+      "assets": [],
+      "keyframes": [
+        [
+          573,
+          "Second icon enters."
+        ],
+        [
+          580,
+          "First row develops."
+        ],
+        [
+          589,
+          "Second row grows."
+        ],
+        [
+          599,
+          "Camera reveals a larger grid."
+        ],
+        [
+          609,
+          "Outer columns arrive."
+        ],
+        [
+          620,
+          "Dense icon system is visible."
+        ],
+        [
+          636,
+          "Last dark grid frame."
+        ]
+      ],
+      "motion": "Use one shared pullback; paths draw or rotate in place on the exact source entry beats. Avoid independently floating icons.",
+      "handoff": "Hard cut at 637 to the laptop scene.",
+      "review": "Repeated visual variants are not separate product features; do not label the field with an invented feature count."
+    },
+    {
+      "id": "21",
+      "title": "The real website on a laptop",
+      "start": 637,
+      "end": 679,
+      "poster": 670,
+      "reference": "A laptop sits on dark terrain against a purple sunset. The camera pushes in while the site inside the screen scrolls to the hero.",
+      "xem": "Use the real xem.email page inside a screen-accurate laptop mockup. Follow the same push-in and page travel, landing on the actual \u2018Every email, a little more human\u2019 hero.",
+      "copy": "Actual site copy only.",
+      "purpose": "Anchor the abstract brand film in the real product and its public promise.",
+      "assets": [
+        "assets/capture/xem-home-1920.png"
+      ],
+      "keyframes": [
+        [
+          637,
+          "Laptop enters the terrain composition."
+        ],
+        [
+          645,
+          "Camera pushes closer."
+        ],
+        [
+          653,
+          "Page begins traveling toward the hero."
+        ],
+        [
+          661,
+          "Headline becomes the screen's main feature."
+        ],
+        [
+          669,
+          "Hero artwork and heading are fully visible."
+        ],
+        [
+          678,
+          "Laptop and page settle."
+        ]
+      ],
+      "motion": "Capture the real page at adequate resolution, texture it into a calibrated screen plane, and animate its crop. Laptop perspective and camera motion follow the source.",
+      "handoff": "Hard cut at frame 679 to the first physical application.",
+      "review": "The live text was read, but the final 1920-wide screenshot and laptop asset still need capture/creation. Do not invent a screenshot."
+    },
+    {
+      "id": "22",
+      "title": "Physical brand triptych",
+      "start": 679,
+      "end": 712,
+      "poster": 702,
+      "reference": "A floating cream cap appears, then a poster, then a black sweatshirt, each in its own vertical panel with soft grounding shadows.",
+      "xem": "Preserve cap \u2192 poster \u2192 sweatshirt and the three-panel layout. Apply the actual Xem mark to the cap, the mail-capsule world to the poster, and the thin-line icon family to the sweatshirt.",
+      "copy": "Xem on the artwork where the source carries its logo.",
+      "purpose": "Complete the brand-system showcase with tangible applications.",
+      "assets": [
+        "assets/brand/xem-logo.svg",
+        "assets/mockups/xem-cap.png",
+        "assets/mockups/xem-poster.png",
+        "assets/mockups/xem-sweatshirt.png"
+      ],
+      "keyframes": [
+        [
+          679,
+          "Cap panel appears."
+        ],
+        [
+          683,
+          "Poster panel enters."
+        ],
+        [
+          687,
+          "Sweatshirt panel enters edge-on."
+        ],
+        [
+          694,
+          "Garment rotates toward the camera."
+        ],
+        [
+          702,
+          "All three applications are readable."
+        ],
+        [
+          711,
+          "Hold triptych before the next cut."
+        ]
+      ],
+      "motion": "Match object turns, entry order, panel proportions, and floating shadow size. Reuse the same artwork developed for earlier scenes.",
+      "handoff": "Hard cut at 712.",
+      "review": "These are proposed brand-application mockups, not merchandise currently sold by Xem. Photographic/3D assets have not been produced yet."
+    },
+    {
+      "id": "23",
+      "title": "Newsletter lockup",
+      "start": 712,
+      "end": 746,
+      "poster": 734,
+      "reference": "The Cyera logo extends into \u2018cyera research labs\u2019 against a blue/green horizon, with thin alignment annotations around the wordmark.",
+      "xem": "Use \u2018Xem newsletters\u2019 in the same expanding descriptor lockup against a forest/iris horizon. Retain the fine typography annotations.",
+      "copy": "Xem newsletters",
+      "purpose": "Show the recurring email use case in the reference's brand-family rhythm.",
+      "assets": [
+        "assets/brand/xem-logo.svg"
+      ],
+      "keyframes": [
+        [
+          712,
+          "Base Xem wordmark appears."
+        ],
+        [
+          716,
+          "\u2018newsletters\u2019 reveals horizontally."
+        ],
+        [
+          723,
+          "Descriptor reaches final width."
+        ],
+        [
+          733,
+          "Construction labels hold."
+        ],
+        [
+          745,
+          "Last newsletter-world frame."
+        ]
+      ],
+      "motion": "The Xem mark is the fixed anchor. Descriptor length determines spacing; the landscape stays subtly alive as in the source.",
+      "handoff": "Same brand anchor continues at frame 746 while the descriptor and terrain switch.",
+      "review": "This is a descriptor of an existing Xem feature, not a fabricated research organization."
+    },
+    {
+      "id": "24",
+      "title": "Automation lockup",
+      "start": 746,
+      "end": 761,
+      "poster": 754,
+      "reference": "Hard cut to \u2018cyera school of ai\u2019 over a warmer canyon world, with the same logo anchor.",
+      "xem": "Switch to \u2018Xem automations\u2019 against the cream/iris world, maintaining identical anchor and baseline.",
+      "copy": "Xem automations",
+      "purpose": "Connect the journey motif to Xem's visual automation builder.",
+      "assets": [
+        "assets/brand/xem-logo.svg"
+      ],
+      "keyframes": [
+        [
+          746,
+          "Descriptor and terrain change together."
+        ],
+        [
+          750,
+          "Lockup is fully readable."
+        ],
+        [
+          760,
+          "Final hold before the next descriptor."
+        ]
+      ],
+      "motion": "A clean source-timed cut with minimal internal motion; only 15 frames are available.",
+      "handoff": "Preserve mark anchor and baseline into scene 25.",
+      "review": "Do not add supporting copy or animate a full workflow in this half-second shot."
+    },
+    {
+      "id": "25",
+      "title": "Open-source lockup",
+      "start": 761,
+      "end": 775,
+      "poster": 768,
+      "reference": "\u2018cyera community\u2019 appears over a lilac sunset landscape in the same lockup position.",
+      "xem": "Use \u2018Xem open source\u2019 over the lavender world. Preserve the consistent brand anchor and the short read.",
+      "copy": "Xem open source",
+      "purpose": "State Xem's verifiable open-source identity.",
+      "assets": [
+        "assets/brand/xem-logo.svg"
+      ],
+      "keyframes": [
+        [
+          761,
+          "Open-source descriptor cut."
+        ],
+        [
+          767,
+          "Hold the resolved lockup."
+        ],
+        [
+          774,
+          "Last horizon frame."
+        ]
+      ],
+      "motion": "One clean cut; terrain motion continues at the reference's pace.",
+      "handoff": "Hard cut to the final hero world at 775.",
+      "review": "No community-size, adoption, or customer claim is added."
+    },
+    {
+      "id": "26",
+      "title": "Make email more human",
+      "start": 775,
+      "end": 840,
+      "poster": 810,
+      "reference": "The pod flies through a dark purple world with floating stones and a curved foreground rim. Large white type builds \u2018Secure / the unknown\u2019, then holds while the pod turns and departs.",
+      "xem": "Recreate the same foreground rim, depth, floating objects, and capsule trajectory. Use \u2018Make email / more human.\u2019 in the same two-line typographic role. Small email fragments replace the loose cubes.",
+      "copy": "Make email / more human.",
+      "purpose": "Resolve the entire film into a memorable human-centered brand promise.",
+      "assets": [],
+      "keyframes": [
+        [
+          775,
+          "Cut into the deep hero world; capsule is in motion."
+        ],
+        [
+          778,
+          "First words appear."
+        ],
+        [
+          782,
+          "Two-line statement is complete."
+        ],
+        [
+          795,
+          "Capsule turns beside the headline."
+        ],
+        [
+          816,
+          "Hold the statement while the object continues its source path."
+        ],
+        [
+          832,
+          "Capsule begins its upward departure."
+        ],
+        [
+          839,
+          "Last hero frame before the closing cut."
+        ]
+      ],
+      "motion": "Use the same layered camera and capsule animation, with type held steady during the read. Halftone Field may supply the masked rear glow; preserve clean letters and the original object silhouettes.",
+      "handoff": "Capsule departure leads into the crossing object at frame 844; match model, material, and rotation direction across the cut.",
+      "review": "Two-line wording is deliberately shorter than the full website tagline so it fits the source's layout and reading time."
+    },
+    {
+      "id": "27",
+      "title": "Capsule returns to identity",
+      "start": 840,
+      "end": 854,
+      "poster": 849,
+      "reference": "A dim small logo appears on dark. The pod sweeps in large from the left, shrinks beneath the mark, then disappears into the brightened final lockup.",
+      "xem": "Use the same scale change and crossing path to bring the capsule back to the Xem mark. Resolve the mark in lemon with cream wordmark.",
+      "copy": "Xem",
+      "purpose": "Close the visual loop from brand geometry to traveling message and back.",
+      "assets": [
+        "assets/brand/xem-logo.svg"
+      ],
+      "keyframes": [
+        [
+          840,
+          "Dark end-card begins with dim identity."
+        ],
+        [
+          844,
+          "Large capsule crosses from the left."
+        ],
+        [
+          847,
+          "Capsule shrinks beneath the symbol."
+        ],
+        [
+          850,
+          "Mark brightens."
+        ],
+        [
+          853,
+          "Capsule has resolved into the final identity."
+        ]
+      ],
+      "motion": "Follow the source's brief overscale crossing and fast shrink. The capsule may collapse into a circular module; the final logo must exactly match the supplied Xem geometry.",
+      "handoff": "The entire lockup remains unchanged into scene 28.",
+      "review": "No additional logo sting, particle explosion, or unrelated effect is appended."
+    },
+    {
+      "id": "28",
+      "title": "Final brand hold",
+      "start": 854,
+      "end": 901,
+      "poster": 890,
+      "reference": "Small green-and-cream Cyera lockup holds at center on a dark field through the final source frame.",
+      "xem": "Hold the lemon-and-cream Xem lockup at the same relative scale and center. Keep the dark field calm.",
+      "copy": "Xem",
+      "purpose": "Leave a clear final brand impression.",
+      "assets": [
+        "assets/brand/xem-logo.svg"
+      ],
+      "keyframes": [
+        [
+          854,
+          "Fully resolved final logo."
+        ],
+        [
+          870,
+          "Steady brand hold."
+        ],
+        [
+          890,
+          "Steady brand hold."
+        ],
+        [
+          900,
+          "Final decoded reference frame; end after this frame."
+        ]
+      ],
+      "motion": "Static hold. No fade to black or extra CTA is added because neither is in the reference.",
+      "handoff": "End at frame boundary 901: 30.033333 seconds at 30 fps.",
+      "review": "A xem.email CTA would be a separate optional variation; the reference-matched master ends on the logo alone."
+    }
+  ]
+}

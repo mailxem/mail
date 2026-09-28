@@ -1,0 +1,32 @@
+name: Frontend CI
+on:
+  pull_request:
+    paths: ['client/**', '.github/workflows/frontend-ci.yml']
+  push:
+    branches: [undefined]
+    paths: ['client/**', '.github/workflows/frontend-ci.yml']
+permissions:
+  contents: read
+defaults:
+  run:
+    working-directory: client
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:9001/api/v1
+      NEXT_PUBLIC_PAYWALL_URL: http://127.0.0.1:9002/api/v1
+      INTERNAL_API_URL: http://127.0.0.1:9001/api/v1
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.5'
+      - run: bun install --frozen-lockfile
+      - run: bunx tsc --noEmit
+      - run: bunx jest --runInBand
+      - run: bun run build

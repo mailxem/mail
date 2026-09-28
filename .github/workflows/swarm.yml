@@ -1,7 +1,7 @@
 name: Swarm starter
 on:
   pull_request:
-    paths: ['deploy/swarm/**', 'scripts/install.sh', '.github/workflows/swarm.yml', 'server', 'client']
+    paths: ['deploy/swarm/**', 'scripts/install.sh', '.github/workflows/swarm.yml', 'server/**', 'client/**']
   workflow_dispatch:
 permissions:
   contents: read
@@ -17,9 +17,6 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: false
-      - run: git submodule update --init server client
       - name: Configure disposable endpoints
         run: |
           python3 - <<'PY'

@@ -1,0 +1,8 @@
+account_id = "123456789012"
+region = "us-east-2"
+name = "xem-kubernetes"
+oidc_provider_arn = "arn:aws:iam::123456789012:oidc-provider/oidc.eks.us-east-2.amazonaws.com/id/EXAMPLE"
+oidc_issuer_url = "https://oidc.eks.us-east-2.amazonaws.com/id/EXAMPLE"
+namespace = "xem"
+service_account = "xem-backend"
+feedback_endpoint = ""

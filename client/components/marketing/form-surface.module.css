@@ -1,0 +1,84 @@
+.page {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--form-bg);
+  color: var(--form-text);
+  font-family: var(--form-font);
+}
+.preview {
+  padding: 24px;
+  background: var(--form-bg);
+  color: var(--form-text);
+  font-family: var(--form-font);
+}
+.embedded {
+  min-height: 0;
+  align-items: flex-start;
+}
+.card {
+  width: 100%;
+  max-width: 480px;
+  margin: auto;
+  padding: 32px;
+  background: var(--form-card);
+  border-radius: var(--form-radius);
+  border: 1px solid color-mix(in srgb, var(--form-text) 18%, transparent);
+}
+.card.card h1,
+.card.card h2 {
+  color: var(--form-text);
+  font: 600 28px/1.2 var(--form-font);
+  letter-spacing: -0.7px;
+  margin-bottom: 12px;
+}
+.card p {
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.card label {
+  color: var(--form-text);
+}
+.card input:not([type="checkbox"]):not([type="radio"]),
+.card textarea {
+  background: var(--form-card);
+  color: var(--form-text);
+  border: 1px solid color-mix(in srgb, var(--form-text) 40%, transparent);
+  border-radius: var(--form-input-radius);
+  font-family: inherit;
+}
+.card input[type="checkbox"],
+.card input[type="radio"] {
+  accent-color: var(--form-button);
+}
+.card button[type="submit"],
+.card button[data-form-submit] {
+  background: var(--form-button);
+  color: var(--form-button-text);
+  border: 0;
+  border-radius: var(--form-input-radius);
+  font-family: inherit;
+  opacity: 1;
+}
+.card button:disabled {
+  cursor: default;
+}
+.logo {
+  display: block;
+  max-width: 180px;
+  max-height: 80px;
+  object-fit: contain;
+  margin: 0 0 24px;
+}
+@media (max-width: 480px) {
+  .page,
+  .preview {
+    padding: 16px;
+  }
+  .card {
+    padding: 24px;
+  }
+}

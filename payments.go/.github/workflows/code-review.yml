@@ -1,0 +1,45 @@
+name: CoriAI ✨ Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: ['*']
+
+jobs:
+  code-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Cori Auth Step
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.CORI_APP_ID }}
+          private-key: ${{ secrets.CORI_APP_PRIVATE_KEY }}
+      
+      - name: CoriAI ✨ Code Review
+        uses: theboringhumane/cori-ai@1.2.9
+        with:
+          provider: "openai"
+          model: gpt-4.1
+          github_token: ${{ steps.generate-token.outputs.token }}
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          openai_base_url: ${{ secrets.OPENAI_BASE_URL }}
+          extra_prompt: |
+            You are a helpful assistant that reviews code for security vulnerabilities and best practices.
+            You are given a codebase and a pull request.
+            You are to review the code and provide a report of the security vulnerabilities and best practices.
+            You are to provide a score for the codebase and the pull request.
+            You are to provide a report of the security vulnerabilities and best practices.
+            You are to provide a score for the codebase and the pull request.
+
+            The codebase is the payments.go codebase.

@@ -1,0 +1,119 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xemapp
+  namespace: posthoot
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: xemapp
+  template:
+    metadata:
+      labels:
+        app: xemapp
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 128Mi
+      - name: next-cache
+        emptyDir:
+          sizeLimit: 256Mi
+      containers:
+      - name: xemapp
+        image: theboringhumane/xemapp:latest
+        imagePullPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: next-cache
+          mountPath: /app/.next/cache
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: API_KEY_EXPIRY_DAYS
+          value: "90"
+        - name: GOOGLE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: xemapp-secrets
+              key: google-client-id
+        - name: GOOGLE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: xemapp-secrets
+              key: google-client-secret
+        - name: HOST
+          value: "0.0.0.0"
+        - name: HOSTNAME
+          value: "0.0.0.0"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: xemapp-secrets
+              key: jwt-secret
+        - name: NEXTAUTH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: xemapp-secrets
+              key: nextauth-secret
+        - name: NEXTAUTH_URL
+          value: "https://app.xem.email"
+        - name: INTERNAL_API_URL
+          value: "http://posthoot/api/v1"
+        - name: NEXT_PUBLIC_API_URL
+          value: "https://api.xem.email/api/v1"
+        - name: NEXT_PUBLIC_APP_URL
+          value: "https://app.xem.email"
+        - name: PORT
+          value: "3000"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: xemapp
+  namespace: posthoot
+spec:
+  selector:
+    app: xemapp
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+  type: ClusterIP

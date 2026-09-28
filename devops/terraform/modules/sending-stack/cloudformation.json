@@ -1,0 +1,202 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Xem managed sending: SES feedback topic, HTTPS subscription, and restricted runtime policy. No SMTP credentials or AWS access keys are created.",
+  "Parameters": {
+    "RuntimeRoleName": {
+      "Type": "String",
+      "Description": "Name of an existing backend IAM role; this template does not change its trust policy.",
+      "AllowedPattern": "[A-Za-z0-9+=,.@_-]{1,64}"
+    },
+    "FeedbackEndpoint": {
+      "Type": "String",
+      "Default": "",
+      "Description": "Leave blank on first deploy. After configuring Xem, update with https://API_HOST/api/v1/sending/events/ses.",
+      "AllowedPattern": "^$|^https://[^/]+/api/v1/sending/events/ses$"
+    }
+  },
+  "Conditions": {
+    "HasEndpoint": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "FeedbackEndpoint"
+            },
+            ""
+          ]
+        }
+      ]
+    }
+  },
+  "Resources": {
+    "FeedbackTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "DisplayName": "Xem managed delivery feedback"
+      }
+    },
+    "FeedbackTopicPolicy": {
+      "Type": "AWS::SNS::TopicPolicy",
+      "Properties": {
+        "Topics": [
+          {
+            "Ref": "FeedbackTopic"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "OnlySESFromThisAccount",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ses.amazonaws.com"
+              },
+              "Action": "sns:Publish",
+              "Resource": {
+                "Ref": "FeedbackTopic"
+              },
+              "Condition": {
+                "StringEquals": {
+                  "AWS:SourceAccount": {
+                    "Ref": "AWS::AccountId"
+                  }
+                },
+                "ArnLike": {
+                  "AWS:SourceArn": {
+                    "Fn::Sub": "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/xem-*"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "FeedbackSubscription": {
+      "Type": "AWS::SNS::Subscription",
+      "Condition": "HasEndpoint",
+      "DependsOn": "FeedbackTopicPolicy",
+      "Properties": {
+        "Protocol": "https",
+        "Endpoint": {
+          "Ref": "FeedbackEndpoint"
+        },
+        "TopicArn": {
+          "Ref": "FeedbackTopic"
+        },
+        "RawMessageDelivery": false
+      }
+    },
+    "RuntimePolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "Description": "SES operations required by Xem, scoped to this account/region and Xem tenants/configuration sets.",
+        "Roles": [
+          {
+            "Ref": "RuntimeRoleName"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "ConfigurationSets",
+              "Effect": "Allow",
+              "Action": [
+                "ses:CreateConfigurationSet",
+                "ses:CreateConfigurationSetEventDestination",
+                "ses:UpdateConfigurationSetEventDestination"
+              ],
+              "Resource": {
+                "Fn::Sub": "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/xem-*"
+              }
+            },
+            {
+              "Sid": "DomainIdentities",
+              "Effect": "Allow",
+              "Action": [
+                "ses:CreateEmailIdentity",
+                "ses:GetEmailIdentity",
+                "ses:PutEmailIdentityMailFromAttributes"
+              ],
+              "Resource": {
+                "Fn::Sub": "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/*"
+              }
+            },
+            {
+              "Sid": "WorkspaceTenants",
+              "Effect": "Allow",
+              "Action": [
+                "ses:CreateTenant"
+              ],
+              "Resource": {
+                "Fn::Sub": "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:tenant/xem-*"
+              }
+            },
+            {
+              "Sid": "TenantAssociations",
+              "Effect": "Allow",
+              "Action": [
+                "ses:CreateTenantResourceAssociation"
+              ],
+              "Resource": [
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:tenant/xem-*"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/*"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/xem-*"
+                }
+              ]
+            },
+            {
+              "Sid": "ManagedDelivery",
+              "Effect": "Allow",
+              "Action": [
+                "ses:SendEmail"
+              ],
+              "Resource": [
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/*"
+                },
+                {
+                  "Fn::Sub": "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/xem-*"
+                }
+              ],
+              "Condition": {
+                "StringLike": {
+                  "ses:TenantName": "xem-*"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "TopicARN": {
+      "Value": {
+        "Ref": "FeedbackTopic"
+      }
+    },
+    "Region": {
+      "Value": {
+        "Ref": "AWS::Region"
+      }
+    },
+    "AccountID": {
+      "Value": {
+        "Ref": "AWS::AccountId"
+      }
+    },
+    "RuntimePolicyARN": {
+      "Value": {
+        "Ref": "RuntimePolicy"
+      }
+    }
+  }
+}

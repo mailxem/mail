@@ -194,7 +194,7 @@ def install(args, state):
     save(state_file, c)
     revision = run('git', '-C', str(ROOT), 'rev-parse', 'HEAD', capture=True).strip()
     build_id = revision[:12] + '-' + hashlib.sha256(c['api_url'].encode()).hexdigest()[:8]
-    print('Building pinned sources. The first build may take several minutes.', flush=True)
+    print('Building frontend and backend from this checkout. The first build may take several minutes.', flush=True)
     run('docker', 'build', '-t', f'xem-api:{build_id}', str(ROOT / 'server'))
     run('docker', 'build', '--build-arg', 'NEXT_PUBLIC_API_URL=' + c['api_url'] + '/api/v1',
         '--build-arg', 'NEXT_PUBLIC_PAYWALL_URL=' + c['app_url'] + '/billing-unavailable',

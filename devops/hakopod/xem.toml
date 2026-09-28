@@ -1,0 +1,214 @@
+# Hakopod schema v1, SELF-HOSTED ONLY: public TCP requires operator provisioning.
+# Provision the ingress certificate, readiness helper and AWS binding first.
+# See README.md for bootstrap steps and remaining production readiness checks.
+# Project/environment are CLI context, not fields in this application spec.
+schema_version = 1
+name = "xem"
+
+# Verify these custom domains for this application before deploying mappings.
+# "hakopod-acme" below must name an issuer configured by the Hakopod operator.
+[domains]
+# This HTTP mapping gives the backend's TLS ingress ownership of the SMTP cert.
+# SMTP submission itself still uses the separate raw TCP listener on 587.
+"api.xem.email" = "backend"
+"smtp.xem.email" = "backend"
+"app.xem.email" = "frontend"
+"payments.xem.email" = "payments"
+"mcp.xem.email" = "mcp"
+
+# External egress is needed for Infisical, database endpoints and integrations.
+# An internal-only network would block those dependencies.
+[networks.app]
+
+[services.backend]
+image = "theboringhumane/xemgo:latest"
+port = 9001
+public = true
+size = "large"
+replicas = 1
+update_strategy = "recreate"
+healthcheck = "/health"
+# Hakopod combines /health with the verified STARTTLS probe below.
+networks = ["app"]
+run_as_user = 65532
+run_as_group = 65532
+fs_group = 65532
+read_only_root_filesystem = true
+working_dir = "/app"
+termination_grace_seconds = 60
+temporary_mounts = [{ mount_path = "/tmp", size_mib = 32, memory = true }]
+tls = { issuer = "hakopod-acme" }
+# Requested operator binding name; it is not provisioned by this file.
+aws_identity = "xem-managed-sending"
+
+# Keep public HTTP on 9001 and declare SMTP as a separate private TCP endpoint.
+[[services.backend.ports]]
+name = "smtp"
+port = 2525
+target_port = 2525
+protocol = "TCP"
+
+# The operator must provision 587 on HAProxy and in the destination firewall.
+[[services.backend.public_tcp]]
+port = 587
+target_port = 2525
+source_cidrs = ["0.0.0.0/0"]
+
+# Follow the backend's existing TLS ingress certificate, including renewals.
+# /etc is protected by Hakopod; use an application data directory instead.
+[[services.backend.certificate_mounts]]
+source = "ingress"
+hostname = "smtp.xem.email"
+mount_path = "/app/certificates/smtp"
+
+
+# Requires the operator's digest-pinned HAKOPOD_READINESS_PROBE_IMAGE.
+# Both HTTP and SMTP must pass; this probe never authenticates or sends email.
+[services.backend.readiness]
+protocol = "smtp_starttls"
+port = 2525
+tls_server_name = "smtp.xem.email"
+# STARTTLS consumes two session tokens; allow the SMTP limiter to refill.
+period_seconds = 30
+timeout_seconds = 3
+failure_threshold = 3
+
+# Local storage persists; persistent services also get Recreate updates.
+[services.backend.volume]
+mount_path = "/app/storage"
+size_gib = 5
+
+[services.backend.network_access]
+from = ["frontend", "payments", "mcp"]
+
+[services.backend.env]
+SERVER_HOST = "0.0.0.0"
+SERVER_PORT = "9001"
+STORAGE_BASE_PATH = "/app/storage"
+PUBLIC_API_URL = "https://api.xem.email"
+CORS_ALLOWED_ORIGINS = "https://app.xem.email"
+# Match these flags in the dedicated Infisical environment: it loads at startup.
+# Self-hosted Hakopod supplies the certificate mount and approved AWS identity.
+MANAGED_SENDING_ENABLED = "true"
+MANAGED_SMTP_ENABLED = "true"
+MANAGED_SMTP_ADDR = ":2525"
+MANAGED_SMTP_HOST = "smtp.xem.email"
+MANAGED_SMTP_TLS_CERT = "/app/certificates/smtp/tls.crt"
+MANAGED_SMTP_TLS_KEY = "/app/certificates/smtp/tls.key"
+# Keep account ID and this environment's SNS topic ARN in Infisical as well.
+MANAGED_SES_REGION = "us-east-2"
+HAKOPOD_AWS_IDENTITIES_FILE="/etc/hakopod/aws-identities.toml"
+
+[services.backend.secrets]
+INFISICAL_API_URL = { ref = "infisical-api-url" }
+INFISICAL_CLIENT_ID = { ref = "backend-infisical-client-id" }
+INFISICAL_CLIENT_SECRET = { ref = "backend-infisical-client-secret" }
+INFISICAL_PROJECT_ID = { ref = "backend-infisical-project-id" }
+INFISICAL_ENV = { ref = "backend-infisical-environment" }
+
+[services.frontend]
+image = "theboringhumane/xemapp:latest"
+port = 3000
+public = true
+size = "medium"
+replicas = 1
+healthcheck = "/login"
+depends_on = ["backend", "payments"]
+networks = ["app"]
+run_as_user = 1000
+run_as_group = 1000
+fs_group = 1000
+read_only_root_filesystem = true
+working_dir = "/app"
+termination_grace_seconds = 40
+temporary_mounts = [
+  { mount_path = "/tmp", size_mib = 32, memory = true },
+  { mount_path = "/app/.next/cache", size_mib = 64 },
+]
+tls = { issuer = "hakopod-acme" }
+
+[services.frontend.network_access]
+from = []
+
+[services.frontend.env]
+NODE_ENV = "production"
+HOSTNAME = "0.0.0.0"
+PORT = "3000"
+INTERNAL_API_URL = "http://backend:9001/api/v1"
+# These must also match the values baked into the frontend image at build time.
+NEXT_PUBLIC_API_URL = "https://api.xem.email/api/v1"
+NEXT_PUBLIC_PAYWALL_URL = "https://payments.xem.email/api/v1"
+NEXTAUTH_URL = "https://app.xem.email"
+AUTH_TRUST_HOST = "true"
+
+[services.frontend.secrets]
+AUTH_SECRET = { ref = "frontend-auth-secret" }
+NEXTAUTH_SECRET = { ref = "frontend-auth-secret" }
+GOOGLE_CLIENT_ID = { ref = "frontend-google-client-id" }
+GOOGLE_CLIENT_SECRET = { ref = "frontend-google-client-secret" }
+
+[services.payments]
+image = "ghcr.io/mailxem/payments.go:latest"
+port = 8080
+public = true
+size = "medium"
+replicas = 1
+healthcheck = "/api/v1/health"
+depends_on = ["backend"]
+networks = ["app"]
+run_as_user = 65532
+run_as_group = 65532
+fs_group = 65532
+read_only_root_filesystem = true
+working_dir = "/code"
+termination_grace_seconds = 60
+temporary_mounts = [{ mount_path = "/tmp", size_mib = 32, memory = true }]
+tls = { issuer = "hakopod-acme" }
+
+[services.payments.network_access]
+from = ["frontend", "backend"]
+
+[services.payments.env]
+PORT = "8080"
+ENVIRONMENT = "production"
+ENABLE_INFISICAL = "true"
+FRONTEND_URL = "https://app.xem.email"
+DASHBOARD_URL = "https://app.xem.email"
+
+[services.payments.secrets]
+INFISICAL_API_URL = { ref = "infisical-api-url" }
+INFISICAL_CLIENT_ID = { ref = "payments-infisical-client-id" }
+INFISICAL_CLIENT_SECRET = { ref = "payments-infisical-client-secret" }
+INFISICAL_PROJECT_ID = { ref = "payments-infisical-project-id" }
+INFISICAL_ENV = { ref = "payments-infisical-environment" }
+
+[services.mcp]
+image = "ghcr.io/mailxem/mcp:main"
+port = 3000
+public = true
+# small preserves the Compose 256 MiB ceiling, with a 0.5 CPU limit.
+# Use medium for 1 CPU, accepting its 512 MiB memory limit.
+size = "small"
+replicas = 1
+healthcheck = "/health"
+depends_on = ["backend"]
+networks = ["app"]
+run_as_user = 1000
+run_as_group = 1000
+fs_group = 1000
+read_only_root_filesystem = true
+working_dir = "/app"
+termination_grace_seconds = 40
+temporary_mounts = [{ mount_path = "/tmp", size_mib = 16, memory = true }]
+tls = { issuer = "hakopod-acme" }
+
+[services.mcp.network_access]
+from = []
+
+[services.mcp.env]
+NODE_ENV = "production"
+HOST = "0.0.0.0"
+PORT = "3000"
+XEM_MCP_PUBLIC_URL = "https://mcp.xem.email/mcp"
+XEM_API_BASE_URL = "https://api.xem.email/api/v1"
+XEM_MCP_ALLOWED_ORIGINS = ""

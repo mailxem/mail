@@ -1,0 +1,34 @@
+ffmpeg version 8.0 Copyright (c) 2000-2025 the FFmpeg developers
+  built with Apple clang version 17.0.0 (clang-1700.3.19.1)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/8.0_1 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libaribb24 --enable-libbluray --enable-libdav1d --enable-libharfbuzz --enable-libjxl --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-videotoolbox --enable-audiotoolbox --enable-neon
+  libavutil      60.  8.100 / 60.  8.100
+  libavcodec     62. 11.100 / 62. 11.100
+  libavformat    62.  3.100 / 62.  3.100
+  libavdevice    62.  1.100 / 62.  1.100
+  libavfilter    11.  4.100 / 11.  4.100
+  libswscale      9.  1.100 /  9.  1.100
+  libswresample   6.  1.100 /  6.  1.100
+[aist#0:0/pcm_s16le @ 0x71d00c180] Guessed Channel Layout: stereo
+Input #0, wav, from 'assets/audio/reference-soundtrack.wav':
+  Metadata:
+    encoder         : Lavf62.3.100
+  Duration: 00:00:30.03, bitrate: 1536 kb/s
+  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 48000 Hz, stereo, s16, 1536 kb/s
+[Parsed_volumedetect_0 @ 0x71c804fc0] n_samples: 0
+Stream mapping:
+  Stream #0:0 -> #0:0 (pcm_s16le (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, null, to 'pipe:':
+  Metadata:
+    encoder         : Lavf62.3.100
+  Stream #0:0: Audio: pcm_s16le, 48000 Hz, stereo, s16, 1536 kb/s
+    Metadata:
+      encoder         : Lavc62.11.100 pcm_s16le
+[Parsed_volumedetect_0 @ 0x71c805440] n_samples: 2883200
+[Parsed_volumedetect_0 @ 0x71c805440] mean_volume: -15.6 dB
+[Parsed_volumedetect_0 @ 0x71c805440] max_volume: -0.0 dB
+[Parsed_volumedetect_0 @ 0x71c805440] histogram_0db: 38
+[Parsed_volumedetect_0 @ 0x71c805440] histogram_1db: 1363
+[Parsed_volumedetect_0 @ 0x71c805440] histogram_2db: 6897
+[out#0/null @ 0x71c804cc0] video:0KiB audio:5631KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+size=N/A time=00:00:30.03 bitrate=N/A speed=5.98e+03x elapsed=0:00:00.00

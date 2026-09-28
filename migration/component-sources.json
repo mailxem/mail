@@ -1,0 +1,52 @@
+[
+  {
+    "path": "client",
+    "repository": "https://github.com/mailxem/xem-app.ts",
+    "commit": "0d10fd7136fd979b35dccd076c9853bc4cab8017",
+    "excluded": []
+  },
+  {
+    "path": "server",
+    "repository": "https://github.com/mailxem/xem.go",
+    "commit": "da2cec8766ee174e7d29200f7979e7ebf1fb050f",
+    "excluded": [
+      "bin/server"
+    ]
+  },
+  {
+    "path": "devops",
+    "repository": "https://github.com/mailxem/devops",
+    "commit": "da3c02660e9c9492d2bea6a471221dbfc3a81d7d",
+    "excluded": []
+  },
+  {
+    "path": "mcp",
+    "repository": "https://github.com/mailxem/mcp",
+    "commit": "ba8ba0f1389a4707a17e7a2cf7f930ec01a68448",
+    "excluded": []
+  },
+  {
+    "path": "payments.go",
+    "repository": "https://github.com/mailxem/payments.go",
+    "commit": "ec43a6d7609ec5660df527b30233d3eb5f4b3f8c",
+    "excluded": []
+  },
+  {
+    "path": "sdk",
+    "repository": "https://github.com/mailxem/sdk",
+    "commit": "620d98f00368fac7ecc797b441f9cb4a4def41e7",
+    "excluded": []
+  },
+  {
+    "path": "sdk-go",
+    "repository": "https://github.com/mailxem/sdk-go",
+    "commit": "379efa6fa8f23e2d2279e208e567156a35fd3517",
+    "excluded": []
+  },
+  {
+    "path": "website",
+    "repository": "https://github.com/mailxem/xem-website",
+    "commit": "ae68d0c3c5d9339834d58c43eb99f6494d5b903a",
+    "excluded": []
+  }
+]

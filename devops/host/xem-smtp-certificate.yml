@@ -1,0 +1,12 @@
+# Traefik dynamic file provider must watch this directory.
+# This HTTPS router obtains the certificate only; SMTP is direct TCP on 587.
+http:
+  routers:
+    xem-smtp-certificate:
+      rule: Host(`smtp.xem.email`)
+      service: noop@internal
+      entryPoints: [websecure]
+      tls:
+        certResolver: letsencrypt
+        domains:
+          - main: smtp.xem.email

@@ -1,0 +1,10 @@
+# Inventory snapshot 2026-09-12. Confirm every ID before importing.
+account_id = "831009601947"
+region = "us-east-2"
+ami = "ami-0e68dc81dc36750a1"
+vpc_id = "vpc-07691bd7e3877f067"
+subnet_id = "subnet-03995a2e70364d56f"
+existing_security_group_ids = ["sg-07f60a270312ebf96"]
+key_name = "xem-rsa"
+root_volume_encrypted = false
+feedback_endpoint = ""

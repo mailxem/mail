@@ -1,0 +1,17 @@
+node_modules/
+.next/
+out/
+.env*
+!.env.example
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+playwright-report/
+test-results/
+.wrangler/
+.dev.vars*
+*.pem
+*.key
+
+# Installed agent packages; source and hashes are recorded in skills-lock.json.
+.agents/skills/

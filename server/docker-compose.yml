@@ -1,0 +1,99 @@
+services:
+  posthoot_redis:
+    # Use Redis or Valkey (both supported - same protocol)
+    # For Valkey: image: valkey/valkey:7-alpine
+    image: redis:7-alpine
+    volumes:
+      - posthoot_redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - posthoot_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  posthoot_postgres:
+    image: postgres:16-alpine
+    ports:
+      # 🗄️ Port 5432 maps the container's PostgreSQL port to host port 5432
+      # This allows connecting to the database from the host machine using localhost:5432
+      # The format is HOST_PORT:CONTAINER_PORT
+      - 5433:5432
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PGPASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - posthoot_postgres_data:/var/lib/postgresql/data
+    command:
+      - postgres
+      - '-c'
+      - log_statement=all
+      - '-c'
+      - shared_preload_libraries=pg_stat_statements
+      - '-c'
+      - pg_stat_statements.track=all
+      - '-c'
+      - pg_stat_statements.max=10000
+      - '-c'
+      - max_connections=300
+      - '-c'
+      - shared_buffers=80MB
+      - '-c'
+      - work_mem=16MB
+    networks:
+      - posthoot_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  posthoot_server:
+    build: .
+    env_file:
+      - .env
+    depends_on:
+      posthoot_redis:
+        condition: service_healthy
+      posthoot_postgres:
+        condition: service_healthy
+    networks:
+      - posthoot_network
+      - dokploy-network
+    environment:
+      - SERVER_HOST=0.0.0.0  # Ensure the service is reachable within Docker
+      - SERVER_PORT=9001
+      - REDIS_HOST=posthoot_redis  # Override to use local Redis container
+      - REDIS_PASSWORD=  # Local Redis has no password
+      - REDIS_USERNAME=  # Local Redis has no username
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  asynqmon:
+    # Task queue monitoring - works with both Redis and Valkey
+    image: hibiken/asynqmon
+    platform: linux/amd64  # Force amd64 for ARM64 compatibility
+    environment:
+      - REDIS_ADDR=posthoot_redis:6379
+    networks:
+      - posthoot_network
+      - dokploy-network
+
+volumes:
+  posthoot_redis_data:
+  posthoot_postgres_data:
+
+networks:
+  posthoot_network:
+    driver: bridge
+  dokploy-network:
+    external: true

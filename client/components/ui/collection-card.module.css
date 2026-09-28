@@ -1,0 +1,22 @@
+.card { display: flex; min-width: 0; flex-direction: column; overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--card-foreground); transition: border-color 140ms ease; }
+.card:hover { border-color: color-mix(in srgb, var(--foreground) 18%, var(--border)); }
+.header { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 18px 0; }
+.icon { display: grid; flex-shrink: 0; width: 30px; height: 30px; place-items: center; border: 1px solid var(--border); border-radius: 7px; color: var(--muted-foreground); background: var(--background); }
+.icon > svg { width: 16px; height: 16px; stroke-width: 1.65; }
+.badge { min-width: 0; font-size: 10px; line-height: 16px; }
+.textBadge { padding: 2px 6px; overflow-wrap: anywhere; border: 1px solid var(--border); border-radius: 4px; color: var(--muted-foreground); }
+.body { flex: 1; min-width: 0; padding: 14px 18px 18px; }
+.body h3 { margin: 0; font-size: 15px; line-height: 1.45; font-weight: 550; letter-spacing: -.2px; overflow-wrap: anywhere; }
+.body h3 a { color: inherit; }
+.body h3 a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.description { margin-top: 5px; color: var(--muted-foreground); font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.details { min-width: 0; }
+.details :global(.rounded-xl) { border-radius: 7px; }
+.details :global(.bg-violet-50) { border: 1px solid var(--border); background: var(--muted); color: var(--muted-foreground); border-radius: 4px; }
+.footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; padding: 8px 12px 8px 18px; border-top: 1px solid var(--border); }
+.action { display: inline-flex; align-items: center; gap: 8px; min-width: 0; min-height: 30px; padding: 4px 0; color: var(--foreground); font-size: 12px; font-weight: 500; text-align: left; }
+.action > svg { flex-shrink: 0; color: var(--muted-foreground); }
+.action:hover { color: var(--primary-text); }
+.action:hover > svg { color: currentColor; }
+@media (max-width: 600px) { .header { padding: 16px 16px 0; } .body { padding: 12px 16px 16px; } .footer { padding-left: 16px; } }
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } }

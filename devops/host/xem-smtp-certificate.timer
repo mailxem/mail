@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh Xem SMTP certificate mirror
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+RandomizedDelaySec=30
+Unit=xem-smtp-certificate.service
+
+[Install]
+WantedBy=timers.target

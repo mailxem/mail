@@ -1,0 +1,368 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Xem workspace · reference-derived neutrals + Coss semantic tokens.
+   Palette and layout rationale: design-references/dashboard/design-system.md */
+@layer base {
+  :root {
+    color-scheme: light;
+    --background: #fafaf8;
+    --foreground: #242520;
+    --card: #ffffff;
+    --card-foreground: var(--foreground);
+    --popover: #ffffff;
+    --popover-foreground: var(--foreground);
+    --primary: #d4ed55;
+    --primary-foreground: #202610;
+    --primary-text: #586d1e;
+    --secondary: #efefeb;
+    --secondary-foreground: #41433b;
+    --muted: #f1f1ed;
+    --muted-foreground: #71736a;
+    --accent: #eaece4;
+    --accent-foreground: #242520;
+    --destructive: #d43b40;
+    --destructive-foreground: #ffffff;
+    --success: #e4f1e8;
+    --success-foreground: #2e744a;
+    --warning: #faf0d8;
+    --warning-foreground: #906713;
+    --info: #e7edf5;
+    --info-foreground: #496d98;
+    --border: #e3e4de;
+    --input: #d6d8cf;
+    --ring: #859b32;
+    --chart-1: #738d20;
+    --chart-2: #448773;
+    --chart-3: #987522;
+    --chart-4: #617eaa;
+    --chart-5: #ad6068;
+    --sidebar: #f5f4f2;
+    --workspace-canvas: #ffffff;
+    --sidebar-background: var(--sidebar);
+    --sidebar-foreground: #686a61;
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: #e9eae3;
+    --sidebar-accent-foreground: var(--foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
+    --surface: var(--card);
+    --surface-dark: var(--muted);
+    --font-sans: var(--font-geist-sans), Arial, sans-serif;
+    --font-heading: var(--font-sans);
+    --font-mono: var(--font-geist-mono), monospace;
+    --radius: 0.625rem;
+    --shadow-sm: 0 1px 2px #00000005;
+    --shadow: 0 2px 6px #00000008;
+    --shadow-md: 0 4px 16px #0000000c;
+    --shadow-lg: 0 12px 40px #00000018;
+    --shadow-xl: 0 20px 60px #00000024;
+  }
+  .dark {
+    color-scheme: dark;
+    --background: #191919;
+    --foreground: #ededeb;
+    --card: #1c1c1c;
+    --popover: #222222;
+    --secondary: #292929;
+    --secondary-foreground: #d1d1cd;
+    --muted: #242424;
+    --muted-foreground: #a3a39e;
+    --accent: #2b2c28;
+    --accent-foreground: #ededeb;
+    --success: #183626;
+    --success-foreground: #83c89b;
+    --warning: #3b311b;
+    --warning-foreground: #dfbf79;
+    --info: #23303e;
+    --info-foreground: #a2bedf;
+    --border: #2d2d2a;
+    --input: #3a3b35;
+    --ring: #d4ed55;
+    --chart-1: #d4ed55;
+    --primary-text: #d4ed55;
+    --chart-2: #80b9a4;
+    --chart-3: #d6b371;
+    --chart-4: #8baacb;
+    --chart-5: #d28c91;
+    --sidebar: #171717;
+    --workspace-canvas: #202020;
+    --sidebar-foreground: #a3a39e;
+    --sidebar-accent: #2b2b28;
+    --shadow-sm: 0 1px 2px #0000000a;
+    --shadow: 0 2px 6px #00000014;
+    --shadow-md: 0 4px 16px #00000020;
+    --shadow-lg: 0 12px 40px #00000038;
+    --shadow-xl: 0 20px 60px #00000055;
+  }
+  * { border-color: var(--border); }
+  body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font-sans); font-size: 14px; line-height: 1.5; }
+  p, button, input, textarea, select { font-family: inherit; }
+  button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+  button:not(:disabled), summary { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+  ::selection { background: var(--primary); color: var(--primary-foreground); }
+  * { scrollbar-width: thin; scrollbar-color: var(--input) transparent; }
+  .dark .mly-bg-white { background-color: var(--card) !important; }
+  .dark .mly-bg-white :is(p,h1) { color: var(--foreground) !important; }
+}
+
+@layer components {
+  .document-theme { font-family: var(--font-sans); }
+  .document-theme .text-primary, .document-theme .hover\:text-primary:hover { color: var(--primary-text); }
+  .document-theme [data-slot="table"] th { height: 40px; font-size: 12px; font-weight: 500; color: var(--muted-foreground); background: var(--card); }
+  .document-theme [data-slot="table"] td { padding-top: 14px; padding-bottom: 14px; font-size: 13px; }
+  .document-theme [data-slot="table"] tbody tr:hover { background: var(--muted); }
+  .product-content { container-type: inline-size; }
+  .product-content > :is(.p-6,.p-4,.px-8) { padding: 0; }
+  .product-content .recharts-cartesian-grid line { stroke: var(--border); }
+  .product-content .recharts-cartesian-axis-tick-value { font-family: var(--font-sans); font-size: 11px; fill: var(--muted-foreground); }
+  .product-content :is(.bg-white, .bg-white\/80) { background-color: var(--card); }
+  .product-content :is(.text-gray-900, .text-slate-900, .text-zinc-900) { color: var(--foreground); }
+  .product-content :is(.bg-violet-50, .bg-purple-50) { background-color: var(--muted); }
+  .product-content :is(.text-violet-600, .text-purple-600) { color: var(--muted-foreground); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+@keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes contentShow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.animate-overlayShow {
+  animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-contentShow {
+  animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.react-flow__edge.animated path.react-flow__edge-interaction {
+  stroke-dasharray: 10 10;
+  stroke: white;
+  stroke-width: 1;
+  stroke-opacity: 1;
+}
+
+.max-w-screen {
+  max-width: 100vw !important;
+}
+
+@layer base {
+  @property --pos-x {
+    syntax: "<percentage>";
+    initial-value: 11.14%;
+    inherits: false;
+  }
+
+  @property --pos-y {
+    syntax: "<percentage>";
+    initial-value: 140%;
+    inherits: false;
+  }
+
+  @property --spread-x {
+    syntax: "<percentage>";
+    initial-value: 150%;
+    inherits: false;
+  }
+
+  @property --spread-y {
+    syntax: "<percentage>";
+    initial-value: 180.06%;
+    inherits: false;
+  }
+
+  @property --color-1 {
+    syntax: "<color>";
+    initial-value: #000;
+    inherits: false;
+  }
+
+  @property --color-2 {
+    syntax: "<color>";
+    initial-value: #08012c;
+    inherits: false;
+  }
+
+  @property --color-3 {
+    syntax: "<color>";
+    initial-value: #4e1e40;
+    inherits: false;
+  }
+
+  @property --color-4 {
+    syntax: "<color>";
+    initial-value: #70464e;
+    inherits: false;
+  }
+
+  @property --color-5 {
+    syntax: "<color>";
+    initial-value: #88394c;
+    inherits: false;
+  }
+
+  @property --border-angle {
+    syntax: "<angle>";
+    initial-value: 20deg;
+    inherits: true;
+  }
+
+  @property --border-color-1 {
+    syntax: "<color>";
+    initial-value: hsla(340, 75%, 60%, 0.2);
+    inherits: true;
+  }
+
+  @property --border-color-2 {
+    syntax: "<color>";
+    initial-value: hsla(340, 75%, 40%, 0.75);
+    inherits: true;
+  }
+
+  @property --stop-1 {
+    syntax: "<percentage>";
+    initial-value: 37.35%;
+    inherits: false;
+  }
+
+  @property --stop-2 {
+    syntax: "<percentage>";
+    initial-value: 61.36%;
+    inherits: false;
+  }
+
+  @property --stop-3 {
+    syntax: "<percentage>";
+    initial-value: 78.42%;
+    inherits: false;
+  }
+
+  @property --stop-4 {
+    syntax: "<percentage>";
+    initial-value: 89.52%;
+    inherits: false;
+  }
+
+  @property --stop-5 {
+    syntax: "<percentage>";
+    initial-value: 100%;
+    inherits: false;
+  }
+}
+
+@layer components {
+  .gradient-button {
+    @apply relative appearance-none cursor-pointer;
+    background: radial-gradient(
+      var(--spread-x) var(--spread-y) at var(--pos-x) var(--pos-y),
+      var(--color-1) var(--stop-1),
+      var(--color-2) var(--stop-2),
+      var(--color-3) var(--stop-3),
+      var(--color-4) var(--stop-4),
+      var(--color-5) var(--stop-5)
+    );
+    transition: --pos-x 0.5s, --pos-y 0.5s, --spread-x 0.5s, --spread-y 0.5s,
+      --color-1 0.5s, --color-2 0.5s, --color-3 0.5s, --color-4 0.5s,
+      --color-5 0.5s, --border-angle 0.5s, --border-color-1 0.5s,
+      --border-color-2 0.5s, --stop-1 0.5s, --stop-2 0.5s, --stop-3 0.5s,
+      --stop-4 0.5s, --stop-5 0.5s;
+  }
+
+  .gradient-button::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      var(--border-angle),
+      var(--border-color-1),
+      var(--border-color-2)
+    );
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .gradient-button:hover {
+    --pos-x: 0%;
+    --pos-y: 91.51%;
+    --spread-x: 120.24%;
+    --spread-y: 103.18%;
+    --color-1: #c96287;
+    --color-2: #c66c64;
+    --color-3: #ebfafa;
+    --color-4: #37140a;
+    --color-5: #0f0101;
+    --border-angle: 190deg;
+    --border-color-1: hsla(340, 78%, 90%, 0.1);
+    --border-color-2: hsla(340, 75%, 90%, 0.6);
+    --stop-1: 0%;
+    --stop-2: 8.8%;
+    --stop-3: 21.44%;
+    --stop-4: 71.34%;
+    --stop-5: 85.76%;
+  }
+
+  .gradient-button-variant {
+    --color-1: #0e0c0c;
+    --color-2: #400f0f;
+    --color-3: #390808;
+    --color-4: #f7caaa;
+    --border-angle: 200deg;
+    --border-color-1: hsla(320, 75%, 90%, 0.6);
+    --border-color-2: hsla(320, 50%, 90%, 0.15);
+  }
+
+  .gradient-button-variant:hover {
+    --pos-x: 0%;
+    --pos-y: 95.51%;
+    --spread-x: 110.24%;
+    --spread-y: 110.2%;
+    --color-1: #000020;
+    --color-2: #ffcda5;
+    --color-3: #964a46;
+    --color-4: #6d241f;
+    --color-5: #000;
+    --stop-1: 0%;
+    --stop-2: 10%;
+    --stop-3: 35.44%;
+    --stop-4: 71.34%;
+    --stop-5: 90.76%;
+    --border-angle: 210deg;
+    --border-color-1: hsla(320, 75%, 90%, 0.2);
+    --border-color-2: hsla(320, 50%, 90%, 0.75);
+  }
+}
+
+.bg-auth {
+  background-image: url("https://framerusercontent.com/images/V6yzMZmQIav3A0vdCJYl9uPsB8.png?scale-down-to=2048");
+}
+
+.auth-image-transition {
+  transition: opacity 1s ease-in-out;
+}

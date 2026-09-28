@@ -1,0 +1,11 @@
+account_id = "831009601947"
+region = "us-east-2"
+# Zone ID from Cloudflare Overview; the account ID is NOT the zone ID.
+zone_id = "REPLACE_WITH_ZONE_ID"
+domain = "xem.email"
+smtp_hostname = "smtp.xem.email"
+smtp_record_type = "A"
+smtp_target = "3.151.225.168"
+manage_dmarc = true
+# Import the existing record. Preserve the current policy during adoption.
+dmarc_record = "v=DMARC1; p=none"

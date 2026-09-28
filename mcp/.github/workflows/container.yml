@@ -1,0 +1,120 @@
+name: MCP container
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - name: Check release version
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          node --input-type=module -e '
+            import fs from "node:fs";
+            const { version } = JSON.parse(fs.readFileSync("package.json", "utf8"));
+            if (process.env.RELEASE_TAG !== `v${version}`) {
+              throw new Error("Release tag must match v + package.json version");
+            }
+          '
+      - name: Validate Compose configuration
+        run: docker compose config --quiet
+      - name: Build and smoke-test the container
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build --tag xem-mcp:test .
+          docker run --detach --name xem-mcp-test \
+            --read-only --cap-drop ALL --security-opt no-new-privileges:true \
+            --publish 127.0.0.1:39090:3000 \
+            --env XEM_MCP_PUBLIC_URL=http://127.0.0.1:39090/mcp \
+            xem-mcp:test
+          cleanup() {
+            result=$?
+            if [ "$result" -ne 0 ]; then
+              docker logs xem-mcp-test || true
+              docker inspect --format '{{json .State}}' xem-mcp-test || true
+            fi
+            docker rm --force xem-mcp-test >/dev/null || true
+            exit "$result"
+          }
+          trap cleanup EXIT
+          # Docker can reset connections while Node is still starting.
+          # Retry only the read-only health probe, with bounded attempt times.
+          curl --fail --silent --show-error --retry 10 --retry-all-errors \
+            --retry-delay 1 --retry-max-time 30 --connect-timeout 2 --max-time 3 \
+            http://127.0.0.1:39090/health
+          status=$(curl --silent --show-error --connect-timeout 2 --max-time 3 --output /dev/null --write-out '%{http_code}' \
+            --header 'Content-Type: application/json' --data '{}' http://127.0.0.1:39090/mcp)
+          test "$status" = 401
+
+  publish:
+    needs: validate
+    if: github.event_name != 'pull_request' && github.repository == 'mailxem/mcp' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
+        id: meta
+        with:
+          images: ghcr.io/mailxem/mcp
+          flavor: latest=false
+          tags: |
+            type=raw,value=main,enable=${{ github.ref == 'refs/heads/main' }}
+            type=ref,event=tag
+            type=sha,format=long
+      - name: Build and publish
+        id: image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: mode=max
+          sbom: true
+      - name: Record deployable image
+        env:
+          IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
+        run: |
+          printf 'Deploy with `MCP_IMAGE=ghcr.io/mailxem/mcp@%s`.\n' "$IMAGE_DIGEST" >> "$GITHUB_STEP_SUMMARY"

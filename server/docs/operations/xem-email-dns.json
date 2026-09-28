@@ -1,0 +1,42 @@
+[
+  {
+    "type": "CNAME",
+    "name": "z6mzalwicf6rrufldy6hzacrfsacxonf._domainkey.xem.email",
+    "content": "z6mzalwicf6rrufldy6hzacrfsacxonf.dkim.amazonses.com",
+    "ttl": 300,
+    "proxied": false
+  },
+  {
+    "type": "CNAME",
+    "name": "qt4vi5t7pnqtgkbn6v3xe5a7ztohwdab._domainkey.xem.email",
+    "content": "qt4vi5t7pnqtgkbn6v3xe5a7ztohwdab.dkim.amazonses.com",
+    "ttl": 300,
+    "proxied": false
+  },
+  {
+    "type": "CNAME",
+    "name": "vb3zqa7nb6yrquktkh5cr46qfowerv44._domainkey.xem.email",
+    "content": "vb3zqa7nb6yrquktkh5cr46qfowerv44.dkim.amazonses.com",
+    "ttl": 300,
+    "proxied": false
+  },
+  {
+    "type": "MX",
+    "name": "bounce.xem.email",
+    "content": "feedback-smtp.us-east-2.amazonses.com",
+    "priority": 10,
+    "ttl": 300
+  },
+  {
+    "type": "TXT",
+    "name": "bounce.xem.email",
+    "content": "v=spf1 include:amazonses.com ~all",
+    "ttl": 300
+  },
+  {
+    "type": "TXT",
+    "name": "_dmarc.xem.email",
+    "content": "v=DMARC1; p=none",
+    "ttl": 300
+  }
+]

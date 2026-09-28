@@ -1,0 +1,4471 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/api/v1/analytics/audience": {
+            "get": {
+                "description": "Get audience analysis",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get audience insights",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Audience insights",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.AudienceInsights"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or team not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/analytics/campaign": {
+            "get": {
+                "description": "Get campaign analytics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get campaign analytics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Campaign ID",
+                        "name": "campaignId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Campaign analytics",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.EmailAnalytics"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or campaign not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/analytics/campaign/compare": {
+            "get": {
+                "description": "Compare multiple campaigns",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Compare multiple campaigns",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Campaign IDs",
+                        "name": "campaignIds",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Campaign analytics",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/internal_handlers.EmailAnalytics"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or campaignIds missing",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/analytics/email": {
+            "get": {
+                "description": "Get email analytics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get email analytics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Email ID",
+                        "name": "emailId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Email analytics",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.EmailAnalytics"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or email not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/analytics/export/campaign": {
+            "get": {
+                "description": "Export campaign analytics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Export campaign analytics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Campaign ID",
+                        "name": "campaignId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Exported campaign analytics",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or campaignId missing",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/analytics/export/email": {
+            "get": {
+                "description": "Export email analytics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Export email analytics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Email ID",
+                        "name": "emailId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Exported email analytics",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer",
+                                "format": "int32"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or emailId missing",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/analytics/heatmap": {
+            "get": {
+                "description": "Get click heatmap",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get click heatmap",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Email ID",
+                        "name": "emailId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Campaign ID",
+                        "name": "campaignId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Click heatmap",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.HeatmapData"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or emailId missing",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/analytics/team/overview": {
+            "get": {
+                "description": "Get team overview",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get team overview",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Team overview",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.TeamOverview"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or team not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/analytics/trends": {
+            "get": {
+                "description": "Get trend analysis",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get trend analysis",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team ID",
+                        "name": "teamId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Trend analysis",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/internal_handlers.trendPoint"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or team not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/files/upload": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upload a file to the server",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Files"
+                ],
+                "summary": "Upload a file",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "File to upload",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "File uploaded successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or file not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/t": {
+            "post": {
+                "description": "Create a new tracking entry with device and location info",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create a new tracking entry",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Email ID",
+                        "name": "emailID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event",
+                        "name": "event",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "URL",
+                        "name": "url",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tracking entry created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/kori_internal_models.EmailTracking"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or email not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/t/click": {
+            "get": {
+                "description": "Handle click tracking",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Handle click tracking",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Token",
+                        "name": "token",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tracking entry created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/kori_internal_models.EmailTracking"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or token missing",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/t/open": {
+            "get": {
+                "description": "Handle open tracking",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Handle open tracking",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Token",
+                        "name": "token",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tracking entry created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/kori_internal_models.EmailTracking"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or token missing",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/google/callback": {
+            "get": {
+                "description": "Authenticate user using Google OAuth ID token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Authenticate with Google",
+                "parameters": [
+                    {
+                        "description": "Google ID token",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.GoogleAuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JWT token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Failed to parse user data from Google",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Failed to get user data from Google",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/invite": {
+            "post": {
+                "description": "Send an invitation email to a user to join a team",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Invite a user to join a team",
+                "parameters": [
+                    {
+                        "description": "Invitation details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.InviteUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Invitation sent successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/invite/resend/{code}": {
+            "post": {
+                "description": "Resend an invitation to a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Resend an invitation to a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invitation code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Invitation resent successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid invitation",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/invite/{code}": {
+            "get": {
+                "description": "Check if an invitation code is valid and not expired",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Check invitation validity",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invitation code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Invitation details",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or expired invitation",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a pending team invitation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Delete a team invitation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invitation code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Invitation deleted successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid invitation",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "description": "Authenticate user and return JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login user",
+                "parameters": [
+                    {
+                        "description": "Login credentials",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JWT token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/me": {
+            "get": {
+                "description": "Get details of the current authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get current user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/kori_internal_models.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/password-reset": {
+            "post": {
+                "description": "Request a password reset code to be sent via email",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Request password reset",
+                "parameters": [
+                    {
+                        "description": "Email for password reset",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.ResetPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Reset code sent if email exists",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/password-reset/verify": {
+            "post": {
+                "description": "Verify password reset code and update password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Verify reset code and set new password",
+                "parameters": [
+                    {
+                        "description": "Reset code verification and new password",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.VerifyResetCodeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Password reset successful",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or expired reset code",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "description": "Get a new access token using a valid refresh token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Refresh access token",
+                "parameters": [
+                    {
+                        "description": "Refresh token",
+                        "name": "refresh_token",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "New access token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid refresh token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "description": "Register a new user with email, password and name details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Register a new user",
+                "parameters": [
+                    {
+                        "description": "Registration details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error or email exists",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/users": {
+            "get": {
+                "description": "Get a list of all users (requires admin permissions)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "List all users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/kori_internal_models.User"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/users/{id}": {
+            "get": {
+                "description": "Get details of a specific user (requires admin permissions)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get user details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/kori_internal_models.User"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update details of a specific user (requires admin permissions)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update user details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated user details",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/kori_internal_models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/kori_internal_models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a specific user (requires admin permissions)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Delete user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User deleted successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/emails": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Send an email using the provided template and variables",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Email"
+                ],
+                "summary": "Send an email",
+                "parameters": [
+                    {
+                        "description": "Email request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.SendEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/plans": {
+            "get": {
+                "description": "Get all available plans",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plans"
+                ],
+                "summary": "Get all plans",
+                "responses": {
+                    "200": {
+                        "description": "Plans",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.GetPlansResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions": {
+            "get": {
+                "description": "Get the current subscription for the team",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Get current subscription",
+                "responses": {
+                    "200": {
+                        "description": "Subscription",
+                        "schema": {
+                            "$ref": "#/definitions/kori_internal_models.Subscription"
+                        }
+                    },
+                    "403": {
+                        "description": "Not authorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a pending subscription and redirect to payment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Create a new subscription",
+                "parameters": [
+                    {
+                        "description": "Subscription details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.CreateSubscriptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment URL",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/features": {
+            "get": {
+                "description": "Get list of features enabled for the team's subscription",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Get enabled features",
+                "responses": {
+                    "200": {
+                        "description": "Features",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/portal": {
+            "get": {
+                "description": "Generate a URL for managing subscription settings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Get subscription management portal URL",
+                "responses": {
+                    "200": {
+                        "description": "Portal URL",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Not authorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/webhook": {
+            "post": {
+                "description": "Process subscription status updates from Dodo Payments",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Handle subscription webhooks",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid webhook",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/t/resubscribe": {
+            "get": {
+                "description": "Resubscribe to an email list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Resubscribe to email list",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Resubscribe email",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resubscribed successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Missing email",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid email",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/t/unsubscribe": {
+            "get": {
+                "description": "Unsubscribe from an email list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Unsubscribe from email list",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Unsubscribe token",
+                        "name": "token",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Unsubscribed successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Missing token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "internal_handlers.AudienceInsights": {
+            "type": "object",
+            "properties": {
+                "behaviors": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/internal_handlers.BehaviorMetrics"
+                    }
+                },
+                "demographics": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "preferences": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/internal_handlers.PreferenceMetrics"
+                    }
+                },
+                "segments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_handlers.AudienceSegment"
+                    }
+                }
+            }
+        },
+        "internal_handlers.AudienceSegment": {
+            "type": "object",
+            "properties": {
+                "clickRate": {
+                    "type": "number"
+                },
+                "growth": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "openRate": {
+                    "type": "number"
+                },
+                "size": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handlers.BehaviorMetrics": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "engagementRate": {
+                    "type": "number"
+                },
+                "trend": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers.CampaignSummary": {
+            "type": "object",
+            "properties": {
+                "campaignId": {
+                    "type": "string"
+                },
+                "clickRate": {
+                    "type": "number"
+                },
+                "engagementScore": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "openRate": {
+                    "type": "number"
+                }
+            }
+        },
+        "internal_handlers.ClickPoint": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "element": {
+                    "type": "string"
+                },
+                "x": {
+                    "type": "integer"
+                },
+                "y": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handlers.ClickSegment": {
+            "type": "object",
+            "properties": {
+                "clickRate": {
+                    "type": "number"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "selector": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers.CreateSubscriptionRequest": {
+            "type": "object",
+            "required": [
+                "product_id"
+            ],
+            "properties": {
+                "product_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers.EmailAnalytics": {
+            "description": "Email analytics data",
+            "type": "object",
+            "properties": {
+                "averageReadTime": {
+                    "description": "Average time between open and click",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/time.Duration"
+                        }
+                    ]
+                },
+                "bounceCount": {
+                    "type": "integer"
+                },
+                "browserBreakdown": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "cityBreakdown": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "clickCount": {
+                    "type": "integer"
+                },
+                "clickRate": {
+                    "type": "number"
+                },
+                "clickedLinks": {
+                    "description": "🔗 Link Analytics",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_handlers.LinkAnalytics"
+                    }
+                },
+                "complaintCount": {
+                    "type": "integer"
+                },
+                "dayOfWeekBreakdown": {
+                    "description": "Day name -\u003e count",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "deviceBreakdown": {
+                    "description": "📱 Device \u0026 Browser Analytics",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "engagementScore": {
+                    "description": "🎯 Engagement Metrics",
+                    "type": "number"
+                },
+                "firstOpenTime": {
+                    "description": "Time to first open",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/time.Duration"
+                        }
+                    ]
+                },
+                "geoBreakdown": {
+                    "description": "🌍 Geographic Analytics",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "hourlyBreakdown": {
+                    "description": "Hour (0-23) -\u003e count",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "industryAvgClickRate": {
+                    "type": "number"
+                },
+                "industryAvgOpenRate": {
+                    "description": "📈 Comparative Metrics",
+                    "type": "number"
+                },
+                "openCount": {
+                    "description": "📊 Basic Metrics",
+                    "type": "integer"
+                },
+                "openRate": {
+                    "type": "number"
+                },
+                "osBreakdown": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "regionBreakdown": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "repeatClicks": {
+                    "description": "Number of times same user clicked",
+                    "type": "integer"
+                },
+                "repeatOpens": {
+                    "description": "🔄 Retention Metrics",
+                    "type": "integer"
+                },
+                "timelineData": {
+                    "description": "⏰ Time-based Analytics",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_handlers.TimelineDataPoint"
+                    }
+                },
+                "uniqueClicks": {
+                    "type": "integer"
+                },
+                "uniqueOpens": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handlers.GetPlansResponse": {
+            "type": "object",
+            "properties": {
+                "plans": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.Product"
+                    }
+                }
+            }
+        },
+        "internal_handlers.GoogleAuthRequest": {
+            "type": "object",
+            "required": [
+                "access_token"
+            ],
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers.HeatmapData": {
+            "type": "object",
+            "properties": {
+                "clicks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_handlers.ClickPoint"
+                    }
+                },
+                "segments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_handlers.ClickSegment"
+                    }
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers.InviteUserRequest": {
+            "description": "Send an invitation email to a user to join a team",
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "role"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 2
+                },
+                "role": {
+                    "type": "string",
+                    "default": "MEMBER",
+                    "enum": [
+                        "MEMBER",
+                        "ADMIN",
+                        "SUPER_ADMIN"
+                    ]
+                }
+            }
+        },
+        "internal_handlers.LinkAnalytics": {
+            "type": "object",
+            "properties": {
+                "averageTimeToClick": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "clickCount": {
+                    "type": "integer"
+                },
+                "clickRate": {
+                    "type": "number"
+                },
+                "deviceBreakdown": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "firstClickTime": {
+                    "type": "string"
+                },
+                "lastClickTime": {
+                    "type": "string"
+                },
+                "uniqueClicks": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers.LoginRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers.MonthlyEngagement": {
+            "type": "object",
+            "properties": {
+                "clickRate": {
+                    "type": "number"
+                },
+                "month": {
+                    "type": "string"
+                },
+                "openRate": {
+                    "type": "number"
+                },
+                "totalEmails": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handlers.PerformerMetrics": {
+            "type": "object",
+            "properties": {
+                "engagementRate": {
+                    "type": "number"
+                },
+                "sampleSize": {
+                    "type": "integer"
+                },
+                "type": {
+                    "description": "subject, template, time, etc.",
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers.PreferenceMetrics": {
+            "type": "object",
+            "properties": {
+                "confidence": {
+                    "type": "number"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "score": {
+                    "type": "number"
+                }
+            }
+        },
+        "internal_handlers.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "first_name",
+                "last_name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                }
+            }
+        },
+        "internal_handlers.ResetPasswordRequest": {
+            "type": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers.SendEmailRequest": {
+            "type": "object",
+            "required": [
+                "data",
+                "to"
+            ],
+            "properties": {
+                "bcc": {
+                    "type": "string"
+                },
+                "cc": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "html": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string",
+                    "enum": [
+                        "CUSTOM",
+                        "GMAIL",
+                        "OUTLOOK",
+                        "AMAZON"
+                    ]
+                },
+                "replyTo": {
+                    "type": "string"
+                },
+                "scheduleAt": {
+                    "type": "string"
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "templateId": {
+                    "type": "string"
+                },
+                "test": {
+                    "type": "boolean"
+                },
+                "to": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers.TeamOverview": {
+            "type": "object",
+            "properties": {
+                "averageClickRate": {
+                    "type": "number"
+                },
+                "averageOpenRate": {
+                    "type": "number"
+                },
+                "deviceStats": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "geoStats": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "monthlyStats": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_handlers.MonthlyEngagement"
+                    }
+                },
+                "topCampaigns": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_handlers.CampaignSummary"
+                    }
+                },
+                "topPerformers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_handlers.PerformerMetrics"
+                    }
+                },
+                "totalClicks": {
+                    "type": "integer"
+                },
+                "totalEmails": {
+                    "type": "integer"
+                },
+                "totalOpens": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handlers.TimelineDataPoint": {
+            "type": "object",
+            "properties": {
+                "browser": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "deviceType": {
+                    "type": "string"
+                },
+                "eventType": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "uniqueCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "internal_handlers.VerifyResetCodeRequest": {
+            "type": "object",
+            "required": [
+                "code",
+                "new_password"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "new_password": {
+                    "type": "string",
+                    "minLength": 8
+                }
+            }
+        },
+        "internal_handlers.trendPoint": {
+            "type": "object",
+            "properties": {
+                "clickCount": {
+                    "type": "integer"
+                },
+                "devices": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "engagementRate": {
+                    "type": "number"
+                },
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.EmailTracking"
+                    }
+                },
+                "growth": {
+                    "type": "number"
+                },
+                "locations": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "openCount": {
+                    "type": "integer"
+                },
+                "period": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.APIKey": {
+            "type": "object",
+            "required": [
+                "teamId"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "expiresAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "key": {
+                    "type": "string"
+                },
+                "lastUsedAt": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.APIKeyPermission"
+                    }
+                },
+                "team": {
+                    "$ref": "#/definitions/kori_internal_models.Team"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.APIKeyPermission": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "key": {
+                    "$ref": "#/definitions/kori_internal_models.APIKey"
+                },
+                "keyId": {
+                    "type": "string"
+                },
+                "resourcePermission": {
+                    "$ref": "#/definitions/kori_internal_models.ResourcePermission"
+                },
+                "resourcePermissionId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.Automation": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "edges": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.AutomationNodeEdge"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nodes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.AutomationNode"
+                    }
+                },
+                "team": {
+                    "$ref": "#/definitions/kori_internal_models.Team"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.AutomationNode": {
+            "type": "object",
+            "required": [
+                "data",
+                "type"
+            ],
+            "properties": {
+                "automation": {
+                    "$ref": "#/definitions/kori_internal_models.Automation"
+                },
+                "automationId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "edgesFrom": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.AutomationNodeEdge"
+                    }
+                },
+                "edgesTo": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.AutomationNodeEdge"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "type": {
+                    "enum": [
+                        "EMAIL_WRITER"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/kori_internal_models.NodeType"
+                        }
+                    ]
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.AutomationNodeEdge": {
+            "type": "object",
+            "properties": {
+                "animated": {
+                    "type": "boolean"
+                },
+                "automation": {
+                    "$ref": "#/definitions/kori_internal_models.Automation"
+                },
+                "automationId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "label": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/kori_internal_models.AutomationNode"
+                },
+                "sourceId": {
+                    "type": "string"
+                },
+                "target": {
+                    "$ref": "#/definitions/kori_internal_models.AutomationNode"
+                },
+                "targetId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.BrandingSettings": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "dashboardName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "logoUrl": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.Campaign": {
+            "type": "object",
+            "properties": {
+                "analytics": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.EmailTracking"
+                    }
+                },
+                "batchDelay": {
+                    "description": "1 hour delay between batches",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/time.Duration"
+                        }
+                    ]
+                },
+                "batchSize": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "cronExpression": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "list": {
+                    "$ref": "#/definitions/kori_internal_models.MailingList"
+                },
+                "listId": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "processed": {
+                    "type": "integer"
+                },
+                "recurringSchedule": {
+                    "$ref": "#/definitions/kori_internal_models.CampaignRecurringSchedule"
+                },
+                "schedule": {
+                    "$ref": "#/definitions/kori_internal_models.CampaignSchedule"
+                },
+                "scheduledFor": {
+                    "type": "string"
+                },
+                "sentEmails": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.Email"
+                    }
+                },
+                "smtpConfig": {
+                    "$ref": "#/definitions/kori_internal_models.SMTPConfig"
+                },
+                "smtpConfigId": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/kori_internal_models.CampaignStatus"
+                },
+                "team": {
+                    "$ref": "#/definitions/kori_internal_models.Team"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "template": {
+                    "$ref": "#/definitions/kori_internal_models.Template"
+                },
+                "templateId": {
+                    "type": "string"
+                },
+                "timezone": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.CampaignRecurringSchedule": {
+            "type": "string",
+            "enum": [
+                "DAILY",
+                "WEEKLY",
+                "MONTHLY",
+                "CUSTOM"
+            ],
+            "x-enum-varnames": [
+                "CampaignRecurringScheduleDaily",
+                "CampaignRecurringScheduleWeekly",
+                "CampaignRecurringScheduleMonthly",
+                "CampaignRecurringScheduleCustom"
+            ]
+        },
+        "kori_internal_models.CampaignSchedule": {
+            "type": "string",
+            "enum": [
+                "ONE_TIME",
+                "RECURRING"
+            ],
+            "x-enum-varnames": [
+                "CampaignScheduleOneTime",
+                "CampaignScheduleRecurring"
+            ]
+        },
+        "kori_internal_models.CampaignStatus": {
+            "type": "string",
+            "enum": [
+                "DRAFT",
+                "SCHEDULED",
+                "SENDING",
+                "COMPLETED",
+                "FAILED",
+                "PAUSED"
+            ],
+            "x-enum-varnames": [
+                "CampaignStatusDraft",
+                "CampaignStatusScheduled",
+                "CampaignStatusSending",
+                "CampaignStatusCompleted",
+                "CampaignStatusFailed",
+                "CampaignStatusPaused"
+            ]
+        },
+        "kori_internal_models.Contact": {
+            "type": "object",
+            "required": [
+                "email",
+                "listId",
+                "status",
+                "teamId"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "company": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "facebook": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string",
+                    "minLength": 2
+                },
+                "id": {
+                    "type": "string"
+                },
+                "import": {
+                    "$ref": "#/definitions/kori_internal_models.ContactImport"
+                },
+                "importId": {
+                    "type": "string"
+                },
+                "instagram": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "lastName": {
+                    "type": "string",
+                    "minLength": 2
+                },
+                "linkedin": {
+                    "type": "string"
+                },
+                "list": {
+                    "$ref": "#/definitions/kori_internal_models.MailingList"
+                },
+                "listId": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "status": {
+                    "enum": [
+                        "ACTIVE",
+                        "UNSUBSCRIBED",
+                        "BOUNCED",
+                        "COMPLAINED"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/kori_internal_models.SubscriberStatus"
+                        }
+                    ]
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.Tag"
+                    }
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "twitter": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "zip": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.ContactImport": {
+            "type": "object",
+            "required": [
+                "fieldsMap",
+                "listId",
+                "status",
+                "teamId"
+            ],
+            "properties": {
+                "contacts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.Contact"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "fieldsMap": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "file": {
+                    "$ref": "#/definitions/kori_internal_models.File"
+                },
+                "fileId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "list": {
+                    "$ref": "#/definitions/kori_internal_models.MailingList"
+                },
+                "listId": {
+                    "type": "string"
+                },
+                "status": {
+                    "enum": [
+                        "PENDING",
+                        "PROCESSING",
+                        "COMPLETED",
+                        "FAILED"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/kori_internal_models.ContactImportStatus"
+                        }
+                    ]
+                },
+                "team": {
+                    "$ref": "#/definitions/kori_internal_models.Team"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.ContactImportStatus": {
+            "type": "string",
+            "enum": [
+                "PENDING",
+                "COMPLETED",
+                "FAILED"
+            ],
+            "x-enum-varnames": [
+                "ContactImportStatusPending",
+                "ContactImportStatusCompleted",
+                "ContactImportStatusFailed"
+            ]
+        },
+        "kori_internal_models.Delivery": {
+            "type": "object",
+            "required": [
+                "event",
+                "payload",
+                "status",
+                "webhookId"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "event": {
+                    "type": "string",
+                    "enum": [
+                        "click",
+                        "open",
+                        "reply",
+                        "bounce",
+                        "complaint"
+                    ]
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "payload": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "responseBody": {
+                    "type": "string"
+                },
+                "responseCode": {
+                    "type": "integer",
+                    "maximum": 599,
+                    "minimum": 100
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "PENDING",
+                        "SUCCESS",
+                        "FAILED"
+                    ]
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "webhookId": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.Domain": {
+            "type": "object",
+            "required": [
+                "domain",
+                "teamId"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "dnsRecord": {
+                    "type": "string"
+                },
+                "domain": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "isVerified": {
+                    "type": "boolean"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.Email": {
+            "type": "object",
+            "required": [
+                "body",
+                "categoryId",
+                "from",
+                "smtpConfigId",
+                "status",
+                "subject",
+                "teamId",
+                "to"
+            ],
+            "properties": {
+                "bcc": {
+                    "type": "string"
+                },
+                "body": {
+                    "type": "string"
+                },
+                "campaign": {
+                    "$ref": "#/definitions/kori_internal_models.Campaign"
+                },
+                "campaignId": {
+                    "type": "string"
+                },
+                "category": {
+                    "$ref": "#/definitions/kori_internal_models.EmailCategory"
+                },
+                "categoryId": {
+                    "type": "string"
+                },
+                "cc": {
+                    "type": "string"
+                },
+                "contact": {
+                    "$ref": "#/definitions/kori_internal_models.Contact"
+                },
+                "contactId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "error": {
+                    "type": "string"
+                },
+                "from": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "replyTo": {
+                    "type": "string"
+                },
+                "sendAt": {
+                    "type": "string"
+                },
+                "sentAt": {
+                    "type": "string"
+                },
+                "smtpConfig": {
+                    "$ref": "#/definitions/kori_internal_models.SMTPConfig"
+                },
+                "smtpConfigId": {
+                    "type": "string"
+                },
+                "status": {
+                    "enum": [
+                        "DRAFT",
+                        "QUEUED",
+                        "SENDING",
+                        "SENT",
+                        "FAILED"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/kori_internal_models.EmailStatus"
+                        }
+                    ]
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "team": {
+                    "$ref": "#/definitions/kori_internal_models.Team"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "template": {
+                    "$ref": "#/definitions/kori_internal_models.Template"
+                },
+                "templateId": {
+                    "type": "string"
+                },
+                "test": {
+                    "type": "boolean"
+                },
+                "to": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.EmailCategory": {
+            "type": "object",
+            "required": [
+                "name",
+                "teamId"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "emails": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.Email"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 2
+                },
+                "team": {
+                    "$ref": "#/definitions/kori_internal_models.Team"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "templates": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.Template"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.EmailStatus": {
+            "type": "string",
+            "enum": [
+                "PENDING",
+                "SENT",
+                "FAILED",
+                "BOUNCED",
+                "OPENED",
+                "CLICKED"
+            ],
+            "x-enum-varnames": [
+                "EmailStatusPending",
+                "EmailStatusSent",
+                "EmailStatusFailed",
+                "EmailStatusBounced",
+                "EmailStatusOpened",
+                "EmailStatusClicked"
+            ]
+        },
+        "kori_internal_models.EmailTracking": {
+            "type": "object",
+            "required": [
+                "emailId",
+                "event",
+                "timestamp"
+            ],
+            "properties": {
+                "browser": {
+                    "type": "string"
+                },
+                "campaign": {
+                    "$ref": "#/definitions/kori_internal_models.Campaign"
+                },
+                "campaignId": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "contact": {
+                    "$ref": "#/definitions/kori_internal_models.Contact"
+                },
+                "contactId": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deviceType": {
+                    "type": "string",
+                    "enum": [
+                        "desktop",
+                        "mobile",
+                        "tablet",
+                        "other"
+                    ]
+                },
+                "email": {
+                    "$ref": "#/definitions/kori_internal_models.Email"
+                },
+                "emailId": {
+                    "type": "string"
+                },
+                "event": {
+                    "enum": [
+                        "click",
+                        "open",
+                        "reply",
+                        "bounce",
+                        "complaint"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/kori_internal_models.EmailTrackingEvent"
+                        }
+                    ]
+                },
+                "id": {
+                    "type": "string"
+                },
+                "ipAddress": {
+                    "description": "🌍 Geographic Data",
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "metadata": {
+                    "description": "📊 Additional Metadata",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "os": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "url": {
+                    "description": "🔗 Click Specific Data (for click events)",
+                    "type": "string"
+                },
+                "userAgent": {
+                    "description": "📱 Device Information",
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.EmailTrackingEvent": {
+            "type": "string",
+            "enum": [
+                "click",
+                "open",
+                "reply",
+                "bounce",
+                "complaint",
+                "unsubscribe"
+            ],
+            "x-enum-varnames": [
+                "EmailTrackingEventClick",
+                "EmailTrackingEventOpen",
+                "EmailTrackingEventReply",
+                "EmailTrackingEventBounce",
+                "EmailTrackingEventComplaint",
+                "EmailTrackingEventUnsubscribe"
+            ]
+        },
+        "kori_internal_models.File": {
+            "type": "object",
+            "required": [
+                "name",
+                "path",
+                "size",
+                "type"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "name": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "signedUrl": {
+                    "description": "Virtual field",
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "team": {
+                    "$ref": "#/definitions/kori_internal_models.Team"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/kori_internal_models.User"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.InviteStatus": {
+            "type": "string",
+            "enum": [
+                "PENDING",
+                "ACCEPTED",
+                "REJECTED"
+            ],
+            "x-enum-varnames": [
+                "InviteStatusPending",
+                "InviteStatusAccepted",
+                "InviteStatusRejected"
+            ]
+        },
+        "kori_internal_models.MailingList": {
+            "type": "object",
+            "required": [
+                "name",
+                "subscribersCount",
+                "teamId"
+            ],
+            "properties": {
+                "contactImports": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.ContactImport"
+                    }
+                },
+                "contacts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.Contact"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 2
+                },
+                "subscribersCount": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "team": {
+                    "$ref": "#/definitions/kori_internal_models.Team"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.Model": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "name": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "team": {
+                    "$ref": "#/definitions/kori_internal_models.Team"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.NodeType": {
+            "type": "string",
+            "enum": [
+                "START",
+                "EMAIL",
+                "WAIT",
+                "CONDITION",
+                "WEBHOOK",
+                "ADD_TO_LIST",
+                "REMOVE_FROM_LIST",
+                "UPDATE_SUBSCRIBER",
+                "CHECK_ENGAGEMENT",
+                "SEGMENT",
+                "TAG",
+                "UNSUBSCRIBE",
+                "CUSTOM_CODE",
+                "EXIT"
+            ],
+            "x-enum-varnames": [
+                "NodeTypeStart",
+                "NodeTypeEmail",
+                "NodeTypeWait",
+                "NodeTypeCondition",
+                "NodeTypeWebhook",
+                "NodeTypeAddToList",
+                "NodeTypeRemoveFromList",
+                "NodeTypeUpdateSubscriber",
+                "NodeTypeCheckEngagement",
+                "NodeTypeSegment",
+                "NodeTypeTag",
+                "NodeTypeUnsubscribe",
+                "NodeTypeCustomCode",
+                "NodeTypeExit"
+            ]
+        },
+        "kori_internal_models.Product": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "dodo_id": {
+                    "description": "ID from Dodo Payments",
+                    "type": "string"
+                },
+                "features": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.ProductFeatureConfig"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interval": {
+                    "description": "monthly, yearly",
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.ProductFeature": {
+            "type": "string",
+            "enum": [
+                "email_campaigns",
+                "template_library",
+                "advanced_analytics",
+                "custom_domain",
+                "api_access",
+                "team_collaboration",
+                "automation",
+                "segmentation"
+            ],
+            "x-enum-varnames": [
+                "FeatureEmailCampaigns",
+                "FeatureTemplateLibrary",
+                "FeatureAdvancedAnalytics",
+                "FeatureCustomDomain",
+                "FeatureAPIAccess",
+                "FeatureTeamCollaboration",
+                "FeatureAutomation",
+                "FeatureSegmentation"
+            ]
+        },
+        "kori_internal_models.ProductFeatureConfig": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "feature": {
+                    "$ref": "#/definitions/kori_internal_models.ProductFeature"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "limit": {
+                    "description": "Optional limit for the feature (e.g., number of campaigns)",
+                    "type": "integer"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.Resource": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "description": "\"create\", \"read\", \"update\", \"delete\"",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "name": {
+                    "description": "e.g. \"campaigns\", \"templates\", \"lists\"",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.ResourcePermission": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "resource": {
+                    "$ref": "#/definitions/kori_internal_models.Resource"
+                },
+                "resourceId": {
+                    "type": "string"
+                },
+                "scope": {
+                    "description": "Scope defines the permission level, e.g. \"read:campaigns\", \"write:templates\"",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.SMTPConfig": {
+            "type": "object",
+            "required": [
+                "fromEmail",
+                "host",
+                "maxSendRate",
+                "password",
+                "port",
+                "provider",
+                "teamId",
+                "username"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "fromEmail": {
+                    "type": "string"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "isDefault": {
+                    "type": "boolean"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "maxSendRate": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                },
+                "port": {
+                    "type": "integer",
+                    "maximum": 65535,
+                    "minimum": 1
+                },
+                "provider": {
+                    "type": "string",
+                    "enum": [
+                        "CUSTOM",
+                        "GMAIL",
+                        "OUTLOOK",
+                        "AMAZON"
+                    ]
+                },
+                "requiresAuth": {
+                    "type": "boolean"
+                },
+                "supportsTls": {
+                    "type": "boolean"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.SubscriberStatus": {
+            "type": "string",
+            "enum": [
+                "ACTIVE",
+                "UNSUBSCRIBED",
+                "BOUNCED",
+                "COMPLAINED"
+            ],
+            "x-enum-varnames": [
+                "SubscriberStatusActive",
+                "SubscriberStatusUnsubscribed",
+                "SubscriberStatusBounced",
+                "SubscriberStatusComplained"
+            ]
+        },
+        "kori_internal_models.Subscription": {
+            "type": "object",
+            "properties": {
+                "canceled_at": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "current_period_end": {
+                    "type": "string"
+                },
+                "current_period_start": {
+                    "type": "string"
+                },
+                "dodo_customer_id": {
+                    "type": "string"
+                },
+                "dodo_subscription_id": {
+                    "type": "string"
+                },
+                "email": {
+                    "description": "Email used during purchase",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "metadata": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "product": {
+                    "$ref": "#/definitions/kori_internal_models.Product"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/kori_internal_models.SubscriptionStatus"
+                },
+                "team": {
+                    "$ref": "#/definitions/kori_internal_models.Team"
+                },
+                "team_id": {
+                    "type": "string"
+                },
+                "trial_end": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.SubscriptionStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "active",
+                "canceled",
+                "paused",
+                "failed"
+            ],
+            "x-enum-varnames": [
+                "SubscriptionStatusPending",
+                "SubscriptionStatusActive",
+                "SubscriptionStatusCanceled",
+                "SubscriptionStatusPaused",
+                "SubscriptionStatusFailed"
+            ]
+        },
+        "kori_internal_models.Tag": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.Team": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "apiKeys": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.APIKey"
+                    }
+                },
+                "automations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.Automation"
+                    }
+                },
+                "campaigns": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.Campaign"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "domains": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.Domain"
+                    }
+                },
+                "emailCategories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.EmailCategory"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "invites": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.TeamInvite"
+                    }
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "mailingLists": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.MailingList"
+                    }
+                },
+                "models": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.Model"
+                    }
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 2
+                },
+                "settings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.TeamSettings"
+                    }
+                },
+                "smtpConfigs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.SMTPConfig"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.User"
+                    }
+                },
+                "webhooks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.Webhook"
+                    }
+                }
+            }
+        },
+        "kori_internal_models.TeamInvite": {
+            "type": "object",
+            "required": [
+                "email",
+                "expiresAt",
+                "inviterId",
+                "name",
+                "role",
+                "status",
+                "teamId"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "expiresAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "inviter": {
+                    "$ref": "#/definitions/kori_internal_models.User"
+                },
+                "inviterId": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 2
+                },
+                "role": {
+                    "enum": [
+                        "MEMBER",
+                        "ADMIN"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/kori_internal_models.UserRole"
+                        }
+                    ]
+                },
+                "status": {
+                    "enum": [
+                        "PENDING",
+                        "ACCEPTED",
+                        "REJECTED"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/kori_internal_models.InviteStatus"
+                        }
+                    ]
+                },
+                "team": {
+                    "$ref": "#/definitions/kori_internal_models.Team"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.TeamSettings": {
+            "type": "object",
+            "properties": {
+                "branding": {
+                    "$ref": "#/definitions/kori_internal_models.BrandingSettings"
+                },
+                "brandingSettingsId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "inviteTemplateId": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "welcomeTemplateId": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.Template": {
+            "type": "object",
+            "required": [
+                "categoryId",
+                "name",
+                "subject",
+                "teamId"
+            ],
+            "properties": {
+                "category": {
+                    "$ref": "#/definitions/kori_internal_models.EmailCategory"
+                },
+                "categoryId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "designJson": {
+                    "type": "string"
+                },
+                "emails": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.Email"
+                    }
+                },
+                "htmlFile": {
+                    "$ref": "#/definitions/kori_internal_models.File"
+                },
+                "htmlFileId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 2
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "team": {
+                    "$ref": "#/definitions/kori_internal_models.Team"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "variables": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "kori_internal_models.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.File"
+                    }
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "invites": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.TeamInvite"
+                    }
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.UserPermission"
+                    }
+                },
+                "profilePicture": {
+                    "$ref": "#/definitions/kori_internal_models.File"
+                },
+                "profilePictureId": {
+                    "type": "string"
+                },
+                "provider": {
+                    "description": "'local', 'google', etc.",
+                    "type": "string"
+                },
+                "providerData": {
+                    "description": "Additional data from provider",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "providerId": {
+                    "description": "ID from the OAuth provider",
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/kori_internal_models.UserRole"
+                },
+                "team": {
+                    "$ref": "#/definitions/kori_internal_models.Team"
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.UserPermission": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "resourcePermission": {
+                    "$ref": "#/definitions/kori_internal_models.ResourcePermission"
+                },
+                "resourcePermissionId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/kori_internal_models.User"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "kori_internal_models.UserRole": {
+            "type": "string",
+            "enum": [
+                "SUPER_ADMIN",
+                "ADMIN",
+                "MEMBER"
+            ],
+            "x-enum-varnames": [
+                "UserRoleSuperAdmin",
+                "UserRoleAdmin",
+                "UserRoleMember"
+            ]
+        },
+        "kori_internal_models.Webhook": {
+            "type": "object",
+            "required": [
+                "events",
+                "name",
+                "secret",
+                "teamId",
+                "url"
+            ],
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deliveries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/kori_internal_models.Delivery"
+                    }
+                },
+                "events": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isActive": {
+                    "type": "boolean"
+                },
+                "isDeleted": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 2
+                },
+                "secret": {
+                    "type": "string",
+                    "minLength": 16
+                },
+                "teamId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "time.Duration": {
+            "type": "integer",
+            "format": "int64",
+            "enum": [
+                -9223372036854775808,
+                9223372036854775807,
+                1,
+                1000,
+                1000000,
+                1000000000,
+                60000000000,
+                3600000000000
+            ],
+            "x-enum-varnames": [
+                "minDuration",
+                "maxDuration",
+                "Nanosecond",
+                "Microsecond",
+                "Millisecond",
+                "Second",
+                "Minute",
+                "Hour"
+            ]
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "X-API-KEY",
+            "in": "header"
+        },
+        "BasicAuth": {
+            "type": "basic"
+        }
+    }
+}

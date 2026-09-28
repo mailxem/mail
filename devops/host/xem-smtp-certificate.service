@@ -1,0 +1,19 @@
+[Unit]
+Description=Export validated SMTP certificate from Traefik ACME storage
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/xem-export-smtp-cert
+User=root
+Group=root
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ReadOnlyPaths=/etc/dokploy/traefik/dynamic/acme.json
+ReadWritePaths=/etc/xem/smtp /run/lock

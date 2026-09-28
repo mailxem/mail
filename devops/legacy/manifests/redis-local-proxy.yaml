@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-proxy
+  namespace: posthoot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-proxy
+  template:
+    metadata:
+      labels:
+        app: redis-proxy
+    spec:
+      containers:
+      - name: stunnel
+        image: dweomer/stunnel
+        ports:
+        - containerPort: 6379
+          name: redis
+        env:
+        - name: STUNNEL_SERVICE
+          value: "redis"
+        - name: STUNNEL_ACCEPT
+          value: "6379"
+        - name: STUNNEL_CONNECT
+          value: "posthoot-valkey-serverless-siwda3.serverless.use2.cache.amazonaws.com:6379"
+        - name: STUNNEL_CLIENT
+          value: "yes"
+        - name: STUNNEL_VERIFY
+          value: "0"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stunnel-config
+  namespace: posthoot
+data:
+  stunnel.conf: |
+    foreground = yes
+    debug = 7
+
+    [redis]
+    client = yes
+    accept = 6379
+    connect = posthoot-valkey-serverless-siwda3.serverless.use2.cache.amazonaws.com:6379
+    verifyChain = no

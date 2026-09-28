@@ -1,0 +1,1599 @@
+basePath: /
+definitions:
+  handlers.UpdateSubscriptionRequest:
+    properties:
+      plan_id:
+        example: syne_scale
+        type: string
+      seats:
+        example: 5
+        minimum: 1
+        type: integer
+    type: object
+  models.BillingCycle:
+    enum:
+    - MONTHLY
+    - YEARLY
+    type: string
+    x-enum-varnames:
+    - BillingMonthly
+    - BillingYearly
+  models.BillingDetails:
+    properties:
+      city:
+        type: string
+      country:
+        type: string
+      id:
+        type: string
+      state:
+        type: string
+      street:
+        type: string
+      team_id:
+        type: string
+      zip:
+        type: string
+    type: object
+  models.CreatePlanRequest:
+    properties:
+      currency:
+        example: USD
+        type: string
+      description:
+        example: For growing teams and businesses
+        type: string
+      display_order:
+        example: 2
+        type: integer
+      dodo_plan_id:
+        example: pro-plan-2024
+        type: string
+      features:
+        items:
+          type: string
+        type: array
+      is_enterprise:
+        example: false
+        type: boolean
+      is_popular:
+        example: true
+        type: boolean
+      metadata:
+        $ref: '#/definitions/models.JSONMap'
+      name:
+        example: Professional
+        type: string
+      price:
+        example: 49
+        type: number
+      trial_enabled:
+        example: true
+        type: boolean
+      trial_period_days:
+        example: 14
+        type: integer
+    required:
+    - currency
+    - dodo_plan_id
+    - name
+    - price
+    type: object
+  models.JSONMap:
+    additionalProperties: true
+    type: object
+  models.Payment:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      currency:
+        type: string
+      description:
+        description: Metadata
+        type: string
+      dodo_payment_id:
+        description: Dodo Payments
+        type: string
+      failure_reason:
+        type: string
+      id:
+        type: string
+      processed_at:
+        type: string
+      status:
+        $ref: '#/definitions/models.PaymentStatus'
+      subscription:
+        allOf:
+        - $ref: '#/definitions/models.Subscription'
+        description: Relations
+      subscription_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.PaymentStatus:
+    enum:
+    - PENDING
+    - COMPLETED
+    - FAILED
+    - REFUNDED
+    type: string
+    x-enum-varnames:
+    - PaymentPending
+    - PaymentCompleted
+    - PaymentFailed
+    - PaymentRefunded
+  models.Plan:
+    properties:
+      billing_cycle:
+        $ref: '#/definitions/models.BillingCycle'
+      created_at:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      display_order:
+        description: Display & Ordering
+        type: integer
+      dodo_plan_id:
+        description: Dodo Payments product ID
+        type: string
+      features:
+        items:
+          $ref: '#/definitions/models.PlanFeatures'
+        type: array
+      id:
+        type: string
+      is_enterprise:
+        type: boolean
+      is_popular:
+        type: boolean
+      metadata:
+        allOf:
+        - $ref: '#/definitions/models.JSONMap'
+        description: Metadata
+      name:
+        type: string
+      price:
+        description: Pricing
+        type: number
+      price_per_seat:
+        description: Legacy pricing (for backward compatibility)
+        type: number
+      status:
+        $ref: '#/definitions/models.PlanStatus'
+      subscriptions:
+        description: Relations
+        items:
+          $ref: '#/definitions/models.Subscription'
+        type: array
+      trail_features:
+        items:
+          $ref: '#/definitions/models.PlanFeatures'
+        type: array
+      trial_enabled:
+        type: boolean
+      trial_period_days:
+        description: Trial settings
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  models.PlanFeatures:
+    properties:
+      created_at:
+        type: string
+      feature:
+        type: string
+      id:
+        type: string
+      plan:
+        $ref: '#/definitions/models.Plan'
+      plan_id:
+        type: string
+      quota:
+        type: integer
+      trail:
+        type: boolean
+      updated_at:
+        type: string
+    type: object
+  models.PlanFeaturesResponse:
+    properties:
+      feature:
+        type: string
+      id:
+        type: string
+      plan_id:
+        type: string
+      quota:
+        type: integer
+    type: object
+  models.PlanResponse:
+    properties:
+      active_subscriptions:
+        description: Statistics (optional)
+        example: 25
+        type: integer
+      billing_cycle:
+        allOf:
+        - $ref: '#/definitions/models.BillingCycle'
+        example: MONTHLY
+      created_at:
+        example: "2024-01-15T10:00:00Z"
+        type: string
+      currency:
+        example: USD
+        type: string
+      description:
+        example: For growing teams and businesses
+        type: string
+      display_order:
+        description: Display & Ordering
+        example: 2
+        type: integer
+      dodo_plan_id:
+        example: pro-plan-2024
+        type: string
+      features:
+        description: Features & Limits
+        items:
+          $ref: '#/definitions/models.PlanFeaturesResponse'
+        type: array
+      id:
+        example: prof-123e4567-e89b-12d3-a456-426614174000
+        type: string
+      is_enterprise:
+        example: false
+        type: boolean
+      is_popular:
+        example: true
+        type: boolean
+      metadata:
+        allOf:
+        - $ref: '#/definitions/models.JSONMap'
+        description: Metadata
+      name:
+        example: Professional
+        type: string
+      price:
+        description: Pricing
+        example: 49
+        type: number
+      price_per_seat:
+        description: Legacy for backward compatibility
+        example: 49
+        type: number
+      status:
+        allOf:
+        - $ref: '#/definitions/models.PlanStatus'
+        example: active
+      trail_features:
+        items:
+          $ref: '#/definitions/models.PlanFeaturesResponse'
+        type: array
+      trial_enabled:
+        example: true
+        type: boolean
+      trial_period_days:
+        description: Trial settings
+        example: 14
+        type: integer
+      updated_at:
+        example: "2024-01-15T10:00:00Z"
+        type: string
+    type: object
+  models.PlanStatus:
+    enum:
+    - active
+    - inactive
+    - archived
+    type: string
+    x-enum-comments:
+      PlanStatusActive: '@Description Plan is active and available for new subscriptions'
+      PlanStatusArchived: '@Description Plan is permanently hidden, no new subscriptions
+        allowed'
+      PlanStatusInactive: '@Description Plan is inactive but existing subscriptions
+        continue'
+    x-enum-descriptions:
+    - '@Description Plan is active and available for new subscriptions'
+    - '@Description Plan is inactive but existing subscriptions continue'
+    - '@Description Plan is permanently hidden, no new subscriptions allowed'
+    x-enum-varnames:
+    - PlanStatusActive
+    - PlanStatusInactive
+    - PlanStatusArchived
+  models.Subscription:
+    properties:
+      billing_cycle:
+        $ref: '#/definitions/models.BillingCycle'
+      created_at:
+        type: string
+      dodo_customer_id:
+        type: string
+      dodo_subscription_id:
+        description: Dodo Payments Integration
+        type: string
+      end_date:
+        type: string
+      ended_at:
+        type: string
+      id:
+        type: string
+      next_billing_date:
+        type: string
+      payments:
+        description: Relations
+        items:
+          $ref: '#/definitions/models.Payment'
+        type: array
+      plan:
+        $ref: '#/definitions/models.Plan'
+      plan_id:
+        type: string
+      price_per_seat:
+        description: Billing
+        type: number
+      start_date:
+        description: Dates
+        type: string
+      status:
+        enum:
+        - active
+        - canceled
+        - past_due
+        - paused
+        - pending
+        - TRIAL
+        type: string
+      team_id:
+        type: string
+      total_seats:
+        type: integer
+      trial_ends_at:
+        type: string
+      updated_at:
+        type: string
+      usage_records:
+        items:
+          $ref: '#/definitions/models.UsageRecord'
+        type: array
+    type: object
+  models.UpdatePlanRequest:
+    properties:
+      currency:
+        example: USD
+        type: string
+      description:
+        example: Enhanced professional plan
+        type: string
+      display_order:
+        example: 3
+        type: integer
+      features:
+        items:
+          type: string
+        type: array
+      is_enterprise:
+        example: false
+        type: boolean
+      is_popular:
+        example: false
+        type: boolean
+      metadata:
+        $ref: '#/definitions/models.JSONMap'
+      name:
+        example: Professional Plus
+        type: string
+      price:
+        example: 59
+        type: number
+      status:
+        allOf:
+        - $ref: '#/definitions/models.PlanStatus'
+        example: active
+      trial_enabled:
+        example: true
+        type: boolean
+      trial_period_days:
+        example: 21
+        type: integer
+    type: object
+  models.UsageRecord:
+    properties:
+      created_at:
+        type: string
+      feature:
+        type: string
+      id:
+        type: string
+      period:
+        description: Billing period (month/year)
+        type: string
+      subscription:
+        allOf:
+        - $ref: '#/definitions/models.Subscription'
+        description: Relations
+      subscription_id:
+        type: string
+      updated_at:
+        type: string
+      usage:
+        description: Actual usage amount
+        type: integer
+    type: object
+  services.ChangePlanResult:
+    properties:
+      checkout_required:
+        $ref: '#/definitions/services.CheckoutRequiredInfo'
+      subscription:
+        $ref: '#/definitions/models.Subscription'
+    type: object
+  services.CheckoutRequiredInfo:
+    properties:
+      message:
+        type: string
+      plan_id:
+        type: string
+      seats:
+        type: integer
+      team_id:
+        type: string
+    type: object
+  services.CheckoutSessionRequest:
+    properties:
+      billing_details:
+        $ref: '#/definitions/models.BillingDetails'
+      customer_email:
+        type: string
+      customer_name:
+        type: string
+      plan_id:
+        type: string
+      seats:
+        type: integer
+      success_url:
+        type: string
+      team_id:
+        type: string
+    type: object
+  services.CheckoutSessionResponse:
+    properties:
+      checkout_url:
+        type: string
+      session_id:
+        type: string
+    type: object
+  structs.RecordUsageRequest:
+    properties:
+      feature:
+        example: queries
+        type: string
+      usage:
+        example: 10
+        minimum: 1
+        type: integer
+    required:
+    - feature
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@diagonal.com
+    name: Diagonal Support
+    url: https://diagonal.com/support
+  description: API for managing subscription plans and payments with Dodo Payments
+    integration
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://diagonal.com/terms
+  title: Diagonal Payments API
+  version: "1.0"
+paths:
+  /api/admin/plans:
+    get:
+      description: List all subscription plans including inactive ones. Requires admin
+        authentication.
+      parameters:
+      - description: Admin secret for authentication
+        in: header
+        name: X-Admin-Secret
+        required: true
+        type: string
+      - description: Include inactive plans in the response
+        in: query
+        name: include_inactive
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of plans with subscription counts
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/models.PlanResponse'
+              type: array
+            type: object
+        "401":
+          description: Unauthorized - missing admin secret
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden - invalid admin secret
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - AdminAuth: []
+      summary: List all subscription plans (admin)
+      tags:
+      - plans
+    post:
+      consumes:
+      - application/json
+      description: Create a new subscription plan with comprehensive configuration
+        options. Requires admin authentication.
+      parameters:
+      - description: Admin secret for authentication
+        in: header
+        name: X-Admin-Secret
+        required: true
+        type: string
+      - description: Plan creation request
+        in: body
+        name: plan
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreatePlanRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Plan created successfully
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/models.PlanResponse'
+            type: object
+        "400":
+          description: Bad request - validation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized - missing admin secret
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden - invalid admin secret
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - AdminAuth: []
+      summary: Create a new subscription plan
+      tags:
+      - plans
+  /api/admin/plans/{planId}:
+    delete:
+      description: Delete a subscription plan. Plans with active subscriptions cannot
+        be deleted. Requires admin authentication.
+      parameters:
+      - description: Admin secret for authentication
+        in: header
+        name: X-Admin-Secret
+        required: true
+        type: string
+      - description: Plan ID
+        in: path
+        name: planId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Plan deleted successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request - plan has active subscriptions
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized - missing admin secret
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden - invalid admin secret
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Plan not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - AdminAuth: []
+      summary: Delete a subscription plan
+      tags:
+      - plans
+    put:
+      consumes:
+      - application/json
+      description: Update an existing subscription plan. All fields are optional for
+        partial updates. Requires admin authentication.
+      parameters:
+      - description: Admin secret for authentication
+        in: header
+        name: X-Admin-Secret
+        required: true
+        type: string
+      - description: Plan ID
+        in: path
+        name: planId
+        required: true
+        type: string
+      - description: Plan update request
+        in: body
+        name: plan
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdatePlanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Plan updated successfully
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/models.PlanResponse'
+            type: object
+        "400":
+          description: Bad request - validation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized - missing admin secret
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden - invalid admin secret
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Plan not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - AdminAuth: []
+      summary: Update an existing subscription plan
+      tags:
+      - plans
+  /api/admin/plans/{planId}/archive:
+    post:
+      description: Archive a subscription plan. Archived plans are hidden from customers
+        but existing subscriptions continue. Requires admin authentication.
+      parameters:
+      - description: Admin secret for authentication
+        in: header
+        name: X-Admin-Secret
+        required: true
+        type: string
+      - description: Plan ID
+        in: path
+        name: planId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Plan archived successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request - validation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized - missing admin secret
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden - invalid admin secret
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Plan not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - AdminAuth: []
+      summary: Archive a subscription plan
+      tags:
+      - plans
+  /api/admin/plans/{planId}/stats:
+    get:
+      description: Retrieve a specific plan with detailed subscription statistics.
+        Requires admin authentication.
+      parameters:
+      - description: Admin secret for authentication
+        in: header
+        name: X-Admin-Secret
+        required: true
+        type: string
+      - description: Plan ID
+        in: path
+        name: planId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Plan details with statistics
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/models.PlanResponse'
+            type: object
+        "401":
+          description: Unauthorized - missing admin secret
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden - invalid admin secret
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Plan not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - AdminAuth: []
+      summary: Get plan with subscription statistics
+      tags:
+      - plans
+  /api/plans:
+    get:
+      description: List all active subscription plans available for customer subscriptions.
+        Available to all users.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of active plans
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/models.PlanResponse'
+              type: array
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List active subscription plans (public)
+      tags:
+      - plans
+  /api/plans/{planId}:
+    get:
+      description: Retrieve a specific subscription plan by its ID. Available to all
+        users.
+      parameters:
+      - description: Plan ID
+        in: path
+        name: planId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Plan details
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/models.PlanResponse'
+            type: object
+        "404":
+          description: Plan not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a subscription plan by ID
+      tags:
+      - plans
+  /api/plans/dodo/{dodoPlanId}:
+    get:
+      description: Retrieve a specific subscription plan by its Dodo Payments plan
+        ID. Available to all users.
+      parameters:
+      - description: Dodo Plan ID
+        in: path
+        name: dodoPlanId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Plan details
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/models.PlanResponse'
+            type: object
+        "404":
+          description: Plan not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a subscription plan by Dodo Plan ID
+      tags:
+      - plans
+  /api/v1/admin/maintenance/run:
+    post:
+      description: Manually trigger daily maintenance to expire overdue trials and
+        reset usage
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Maintenance run status
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - AdminAuth: []
+      summary: Run daily maintenance
+      tags:
+      - admin
+  /api/v1/billing/details:
+    post:
+      consumes:
+      - application/json
+      description: Create a billing details record
+      parameters:
+      - description: Billing details
+        in: body
+        name: billingDetails
+        required: true
+        schema:
+          $ref: '#/definitions/models.BillingDetails'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Billing details created
+          schema:
+            $ref: '#/definitions/models.BillingDetails'
+        "400":
+          description: Bad request - validation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create billing details
+      tags:
+      - billing
+  /api/v1/billing/details/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update a billing details record
+      parameters:
+      - description: Billing details ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Billing details
+        in: body
+        name: billingDetails
+        required: true
+        schema:
+          $ref: '#/definitions/models.BillingDetails'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Billing details updated
+          schema:
+            $ref: '#/definitions/models.BillingDetails'
+        "400":
+          description: Bad request - validation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update billing details
+      tags:
+      - billing
+  /api/v1/billing/details/{teamId}:
+    get:
+      description: Get a billing details record
+      parameters:
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Billing details
+          schema:
+            $ref: '#/definitions/models.BillingDetails'
+        "400":
+          description: Bad request - missing billing details ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get billing details
+      tags:
+      - billing
+  /api/v1/health:
+    get:
+      description: Check the health status of the payments service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Service health status
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Health check
+      tags:
+      - health
+  /api/v1/payments/checkout:
+    post:
+      consumes:
+      - application/json
+      description: Create a new payment checkout session for subscription purchase
+      parameters:
+      - description: Checkout session request
+        in: body
+        name: checkout
+        required: true
+        schema:
+          $ref: '#/definitions/services.CheckoutSessionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Checkout session created
+          schema:
+            $ref: '#/definitions/services.CheckoutSessionResponse'
+        "400":
+          description: Bad request - validation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create payment checkout session
+      tags:
+      - payments
+  /api/v1/plans:
+    get:
+      deprecated: true
+      description: Get all available subscription plans. This is a legacy endpoint,
+        use /api/plans instead.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Available plans
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get available subscription plans (legacy)
+      tags:
+      - subscriptions
+  /api/v1/subscriptions/{id}:
+    delete:
+      description: Cancel an active subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Cancellation confirmation
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request - missing subscription ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Cancel subscription
+      tags:
+      - subscriptions
+    put:
+      consumes:
+      - application/json
+      description: Update an existing subscription with new plan or seat count. When
+        the current subscription is cancelled, expired, failed, paused, or otherwise
+        inactive, the old subscription is removed and a new one is created (free plan)
+        or checkout is required (paid plan).
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Subscription update request
+        in: body
+        name: subscription
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated subscription
+          schema:
+            $ref: '#/definitions/models.Subscription'
+        "202":
+          description: Checkout required for paid plan (when previous subscription
+            was inactive)
+          schema:
+            $ref: '#/definitions/services.ChangePlanResult'
+        "400":
+          description: Bad request - validation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Subscription not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update subscription
+      tags:
+      - subscriptions
+  /api/v1/subscriptions/{id}/payments:
+    get:
+      description: Get payment history for a specific subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment history
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/models.Payment'
+              type: array
+            type: object
+        "400":
+          description: Bad request - missing subscription ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get payment history
+      tags:
+      - payments
+  /api/v1/subscriptions/{id}/payments/{payment_id}/invoice:
+    get:
+      description: Get a payment PDF for a specific invoice ID
+      parameters:
+      - description: Payment ID
+        in: path
+        name: payment_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Invoice payment PDF
+          schema:
+            type: file
+        "400":
+          description: Bad request - missing invoice ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get invoice payment PDF
+      tags:
+      - payments
+  /api/v1/subscriptions/{id}/session:
+    get:
+      description: Get a customer portal session for a specific subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Customer portal session
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request - missing subscription ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get customer portal session
+      tags:
+      - subscriptions
+  /api/v1/subscriptions/{id}/usage:
+    get:
+      description: Get usage statistics for a specific subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Usage statistics
+          schema:
+            $ref: '#/definitions/models.UsageRecord'
+        "400":
+          description: Bad request - missing subscription ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get subscription usage statistics
+      tags:
+      - subscriptions
+  /api/v1/subscriptions/team/{teamId}:
+    get:
+      description: Get subscription details for a specific team by team ID
+      parameters:
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Subscription details
+          schema:
+            $ref: '#/definitions/models.Subscription'
+        "400":
+          description: Bad request - missing team ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Subscription not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get team subscription
+      tags:
+      - subscriptions
+  /api/v1/usage/check/{teamId}/{feature}:
+    get:
+      description: Check if a team can perform queries based on their subscription
+        limits
+      parameters:
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: string
+      - description: Feature
+        in: path
+        name: feature
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Usage limit check result
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Bad request - missing team ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Check usage limit
+      tags:
+      - usage
+  /api/v1/usage/record/{teamId}:
+    post:
+      consumes:
+      - application/json
+      description: Record query usage for a team
+      parameters:
+      - description: Team ID
+        in: path
+        name: teamId
+        required: true
+        type: string
+      - description: Usage recording request
+        in: body
+        name: usage
+        required: true
+        schema:
+          $ref: '#/definitions/structs.RecordUsageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Usage recorded successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request - validation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Record usage
+      tags:
+      - usage
+  /api/v1/webhooks/cleanup:
+    post:
+      consumes:
+      - application/json
+      description: Remove old webhook events and logs to free up storage space
+      parameters:
+      - description: Cleanup parameters (days_to_keep, event_types)
+        in: body
+        name: cleanup
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Cleanup operation result with counts
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request - invalid parameters
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Cleanup old webhook data
+      tags:
+      - webhooks
+  /api/v1/webhooks/events:
+    get:
+      description: Retrieve webhook events with optional filtering by type and pagination
+      parameters:
+      - description: Filter by event type (e.g., payment.succeeded, subscription.active)
+        in: query
+        name: type
+        type: string
+      - default: 50
+        description: 'Maximum number of events to return (max: 100)'
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Number of events to skip for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of webhook events with pagination info
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get webhook events
+      tags:
+      - webhooks
+  /api/v1/webhooks/logs:
+    get:
+      description: Retrieve webhook processing logs for debugging and monitoring purposes
+      parameters:
+      - description: Filter logs by specific webhook event ID
+        in: query
+        name: event_id
+        type: string
+      - description: Filter logs by processing status (success, failed, pending)
+        in: query
+        name: status
+        type: string
+      - default: 50
+        description: 'Maximum number of logs to return (max: 100)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of webhook processing logs
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get webhook logs
+      tags:
+      - webhooks
+  /api/v1/webhooks/retry:
+    post:
+      consumes:
+      - application/json
+      description: Retry processing of failed webhook events within a specified time
+        range
+      parameters:
+      - description: Optional parameters for retry operation (hours_back, event_types)
+        in: body
+        name: retry
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retry operation result with counts
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request - invalid parameters
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Retry failed webhooks
+      tags:
+      - webhooks
+  /webhooks/dodo:
+    post:
+      consumes:
+      - application/json
+      description: Process incoming webhook events from Dodo Payments for subscription
+        and payment updates
+      parameters:
+      - description: 'Webhook signature for verification (alternative: X-Dodo-Signature)'
+        in: header
+        name: X-Signature
+        required: true
+        type: string
+      - description: Webhook payload from Dodo Payments
+        in: body
+        name: webhook
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Webhook processed successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request - missing signature or invalid payload
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Process Dodo Payments webhook
+      tags:
+      - webhooks
+securityDefinitions:
+  AdminAuth:
+    description: Admin secret for accessing admin-only endpoints
+    in: header
+    name: X-Admin-Secret
+    type: apiKey
+swagger: "2.0"

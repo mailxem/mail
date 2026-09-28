@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/xem-social.png" alt="Xem — Every email, a little more human. Design. Connect. Grow." width="100%" />
+  <img src="website/app/opengraph-image.png" alt="Xem — Every email, a little more human. Design. Connect. Grow." width="100%" />
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@ On a Linux host with **Docker Engine, Git, Python 3, and OpenSSL**, run:
 curl -fsSL https://raw.githubusercontent.com/mailxem/mail/undefined/scripts/install.sh | bash
 ```
 
-The wizard asks for the app, API, and storage addresses. It builds the pinned app and backend, generates credentials, initializes Swarm when needed, and starts **Next.js + Go + PostgreSQL + Redis + RustFS**. No cloud storage account is required. Allow time and disk space for the first build; a practical starting point is 4 CPU cores, 8 GB RAM, and 20 GB free disk.
+The wizard asks for the app, API, and storage addresses. It builds the app and backend from the same repository revision, generates credentials, initializes Swarm when needed, and starts **Next.js + Go + PostgreSQL + Redis + RustFS**. No cloud storage account is required. Allow time and disk space for the first build; a practical starting point is 4 CPU cores, 8 GB RAM, and 20 GB free disk.
 
 Use a host IP or DNS name reachable from both browsers and containers. The default ports are **3000** (app), **9001** (API), and **9000** (object storage). HTTP is intended for a trusted local network; configure HTTPS before exposing the installation publicly.
 
@@ -71,18 +71,17 @@ flowchart LR
 ## Clone and develop
 
 ```bash
-git clone --recurse-submodules https://github.com/mailxem/mail.git
+git clone https://github.com/mailxem/mail.git
 cd mail
-# Or initialize an existing clone at this repository's pinned revisions:
-git submodule update --init --recursive
+make help
 
 # Run the same Swarm installer from the checkout:
 python3 deploy/swarm/install.py
 ```
 
-For frontend development, point the app at a running backend and follow [client setup](docs/client/setup.mdx). Backend configuration and API documentation live in [`server/`](server) and [`docs/`](docs). Each component has its own build and contribution workflow.
+For frontend development, point the app at a running backend and follow [client setup](docs/client/setup.mdx). Backend configuration and API documentation live in [`server/`](server) and [`docs/`](docs). Components keep their own dependency files; frontend/backend CI and releases live together in `.github/workflows/`. A single PR can change both sides of an API.
 
-| Component | Directory | Repository |
+| Component | Directory | Original repository / history |
 | --- | --- | --- |
 | Go API and workers | `server/` | [xem.go](https://github.com/mailxem/xem.go) |
 | Next.js application | `client/` | [xem-app.ts](https://github.com/mailxem/xem-app.ts) |
@@ -93,10 +92,20 @@ For frontend development, point the app at a running backend and follow [client 
 | Go SDK | `sdk-go/` | [sdk-go](https://github.com/mailxem/sdk-go) |
 | Marketing website | `website/` | [xem-website](https://github.com/mailxem/xem-website) |
 
-Submodules are pinned to specific commits so releases can be reproduced. `git submodule update --remote` deliberately changes those revisions; maintainers should review and commit the updated pins together. The starter deploys only the app, backend, and their data services.
+This is a **monorepo**: all eight components above are normal directories. No submodule initialization or second repository checkout is required. The starter deploys the app, backend, and their data services.
+
+### CI and releases
+
+- Frontend changes run TypeScript, Jest, and Next.js build checks.
+- Backend changes run Go vet, race tests, builds, and the relevant PostgreSQL/SMTP integration checks.
+- Changes to either side run the full Docker Swarm smoke test.
+- Default-branch changes publish the affected component's amd64/arm64 images independently, then assemble the combined image and create a component-scoped release.
+- Images keep `theboringhumane/xemapp` and `theboringhumane/xemgo`; Git tags use `frontend-v*` and `backend-v*` to avoid collisions.
+
+See the [migration and CI guide](migration/README.md) for source provenance, configuration, and the cutover from the original repositories.
 
 ## Contribute
 
-Report bugs with reproduction steps, open a focused PR, or improve the docs. Keep credentials and local `.env` files out of commits. Component changes belong in the corresponding repository; update the parent pin after the component commit is published.
+Report bugs with reproduction steps, open a focused PR, or improve the docs. Keep credentials and local `.env` files out of commits. Make component changes directly in this repository and include related frontend/backend updates in the same PR.
 
 Xem's code is [MIT licensed](LICENSE). Bundled third-party services retain their own licenses, including RustFS's Apache-2.0 license.

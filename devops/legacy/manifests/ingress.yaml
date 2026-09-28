@@ -1,0 +1,46 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: posthoot-ingress
+  namespace: posthoot
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - payments.xem.email
+    - app.xem.email
+    - api.xem.email
+    secretName: xem-email-tls
+  rules:
+  - host: payments.xem.email
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: payments
+            port:
+              number: 80
+  - host: app.xem.email
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: xemapp
+            port:
+              number: 80
+  - host: api.xem.email
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: posthoot
+            port:
+              number: 80

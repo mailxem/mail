@@ -1,0 +1,72 @@
+{
+  "ok": true,
+  "projectDir": "/Users/theboringhumane/Projects/posthoot/website/videos/xem-brand-film/assets/site-capture",
+  "url": "https://xem.email",
+  "httpStatus": 200,
+  "title": "Xem — Every email, a little more human.",
+  "screenshots": 16,
+  "assets": 30,
+  "dropped": {
+    "size-floor": 0,
+    "budget-exhausted": 41,
+    "cap-reached": 20,
+    "unavailable": 0
+  },
+  "detectedSections": 23,
+  "fonts": [
+    "DM Sans",
+    "EB Garamond",
+    "Georgia"
+  ],
+  "fontsDetailed": [
+    {
+      "family": "DM Sans",
+      "weights": [
+        400,
+        500,
+        600
+      ],
+      "variable": true,
+      "weightRange": [
+        100,
+        1000
+      ]
+    },
+    {
+      "family": "EB Garamond",
+      "weights": [
+        400
+      ],
+      "variable": true,
+      "weightRange": [
+        400,
+        800
+      ]
+    },
+    {
+      "family": "Georgia",
+      "weights": [
+        400
+      ],
+      "variable": false
+    }
+  ],
+  "animations": {
+    "webAnimations": 0,
+    "cssDeclarations": 150,
+    "scrollTargets": 9,
+    "cdpAnimations": 31,
+    "canvases": 1
+  },
+  "warnings": [
+    "lazy-scroll stopped after 38 steps (budget 15000ms)",
+    "61 referenced asset(s) are not in this capture (41 budget-exhausted, 20 cap-reached). A thin capture with no drops is a thin page; this one was truncated.",
+    "Capture budget exhausted before contact sheets; source images were preserved."
+  ],
+  "lastPhase": {
+    "schema": "hyperframes.capture.phase.v1",
+    "phase": "complete",
+    "status": "completed",
+    "remainingMs": 0
+  }
+}

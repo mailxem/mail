@@ -1,0 +1,12 @@
+[Unit]
+Description=Read-only Xem SMTP certificate mirror for Dokploy
+Before=docker.service
+
+[Mount]
+What=/etc/xem/smtp
+Where=/etc/xem/smtp-readonly
+Type=none
+Options=bind,ro
+
+[Install]
+WantedBy=local-fs.target

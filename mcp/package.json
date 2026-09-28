@@ -1,0 +1,63 @@
+{
+  "name": "@xem.email/mcp",
+  "version": "2.0.0",
+  "description": "MCP server for XEM Email API operations - send emails, manage campaigns, and contact lists",
+  "type": "module",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "bin": {
+    "xem-email-mcp": "build/index.js"
+  },
+  "files": [
+    "build",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run build",
+    "test": "npm run build && node --test test/*.test.mjs"
+  },
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "email",
+    "xem",
+    "xem-email",
+    "email-api",
+    "campaign",
+    "contact-list",
+    "claude",
+    "ai"
+  ],
+  "author": "xem.email",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mailxem/mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mailxem/mcp/issues"
+  },
+  "homepage": "https://github.com/mailxem/mcp#readme",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "csv-parse": "^7.0.2",
+    "zod": "^3.25.76",
+    "zod-to-json-schema": "^3.25.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}

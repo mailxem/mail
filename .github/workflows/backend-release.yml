@@ -1,0 +1,17 @@
+name: backend release
+on:
+  push:
+    branches: [undefined]
+    paths: ['server/**', '.github/workflows/backend-release.yml', '.github/workflows/component-release.yml', 'scripts/component-release.py']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    uses: ./.github/workflows/component-release.yml
+    with:
+      component: backend
+      directory: server
+      image: theboringhumane/xemgo
+    secrets:
+      DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}

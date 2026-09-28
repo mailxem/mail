@@ -1,0 +1,30 @@
+managedSending:
+  enabled: true
+  hostname: smtp.example.com
+  service:
+    loadBalancerClass: service.k8s.aws/nlb
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+      service.beta.kubernetes.io/aws-load-balancer-target-group-attributes: preserve_client_ip.enabled=true
+workloadIdentity:
+  enabled: true
+  roleArn: arn:aws:iam::123456789012:role/xem-kubernetes-runtime
+certificate:
+  enabled: true
+  createIssuer: true
+  email: operator@example.com
+  cloudflare:
+    zoneName: example.com
+webIngress:
+  enabled: true
+  hosts:
+    backend: api.example.com
+    frontend: app.example.com
+    payments: payments.example.com
+    mcp: mcp.example.com
+components:
+  payments:
+    enabled: true
+  mcp:
+    enabled: true

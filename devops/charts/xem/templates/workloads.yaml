@@ -1,0 +1,158 @@
+{{- range $name, $component := .Values.components }}
+{{- if $component.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "xem.name" $ }}-{{ $name }}
+  labels:
+    {{- include "xem.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+spec:
+  replicas: {{ $component.replicas }}
+  {{- if eq $name "backend" }}
+  strategy: {type: Recreate}
+  {{- else }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {maxUnavailable: 0, maxSurge: 1}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "xem.selector" $ | nindent 6 }}
+      app.kubernetes.io/component: {{ $name }}
+  template:
+    metadata:
+      labels:
+        {{- include "xem.selector" $ | nindent 8 }}
+        app.kubernetes.io/component: {{ $name }}
+    spec:
+      automountServiceAccountToken: false
+      {{- if eq $name "backend" }}
+      serviceAccountName: {{ $.Values.workloadIdentity.serviceAccountName }}
+      {{- end }}
+      terminationGracePeriodSeconds: 60
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: {{ $component.uid }}
+        runAsGroup: {{ $component.uid }}
+        fsGroup: {{ $component.uid }}
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: {type: RuntimeDefault}
+      {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.nodeSelector }}
+      nodeSelector: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.tolerations }}
+      tolerations: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ $name }}
+          image: {{ $component.image | quote }}
+          imagePullPolicy: {{ $component.imagePullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          ports:
+            - {name: http, containerPort: {{ $component.port }}, protocol: TCP}
+            {{- if and (eq $name "backend") $.Values.managedSending.enabled }}
+            - {name: smtp, containerPort: 2525, protocol: TCP}
+            {{- end }}
+          envFrom:
+            - secretRef: {name: {{ $component.existingSecret }}}
+          env:
+            {{- range $key, $value := $component.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- if eq $name "frontend" }}
+            - name: INTERNAL_API_URL
+              value: http://{{ include "xem.name" $ }}-backend:9001/api/v1
+            {{- end }}
+            {{- if and (eq $name "backend") $.Values.workloadIdentity.enabled }}
+            - name: AWS_ROLE_ARN
+              value: {{ $.Values.workloadIdentity.roleArn | quote }}
+            - name: AWS_WEB_IDENTITY_TOKEN_FILE
+              value: /var/run/xem-aws/token
+            - name: AWS_REGION
+              value: {{ $.Values.workloadIdentity.region | quote }}
+            - name: AWS_STS_REGIONAL_ENDPOINTS
+              value: regional
+            - name: AWS_EC2_METADATA_DISABLED
+              value: "true"
+            {{- end }}
+          resources: {{ toYaml $component.resources | nindent 12 }}
+          startupProbe:
+            httpGet: {path: {{ $component.healthPath | quote }}, port: http}
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 60
+          readinessProbe:
+            {{- if and (eq $name "backend") $.Values.managedSending.enabled }}
+            tcpSocket: {port: smtp}
+            {{- else }}
+            httpGet: {path: {{ $component.healthPath | quote }}, port: http}
+            {{- end }}
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet: {path: {{ $component.healthPath | quote }}, port: http}
+            periodSeconds: 15
+            timeoutSeconds: 3
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+            {{- if eq $name "frontend" }}
+            - {name: next-cache, mountPath: /app/.next/cache}
+            {{- end }}
+            {{- if and (eq $name "backend") $.Values.managedSending.enabled }}
+            - {name: smtp-tls, mountPath: /etc/xem/smtp, readOnly: true}
+            {{- end }}
+            {{- if and (eq $name "backend") $.Values.workloadIdentity.enabled }}
+            - {name: aws-token, mountPath: /var/run/xem-aws, readOnly: true}
+            {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {sizeLimit: 256Mi}
+        {{- if eq $name "frontend" }}
+        - name: next-cache
+          emptyDir: {sizeLimit: 256Mi}
+        {{- end }}
+        {{- if and (eq $name "backend") $.Values.managedSending.enabled }}
+        - name: smtp-tls
+          secret:
+            secretName: {{ $.Values.managedSending.tlsSecretName }}
+            defaultMode: 0440
+            items:
+              - {key: tls.crt, path: fullchain.pem}
+              - {key: tls.key, path: privkey.pem}
+        {{- end }}
+        {{- if and (eq $name "backend") $.Values.workloadIdentity.enabled }}
+        - name: aws-token
+          projected:
+            defaultMode: 0440
+            sources:
+              - serviceAccountToken:
+                  audience: sts.amazonaws.com
+                  expirationSeconds: 3600
+                  path: token
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "xem.name" $ }}-{{ $name }}
+  labels:
+    {{- include "xem.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "xem.selector" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+  ports:
+    - {name: http, port: {{ $component.port }}, targetPort: http, protocol: TCP}
+{{- end }}
+{{- end }}

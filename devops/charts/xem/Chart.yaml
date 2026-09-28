@@ -1,0 +1,7 @@
+apiVersion: v2
+name: xem
+description: Xem application and managed SMTP submission on an existing Kubernetes cluster
+type: application
+version: 0.1.0
+appVersion: "managed-sending"
+kubeVersion: ">=1.30.0-0"

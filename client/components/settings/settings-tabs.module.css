@@ -1,0 +1,17 @@
+.settings { min-width: 0; }
+.settings .tabList { display: flex; justify-content: flex-start; gap: 20px; width: 100%; max-width: 100%; height: auto; margin-bottom: 32px; padding: 0; overflow-x: auto; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; background: transparent; scrollbar-width: thin; }
+.settings .tab { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 7px; height: 42px; margin-bottom: -1px; padding: 0 1px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; box-shadow: none; color: var(--muted-foreground); font-size: 12px; font-weight: 400; }
+.settings .tab:hover { color: var(--foreground); }
+.settings .tab[data-state="active"] { border-bottom-color: var(--foreground); background: transparent; box-shadow: none; color: var(--foreground); font-weight: 500; }
+.settings .tab svg { flex-shrink: 0; }
+.settings .content { min-width: 0; margin-top: 0; }
+.section { display: grid; grid-template-columns: minmax(180px, 220px) minmax(0, 560px); gap: 36px; padding: 0 0 32px; }
+.sectionIntro h2 { margin: 0; color: var(--foreground); font-size: 14px; font-weight: 500; line-height: 1.6; }
+.sectionIntro p { max-width: 30ch; margin-top: 6px; color: var(--muted-foreground); font-size: 12px; line-height: 1.7; }
+.profileForm { padding: 22px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); }
+.unavailable { display: flex; align-items: flex-start; gap: 12px; padding: 20px; border: 1px solid var(--border); border-radius: 12px; color: var(--muted-foreground); }
+.unavailable > svg { flex-shrink: 0; margin-top: 2px; }
+.unavailable h3 { margin: 0; color: var(--foreground); font-size: 13px; font-weight: 500; line-height: 1.6; }
+.unavailable p { margin-top: 6px; font-size: 12px; line-height: 1.75; }
+@media (max-width: 1000px) { .section { grid-template-columns: minmax(0, 1fr); gap: 18px; max-width: 680px; } .sectionIntro p { max-width: 55ch; } }
+@media (max-width: 600px) { .settings .tabList { gap: 18px; margin-bottom: 24px; } .settings .tab { height: 40px; } .settings .tab svg { display: none; } .profileForm { padding: 18px; } }

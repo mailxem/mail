@@ -8,3 +8,14 @@
 # Python validation artifacts
 __pycache__/
 *.pyc
+
+# Monorepo build outputs and machine-local state
+**/node_modules/
+**/.next/
+**/coverage/
+**/*.tsbuildinfo
+server/bin/
+server/build/
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*

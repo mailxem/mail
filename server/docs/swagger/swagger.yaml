@@ -1,0 +1,3027 @@
+definitions:
+  internal_handlers.AudienceInsights:
+    properties:
+      behaviors:
+        additionalProperties:
+          $ref: '#/definitions/internal_handlers.BehaviorMetrics'
+        type: object
+      demographics:
+        additionalProperties:
+          type: integer
+        type: object
+      preferences:
+        additionalProperties:
+          $ref: '#/definitions/internal_handlers.PreferenceMetrics'
+        type: object
+      segments:
+        items:
+          $ref: '#/definitions/internal_handlers.AudienceSegment'
+        type: array
+    type: object
+  internal_handlers.AudienceSegment:
+    properties:
+      clickRate:
+        type: number
+      growth:
+        type: number
+      name:
+        type: string
+      openRate:
+        type: number
+      size:
+        type: integer
+    type: object
+  internal_handlers.BehaviorMetrics:
+    properties:
+      count:
+        type: integer
+      engagementRate:
+        type: number
+      trend:
+        type: string
+    type: object
+  internal_handlers.CampaignSummary:
+    properties:
+      campaignId:
+        type: string
+      clickRate:
+        type: number
+      engagementScore:
+        type: number
+      name:
+        type: string
+      openRate:
+        type: number
+    type: object
+  internal_handlers.ClickPoint:
+    properties:
+      count:
+        type: integer
+      element:
+        type: string
+      x:
+        type: integer
+      "y":
+        type: integer
+    type: object
+  internal_handlers.ClickSegment:
+    properties:
+      clickRate:
+        type: number
+      count:
+        type: integer
+      selector:
+        type: string
+    type: object
+  internal_handlers.CreateSubscriptionRequest:
+    properties:
+      product_id:
+        type: string
+    required:
+    - product_id
+    type: object
+  internal_handlers.EmailAnalytics:
+    description: Email analytics data
+    properties:
+      averageReadTime:
+        allOf:
+        - $ref: '#/definitions/time.Duration'
+        description: Average time between open and click
+      bounceCount:
+        type: integer
+      browserBreakdown:
+        additionalProperties:
+          type: integer
+        type: object
+      cityBreakdown:
+        additionalProperties:
+          type: integer
+        type: object
+      clickCount:
+        type: integer
+      clickRate:
+        type: number
+      clickedLinks:
+        description: "\U0001F517 Link Analytics"
+        items:
+          $ref: '#/definitions/internal_handlers.LinkAnalytics'
+        type: array
+      complaintCount:
+        type: integer
+      dayOfWeekBreakdown:
+        additionalProperties:
+          type: integer
+        description: Day name -> count
+        type: object
+      deviceBreakdown:
+        additionalProperties:
+          type: integer
+        description: "\U0001F4F1 Device & Browser Analytics"
+        type: object
+      engagementScore:
+        description: "\U0001F3AF Engagement Metrics"
+        type: number
+      firstOpenTime:
+        allOf:
+        - $ref: '#/definitions/time.Duration'
+        description: Time to first open
+      geoBreakdown:
+        additionalProperties:
+          type: integer
+        description: "\U0001F30D Geographic Analytics"
+        type: object
+      hourlyBreakdown:
+        additionalProperties:
+          type: integer
+        description: Hour (0-23) -> count
+        type: object
+      industryAvgClickRate:
+        type: number
+      industryAvgOpenRate:
+        description: "\U0001F4C8 Comparative Metrics"
+        type: number
+      openCount:
+        description: "\U0001F4CA Basic Metrics"
+        type: integer
+      openRate:
+        type: number
+      osBreakdown:
+        additionalProperties:
+          type: integer
+        type: object
+      regionBreakdown:
+        additionalProperties:
+          type: integer
+        type: object
+      repeatClicks:
+        description: Number of times same user clicked
+        type: integer
+      repeatOpens:
+        description: "\U0001F504 Retention Metrics"
+        type: integer
+      timelineData:
+        description: ⏰ Time-based Analytics
+        items:
+          $ref: '#/definitions/internal_handlers.TimelineDataPoint'
+        type: array
+      uniqueClicks:
+        type: integer
+      uniqueOpens:
+        type: integer
+    type: object
+  internal_handlers.GetPlansResponse:
+    properties:
+      plans:
+        items:
+          $ref: '#/definitions/kori_internal_models.Product'
+        type: array
+    type: object
+  internal_handlers.GoogleAuthRequest:
+    properties:
+      access_token:
+        type: string
+    required:
+    - access_token
+    type: object
+  internal_handlers.HeatmapData:
+    properties:
+      clicks:
+        items:
+          $ref: '#/definitions/internal_handlers.ClickPoint'
+        type: array
+      segments:
+        items:
+          $ref: '#/definitions/internal_handlers.ClickSegment'
+        type: array
+      url:
+        type: string
+    type: object
+  internal_handlers.InviteUserRequest:
+    description: Send an invitation email to a user to join a team
+    properties:
+      email:
+        type: string
+      name:
+        minLength: 2
+        type: string
+      role:
+        default: MEMBER
+        enum:
+        - MEMBER
+        - ADMIN
+        - SUPER_ADMIN
+        type: string
+    required:
+    - email
+    - name
+    - role
+    type: object
+  internal_handlers.LinkAnalytics:
+    properties:
+      averageTimeToClick:
+        $ref: '#/definitions/time.Duration'
+      clickCount:
+        type: integer
+      clickRate:
+        type: number
+      deviceBreakdown:
+        additionalProperties:
+          type: integer
+        type: object
+      firstClickTime:
+        type: string
+      lastClickTime:
+        type: string
+      uniqueClicks:
+        type: integer
+      url:
+        type: string
+    type: object
+  internal_handlers.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  internal_handlers.MonthlyEngagement:
+    properties:
+      clickRate:
+        type: number
+      month:
+        type: string
+      openRate:
+        type: number
+      totalEmails:
+        type: integer
+    type: object
+  internal_handlers.PerformerMetrics:
+    properties:
+      engagementRate:
+        type: number
+      sampleSize:
+        type: integer
+      type:
+        description: subject, template, time, etc.
+        type: string
+      value:
+        type: string
+    type: object
+  internal_handlers.PreferenceMetrics:
+    properties:
+      confidence:
+        type: number
+      count:
+        type: integer
+      score:
+        type: number
+    type: object
+  internal_handlers.RegisterRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - first_name
+    - last_name
+    - password
+    type: object
+  internal_handlers.ResetPasswordRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  internal_handlers.SendEmailRequest:
+    properties:
+      bcc:
+        type: string
+      cc:
+        type: string
+      data:
+        items:
+          type: integer
+        type: array
+      html:
+        type: string
+      provider:
+        enum:
+        - CUSTOM
+        - GMAIL
+        - OUTLOOK
+        - AMAZON
+        type: string
+      replyTo:
+        type: string
+      scheduleAt:
+        type: string
+      subject:
+        type: string
+      templateId:
+        type: string
+      test:
+        type: boolean
+      to:
+        type: string
+    required:
+    - data
+    - to
+    type: object
+  internal_handlers.TeamOverview:
+    properties:
+      averageClickRate:
+        type: number
+      averageOpenRate:
+        type: number
+      deviceStats:
+        additionalProperties:
+          type: integer
+        type: object
+      geoStats:
+        additionalProperties:
+          type: integer
+        type: object
+      monthlyStats:
+        items:
+          $ref: '#/definitions/internal_handlers.MonthlyEngagement'
+        type: array
+      topCampaigns:
+        items:
+          $ref: '#/definitions/internal_handlers.CampaignSummary'
+        type: array
+      topPerformers:
+        items:
+          $ref: '#/definitions/internal_handlers.PerformerMetrics'
+        type: array
+      totalClicks:
+        type: integer
+      totalEmails:
+        type: integer
+      totalOpens:
+        type: integer
+    type: object
+  internal_handlers.TimelineDataPoint:
+    properties:
+      browser:
+        type: string
+      count:
+        type: integer
+      country:
+        type: string
+      deviceType:
+        type: string
+      eventType:
+        type: string
+      timestamp:
+        type: string
+      uniqueCount:
+        type: integer
+    type: object
+  internal_handlers.VerifyResetCodeRequest:
+    properties:
+      code:
+        type: string
+      new_password:
+        minLength: 8
+        type: string
+    required:
+    - code
+    - new_password
+    type: object
+  internal_handlers.trendPoint:
+    properties:
+      clickCount:
+        type: integer
+      devices:
+        additionalProperties:
+          type: integer
+        type: object
+      engagementRate:
+        type: number
+      events:
+        items:
+          $ref: '#/definitions/kori_internal_models.EmailTracking'
+        type: array
+      growth:
+        type: number
+      locations:
+        additionalProperties:
+          type: integer
+        type: object
+      openCount:
+        type: integer
+      period:
+        type: string
+    type: object
+  kori_internal_models.APIKey:
+    properties:
+      createdAt:
+        type: string
+      expiresAt:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      key:
+        type: string
+      lastUsedAt:
+        type: string
+      name:
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/kori_internal_models.APIKeyPermission'
+        type: array
+      team:
+        $ref: '#/definitions/kori_internal_models.Team'
+      teamId:
+        type: string
+      updatedAt:
+        type: string
+    required:
+    - teamId
+    type: object
+  kori_internal_models.APIKeyPermission:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      key:
+        $ref: '#/definitions/kori_internal_models.APIKey'
+      keyId:
+        type: string
+      resourcePermission:
+        $ref: '#/definitions/kori_internal_models.ResourcePermission'
+      resourcePermissionId:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  kori_internal_models.Automation:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      edges:
+        items:
+          $ref: '#/definitions/kori_internal_models.AutomationNodeEdge'
+        type: array
+      id:
+        type: string
+      isActive:
+        type: boolean
+      isDeleted:
+        default: false
+        type: boolean
+      name:
+        type: string
+      nodes:
+        items:
+          $ref: '#/definitions/kori_internal_models.AutomationNode'
+        type: array
+      team:
+        $ref: '#/definitions/kori_internal_models.Team'
+      teamId:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  kori_internal_models.AutomationNode:
+    properties:
+      automation:
+        $ref: '#/definitions/kori_internal_models.Automation'
+      automationId:
+        type: string
+      createdAt:
+        type: string
+      data:
+        items:
+          type: integer
+        type: array
+      edgesFrom:
+        items:
+          $ref: '#/definitions/kori_internal_models.AutomationNodeEdge'
+        type: array
+      edgesTo:
+        items:
+          $ref: '#/definitions/kori_internal_models.AutomationNodeEdge'
+        type: array
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      type:
+        allOf:
+        - $ref: '#/definitions/kori_internal_models.NodeType'
+        enum:
+        - EMAIL_WRITER
+      updatedAt:
+        type: string
+    required:
+    - data
+    - type
+    type: object
+  kori_internal_models.AutomationNodeEdge:
+    properties:
+      animated:
+        type: boolean
+      automation:
+        $ref: '#/definitions/kori_internal_models.Automation'
+      automationId:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      label:
+        type: string
+      source:
+        $ref: '#/definitions/kori_internal_models.AutomationNode'
+      sourceId:
+        type: string
+      target:
+        $ref: '#/definitions/kori_internal_models.AutomationNode'
+      targetId:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  kori_internal_models.BrandingSettings:
+    properties:
+      createdAt:
+        type: string
+      dashboardName:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      logoUrl:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  kori_internal_models.Campaign:
+    properties:
+      analytics:
+        items:
+          $ref: '#/definitions/kori_internal_models.EmailTracking'
+        type: array
+      batchDelay:
+        allOf:
+        - $ref: '#/definitions/time.Duration'
+        description: 1 hour delay between batches
+      batchSize:
+        type: integer
+      createdAt:
+        type: string
+      cronExpression:
+        type: string
+      data:
+        items:
+          type: integer
+        type: array
+      description:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      list:
+        $ref: '#/definitions/kori_internal_models.MailingList'
+      listId:
+        type: string
+      name:
+        type: string
+      processed:
+        type: integer
+      recurringSchedule:
+        $ref: '#/definitions/kori_internal_models.CampaignRecurringSchedule'
+      schedule:
+        $ref: '#/definitions/kori_internal_models.CampaignSchedule'
+      scheduledFor:
+        type: string
+      sentEmails:
+        items:
+          $ref: '#/definitions/kori_internal_models.Email'
+        type: array
+      smtpConfig:
+        $ref: '#/definitions/kori_internal_models.SMTPConfig'
+      smtpConfigId:
+        type: string
+      status:
+        $ref: '#/definitions/kori_internal_models.CampaignStatus'
+      team:
+        $ref: '#/definitions/kori_internal_models.Team'
+      teamId:
+        type: string
+      template:
+        $ref: '#/definitions/kori_internal_models.Template'
+      templateId:
+        type: string
+      timezone:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  kori_internal_models.CampaignRecurringSchedule:
+    enum:
+    - DAILY
+    - WEEKLY
+    - MONTHLY
+    - CUSTOM
+    type: string
+    x-enum-varnames:
+    - CampaignRecurringScheduleDaily
+    - CampaignRecurringScheduleWeekly
+    - CampaignRecurringScheduleMonthly
+    - CampaignRecurringScheduleCustom
+  kori_internal_models.CampaignSchedule:
+    enum:
+    - ONE_TIME
+    - RECURRING
+    type: string
+    x-enum-varnames:
+    - CampaignScheduleOneTime
+    - CampaignScheduleRecurring
+  kori_internal_models.CampaignStatus:
+    enum:
+    - DRAFT
+    - SCHEDULED
+    - SENDING
+    - COMPLETED
+    - FAILED
+    - PAUSED
+    type: string
+    x-enum-varnames:
+    - CampaignStatusDraft
+    - CampaignStatusScheduled
+    - CampaignStatusSending
+    - CampaignStatusCompleted
+    - CampaignStatusFailed
+    - CampaignStatusPaused
+  kori_internal_models.Contact:
+    properties:
+      address:
+        type: string
+      city:
+        type: string
+      company:
+        type: string
+      country:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      facebook:
+        type: string
+      firstName:
+        minLength: 2
+        type: string
+      id:
+        type: string
+      import:
+        $ref: '#/definitions/kori_internal_models.ContactImport'
+      importId:
+        type: string
+      instagram:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      lastName:
+        minLength: 2
+        type: string
+      linkedin:
+        type: string
+      list:
+        $ref: '#/definitions/kori_internal_models.MailingList'
+      listId:
+        type: string
+      metadata:
+        items:
+          type: integer
+        type: array
+      phone:
+        type: string
+      state:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/kori_internal_models.SubscriberStatus'
+        enum:
+        - ACTIVE
+        - UNSUBSCRIBED
+        - BOUNCED
+        - COMPLAINED
+      tags:
+        items:
+          $ref: '#/definitions/kori_internal_models.Tag'
+        type: array
+      teamId:
+        type: string
+      twitter:
+        type: string
+      updatedAt:
+        type: string
+      zip:
+        type: string
+    required:
+    - email
+    - listId
+    - status
+    - teamId
+    type: object
+  kori_internal_models.ContactImport:
+    properties:
+      contacts:
+        items:
+          $ref: '#/definitions/kori_internal_models.Contact'
+        type: array
+      createdAt:
+        type: string
+      fieldsMap:
+        items:
+          type: integer
+        type: array
+      file:
+        $ref: '#/definitions/kori_internal_models.File'
+      fileId:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      list:
+        $ref: '#/definitions/kori_internal_models.MailingList'
+      listId:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/kori_internal_models.ContactImportStatus'
+        enum:
+        - PENDING
+        - PROCESSING
+        - COMPLETED
+        - FAILED
+      team:
+        $ref: '#/definitions/kori_internal_models.Team'
+      teamId:
+        type: string
+      updatedAt:
+        type: string
+    required:
+    - fieldsMap
+    - listId
+    - status
+    - teamId
+    type: object
+  kori_internal_models.ContactImportStatus:
+    enum:
+    - PENDING
+    - COMPLETED
+    - FAILED
+    type: string
+    x-enum-varnames:
+    - ContactImportStatusPending
+    - ContactImportStatusCompleted
+    - ContactImportStatusFailed
+  kori_internal_models.Delivery:
+    properties:
+      createdAt:
+        type: string
+      error:
+        type: string
+      event:
+        enum:
+        - click
+        - open
+        - reply
+        - bounce
+        - complaint
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      payload:
+        items:
+          type: integer
+        type: array
+      responseBody:
+        type: string
+      responseCode:
+        maximum: 599
+        minimum: 100
+        type: integer
+      status:
+        enum:
+        - PENDING
+        - SUCCESS
+        - FAILED
+        type: string
+      updatedAt:
+        type: string
+      webhookId:
+        type: string
+    required:
+    - event
+    - payload
+    - status
+    - webhookId
+    type: object
+  kori_internal_models.Domain:
+    properties:
+      createdAt:
+        type: string
+      dnsRecord:
+        type: string
+      domain:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      isVerified:
+        type: boolean
+      teamId:
+        type: string
+      updatedAt:
+        type: string
+    required:
+    - domain
+    - teamId
+    type: object
+  kori_internal_models.Email:
+    properties:
+      bcc:
+        type: string
+      body:
+        type: string
+      campaign:
+        $ref: '#/definitions/kori_internal_models.Campaign'
+      campaignId:
+        type: string
+      category:
+        $ref: '#/definitions/kori_internal_models.EmailCategory'
+      categoryId:
+        type: string
+      cc:
+        type: string
+      contact:
+        $ref: '#/definitions/kori_internal_models.Contact'
+      contactId:
+        type: string
+      createdAt:
+        type: string
+      data:
+        items:
+          type: integer
+        type: array
+      error:
+        type: string
+      from:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      replyTo:
+        type: string
+      sendAt:
+        type: string
+      sentAt:
+        type: string
+      smtpConfig:
+        $ref: '#/definitions/kori_internal_models.SMTPConfig'
+      smtpConfigId:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/kori_internal_models.EmailStatus'
+        enum:
+        - DRAFT
+        - QUEUED
+        - SENDING
+        - SENT
+        - FAILED
+      subject:
+        type: string
+      team:
+        $ref: '#/definitions/kori_internal_models.Team'
+      teamId:
+        type: string
+      template:
+        $ref: '#/definitions/kori_internal_models.Template'
+      templateId:
+        type: string
+      test:
+        type: boolean
+      to:
+        type: string
+      updatedAt:
+        type: string
+    required:
+    - body
+    - categoryId
+    - from
+    - smtpConfigId
+    - status
+    - subject
+    - teamId
+    - to
+    type: object
+  kori_internal_models.EmailCategory:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      emails:
+        items:
+          $ref: '#/definitions/kori_internal_models.Email'
+        type: array
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      name:
+        minLength: 2
+        type: string
+      team:
+        $ref: '#/definitions/kori_internal_models.Team'
+      teamId:
+        type: string
+      templates:
+        items:
+          $ref: '#/definitions/kori_internal_models.Template'
+        type: array
+      updatedAt:
+        type: string
+    required:
+    - name
+    - teamId
+    type: object
+  kori_internal_models.EmailStatus:
+    enum:
+    - PENDING
+    - SENT
+    - FAILED
+    - BOUNCED
+    - OPENED
+    - CLICKED
+    type: string
+    x-enum-varnames:
+    - EmailStatusPending
+    - EmailStatusSent
+    - EmailStatusFailed
+    - EmailStatusBounced
+    - EmailStatusOpened
+    - EmailStatusClicked
+  kori_internal_models.EmailTracking:
+    properties:
+      browser:
+        type: string
+      campaign:
+        $ref: '#/definitions/kori_internal_models.Campaign'
+      campaignId:
+        type: string
+      city:
+        type: string
+      contact:
+        $ref: '#/definitions/kori_internal_models.Contact'
+      contactId:
+        type: string
+      country:
+        type: string
+      createdAt:
+        type: string
+      deviceType:
+        enum:
+        - desktop
+        - mobile
+        - tablet
+        - other
+        type: string
+      email:
+        $ref: '#/definitions/kori_internal_models.Email'
+      emailId:
+        type: string
+      event:
+        allOf:
+        - $ref: '#/definitions/kori_internal_models.EmailTrackingEvent'
+        enum:
+        - click
+        - open
+        - reply
+        - bounce
+        - complaint
+      id:
+        type: string
+      ipAddress:
+        description: "\U0001F30D Geographic Data"
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      metadata:
+        description: "\U0001F4CA Additional Metadata"
+        items:
+          type: integer
+        type: array
+      os:
+        type: string
+      region:
+        type: string
+      timestamp:
+        type: string
+      updatedAt:
+        type: string
+      url:
+        description: "\U0001F517 Click Specific Data (for click events)"
+        type: string
+      userAgent:
+        description: "\U0001F4F1 Device Information"
+        type: string
+    required:
+    - emailId
+    - event
+    - timestamp
+    type: object
+  kori_internal_models.EmailTrackingEvent:
+    enum:
+    - click
+    - open
+    - reply
+    - bounce
+    - complaint
+    - unsubscribe
+    type: string
+    x-enum-varnames:
+    - EmailTrackingEventClick
+    - EmailTrackingEventOpen
+    - EmailTrackingEventReply
+    - EmailTrackingEventBounce
+    - EmailTrackingEventComplaint
+    - EmailTrackingEventUnsubscribe
+  kori_internal_models.File:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      name:
+        type: string
+      path:
+        type: string
+      signedUrl:
+        description: Virtual field
+        type: string
+      size:
+        minimum: 1
+        type: integer
+      team:
+        $ref: '#/definitions/kori_internal_models.Team'
+      teamId:
+        type: string
+      type:
+        type: string
+      updatedAt:
+        type: string
+      user:
+        $ref: '#/definitions/kori_internal_models.User'
+      userId:
+        type: string
+    required:
+    - name
+    - path
+    - size
+    - type
+    type: object
+  kori_internal_models.InviteStatus:
+    enum:
+    - PENDING
+    - ACCEPTED
+    - REJECTED
+    type: string
+    x-enum-varnames:
+    - InviteStatusPending
+    - InviteStatusAccepted
+    - InviteStatusRejected
+  kori_internal_models.MailingList:
+    properties:
+      contactImports:
+        items:
+          $ref: '#/definitions/kori_internal_models.ContactImport'
+        type: array
+      contacts:
+        items:
+          $ref: '#/definitions/kori_internal_models.Contact'
+        type: array
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      name:
+        minLength: 2
+        type: string
+      subscribersCount:
+        minimum: 0
+        type: integer
+      team:
+        $ref: '#/definitions/kori_internal_models.Team'
+      teamId:
+        type: string
+      updatedAt:
+        type: string
+    required:
+    - name
+    - subscribersCount
+    - teamId
+    type: object
+  kori_internal_models.Model:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      name:
+        type: string
+      provider:
+        type: string
+      team:
+        $ref: '#/definitions/kori_internal_models.Team'
+      teamId:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  kori_internal_models.NodeType:
+    enum:
+    - START
+    - EMAIL
+    - WAIT
+    - CONDITION
+    - WEBHOOK
+    - ADD_TO_LIST
+    - REMOVE_FROM_LIST
+    - UPDATE_SUBSCRIBER
+    - CHECK_ENGAGEMENT
+    - SEGMENT
+    - TAG
+    - UNSUBSCRIBE
+    - CUSTOM_CODE
+    - EXIT
+    type: string
+    x-enum-varnames:
+    - NodeTypeStart
+    - NodeTypeEmail
+    - NodeTypeWait
+    - NodeTypeCondition
+    - NodeTypeWebhook
+    - NodeTypeAddToList
+    - NodeTypeRemoveFromList
+    - NodeTypeUpdateSubscriber
+    - NodeTypeCheckEngagement
+    - NodeTypeSegment
+    - NodeTypeTag
+    - NodeTypeUnsubscribe
+    - NodeTypeCustomCode
+    - NodeTypeExit
+  kori_internal_models.Product:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      dodo_id:
+        description: ID from Dodo Payments
+        type: string
+      features:
+        items:
+          $ref: '#/definitions/kori_internal_models.ProductFeatureConfig'
+        type: array
+      id:
+        type: string
+      interval:
+        description: monthly, yearly
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      name:
+        type: string
+      price:
+        type: number
+      updatedAt:
+        type: string
+    type: object
+  kori_internal_models.ProductFeature:
+    enum:
+    - email_campaigns
+    - template_library
+    - advanced_analytics
+    - custom_domain
+    - api_access
+    - team_collaboration
+    - automation
+    - segmentation
+    type: string
+    x-enum-varnames:
+    - FeatureEmailCampaigns
+    - FeatureTemplateLibrary
+    - FeatureAdvancedAnalytics
+    - FeatureCustomDomain
+    - FeatureAPIAccess
+    - FeatureTeamCollaboration
+    - FeatureAutomation
+    - FeatureSegmentation
+  kori_internal_models.ProductFeatureConfig:
+    properties:
+      createdAt:
+        type: string
+      enabled:
+        type: boolean
+      feature:
+        $ref: '#/definitions/kori_internal_models.ProductFeature'
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      limit:
+        description: Optional limit for the feature (e.g., number of campaigns)
+        type: integer
+      product_id:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  kori_internal_models.Resource:
+    properties:
+      action:
+        description: '"create", "read", "update", "delete"'
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      name:
+        description: e.g. "campaigns", "templates", "lists"
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  kori_internal_models.ResourcePermission:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      resource:
+        $ref: '#/definitions/kori_internal_models.Resource'
+      resourceId:
+        type: string
+      scope:
+        description: Scope defines the permission level, e.g. "read:campaigns", "write:templates"
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  kori_internal_models.SMTPConfig:
+    properties:
+      createdAt:
+        type: string
+      fromEmail:
+        type: string
+      host:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      isDefault:
+        type: boolean
+      isDeleted:
+        default: false
+        type: boolean
+      maxSendRate:
+        minimum: 1
+        type: integer
+      password:
+        minLength: 8
+        type: string
+      port:
+        maximum: 65535
+        minimum: 1
+        type: integer
+      provider:
+        enum:
+        - CUSTOM
+        - GMAIL
+        - OUTLOOK
+        - AMAZON
+        type: string
+      requiresAuth:
+        type: boolean
+      supportsTls:
+        type: boolean
+      teamId:
+        type: string
+      updatedAt:
+        type: string
+      username:
+        type: string
+    required:
+    - fromEmail
+    - host
+    - maxSendRate
+    - password
+    - port
+    - provider
+    - teamId
+    - username
+    type: object
+  kori_internal_models.SubscriberStatus:
+    enum:
+    - ACTIVE
+    - UNSUBSCRIBED
+    - BOUNCED
+    - COMPLAINED
+    type: string
+    x-enum-varnames:
+    - SubscriberStatusActive
+    - SubscriberStatusUnsubscribed
+    - SubscriberStatusBounced
+    - SubscriberStatusComplained
+  kori_internal_models.Subscription:
+    properties:
+      canceled_at:
+        type: string
+      createdAt:
+        type: string
+      current_period_end:
+        type: string
+      current_period_start:
+        type: string
+      dodo_customer_id:
+        type: string
+      dodo_subscription_id:
+        type: string
+      email:
+        description: Email used during purchase
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      metadata:
+        items:
+          type: integer
+        type: array
+      product:
+        $ref: '#/definitions/kori_internal_models.Product'
+      product_id:
+        type: string
+      status:
+        $ref: '#/definitions/kori_internal_models.SubscriptionStatus'
+      team:
+        $ref: '#/definitions/kori_internal_models.Team'
+      team_id:
+        type: string
+      trial_end:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  kori_internal_models.SubscriptionStatus:
+    enum:
+    - pending
+    - active
+    - canceled
+    - paused
+    - failed
+    type: string
+    x-enum-varnames:
+    - SubscriptionStatusPending
+    - SubscriptionStatusActive
+    - SubscriptionStatusCanceled
+    - SubscriptionStatusPaused
+    - SubscriptionStatusFailed
+  kori_internal_models.Tag:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      name:
+        minLength: 1
+        type: string
+      updatedAt:
+        type: string
+      value:
+        type: string
+    required:
+    - name
+    type: object
+  kori_internal_models.Team:
+    properties:
+      apiKeys:
+        items:
+          $ref: '#/definitions/kori_internal_models.APIKey'
+        type: array
+      automations:
+        items:
+          $ref: '#/definitions/kori_internal_models.Automation'
+        type: array
+      campaigns:
+        items:
+          $ref: '#/definitions/kori_internal_models.Campaign'
+        type: array
+      createdAt:
+        type: string
+      domains:
+        items:
+          $ref: '#/definitions/kori_internal_models.Domain'
+        type: array
+      emailCategories:
+        items:
+          $ref: '#/definitions/kori_internal_models.EmailCategory'
+        type: array
+      id:
+        type: string
+      invites:
+        items:
+          $ref: '#/definitions/kori_internal_models.TeamInvite'
+        type: array
+      isDeleted:
+        default: false
+        type: boolean
+      mailingLists:
+        items:
+          $ref: '#/definitions/kori_internal_models.MailingList'
+        type: array
+      models:
+        items:
+          $ref: '#/definitions/kori_internal_models.Model'
+        type: array
+      name:
+        minLength: 2
+        type: string
+      settings:
+        items:
+          $ref: '#/definitions/kori_internal_models.TeamSettings'
+        type: array
+      smtpConfigs:
+        items:
+          $ref: '#/definitions/kori_internal_models.SMTPConfig'
+        type: array
+      updatedAt:
+        type: string
+      users:
+        items:
+          $ref: '#/definitions/kori_internal_models.User'
+        type: array
+      webhooks:
+        items:
+          $ref: '#/definitions/kori_internal_models.Webhook'
+        type: array
+    required:
+    - name
+    type: object
+  kori_internal_models.TeamInvite:
+    properties:
+      code:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      expiresAt:
+        type: string
+      id:
+        type: string
+      inviter:
+        $ref: '#/definitions/kori_internal_models.User'
+      inviterId:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      name:
+        minLength: 2
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/kori_internal_models.UserRole'
+        enum:
+        - MEMBER
+        - ADMIN
+      status:
+        allOf:
+        - $ref: '#/definitions/kori_internal_models.InviteStatus'
+        enum:
+        - PENDING
+        - ACCEPTED
+        - REJECTED
+      team:
+        $ref: '#/definitions/kori_internal_models.Team'
+      teamId:
+        type: string
+      updatedAt:
+        type: string
+    required:
+    - email
+    - expiresAt
+    - inviterId
+    - name
+    - role
+    - status
+    - teamId
+    type: object
+  kori_internal_models.TeamSettings:
+    properties:
+      branding:
+        $ref: '#/definitions/kori_internal_models.BrandingSettings'
+      brandingSettingsId:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      inviteTemplateId:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      teamId:
+        type: string
+      updatedAt:
+        type: string
+      welcomeTemplateId:
+        type: string
+    type: object
+  kori_internal_models.Template:
+    properties:
+      category:
+        $ref: '#/definitions/kori_internal_models.EmailCategory'
+      categoryId:
+        type: string
+      createdAt:
+        type: string
+      designJson:
+        type: string
+      emails:
+        items:
+          $ref: '#/definitions/kori_internal_models.Email'
+        type: array
+      htmlFile:
+        $ref: '#/definitions/kori_internal_models.File'
+      htmlFileId:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      name:
+        minLength: 2
+        type: string
+      subject:
+        type: string
+      team:
+        $ref: '#/definitions/kori_internal_models.Team'
+      teamId:
+        type: string
+      updatedAt:
+        type: string
+      variables:
+        items:
+          type: string
+        type: array
+    required:
+    - categoryId
+    - name
+    - subject
+    - teamId
+    type: object
+  kori_internal_models.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      files:
+        items:
+          $ref: '#/definitions/kori_internal_models.File'
+        type: array
+      firstName:
+        type: string
+      id:
+        type: string
+      invites:
+        items:
+          $ref: '#/definitions/kori_internal_models.TeamInvite'
+        type: array
+      isDeleted:
+        default: false
+        type: boolean
+      lastName:
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/kori_internal_models.UserPermission'
+        type: array
+      profilePicture:
+        $ref: '#/definitions/kori_internal_models.File'
+      profilePictureId:
+        type: string
+      provider:
+        description: '''local'', ''google'', etc.'
+        type: string
+      providerData:
+        description: Additional data from provider
+        items:
+          type: integer
+        type: array
+      providerId:
+        description: ID from the OAuth provider
+        type: string
+      role:
+        $ref: '#/definitions/kori_internal_models.UserRole'
+      team:
+        $ref: '#/definitions/kori_internal_models.Team'
+      teamId:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  kori_internal_models.UserPermission:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      resourcePermission:
+        $ref: '#/definitions/kori_internal_models.ResourcePermission'
+      resourcePermissionId:
+        type: string
+      updatedAt:
+        type: string
+      user:
+        $ref: '#/definitions/kori_internal_models.User'
+      userId:
+        type: string
+    type: object
+  kori_internal_models.UserRole:
+    enum:
+    - SUPER_ADMIN
+    - ADMIN
+    - MEMBER
+    type: string
+    x-enum-varnames:
+    - UserRoleSuperAdmin
+    - UserRoleAdmin
+    - UserRoleMember
+  kori_internal_models.Webhook:
+    properties:
+      createdAt:
+        type: string
+      deliveries:
+        items:
+          $ref: '#/definitions/kori_internal_models.Delivery'
+        type: array
+      events:
+        items:
+          type: string
+        minItems: 1
+        type: array
+      id:
+        type: string
+      isActive:
+        type: boolean
+      isDeleted:
+        default: false
+        type: boolean
+      name:
+        minLength: 2
+        type: string
+      secret:
+        minLength: 16
+        type: string
+      teamId:
+        type: string
+      updatedAt:
+        type: string
+      url:
+        type: string
+    required:
+    - events
+    - name
+    - secret
+    - teamId
+    - url
+    type: object
+  time.Duration:
+    enum:
+    - -9223372036854775808
+    - 9223372036854775807
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 3600000000000
+    format: int64
+    type: integer
+    x-enum-varnames:
+    - minDuration
+    - maxDuration
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Hour
+info:
+  contact: {}
+paths:
+  /api/v1/analytics/audience:
+    get:
+      consumes:
+      - application/json
+      description: Get audience analysis
+      parameters:
+      - description: Team ID
+        in: query
+        name: teamId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Audience insights
+          schema:
+            $ref: '#/definitions/internal_handlers.AudienceInsights'
+        "400":
+          description: Validation error or team not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get audience insights
+  /api/v1/analytics/campaign:
+    get:
+      consumes:
+      - application/json
+      description: Get campaign analytics
+      parameters:
+      - description: Campaign ID
+        in: query
+        name: campaignId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Campaign analytics
+          schema:
+            $ref: '#/definitions/internal_handlers.EmailAnalytics'
+        "400":
+          description: Validation error or campaign not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get campaign analytics
+  /api/v1/analytics/campaign/compare:
+    get:
+      consumes:
+      - application/json
+      description: Compare multiple campaigns
+      parameters:
+      - description: Campaign IDs
+        in: query
+        name: campaignIds
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Campaign analytics
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/internal_handlers.EmailAnalytics'
+            type: object
+        "400":
+          description: Validation error or campaignIds missing
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Compare multiple campaigns
+  /api/v1/analytics/email:
+    get:
+      consumes:
+      - application/json
+      description: Get email analytics
+      parameters:
+      - description: Email ID
+        in: query
+        name: emailId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Email analytics
+          schema:
+            $ref: '#/definitions/internal_handlers.EmailAnalytics'
+        "400":
+          description: Validation error or email not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get email analytics
+  /api/v1/analytics/export/campaign:
+    get:
+      consumes:
+      - application/json
+      description: Export campaign analytics
+      parameters:
+      - description: Campaign ID
+        in: query
+        name: campaignId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Exported campaign analytics
+          schema:
+            items:
+              format: int32
+              type: integer
+            type: array
+        "400":
+          description: Validation error or campaignId missing
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Export campaign analytics
+  /api/v1/analytics/export/email:
+    get:
+      consumes:
+      - application/json
+      description: Export email analytics
+      parameters:
+      - description: Email ID
+        in: query
+        name: emailId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Exported email analytics
+          schema:
+            items:
+              format: int32
+              type: integer
+            type: array
+        "400":
+          description: Validation error or emailId missing
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Export email analytics
+  /api/v1/analytics/heatmap:
+    get:
+      consumes:
+      - application/json
+      description: Get click heatmap
+      parameters:
+      - description: Email ID
+        in: query
+        name: emailId
+        required: true
+        type: string
+      - description: Campaign ID
+        in: query
+        name: campaignId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Click heatmap
+          schema:
+            $ref: '#/definitions/internal_handlers.HeatmapData'
+        "400":
+          description: Validation error or emailId missing
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get click heatmap
+  /api/v1/analytics/team/overview:
+    get:
+      consumes:
+      - application/json
+      description: Get team overview
+      parameters:
+      - description: Team ID
+        in: query
+        name: teamId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Team overview
+          schema:
+            $ref: '#/definitions/internal_handlers.TeamOverview'
+        "400":
+          description: Validation error or team not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get team overview
+  /api/v1/analytics/trends:
+    get:
+      consumes:
+      - application/json
+      description: Get trend analysis
+      parameters:
+      - description: Team ID
+        in: query
+        name: teamId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Trend analysis
+          schema:
+            items:
+              $ref: '#/definitions/internal_handlers.trendPoint'
+            type: array
+        "400":
+          description: Validation error or team not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get trend analysis
+  /api/v1/files/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a file to the server
+      parameters:
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: File uploaded successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Validation error or file not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload a file
+      tags:
+      - Files
+  /api/v1/t:
+    post:
+      consumes:
+      - application/json
+      description: Create a new tracking entry with device and location info
+      parameters:
+      - description: Email ID
+        in: path
+        name: emailID
+        required: true
+        type: string
+      - description: Event
+        in: path
+        name: event
+        required: true
+        type: string
+      - description: URL
+        in: path
+        name: url
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tracking entry created successfully
+          schema:
+            $ref: '#/definitions/kori_internal_models.EmailTracking'
+        "400":
+          description: Validation error or email not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new tracking entry
+  /api/v1/t/click:
+    get:
+      consumes:
+      - application/json
+      description: Handle click tracking
+      parameters:
+      - description: Token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tracking entry created successfully
+          schema:
+            $ref: '#/definitions/kori_internal_models.EmailTracking'
+        "400":
+          description: Validation error or token missing
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Handle click tracking
+  /api/v1/t/open:
+    get:
+      consumes:
+      - application/json
+      description: Handle open tracking
+      parameters:
+      - description: Token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tracking entry created successfully
+          schema:
+            $ref: '#/definitions/kori_internal_models.EmailTracking'
+        "400":
+          description: Validation error or token missing
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Handle open tracking
+  /auth/google/callback:
+    get:
+      consumes:
+      - application/json
+      description: Authenticate user using Google OAuth ID token
+      parameters:
+      - description: Google ID token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handlers.GoogleAuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Failed to parse user data from Google
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Failed to get user data from Google
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Authenticate with Google
+      tags:
+      - auth
+  /auth/invite:
+    post:
+      consumes:
+      - application/json
+      description: Send an invitation email to a user to join a team
+      parameters:
+      - description: Invitation details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handlers.InviteUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Invitation sent successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Validation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Invite a user to join a team
+      tags:
+      - auth
+  /auth/invite/{code}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a pending team invitation
+      parameters:
+      - description: Invitation code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Invitation deleted successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid invitation
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a team invitation
+      tags:
+      - auth
+    get:
+      consumes:
+      - application/json
+      description: Check if an invitation code is valid and not expired
+      parameters:
+      - description: Invitation code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Invitation details
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid or expired invitation
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Check invitation validity
+      tags:
+      - auth
+  /auth/invite/resend/{code}:
+    post:
+      consumes:
+      - application/json
+      description: Resend an invitation to a user
+      parameters:
+      - description: Invitation code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Invitation resent successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid invitation
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Resend an invitation to a user
+      tags:
+      - auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Validation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+      tags:
+      - auth
+  /auth/me:
+    get:
+      consumes:
+      - application/json
+      description: Get details of the current authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_models.User'
+      summary: Get current user
+      tags:
+      - users
+  /auth/password-reset:
+    post:
+      consumes:
+      - application/json
+      description: Request a password reset code to be sent via email
+      parameters:
+      - description: Email for password reset
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handlers.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Reset code sent if email exists
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Validation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Request password reset
+      tags:
+      - auth
+  /auth/password-reset/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verify password reset code and update password
+      parameters:
+      - description: Reset code verification and new password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handlers.VerifyResetCodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password reset successful
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid or expired reset code
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Verify reset code and set new password
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Get a new access token using a valid refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: refresh_token
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New access token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid refresh token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refresh access token
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with email, password and name details
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handlers.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Validation error or email exists
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - auth
+  /auth/users:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all users (requires admin permissions)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/kori_internal_models.User'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all users
+      tags:
+      - users
+  /auth/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific user (requires admin permissions)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User deleted successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: User not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete user
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific user (requires admin permissions)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_models.User'
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: User not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get user details
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update details of a specific user (requires admin permissions)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated user details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/kori_internal_models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_models.User'
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: User not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update user details
+      tags:
+      - users
+  /emails:
+    post:
+      consumes:
+      - application/json
+      description: Send an email using the provided template and variables
+      parameters:
+      - description: Email request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handlers.SendEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      summary: Send an email
+      tags:
+      - Email
+  /plans:
+    get:
+      consumes:
+      - application/json
+      description: Get all available plans
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Plans
+          schema:
+            $ref: '#/definitions/internal_handlers.GetPlansResponse'
+      summary: Get all plans
+      tags:
+      - plans
+  /subscriptions:
+    get:
+      consumes:
+      - application/json
+      description: Get the current subscription for the team
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Subscription
+          schema:
+            $ref: '#/definitions/kori_internal_models.Subscription'
+        "403":
+          description: Not authorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get current subscription
+      tags:
+      - subscriptions
+    post:
+      consumes:
+      - application/json
+      description: Create a pending subscription and redirect to payment
+      parameters:
+      - description: Subscription details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handlers.CreateSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment URL
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Validation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new subscription
+      tags:
+      - subscriptions
+  /subscriptions/features:
+    get:
+      consumes:
+      - application/json
+      description: Get list of features enabled for the team's subscription
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Features
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get enabled features
+      tags:
+      - subscriptions
+  /subscriptions/portal:
+    get:
+      consumes:
+      - application/json
+      description: Generate a URL for managing subscription settings
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Portal URL
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Not authorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get subscription management portal URL
+      tags:
+      - subscriptions
+  /subscriptions/webhook:
+    post:
+      consumes:
+      - application/json
+      description: Process subscription status updates from Dodo Payments
+      responses:
+        "200":
+          description: Success
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid webhook
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Handle subscription webhooks
+      tags:
+      - subscriptions
+  /t/resubscribe:
+    get:
+      consumes:
+      - application/json
+      description: Resubscribe to an email list
+      parameters:
+      - description: Resubscribe email
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Resubscribed successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Missing email
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid email
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Resubscribe to email list
+  /t/unsubscribe:
+    get:
+      consumes:
+      - application/json
+      description: Unsubscribe from an email list
+      parameters:
+      - description: Unsubscribe token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Unsubscribed successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Missing token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Unsubscribe from email list
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: X-API-KEY
+    type: apiKey
+  BasicAuth:
+    type: basic
+swagger: "2.0"

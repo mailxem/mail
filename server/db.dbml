@@ -1,0 +1,612 @@
+Table "api_key_permissions" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "key_id" uuid [not null]
+  "resource_permission_id" uuid [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_api_key_permissions_deleted_at"]
+  }
+}
+
+Table "api_key_usages" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "api_key_id" uuid [not null]
+  "endpoint" text [not null]
+  "method" text [not null]
+  "timestamp" timestamptz
+  "success" bool [not null, default: true]
+  "error" text
+  "ip_address" text
+  "user_agent" text
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_api_key_usages_deleted_at"]
+  }
+}
+
+Table "api_keys" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "key" text [not null]
+  "team_id" uuid [not null]
+  "last_used_at" timestamptz
+  "expires_at" timestamptz
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_api_keys_deleted_at"]
+  }
+}
+
+Table "auth_transactions" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "user_id" uuid [not null]
+  "team_id" uuid [not null]
+  "token" text [not null]
+  "refresh" text [not null]
+  "ip_address" text
+  "user_agent" text
+  "expires_at" timestamptz
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_auth_transactions_deleted_at"]
+  }
+}
+
+Table "automation_node_edges" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "automation_id" uuid [not null]
+  "source_id" uuid [not null]
+  "target_id" uuid [not null]
+  "label" text
+  "animated" bool [not null, default: true]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_automation_node_edges_deleted_at"]
+  }
+}
+
+Table "automation_nodes" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "automation_id" uuid [not null]
+  "type" text [not null]
+  "data" jsonb
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_automation_nodes_deleted_at"]
+  }
+}
+
+Table "automations" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "name" text [not null]
+  "description" text
+  "team_id" uuid [not null]
+  "is_active" bool [not null, default: true]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_automations_deleted_at"]
+  }
+}
+
+Table "branding_settings" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "dashboard_name" text [not null]
+  "logo_url" text
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_branding_settings_deleted_at"]
+  }
+}
+
+Table "campaigns" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "name" text [not null]
+  "description" text
+  "template_id" uuid [not null]
+  "team_id" uuid [not null]
+  "status" text [not null, default: 'DRAFT']
+  "scheduled_for" timestamptz
+  "schedule" text
+  "list_id" uuid [not null]
+  "recurring_schedule" text
+  "cron_expression" text
+  "smtp_config_id" uuid [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_campaigns_deleted_at"]
+  }
+}
+
+Table "contact_imports" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "status" text [not null, default: 'PENDING']
+  "team_id" uuid [not null]
+  "file_id" uuid [not null]
+  "fields_map" jsonb
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_contact_imports_deleted_at"]
+  }
+}
+
+Table "contact_tags" {
+  "contact_id" uuid [not null]
+  "tag_id" uuid [not null]
+
+  Indexes {
+    (contact_id, tag_id) [type: btree, name: "contact_tags_pkey"]
+  }
+}
+
+Table "contacts" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "email" text [not null]
+  "first_name" text
+  "last_name" text
+  "metadata" jsonb
+  "list_id" uuid [not null]
+  "team_id" uuid [not null]
+  "import_id" uuid [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_contacts_deleted_at"]
+  }
+}
+
+Table "deliveries" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "webhook_id" uuid [not null]
+  "event" text [not null]
+  "payload" jsonb [not null]
+  "response_code" int8
+  "response_body" text
+  "error" text
+  "status" text [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_deliveries_deleted_at"]
+  }
+}
+
+Table "domains" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "domain" text [unique, not null]
+  "is_verified" bool [not null, default: false]
+  "dns_record" text
+  "team_id" uuid [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_domains_deleted_at"]
+  }
+}
+
+Table "email_bounces" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "email_id" uuid [not null]
+  "timestamp" timestamptz
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_email_bounces_deleted_at"]
+  }
+}
+
+Table "email_categories" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "name" text [not null]
+  "description" text
+  "team_id" uuid [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_email_categories_deleted_at"]
+  }
+}
+
+Table "email_complaints" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "email_id" uuid [not null]
+  "timestamp" timestamptz
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_email_complaints_deleted_at"]
+  }
+}
+
+Table "email_replies" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "email_id" uuid [not null]
+  "timestamp" timestamptz
+  "content" text [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_email_replies_deleted_at"]
+  }
+}
+
+Table "email_trackings" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "email_id" uuid [not null]
+  "campaign_id" uuid [not null]
+  "contact_id" uuid [not null]
+  "event" text [not null]
+  "timestamp" timestamptz
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_email_trackings_deleted_at"]
+  }
+}
+
+Table "emails" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "from" text [not null]
+  "to" text [not null]
+  "subject" text [not null]
+  "body" text [not null]
+  "status" text [not null]
+  "error" text
+  "data" jsonb
+  "template_id" uuid [not null]
+  "team_id" uuid [not null]
+  "contact_id" uuid [not null]
+  "smtp_config_id" uuid [not null]
+  "sent_at" timestamptz
+  "category_id" uuid [not null]
+  "campaign_id" uuid
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_emails_deleted_at"]
+  }
+}
+
+Table "files" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "team_id" uuid [not null]
+  "path" text [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_files_deleted_at"]
+  }
+}
+
+Table "llm_email_writer_jobs" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "automation_id" uuid [not null]
+  "email_id" uuid [not null]
+  "status" text [not null]
+  "started_at" timestamptz
+  "completed_at" timestamptz
+  "error" text
+  "output" text
+  "input" text
+  "prompt" text
+  "model_id" uuid [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_llm_email_writer_jobs_deleted_at"]
+  }
+}
+
+Table "mailing_lists" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "name" text [not null]
+  "description" text
+  "team_id" uuid [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_mailing_lists_deleted_at"]
+  }
+}
+
+Table "models" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "name" text [not null]
+  "description" text
+  "team_id" uuid [not null]
+  "provider" text [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_models_deleted_at"]
+  }
+}
+
+Table "password_resets" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "user_id" uuid [not null]
+  "code" text [not null]
+  "used" bool [default: false]
+  "expires_at" timestamptz
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_password_resets_deleted_at"]
+  }
+}
+
+Table "rate_limits" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "api_key_id" uuid [not null]
+  "limit" int8 [not null]
+  "period" int8 [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_rate_limits_deleted_at"]
+  }
+}
+
+Table "resource_permissions" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "resource_id" uuid [not null]
+  "scope" text [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_resource_permissions_deleted_at"]
+  }
+}
+
+Table "resources" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "name" text [not null]
+  "action" text [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_resources_deleted_at"]
+  }
+}
+
+Table "smtp_configs" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "provider" text [not null]
+  "host" text [not null]
+  "port" int8 [not null]
+  "username" text
+  "password" text
+  "is_default" bool [not null, default: false]
+  "is_active" bool [not null, default: true]
+  "supports_tls" bool [not null, default: true]
+  "requires_auth" bool [not null, default: true]
+  "max_send_rate" int8 [not null, default: 10]
+  "team_id" uuid [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_smtp_configs_deleted_at"]
+  }
+}
+
+Table "tags" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "name" text [not null]
+  "value" text
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_tags_deleted_at"]
+  }
+}
+
+Table "team_invites" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "email" text [not null]
+  "name" text [not null]
+  "team_id" uuid [not null]
+  "inviter_id" uuid [not null]
+  "status" text [not null, default: 'PENDING']
+  "expires_at" timestamptz [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_team_invites_deleted_at"]
+  }
+}
+
+Table "team_settings" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "invite_template_id" text
+  "welcome_template_id" text
+  "branding_settings_id" uuid [not null]
+  "team_id" uuid [unique, not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_team_settings_deleted_at"]
+  }
+}
+
+Table "teams" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "name" text [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_teams_deleted_at"]
+  }
+}
+
+Table "templates" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "name" text [not null]
+  "subject" text [not null]
+  "html_file" text [not null]
+  "design_json" jsonb [not null]
+  "team_id" uuid [not null]
+  "variables" "text[]"
+  "category_id" uuid [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_templates_deleted_at"]
+  }
+}
+
+Table "user_permissions" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "user_id" uuid [not null]
+  "resource_permission_id" uuid [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_user_permissions_deleted_at"]
+  }
+}
+
+Table "users" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "email" text [unique, not null]
+  "password" text [not null]
+  "first_name" text
+  "last_name" text
+  "role" text [not null, default: 'member']
+  "team_id" uuid [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_users_deleted_at"]
+  }
+}
+
+Table "webhooks" {
+  "id" uuid [pk, not null]
+  "created_at" timestamptz
+  "updated_at" timestamptz
+  "deleted_at" timestamptz
+  "is_deleted" bool
+  "name" text [not null]
+  "url" text [not null]
+  "events" "text[]"
+  "is_active" bool [not null, default: true]
+  "secret" text
+  "team_id" uuid [not null]
+
+  Indexes {
+    deleted_at [type: btree, name: "idx_webhooks_deleted_at"]
+  }
+}

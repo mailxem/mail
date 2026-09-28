@@ -1,0 +1,121 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: posthoot
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: posthoot-config
+  namespace: posthoot
+data:
+  # Add your config here
+  PORT: "8000"
+  CORS_ALLOWED_ORIGINS: "https://app.xem.email"
+  PUBLIC_API_URL: "https://api.xem.email"
+  INFISICAL_PROJECT_ID: "7350b754-2ba4-46c3-9551-6c307415627d"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: posthoot
+  namespace: posthoot
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: posthoot
+  template:
+    metadata:
+      labels:
+        app: posthoot
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi
+      terminationGracePeriodSeconds: 60
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: posthoot
+      containers:
+        - name: posthoot
+          image: theboringhumane/xemgo:latest
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          ports:
+            - containerPort: 8000
+              name: http
+          envFrom:
+            - secretRef:
+                name: infisical-secrets
+            - configMapRef:
+                name: posthoot-config
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: posthoot
+  namespace: posthoot
+spec:
+  selector:
+    app: posthoot
+  ports:
+    - port: 80
+      targetPort: 8000
+      protocol: TCP
+  type: ClusterIP
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: posthoot-pdb
+  namespace: posthoot
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: posthoot

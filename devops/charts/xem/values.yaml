@@ -1,0 +1,110 @@
+# Set immutable image digests (repository@sha256:...) for production.
+imagePullSecrets: []
+nodeSelector: {}
+tolerations: []
+components:
+  backend:
+    enabled: true
+    image: theboringhumane/xemgo:latest
+    imagePullPolicy: Always
+    replicas: 1
+    port: 9001
+    uid: 65532
+    healthPath: /health
+    existingSecret: xem-backend-bootstrap
+    env:
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: "9001"
+    resources:
+      requests: {cpu: 250m, memory: 256Mi}
+      limits: {cpu: "2", memory: 1Gi}
+  frontend:
+    enabled: true
+    image: theboringhumane/xemapp:latest
+    imagePullPolicy: Always
+    replicas: 1
+    port: 3000
+    uid: 1000
+    healthPath: /
+    existingSecret: xem-frontend-runtime
+    env:
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+    resources:
+      requests: {cpu: 100m, memory: 128Mi}
+      limits: {cpu: "1", memory: 512Mi}
+  payments:
+    enabled: false
+    image: ghcr.io/mailxem/payments.go:latest
+    imagePullPolicy: Always
+    replicas: 1
+    port: 8080
+    uid: 65532
+    healthPath: /api/v1/health
+    existingSecret: xem-payments-bootstrap
+    env:
+      PORT: "8080"
+      ENABLE_INFISICAL: "true"
+    resources:
+      requests: {cpu: 100m, memory: 128Mi}
+      limits: {cpu: "1", memory: 512Mi}
+  mcp:
+    enabled: false
+    image: ghcr.io/mailxem/mcp:main
+    imagePullPolicy: Always
+    replicas: 1
+    port: 3000
+    uid: 1000
+    healthPath: /health
+    existingSecret: xem-mcp-runtime
+    env:
+      HOST: 0.0.0.0
+      PORT: "3000"
+    resources:
+      requests: {cpu: 100m, memory: 128Mi}
+      limits: {cpu: "1", memory: 512Mi}
+managedSending:
+  # Infrastructure switch only. Configure matching application flags in Infisical.
+  enabled: false
+  hostname: ""
+  tlsSecretName: xem-smtp-tls
+  service:
+    type: LoadBalancer
+    annotations: {}
+    loadBalancerClass: ""
+    externalTrafficPolicy: Local
+    loadBalancerSourceRanges: []
+workloadIdentity:
+  enabled: false
+  roleArn: ""
+  region: us-east-2
+  serviceAccountName: xem-backend
+certificate:
+  enabled: false
+  issuerRef:
+    name: letsencrypt-dns
+    kind: Issuer
+  createIssuer: false
+  email: ""
+  # Use staging in a test environment; staging certificates are not publicly trusted.
+  acmeServer: https://acme-v02.api.letsencrypt.org/directory
+  cloudflare:
+    zoneName: ""
+    existingSecret: cloudflare-dns-token
+    secretKey: api-token
+webIngress:
+  enabled: false
+  className: traefik
+  annotations: {}
+  tlsSecretName: xem-web-tls
+  hosts:
+    backend: ""
+    frontend: ""
+    payments: ""
+    mcp: ""
+networkPolicy:
+  enabled: true
+  # Label the namespace that contains the HTTP ingress controller.
+  ingressNamespaceSelector:
+    matchLabels:
+      kubernetes.io/metadata.name: traefik

@@ -1,0 +1,49 @@
+name: Backend integration
+on:
+  pull_request:
+    paths:
+      - 'server/internal/sending/**'
+      - 'server/internal/tasks/**'
+      - 'server/internal/utils/**'
+      - 'server/internal/models/**'
+      - 'server/cmd/**'
+      - 'server/go.mod'
+      - 'server/go.sum'
+      - 'server/deploy/managed-sending/**'
+      - '.github/workflows/backend-integration.yml'
+permissions:
+  contents: read
+defaults:
+  run:
+    working-directory: server
+jobs:
+  postgres-and-smtp:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: local-test-only
+          POSTGRES_DB: sending_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: server/go.mod
+          cache-dependency-path: server/go.sum
+          cache: true
+      - run: go test -race ./internal/sending ./internal/utils
+        env:
+          POSTHOOT_TEST_DATABASE_URL: 'host=127.0.0.1 port=5432 user=postgres password=local-test-only dbname=sending_test sslmode=disable'
+      - run: go build ./cmd/...
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install cfn-lint==1.56.3
+      - run: cfn-lint deploy/managed-sending/cloudformation.json

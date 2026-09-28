@@ -1,0 +1,29 @@
+{{- if .Values.managedSending.enabled -}}
+{{- if not .Values.components.backend.enabled }}{{ fail "Managed sending requires backend.enabled" }}{{ end -}}
+{{- if ne (int .Values.components.backend.replicas) 1 }}{{ fail "Managed sending currently requires exactly one backend replica" }}{{ end -}}
+{{- if not .Values.workloadIdentity.enabled }}{{ fail "Managed sending requires workloadIdentity; never use the Kubernetes node role" }}{{ end -}}
+{{- $_ := required "Managed sending requires a hostname" .Values.managedSending.hostname -}}
+{{- $_ := required "Managed sending requires a TLS Secret" .Values.managedSending.tlsSecretName -}}
+{{- end -}}
+{{- if .Values.workloadIdentity.enabled -}}
+{{- if not (regexMatch "^arn:aws:iam::[0-9]{12}:role/.+$" .Values.workloadIdentity.roleArn) }}{{ fail "Set the exact workload IAM role ARN" }}{{ end -}}
+{{- end -}}
+{{- if .Values.certificate.enabled -}}
+{{- if not .Values.managedSending.enabled }}{{ fail "SMTP Certificate requires managedSending.enabled" }}{{ end -}}
+{{- end -}}
+{{- if .Values.certificate.createIssuer -}}
+{{- if not .Values.certificate.enabled }}{{ fail "createIssuer requires certificate.enabled" }}{{ end -}}
+{{- if ne .Values.certificate.issuerRef.kind "Issuer" }}{{ fail "createIssuer supports a namespaced Issuer only" }}{{ end -}}
+{{- $_ := required "An ACME account email is required" .Values.certificate.email -}}
+{{- $_ := required "Cloudflare zoneName is required" .Values.certificate.cloudflare.zoneName -}}
+{{- end -}}
+{{- range $name, $component := .Values.components -}}
+{{- if $component.enabled -}}
+{{- $_ := required (printf "%s requires an existing Secret" $name) $component.existingSecret -}}
+{{- if and $.Values.webIngress.enabled (empty (index $.Values.webIngress.hosts $name)) }}{{ fail (printf "Set webIngress.hosts.%s" $name) }}{{ end -}}
+{{- end -}}
+{{- end -}}
+{{- range $key, $value := .Values.managedSending.service.annotations -}}
+{{- if or (contains "ssl-cert" $key) (contains "ssl-ports" $key) (contains "proxy-protocol" $key) }}{{ fail "SMTP must use TCP passthrough without PROXY protocol or load-balancer TLS termination" }}{{ end -}}
+{{- if and (contains "backend-protocol" $key) (ne $value "tcp") }}{{ fail "SMTP backend protocol must be tcp" }}{{ end -}}
+{{- end -}}

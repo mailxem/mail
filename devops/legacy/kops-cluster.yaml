@@ -1,0 +1,130 @@
+apiVersion: kops.k8s.io/v1alpha2
+kind: Cluster
+metadata:
+  name: posthoot.k8s.local
+spec:
+  # Kubernetes version
+  kubernetesVersion: 1.31.0
+
+  # API endpoint
+  api:
+    loadBalancer:
+      type: Public
+      class: Network
+
+  # Networking
+  networking:
+    amazonvpc: {}
+
+  # Availability zones
+  subnets:
+    - name: us-east-2a
+      type: Public
+      zone: us-east-2a
+    - name: us-east-2b
+      type: Public
+      zone: us-east-2b
+    - name: us-east-2c
+      type: Public
+      zone: us-east-2c
+
+  # Master nodes (control plane) - ultra cheap
+  controlPlaneNodes:
+    - name: master-us-east-2a
+      instanceGroup: master-us-east-2a
+
+  # etcd configuration
+  etcdClusters:
+    - etcdMembers:
+        - instanceGroup: master-us-east-2a
+          name: a
+      name: main
+      version: 3.5.13
+    - etcdMembers:
+        - instanceGroup: master-us-east-2a
+          name: a
+      name: events
+      version: 3.5.13
+
+  # Cloud provider
+  cloudProvider: aws
+
+  # Container runtime
+  containerRuntime: containerd
+
+  # S3 bucket for state
+  configBase: s3://posthoot-kops-state-696777127513/posthoot.k8s.local
+
+  # Authorization
+  authorization:
+    rbac: {}
+
+---
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  name: master-us-east-2a
+  labels:
+    kops.k8s.io/cluster: posthoot.k8s.local
+spec:
+  role: Master
+  image: 099720109477/ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20231207
+  machineType: t3.micro
+  maxSize: 1
+  minSize: 1
+  subnets:
+    - us-east-2a
+  rootVolumeSize: 8
+  rootVolumeType: gp3
+  # Allow scheduling on master for single-node setup
+  taints: []
+
+---
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  name: nodes-spot
+  labels:
+    kops.k8s.io/cluster: posthoot.k8s.local
+spec:
+  role: Node
+  image: 099720109477/ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20231207
+
+  # Spot instance config
+  machineType: m5.large
+  maxSize: 10
+  minSize: 2
+
+  # SPOT INSTANCES!
+  maxPrice: "0.03"
+  spotDurationInMinutes: 0
+
+  # Multi-AZ for resilience
+  subnets:
+    - us-east-2a
+    - us-east-2b
+    - us-east-2c
+
+  # Mixed instance policy for better spot availability
+  mixedInstancesPolicy:
+    instances:
+      - t3.medium
+      - m6id.large
+      - m6g.medium
+      - m6gd.medium
+      - c5a.large
+      - c6gd.medium
+      - r6gd.medium
+      - t4g.medium
+    onDemandBase: 0
+    onDemandAboveBase: 0
+    spotInstancePools: 8
+
+  # Storage
+  rootVolumeSize: 16
+  rootVolumeType: gp3
+
+  # Node labels
+  nodeLabels:
+    node-role.kubernetes.io/node: ""
+    workload-type: general

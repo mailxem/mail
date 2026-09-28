@@ -1,0 +1,12 @@
+{$MCP_DOMAIN:mcp.xem.email} {
+	# Caddy provisions and renews TLS certificates. Access logging is disabled
+	# so API credentials and request bodies are never recorded here.
+	request_body {
+		max_size 2MB
+	}
+	reverse_proxy mcp:3000 {
+		transport http {
+			response_header_timeout 40s
+		}
+	}
+}
