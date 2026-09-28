@@ -5,6 +5,9 @@ on:
   push:
     branches: [undefined]
     paths: ['.github/**', 'scripts/**', 'migration/**', '.gitmodules']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:

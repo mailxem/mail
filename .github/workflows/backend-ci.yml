@@ -4,6 +4,9 @@ on:
   pull_request:
     paths: ['server/**', '.github/workflows/backend-ci.yml']
   workflow_call:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 defaults:

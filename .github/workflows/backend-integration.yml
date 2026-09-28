@@ -11,6 +11,9 @@ on:
       - 'server/go.sum'
       - 'server/deploy/managed-sending/**'
       - '.github/workflows/backend-integration.yml'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 defaults:
