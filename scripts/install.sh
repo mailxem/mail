@@ -13,4 +13,4 @@ checkout=$(mktemp -d)
 trap 'rm -rf "$checkout"' EXIT
 git clone --quiet --no-checkout https://github.com/mailxem/mail.git "$checkout"
 git -C "$checkout" checkout --quiet --detach "${XEM_REF:-origin/undefined}"
-python3 "$checkout/deploy/swarm/install.py" "$@"
+python3 "$checkout/devops/swarm/install.py" "$@"

@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://xem.email">Website</a> ·
-  <a href="deploy/swarm/README.md">Self-host</a> ·
+  <a href="devops/swarm/README.md">Self-host</a> ·
   <a href="docs">Documentation</a> ·
   <a href="https://github.com/mailxem/mail/issues">Issues</a>
 </p>
@@ -32,7 +32,6 @@ Use a host IP or DNS name reachable from both browsers and containers. The defau
 
 Open the printed `/auth/register` URL, create your account, and connect your own SMTP provider. Managed SES sending, hosted billing, Google OAuth, and the AI assistant require additional configuration and are not provisioned by this starter.
 
-> The installer URL becomes available after this change is merged into `undefined`, the repository's current default branch. Until then, use the PR branch commands in the [self-hosting guide](deploy/swarm/README.md).
 
 Prefer to inspect the script first?
 
@@ -42,7 +41,7 @@ less install-xem.sh
 bash install-xem.sh
 ```
 
-See the **[Swarm guide](deploy/swarm/README.md)** for unattended setup, HTTPS, updates, backups, troubleshooting, and removal. This is a single-node starter, not a high-availability deployment.
+See the **[Swarm guide](devops/swarm/README.md)** for unattended setup, HTTPS, updates, backups, troubleshooting, and removal. This is a single-node starter, not a high-availability deployment.
 
 ## What you can build
 
@@ -76,7 +75,7 @@ cd mail
 make help
 
 # Run the same Swarm installer from the checkout:
-python3 deploy/swarm/install.py
+python3 devops/swarm/install.py
 ```
 
 For frontend development, point the app at a running backend and follow [client setup](docs/client/setup.mdx). Backend configuration and API documentation live in [`server/`](server) and [`docs/`](docs). Components keep their own dependency files; frontend/backend CI and releases live together in `.github/workflows/`. A single PR can change both sides of an API.

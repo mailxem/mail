@@ -1,11 +1,12 @@
 # Xem infrastructure
 
-Terraform and Helm for Xem's API, frontend, and managed SMTP backed by Amazon SES. Optional payments and MCP services are included in the chart. Application settings and SMTP flags remain in Infisical; this repository contains no credentials.
+Deployment tooling for Xem, including a self-contained Docker Swarm starter, Terraform, and Helm. The Swarm starter runs the app, backend, PostgreSQL, Redis, and object storage on one host. The Terraform and Helm configurations support managed SMTP backed by Amazon SES, with optional payments and MCP services in the chart. Those configurations keep application settings and SMTP flags in Infisical; no credentials are committed here.
 
 ## Choose a deployment path
 
 | Path | Resources owned here | Prerequisites |
 | --- | --- | --- |
+| [Docker Swarm starter](swarm/README.md) | App, backend, PostgreSQL, Redis, and RustFS on one host | Docker Engine, Git, Python 3, OpenSSL; reachable app/API/storage addresses |
 | [Existing Dokploy/EC2](docs/terraform-adoption.md) | Imported EC2, Elastic IP, SMTP security group, runtime role/profile, existing sending CloudFormation stack | Existing VPC/subnet, administrative SG, Dokploy, external PostgreSQL and Redis |
 | [Kubernetes](docs/kubernetes.md) | Workload IAM role, distinct sending stack, Helm application workloads, HTTP ingress, TCP SMTP service, optional cert-manager resources | Supported Kubernetes cluster, IAM OIDC provider, ingress controller, cert-manager, load-balancer controller, external PostgreSQL and Redis |
 | [Platform domain](docs/terraform-adoption.md#platform-domain-and-cloudflare) | SES platform identity, DKIM, custom MAIL FROM, optional DMARC, DNS-only SMTP record | Cloudflare authoritative zone and scoped API token |
@@ -31,6 +32,7 @@ Cloudflare provides authoritative DNS and ACME DNS challenges for Kubernetes. SM
 
 ## Layout
 
+- `swarm/`: curl bootstrap support, stack generation, first-use guide, and smoke tests; run `make install` from the repository root.
 - `terraform/environments/{dokploy,kubernetes,domain}`: independent state roots with pinned providers.
 - `terraform/modules`: reusable runtime identity, sending stack, and platform DNS modules.
 - `charts/xem`: application chart; no embedded database or secret values.
@@ -39,7 +41,7 @@ Cloudflare provides authoritative DNS and ACME DNS challenges for Kubernetes. SM
 - `scripts/smtp-smoke.py`: transport-only test, no email or credentials.
 - `legacy/`: archived Kops/manifests; **not supported deployment instructions**.
 
-Start with [DEPLOYMENT.md](DEPLOYMENT.md). The [production snapshot](docs/production-status.md) records what was actually verified and the remaining delivery checks.
+For a new self-hosted installation, start with the [Swarm guide](swarm/README.md). For the managed infrastructure paths, start with [DEPLOYMENT.md](DEPLOYMENT.md). The [production snapshot](docs/production-status.md) records what was actually verified and the remaining delivery checks.
 
 ## Validate locally
 

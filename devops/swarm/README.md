@@ -20,13 +20,6 @@ curl -fsSL https://raw.githubusercontent.com/mailxem/mail/undefined/scripts/inst
 
 Follow the address prompts. For example, on a trusted LAN, enter `http://192.168.1.10:3000`, `http://192.168.1.10:9001`, and `http://192.168.1.10:9000`, replacing the IP with your server's address.
 
-Before merge, preview the branch with:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/mailxem/mail/codex/swarm-bootstrap/scripts/install.sh \
-  | XEM_REF=origin/codex/swarm-bootstrap bash
-```
-
 For an unattended install, copy [`config.example.json`](config.example.json), replace its documentation-only IP, then run:
 
 ```bash
@@ -118,7 +111,7 @@ Run the installer contract checks without a Docker daemon:
 ```bash
 bash -n scripts/install.sh
 shellcheck scripts/install.sh
-python3 -m unittest discover -s deploy/swarm -p 'test_*.py'
+python3 -m unittest discover -s devops/swarm -p 'test_*.py'
 ```
 
 A real deployment also needs image builds, dependency startup, signup/login, uploads, and an authorized SMTP test. The CI smoke workflow exercises the generated stack on a disposable Linux runner; it never sends email.

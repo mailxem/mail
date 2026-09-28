@@ -1,7 +1,7 @@
 name: Swarm starter
 on:
   pull_request:
-    paths: ['deploy/swarm/**', 'scripts/install.sh', '.github/workflows/swarm.yml', 'server/**', 'client/**']
+    paths: ['devops/swarm/**', 'scripts/install.sh', '.github/workflows/swarm.yml', 'server/**', 'client/**']
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: bash -n scripts/install.sh && shellcheck scripts/install.sh
-      - run: python3 -m unittest discover -s deploy/swarm -p 'test_*.py'
+      - run: python3 -m unittest discover -s devops/swarm -p 'test_*.py'
   smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 40
@@ -31,13 +31,13 @@ jobs:
           Path('/tmp/xem-smoke.json').write_text(json.dumps(config))
           PY
       - name: Build and deploy
-        run: python3 deploy/swarm/install.py --config /tmp/xem-smoke.json --state /tmp/xem-state
+        run: python3 devops/swarm/install.py --config /tmp/xem-smoke.json --state /tmp/xem-state
       - name: Check signup and authenticated API
-        run: python3 deploy/swarm/smoke.py /tmp/xem-state/config.json
+        run: python3 devops/swarm/smoke.py /tmp/xem-state/config.json
       - name: Check repeat install preserves state
         run: |
           cp /tmp/xem-state/config.json /tmp/xem-before.json
-          python3 deploy/swarm/install.py --state /tmp/xem-state
+          python3 devops/swarm/install.py --state /tmp/xem-state
           cmp /tmp/xem-before.json /tmp/xem-state/config.json
       - name: Task diagnostics
         if: failure()

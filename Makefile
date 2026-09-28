@@ -9,7 +9,7 @@ help:
 	@echo "make build-backend  Build the Go commands"
 	@echo "make check-installer Check installer and release helpers"
 install:
-	python3 deploy/swarm/install.py
+	python3 devops/swarm/install.py
 frontend:
 	cd client && bun run dev
 backend:
@@ -25,5 +25,5 @@ build-backend:
 check-installer:
 	bash -n scripts/install.sh
 	shellcheck scripts/install.sh
-	python3 -m unittest discover -s deploy/swarm -p 'test_*.py'
+	python3 -m unittest discover -s devops/swarm -p 'test_*.py'
 	python3 -m unittest discover -s scripts -p 'test_*.py'
