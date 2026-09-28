@@ -61,7 +61,7 @@ Connect `mailxem/mail` in Cloudflare **Workers & Pages → Create application �
 - Worker name: `xem-website`
 - Build environment: Bun 1.3.5 (or compatible), Node.js 22+; optionally set the two `XEM_BUILD_*` variables above.
 
-Configure **Previews Base** separately: use root directory `website`, build command `bun run build`, and preview command `bunx wrangler versions upload --keep-vars`. This uploads a version for review without changing the production deployment. The project uses version uploads with its pinned Wrangler; the dashboard's `wrangler preview` default requires a separate previews configuration that this project does not have.
+Configure **Previews Base** separately: use root directory `website`, build command `bun run build`, and preview command `bunx wrangler preview`. This publishes a branch preview without changing the production deployment. The empty `previews` block in `wrangler.jsonc` enables this workflow; previews use the same static assets and have no application bindings or secrets. Use the project's installed Wrangler so CI respects the lockfile.
 
 Existing branch previews have their own build settings. Select the branch in the environment picker and update its **Settings → Builds** configuration too; changing **Previews Base** does not replace those existing settings.
 

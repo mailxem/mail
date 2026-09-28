@@ -2,6 +2,7 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "xem-website",
   "compatibility_date": "2026-09-10",
+  "previews": {},
   "assets": {
     "directory": "./out",
     "html_handling": "drop-trailing-slash",
