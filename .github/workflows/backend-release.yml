@@ -2,12 +2,15 @@ name: backend release
 on:
   push:
     branches: [undefined]
-    paths: ['server/**', '.github/workflows/backend-release.yml', '.github/workflows/component-release.yml', 'scripts/component-release.py']
+    paths: ['server/**', '.github/workflows/backend-release.yml', '.github/workflows/backend-ci.yml', '.github/workflows/component-release.yml', 'scripts/component-release.py']
   workflow_dispatch:
 permissions:
   contents: write
 jobs:
+  validate:
+    uses: ./.github/workflows/backend-ci.yml
   release:
+    needs: validate
     uses: ./.github/workflows/component-release.yml
     with:
       component: backend

@@ -40,7 +40,7 @@ GitHub only runs workflows under the repository root `.github/workflows/`. Path 
 
 The repository's default branch is currently `undefined`. CI and publication use that branch; update the workflow filters together if the branch is renamed.
 
-Frontend and backend get separate Git tags: `frontend-v0.1.0`, `backend-v0.1.0`, then independent patch increments. Older unprefixed component tags are never mixed into this sequence. Release notes come from the changed component's Git history and do not depend on an external AI service. The release is created only after image publication succeeds. Per-component concurrency serializes version selection/publication, while architecture jobs publish independently as soon as they finish.
+Frontend and backend get separate Git tags: `frontend-v0.1.0`, `backend-v0.1.0`, then independent patch increments. Older unprefixed component tags are never mixed into this sequence. Release notes come from the changed component's Git history and do not depend on an external AI service. Publishing waits for the component CI checks, and the release is created only after image publication succeeds. Per-component concurrency serializes version selection/publication, while architecture jobs publish independently as soon as they finish.
 
 Existing Docker Hub repositories remain:
 

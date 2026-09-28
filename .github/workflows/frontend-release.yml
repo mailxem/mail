@@ -2,12 +2,15 @@ name: frontend release
 on:
   push:
     branches: [undefined]
-    paths: ['client/**', '.github/workflows/frontend-release.yml', '.github/workflows/component-release.yml', 'scripts/component-release.py']
+    paths: ['client/**', '.github/workflows/frontend-release.yml', '.github/workflows/frontend-ci.yml', '.github/workflows/component-release.yml', 'scripts/component-release.py']
   workflow_dispatch:
 permissions:
   contents: write
 jobs:
+  validate:
+    uses: ./.github/workflows/frontend-ci.yml
   release:
+    needs: validate
     uses: ./.github/workflows/component-release.yml
     with:
       component: frontend

@@ -52,6 +52,12 @@ jobs:
         env:
           TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
         run: test -n "$TOKEN" || { echo 'Configure DOCKER_HUB_TOKEN in this repository'; exit 1; }
+      - name: Check frontend build configuration
+        if: inputs.component == 'frontend'
+        env:
+          API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          PAYWALL_URL: ${{ vars.NEXT_PUBLIC_PAYWALL_URL }}
+        run: test -n "$API_URL" && test -n "$PAYWALL_URL" || { echo 'Configure the frontend public API build variables'; exit 1; }
       - name: Write build metadata
         env:
           COMPONENT_DIR: ${{ inputs.directory }}

@@ -3,9 +3,7 @@ name: Backend CI
 on:
   pull_request:
     paths: ['server/**', '.github/workflows/backend-ci.yml']
-  push:
-    branches: [undefined]
-    paths: ['server/**', '.github/workflows/backend-ci.yml']
+  workflow_call:
 permissions:
   contents: read
 defaults:
