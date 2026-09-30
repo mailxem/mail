@@ -1,6 +1,6 @@
 # Xem infrastructure
 
-Deployment tooling for Xem, including a self-contained Docker Swarm starter, Terraform, and Helm. The Swarm starter runs the app, backend, PostgreSQL, Redis, and object storage on one host. The Terraform and Helm configurations support managed SMTP backed by Amazon SES, with optional payments and MCP services in the chart. Those configurations keep application settings and SMTP flags in Infisical; no credentials are committed here.
+Deployment tooling for Xem, including a self-contained Docker Swarm starter, Terraform, and Helm. The Swarm starter runs the app, backend, PostgreSQL, Redis, and object storage on one host. The Terraform and Helm configurations support managed SMTP backed by Amazon SES, with optional payments and MCP services in the chart. The additive [managed receiving stack](managed-receiving/README.md) provides private SES/S3/SNS/SQS resources for the opt-in custom-domain inbox implementation under development. Those configurations keep application settings and SMTP flags in Infisical; no credentials are committed here.
 
 ## Choose a deployment path
 
@@ -35,6 +35,7 @@ Cloudflare provides authoritative DNS and ACME DNS challenges for Kubernetes. SM
 - `swarm/`: curl bootstrap support, stack generation, first-use guide, and smoke tests; run `make install` from the repository root.
 - `terraform/environments/{dokploy,kubernetes,domain}`: independent state roots with pinned providers.
 - `terraform/modules`: reusable runtime identity, sending stack, and platform DNS modules.
+- `managed-receiving/`: dedicated inactive SES receiving rule set, private raw-mail storage, queue, DLQ, alarms, and unattached runtime policy.
 - `charts/xem`: application chart; no embedded database or secret values.
 - `hakopod/xem.toml`: four-service self-hosted Hakopod configuration with public SMTP, STARTTLS readiness and automatic certificate renewal; see its [setup guide](hakopod/README.md).
 - `host/` and `scripts/install-dokploy-smtp-tls.sh`: certificate export and read-only host mirror.

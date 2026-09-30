@@ -102,7 +102,7 @@ const gettingStarted = {
 const settingsNavigation = [
   { name: "Managed sending", href: "/settings/sending", icon: Send },
   { name: "SMTP senders", href: "/settings/smtp", icon: Server },
-  { name: "IMAP mailboxes", href: "/settings/imap", icon: Mailbox },
+  { name: "Mailboxes", href: "/settings/imap", icon: Mailbox },
   { name: "API keys", href: "/settings/api-keys", icon: KeyRound },
   { name: "Webhooks", href: "/settings/webhooks", icon: Webhook },
   { name: "Tags", href: "/audience/tags", icon: Tags },

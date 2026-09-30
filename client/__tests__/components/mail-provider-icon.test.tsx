@@ -13,6 +13,7 @@ describe("mail provider identity", () => {
     [{ host: "imap.mail.me.com" }, "icloud", "iCloud Mail"],
     [{ host: "imap.mail.icloud.com" }, "icloud", "iCloud Mail"],
     [{ provider: "CLOUDFLARE" }, "cloudflare", "Cloudflare"],
+    [{ provider: "MANAGED", host: "example.com" }, "managed", "Xem inbox"],
   ])("recognizes trusted provider metadata %#", (input, kind, label) => {
     expect(inferMailProvider(input)).toEqual({ kind, label });
   });
