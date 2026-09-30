@@ -68,6 +68,20 @@ func (h *MailConnectionsHandler) Mailboxes(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(500, "Unable to load mailboxes")
 	}
+	if h.DB.Migrator().HasTable("managed_receiving_mailboxes") {
+		var managedRows = []struct {
+			ID           string `json:"id"`
+			Username     string `json:"username"`
+			Host         string `json:"host"`
+			SMTPConfigID string `json:"smtpConfigId,omitempty"`
+			Provider     string `json:"provider"`
+		}{}
+		cutoff := time.Now().UTC().Add(-24 * time.Hour)
+		if err := h.DB.Table("managed_receiving_mailboxes AS b").Select("b.id, b.address AS username, d.name AS host, CASE WHEN b.active = true AND b.status = 'active' AND d.ready = true AND d.ownership = true AND d.provisioned = true AND d.checked_at >= ? AND a.approved = true AND a.paused = false AND a.suspended = false THEN b.smtp_config_id ELSE '' END AS smtp_config_id, 'MANAGED' AS provider", cutoff).Joins("JOIN managed_domains d ON d.id = b.domain_id AND d.team_id = b.team_id").Joins("JOIN managed_accounts a ON a.team_id = b.team_id").Where("b.team_id = ?", c.Get("teamID")).Scan(&managedRows).Error; err != nil {
+			return echo.NewHTTPError(500, "Unable to load mailboxes")
+		}
+		rows = append(rows, managedRows...)
+	}
 	return c.JSON(200, rows)
 }
 func (h *MailConnectionsHandler) Senders(c echo.Context) error {
@@ -77,7 +91,12 @@ func (h *MailConnectionsHandler) Senders(c echo.Context) error {
 		Provider  string `json:"provider"`
 		IsDefault bool   `json:"isDefault"`
 	}{}
-	err := h.DB.Table("smtp_configs AS s").Select("s.id, s.from_email, s.provider, s.is_default").Joins("LEFT JOIN mail_connections m ON m.smtp_config_id = s.id AND m.team_id = s.team_id").Where("s.team_id = ? AND s.is_active = true AND s.is_deleted = false AND (m.id IS NULL OR m.active = true)", c.Get("teamID")).Scan(&rows).Error
+	query := h.DB.Table("smtp_configs AS s").Select("s.id, s.from_email, s.provider, s.is_default").Joins("LEFT JOIN mail_connections m ON m.smtp_config_id = s.id AND m.team_id = s.team_id").Where("s.team_id = ? AND s.is_active = true AND s.is_deleted = false AND (m.id IS NULL OR m.active = true)", c.Get("teamID"))
+	if h.DB.Migrator().HasTable("managed_receiving_mailboxes") {
+		cutoff := time.Now().UTC().Add(-24 * time.Hour)
+		query = query.Where("NOT EXISTS (SELECT 1 FROM managed_receiving_mailboxes b WHERE b.smtp_config_id = s.id) OR EXISTS (SELECT 1 FROM managed_receiving_mailboxes b JOIN managed_domains d ON d.id = b.domain_id AND d.team_id = b.team_id JOIN managed_accounts a ON a.team_id = b.team_id WHERE b.smtp_config_id = s.id AND b.team_id = s.team_id AND b.active = true AND b.status = 'active' AND d.ready = true AND d.ownership = true AND d.provisioned = true AND d.checked_at >= ? AND a.approved = true AND a.paused = false AND a.suspended = false)", cutoff)
+	}
+	err := query.Scan(&rows).Error
 	if err != nil {
 		return echo.NewHTTPError(500, "Unable to load senders")
 	}

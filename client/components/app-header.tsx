@@ -70,7 +70,7 @@ const pageTitles: Record<string, { title: string; description?: string }> = {
     description: "Connect and manage the servers you send email through.",
   },
   "/settings/imap": {
-    title: "IMAP mailboxes",
+    title: "Mailboxes",
     description: "Connect the mailboxes you receive email in.",
   },
   "/settings/webhooks": { title: "Webhooks", description: "Manage webhooks" },

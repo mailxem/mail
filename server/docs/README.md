@@ -80,6 +80,7 @@ The Posthoot API provides comprehensive endpoints for:
 - **Automations** - Email automation workflows and triggers
 - **SMTP** - SMTP configuration and email delivery settings
 - **IMAP** - IMAP configuration for email inbox management
+- **Managed receiving** - Opt-in custom-domain inbox operations; see [the AWS setup and runbook](managed-receiving.md)
 - **Webhooks** - Webhook management for real-time event notifications
 - **Files** - File upload and management for attachments and media
 - **Domains** - Domain management for email authentication

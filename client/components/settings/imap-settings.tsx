@@ -163,10 +163,10 @@ export function IMAPSettings({
     }
   };
   return (
-    <div className="space-y-6">
+    <div id="other-imap" className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <Metric
-          label="IMAP mailboxes"
+          label="Other IMAP mailboxes"
           value={isLoading ? "—" : imapConfigs.length}
           icon={<Mail size={18} />}
         />
@@ -178,7 +178,7 @@ export function IMAPSettings({
       </div>
       <section className={workspaceClassName("product-panel")}>
         <div className={workspaceClassName("panel-toolbar")}>
-          <h2>IMAP mailboxes</h2>
+          <h2>Other IMAP mailboxes</h2>
           <span className="text-xs text-muted-foreground">
             {imapConfigs.length} connections
           </span>

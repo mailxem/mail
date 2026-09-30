@@ -10,6 +10,7 @@ const mockSummaryProps = jest.fn();
 let mailboxBFirst = false;
 let cloudflareMailbox = false;
 let gmailMailbox = false;
+let managedMailbox = false;
 jest.mock("@/lib/marketing/api", () => ({
   PreviewTransport: React.createContext(null),
   useMarketing: () => ({ request: mockRequest, scope: "team", ready: true }),
@@ -29,9 +30,11 @@ jest.mock("@/lib/marketing/api", () => ({
                   host: "imap.example.com",
                   provider: gmailMailbox
                     ? "GOOGLE_OAUTH"
-                    : cloudflareMailbox
-                      ? "CLOUDFLARE"
-                      : "CUSTOM",
+                    : managedMailbox
+                      ? "MANAGED"
+                      : cloudflareMailbox
+                        ? "CLOUDFLARE"
+                        : "CUSTOM",
                 },
               ]
             : [
@@ -41,9 +44,11 @@ jest.mock("@/lib/marketing/api", () => ({
                   host: "imap.example.com",
                   provider: gmailMailbox
                     ? "GOOGLE_OAUTH"
-                    : cloudflareMailbox
-                      ? "CLOUDFLARE"
-                      : "CUSTOM",
+                    : managedMailbox
+                      ? "MANAGED"
+                      : cloudflareMailbox
+                        ? "CLOUDFLARE"
+                        : "CUSTOM",
                 },
                 {
                   id: "mailbox-b",
@@ -118,6 +123,7 @@ beforeEach(() => {
   mailboxBFirst = false;
   cloudflareMailbox = false;
   gmailMailbox = false;
+  managedMailbox = false;
   queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: 0 } },
   });
@@ -355,6 +361,59 @@ test("retries a failed Cloudflare detail request before enabling reply and downl
   expect(download?.getAttribute("href")).toBe(
     "data:application/octet-stream;base64,aGVsbG8=",
   );
+});
+
+test("uses numeric detail and flag payloads for a managed mailbox", async () => {
+  managedMailbox = true;
+  const click = jest
+    .spyOn(HTMLAnchorElement.prototype, "click")
+    .mockImplementation(() => {});
+  mockRequest.mockImplementation((path: string, method = "GET") => {
+    if (path.startsWith("imap/attachment?"))
+      return Promise.resolve({ Data: "aGVsbG8=" });
+    if (path.startsWith("imap/message?"))
+      return Promise.resolve({
+        ...messages["mailbox-a"][0],
+        body: "<p>Managed full body</p>",
+        attachments: [
+          {
+            AttachmentID: "managed-attachment",
+            Filename: "brief.txt",
+            MIMEType: "text/plain",
+            Size: 5,
+          },
+        ],
+      });
+    if (method === "PATCH") return Promise.resolve(undefined);
+    return Promise.resolve({
+      emails: messages["mailbox-a"],
+      total_emails: 2,
+      offset: 0,
+      limit: 20,
+      uidValidity: 1,
+    });
+  });
+  await renderInbox();
+  await act(async () => button("A plain").click());
+  await settle();
+  expect(mockRequest).toHaveBeenCalledWith(expect.stringContaining("uid=8"));
+  expect(mockRequest).toHaveBeenCalledWith(
+    expect.stringContaining("uid_validity=1"),
+  );
+  await act(async () => button("Download").click());
+  await settle();
+  expect(mockRequest).toHaveBeenCalledWith(expect.stringContaining("uid=8"));
+  expect(mockRequest).toHaveBeenCalledWith(
+    expect.stringContaining("attachment_id=managed-attachment"),
+  );
+  expect(click).toHaveBeenCalled();
+  await act(async () => button("Mark read").click());
+  expect(mockRequest).toHaveBeenCalledWith(
+    expect.stringContaining("imap/flags?"),
+    "PATCH",
+    { folder: "INBOX", uid: 8, uidValidity: 1, flag: "\\Seen", enabled: true },
+  );
+  click.mockRestore();
 });
 
 test("uses opaque Gmail pagination and native IDs for detail and flags", async () => {
