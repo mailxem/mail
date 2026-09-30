@@ -6,6 +6,10 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: release-pipeline-backend-${{ github.ref }}
+  queue: max
+  cancel-in-progress: false
 jobs:
   validate:
     uses: ./.github/workflows/backend-ci.yml
@@ -18,3 +22,11 @@ jobs:
       image: theboringhumane/xemgo
     secrets:
       DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+  deploy:
+    needs: release
+    uses: ./.github/workflows/hakopod-deploy.yml
+    with:
+      service: backend
+      image: ${{ needs.release.outputs.image }}
+    secrets:
+      HAKOPOD_API_TOKEN: ${{ secrets.HAKOPOD_API_TOKEN }}

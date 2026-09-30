@@ -20,7 +20,8 @@ jobs:
           go-version: '1.24'
           cache: false
       - run: go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.7
-      - run: '"$(go env GOPATH)/bin/actionlint"'
+      # GitHub supports concurrency.queue, but actionlint v1.7.7 predates it.
+      - run: '"$(go env GOPATH)/bin/actionlint" -ignore ''unexpected key "queue" for "concurrency" section'''
       - run: python3 -m unittest discover -s scripts -p 'test_*.py'
       - name: Assert centralized repository layout
         run: python3 scripts/check-repository-layout.py

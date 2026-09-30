@@ -1,0 +1,52 @@
+name: Deploy published image to Hakopod
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        description: Existing Hakopod service name.
+        required: true
+        type: string
+      image:
+        description: Published image pinned by sha256 digest.
+        required: true
+        type: string
+    secrets:
+      HAKOPOD_API_TOKEN:
+        required: true
+
+permissions: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: hakopod-${{ vars.HAKOPOD_APPLICATION_ID }}
+      queue: max
+      cancel-in-progress: false
+    steps:
+      - name: Validate deployment settings
+        env:
+          API_URL: ${{ vars.HAKOPOD_API_URL }}
+          APPLICATION_ID: ${{ vars.HAKOPOD_APPLICATION_ID }}
+          API_TOKEN: ${{ secrets.HAKOPOD_API_TOKEN }}
+          SERVICE: ${{ inputs.service }}
+          IMAGE: ${{ inputs.image }}
+        run: |
+          test -n "$API_URL" || { echo 'Configure HAKOPOD_API_URL'; exit 1; }
+          test -n "$APPLICATION_ID" || { echo 'Configure HAKOPOD_APPLICATION_ID'; exit 1; }
+          test -n "$API_TOKEN" || { echo 'Configure HAKOPOD_API_TOKEN'; exit 1; }
+          case "$SERVICE" in backend|frontend|mcp|payments) ;; *) echo 'Unsupported Hakopod service'; exit 1 ;; esac
+          [[ "$IMAGE" =~ @sha256:[0-9a-f]{64}$ ]] || { echo 'Deployment image must be pinned by sha256 digest'; exit 1; }
+      - name: Deploy ${{ inputs.service }}
+        uses: hakopod/deploy@v1
+        with:
+          api-url: ${{ vars.HAKOPOD_API_URL }}
+          api-token: ${{ secrets.HAKOPOD_API_TOKEN }}
+          application-id: ${{ vars.HAKOPOD_APPLICATION_ID }}
+          services: '["${{ inputs.service }}"]'
+          image: ${{ inputs.image }}
+          wait: 'true'
+          timeout: '600'
+          poll-interval: '5'
