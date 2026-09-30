@@ -2,6 +2,7 @@ package utils
 
 import (
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"gopkg.in/gomail.v2"
 	"kori/internal/models"
@@ -13,6 +14,8 @@ import (
 	"syscall"
 	"time"
 )
+
+var ErrSMTPDeliveryUnknown = errors.New("delivery outcome unknown")
 
 // sendSecureSMTP requires TLS before authentication and never skips certificate checks.
 func sendSecureSMTP(message *gomail.Message, email *models.Email) error {
@@ -92,10 +95,10 @@ func sendSMTPMessage(client *smtp.Client, message *gomail.Message, from string) 
 		return err
 	}
 	if _, err = message.WriteTo(writer); err != nil {
-		return fmt.Errorf("delivery outcome unknown: %w", err)
+		return fmt.Errorf("%w: %w", ErrSMTPDeliveryUnknown, err)
 	}
 	if err := writer.Close(); err != nil {
-		return fmt.Errorf("delivery outcome unknown: %w", err)
+		return fmt.Errorf("%w: %w", ErrSMTPDeliveryUnknown, err)
 	}
 	// DATA was acknowledged; a QUIT failure must not cause a duplicate delivery.
 	_ = client.Quit()

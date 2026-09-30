@@ -4756,5 +4756,194 @@
     "version": 1,
     "designUrl": "/assets/template-starters/edition-the-gathering-place/design.json",
     "previewUrl": "/assets/template-starters/edition-the-gathering-place/preview.html"
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "Your sending domain has been added to Xem. There are a few DNS records to put in place before it can send email.",
+    "designUrl": "/assets/template-starters/xem-domain_added/design.json",
+    "editingMode": "blocks",
+    "key": "xem-domain_added",
+    "marketing": false,
+    "name": "Let’s connect your sending domain",
+    "preheader": "Open managed sending and add the ownership record to your DNS provider.",
+    "previewUrl": "/assets/template-starters/xem-domain_added/preview.html",
+    "reference": "",
+    "source": "xem-managed-onboarding",
+    "subject": "Let’s connect your sending domain",
+    "tags": [
+      "managed sending",
+      "onboarding",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "Xem has verified your domain ownership. Next, we’ll check the records that help receiving servers trust your email.",
+    "designUrl": "/assets/template-starters/xem-ownership_verified/design.json",
+    "editingMode": "blocks",
+    "key": "xem-ownership_verified",
+    "marketing": false,
+    "name": "Your domain ownership is verified",
+    "preheader": "Add the DKIM, MAIL FROM and DMARC records shown in your workspace.",
+    "previewUrl": "/assets/template-starters/xem-ownership_verified/preview.html",
+    "reference": "",
+    "source": "xem-managed-onboarding",
+    "subject": "Your domain ownership is verified",
+    "tags": [
+      "managed sending",
+      "onboarding",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "Your domain passed the required authentication checks. Sending still depends on your workspace approval and current account status.",
+    "designUrl": "/assets/template-starters/xem-domain_ready/design.json",
+    "editingMode": "blocks",
+    "key": "xem-domain_ready",
+    "marketing": false,
+    "name": "Your sending domain passed its checks",
+    "preheader": "Review your approval status and choose the address you want to send from.",
+    "previewUrl": "/assets/template-starters/xem-domain_ready/preview.html",
+    "reference": "",
+    "source": "xem-managed-onboarding",
+    "subject": "Your sending domain passed its checks",
+    "tags": [
+      "managed sending",
+      "onboarding",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "Your workspace has been approved for Xem managed sending. Your current sending allowance is available in the dashboard.",
+    "designUrl": "/assets/template-starters/xem-approved/design.json",
+    "editingMode": "blocks",
+    "key": "xem-approved",
+    "marketing": false,
+    "name": "Your workspace is approved for managed sending",
+    "preheader": "Connect a sender on a verified domain, then send a test to your own inbox.",
+    "previewUrl": "/assets/template-starters/xem-approved/preview.html",
+    "reference": "",
+    "source": "xem-managed-onboarding",
+    "subject": "Your workspace is approved for managed sending",
+    "tags": [
+      "managed sending",
+      "onboarding",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "Your approved workspace now has a connected managed sender. It is available when composing emails and setting up campaigns.",
+    "designUrl": "/assets/template-starters/xem-sender_connected/design.json",
+    "editingMode": "blocks",
+    "key": "xem-sender_connected",
+    "marketing": false,
+    "name": "Your managed sender is connected",
+    "preheader": "Send a test to your own inbox and check its delivery status before your first campaign.",
+    "previewUrl": "/assets/template-starters/xem-sender_connected/preview.html",
+    "reference": "",
+    "source": "xem-managed-onboarding",
+    "subject": "Your managed sender is connected",
+    "tags": [
+      "managed sending",
+      "onboarding",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "Xem has queued your test email. Queued means it is waiting to be submitted to the email provider.",
+    "designUrl": "/assets/template-starters/xem-test_queued/design.json",
+    "editingMode": "blocks",
+    "key": "xem-test_queued",
+    "marketing": false,
+    "name": "Your sending test is queued",
+    "preheader": "Follow the test in managed sending. This notification does not confirm delivery.",
+    "previewUrl": "/assets/template-starters/xem-test_queued/preview.html",
+    "reference": "",
+    "source": "xem-managed-onboarding",
+    "subject": "Your sending test is queued",
+    "tags": [
+      "managed sending",
+      "onboarding",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "The email provider accepted your test for sending. This is not yet confirmation that the receiving server accepted it.",
+    "designUrl": "/assets/template-starters/xem-test_accepted/design.json",
+    "editingMode": "blocks",
+    "key": "xem-test_accepted",
+    "marketing": false,
+    "name": "The provider accepted your sending test",
+    "preheader": "Check delivery events in your workspace and look in your inbox and spam folder.",
+    "previewUrl": "/assets/template-starters/xem-test_accepted/preview.html",
+    "reference": "",
+    "source": "xem-managed-onboarding",
+    "subject": "The provider accepted your sending test",
+    "tags": [
+      "managed sending",
+      "onboarding",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "The provider reported that the receiving mail server accepted your test email. Inbox placement can still vary.",
+    "designUrl": "/assets/template-starters/xem-test_delivered/design.json",
+    "editingMode": "blocks",
+    "key": "xem-test_delivered",
+    "marketing": false,
+    "name": "Your test reached the receiving mail server",
+    "preheader": "Review the email in your mailbox. You’re ready to prepare your first campaign.",
+    "previewUrl": "/assets/template-starters/xem-test_delivered/preview.html",
+    "reference": "",
+    "source": "xem-managed-onboarding",
+    "subject": "Your test reached the receiving mail server",
+    "tags": [
+      "managed sending",
+      "onboarding",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "Your test did not reach a confirmed successful outcome. Its latest status and next steps are available in your workspace.",
+    "designUrl": "/assets/template-starters/xem-test_attention/design.json",
+    "editingMode": "blocks",
+    "key": "xem-test_attention",
+    "marketing": false,
+    "name": "Your sending test needs attention",
+    "preheader": "Review the message status before sending another test, especially if its outcome is unknown.",
+    "previewUrl": "/assets/template-starters/xem-test_attention/preview.html",
+    "reference": "",
+    "source": "xem-managed-onboarding",
+    "subject": "Your sending test needs attention",
+    "tags": [
+      "managed sending",
+      "onboarding",
+      "xem"
+    ],
+    "version": 1
   }
 ]

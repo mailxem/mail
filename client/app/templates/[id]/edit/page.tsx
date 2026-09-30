@@ -20,7 +20,7 @@ export default function EditTemplatePage({ params }: { params: Promise<{ id: str
         </Button>
         <h1 className="text-xl font-medium ">Edit Template</h1>
       </div>
-      <TemplateEditor templateId={id} />
+      <TemplateEditor key={id} templateId={id} />
     </div>
   );
 }

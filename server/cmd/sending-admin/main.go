@@ -50,6 +50,11 @@ func main() {
 		if e := tx.Model(&a).Updates(fields).Error; e != nil {
 			return e
 		}
+		if *action == "approve" {
+			if err := sending.QueueMilestone(tx, *team, "", "approved"); err != nil {
+				return err
+			}
+		}
 		return tx.Create(&sending.Audit{ID: uuid.NewString(), TeamID: *team, Actor: "operator:" + os.Getenv("USER"), Action: *action}).Error
 	})
 	if err != nil {

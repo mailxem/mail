@@ -58,6 +58,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { WorkspaceAIProvider } from "@/components/assistant/workspace-ai";
 import styles from "@/components/workspace-shell.module.css";
 
 const navigationGroups = [
@@ -406,7 +407,7 @@ export function AppShell({
   };
 
   return (
-    <div
+    <WorkspaceAIProvider><div
       className={cn(
         "product-frame",
         styles.frame,
@@ -599,6 +600,6 @@ export function AppShell({
           )}
         </div>
       </Modal>
-    </div>
+    </div></WorkspaceAIProvider>
   );
 }

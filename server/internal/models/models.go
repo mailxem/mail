@@ -16,6 +16,7 @@ import (
 
 type Team struct {
 	Base
+	OwnerUserID     string          `gorm:"type:uuid;default:NULL" json:"-"`
 	Name            string          `gorm:"not null" json:"name" validate:"required,min=2"`
 	Settings        []TeamSettings  `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"settings,omitempty"`
 	Users           []User          `gorm:"foreignKey:TeamID;references:ID" json:"users,omitempty"`

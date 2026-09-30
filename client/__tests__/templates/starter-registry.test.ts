@@ -40,7 +40,10 @@ describe("native starter library", () => {
       }
       expect(design.counters).toEqual(counts);
       const structure = JSON.stringify(design.body.rows.map((row: any) => [row.cells, row.columns.map((c: any) => c.contents.map((b: any) => b.type))]));
-      expect(structures.has(structure)).toBe(false); structures.add(structure);
+      // Transactional milestones intentionally share one consistent brand layout.
+      if (starter.source !== "xem-managed-onboarding") {
+        expect(structures.has(structure)).toBe(false); structures.add(structure);
+      }
     }
   });
   it("filters by category, content and collection together", () => {

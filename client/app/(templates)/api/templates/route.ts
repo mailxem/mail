@@ -1,6 +1,6 @@
+import { editorProxy } from "@/lib/assistant/editor-proxy";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { encodeToBase64, extractVariables } from "@/lib/utils";
 import { APIService } from "@/lib/services/api";
 import { logger } from "@/app/lib/logger";
 import { ApiError } from "@/lib";
@@ -30,7 +30,7 @@ interface TemplateRequest {
 }
 
 export async function GET(
-  request: Request
+  request: Request,
 ): Promise<NextResponse<TemplateResponse | { error: string }>> {
   try {
     const session = await auth();
@@ -83,91 +83,9 @@ export async function GET(
     });
     return NextResponse.json(
       { error: "Failed to fetch templates" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-export async function POST(
-  req: Request
-): Promise<NextResponse<TemplateResponse | { error: string }>> {
-  try {
-    const session = await auth();
-
-    if (!session) {
-      logger.warn({
-        fileName: FILE_NAME,
-        emoji: "🚫",
-        action: "POST",
-        value: {
-          emailCategoryId: ``,
-        },
-        label: "templates",
-        message: "Unauthorized access attempt",
-      });
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const json: TemplateRequest = await req.json();
-
-    let variables: string[] = [];
-    let htmlFileId: string = "";
-    let designJson: string = "";
-    if (!json.duplicate) {
-      const htmlFile = `${json.id}.html`;
-      variables = extractVariables(json.html);
-
-      const createTempFile = require("@/lib/email").createTempFile;
-
-      // Create blob storage for HTML content
-      const tempFile = await createTempFile(json.html, htmlFile);
-      const fileService = new APIService("files", session);
-      const { file } = await fileService.upload(tempFile);
-      htmlFileId = file;
-      designJson = encodeToBase64(JSON.stringify(json.designJson));
-    } else {
-      htmlFileId = json.htmlFileId;
-      variables = json.variables;
-      designJson = json.designJson;
-    }
-
-    const templateData = {
-      ...json,
-      htmlFileId,
-      htmlBody: json.html,
-      variables,
-      designJson,
-    };
-
-    const apiService = new APIService("templates", session);
-    const data = await apiService.post<TemplateResponse["data"]>(
-      "",
-      templateData
-    );
-
-    logger.info({
-      fileName: FILE_NAME,
-      emoji: "✅",
-      action: "POST",
-      label: "template",
-      value: data.id,
-      message: "Created new email template",
-    });
-
-    return NextResponse.json({ data });
-  } catch (error) {
-    const apiError = error as ApiError;
-    logger.error({
-      fileName: FILE_NAME,
-      emoji: "❌",
-      action: "POST",
-      label: "template",
-      value: apiError.message || "Unknown error",
-      message: "Failed to create template",
-    });
-    return NextResponse.json(
-      { error: "Failed to create template" },
-      { status: 500 }
-    );
-  }
-}
+export const POST = (request: Request) => editorProxy(request, "save");

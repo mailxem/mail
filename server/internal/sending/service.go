@@ -63,11 +63,13 @@ type Resolver interface {
 	LookupTXT(context.Context, string) ([]string, error)
 }
 type Service struct {
-	DB       *gorm.DB
-	Config   Config
-	Provider Provider
-	DNS      Resolver
-	Now      func() time.Time
+	Notify          MilestoneSender
+	NotificationURL string
+	DB              *gorm.DB
+	Config          Config
+	Provider        Provider
+	DNS             Resolver
+	Now             func() time.Time
 }
 
 func New(db *gorm.DB, c Config, p Provider) *Service {
@@ -114,7 +116,10 @@ func (s *Service) AddDomain(ctx context.Context, team, name string) (Domain, err
 		if count >= 10 {
 			return ErrLimit
 		}
-		return tx.Create(&d).Error
+		if err := tx.Create(&d).Error; err != nil {
+			return err
+		}
+		return QueueMilestone(tx, team, d.ID, "domain_added")
 	})
 	return d, err
 }
@@ -486,7 +491,13 @@ func (s *Service) Submit(ctx context.Context, in Submission) (Message, error) {
 				return e
 			}
 		}
-		return tx.Create(&msg).Error
+		if err := tx.Create(&msg).Error; err != nil {
+			return err
+		}
+		if msg.IsTest {
+			return QueueMilestone(tx, msg.TeamID, msg.DomainID, "test_queued")
+		}
+		return nil
 	})
 	return msg, e
 }
@@ -508,6 +519,16 @@ func (s *Service) persistDomain(ctx context.Context, d *Domain) error {
 		if r.RowsAffected != 1 {
 			return ErrDenied
 		}
+		if d.Ownership {
+			if err := QueueMilestone(tx, d.TeamID, d.ID, "ownership_verified"); err != nil {
+				return err
+			}
+		}
+		if d.Ready {
+			if err := QueueMilestone(tx, d.TeamID, d.ID, "domain_ready"); err != nil {
+				return err
+			}
+		}
 		if !d.Ready || !d.Ownership || !d.Provisioned || a.Approved || a.Suspended || a.Paused {
 			return nil
 		}
@@ -520,6 +541,9 @@ func (s *Service) persistDomain(ctx context.Context, d *Domain) error {
 		}).Error; err != nil {
 			return err
 		}
-		return tx.Create(&Audit{ID: uuid.NewString(), TeamID: a.TeamID, Actor: "system:dns-verification", Action: "auto_approve", CreatedAt: s.Now()}).Error
+		if err := tx.Create(&Audit{ID: uuid.NewString(), TeamID: a.TeamID, Actor: "system:dns-verification", Action: "auto_approve", CreatedAt: s.Now()}).Error; err != nil {
+			return err
+		}
+		return QueueMilestone(tx, a.TeamID, d.ID, "approved")
 	})
 }

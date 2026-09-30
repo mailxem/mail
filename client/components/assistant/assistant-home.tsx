@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useId } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { ChatView, messageText } from "./chat-view";
@@ -11,7 +11,8 @@ async function responseJSON(response: Response) {
     throw new Error(data.error || "Couldn’t connect. Please try again.");
   return data;
 }
-export function AssistantHome() {
+export function AssistantHome({ embedded = false }: { embedded?: boolean }) {
+  const instance = useId();
   const [id, setId] = useState("");
   const current = useRef("");
   const [input, setInput] = useState("");
@@ -43,7 +44,7 @@ export function AssistantHome() {
     [],
   );
   const chat = useChat({
-    id: "xem-workspace",
+    id: `xem-workspace-${instance}`,
     transport,
     onFinish: () => {
       void refresh().catch(() => {});
@@ -64,7 +65,7 @@ export function AssistantHome() {
         current.current = next;
         setId(next);
         chat.setMessages(data.conversation.messages);
-        window.history.replaceState(null, "", `/?chat=${next}`);
+        if (!embedded) window.history.replaceState(null, "", `/?chat=${next}`);
       } catch (e) {
         setProblem((e as Error).message);
       } finally {
@@ -80,7 +81,7 @@ export function AssistantHome() {
     void refresh()
       .then(async () => {
         const saved = new URLSearchParams(window.location.search).get("chat");
-        if (saved) await open(saved);
+        if (saved && !embedded) await open(saved);
       })
       .catch((e) => setProblem(e.message))
       .finally(() => setLoading(false));
@@ -93,7 +94,7 @@ export function AssistantHome() {
     chat.clearError();
     setInput("");
     setProblem("");
-    window.history.replaceState(null, "", "/");
+    if (!embedded) window.history.replaceState(null, "", "/");
   }
   async function approve(actionId: string, approved: boolean) {
     setActing(true);
@@ -139,6 +140,7 @@ export function AssistantHome() {
   }
   return (
     <ChatView
+      compact={embedded}
       messages={chat.messages}
       input={input}
       setInput={setInput}
@@ -151,7 +153,7 @@ export function AssistantHome() {
         setInput("");
         setProblem("");
         chat.clearError();
-        window.history.replaceState(null, "", `/?chat=${current.current}`);
+        if (!embedded) window.history.replaceState(null, "", `/?chat=${current.current}`);
         void chat.sendMessage({ text });
       }}
       onStop={() => void chat.stop()}

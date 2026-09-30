@@ -285,6 +285,17 @@ func (s *Service) ApplyFeedback(ctx context.Context, eventID string, raw []byte)
 		if e := tx.Model(&m).Updates(updates).Error; e != nil {
 			return e
 		}
+		if m.IsTest && rank[state] >= rank[m.Status] {
+			kind := "test_attention"
+			if state == "DELIVERED" {
+				kind = "test_delivered"
+			} else if state == "SENT" {
+				kind = "test_accepted"
+			}
+			if err := QueueMilestone(tx, m.TeamID, m.DomainID, kind); err != nil {
+				return err
+			}
+		}
 		if m.EmailID != "" && rank[state] >= rank[m.Status] {
 			emailState := state
 			if state == "DELIVERED" || state == "DELAYED" {

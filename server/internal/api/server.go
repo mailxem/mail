@@ -53,6 +53,9 @@ func NewServer(cfg *config.Config, db *gorm.DB) *Server {
 	e.Use(echomiddleware.Secure())
 	e.Use(echomiddleware.TimeoutWithConfig(echomiddleware.TimeoutConfig{
 		Timeout: 30 * time.Second,
+		Skipper: func(c echo.Context) bool {
+			return c.Request().Method == "POST" && c.Path() == "/api/v1/marketing/email-draft"
+		},
 	}))
 	e.Use(echomiddleware.GzipWithConfig(echomiddleware.GzipConfig{
 		Level: 5,

@@ -95,6 +95,15 @@ func (s *Service) ProcessOne(ctx context.Context) error {
 		if r.Error != nil {
 			return r.Error
 		}
+		if r.RowsAffected > 0 && m.IsTest {
+			kind := "test_attention"
+			if status == "SENT" {
+				kind = "test_accepted"
+			}
+			if err := QueueMilestone(tx, m.TeamID, m.DomainID, kind); err != nil {
+				return err
+			}
+		}
 		if r.RowsAffected > 0 && m.EmailID != "" {
 			fields := map[string]any{"status": status, "error": detail}
 			if status == "SENT" {
@@ -107,6 +116,23 @@ func (s *Service) ProcessOne(ctx context.Context) error {
 	})
 }
 func (s *Service) Run(ctx context.Context) {
+	notificationsDone := make(chan struct{})
+	go func() {
+		defer close(notificationsDone)
+		tick := time.NewTicker(2 * time.Second)
+		defer tick.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-tick.C:
+				if err := s.ProcessMilestone(ctx); err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+					log.Print("managed milestone worker failed; inspect notification outbox")
+				}
+			}
+		}
+	}()
+	defer func() { <-notificationsDone }()
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 	maintenance := time.NewTicker(time.Minute)

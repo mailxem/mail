@@ -22,7 +22,7 @@ export function enabled() {
     (process.env.NODE_ENV !== "production" || !!process.env.ASSISTANT_REDIS_URL)
   );
 }
-function backendEndpoint() {
+export function backendEndpoint() {
   const internal = process.env.INTERNAL_API_URL;
   // This server-only setting is the operator's trusted service address.
   // Public API, MCP and model endpoints keep the default HTTPS requirement.

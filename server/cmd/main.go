@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	"gopkg.in/gomail.v2"
 	"kori/docs/swagger"
 	"kori/internal/handlers"
@@ -12,6 +13,7 @@ import (
 	"kori/internal/utils"
 	"kori/internal/utils/crypto"
 	"log"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -116,6 +118,18 @@ func main() {
 		}
 	}
 	managed := sending.New(db_instance, managedConfig, provider)
+	if os.Getenv("MANAGED_NOTIFICATIONS_ENABLED") == "true" {
+		link, parseErr := url.Parse(os.Getenv("DASHBOARD_URL"))
+		if parseErr != nil || link.Scheme != "https" || link.Host == "" || link.User != nil || cfg.SMTP.Host == "" || cfg.SMTP.FromEmail == "" {
+			log.Fatal("Managed notifications require an HTTPS DASHBOARD_URL and platform SMTP configuration")
+		}
+		link.Path, link.RawPath, link.RawQuery, link.Fragment = "/settings/sending", "", "", ""
+		managed.NotificationURL = link.String()
+		managed.Notify = func(ctx context.Context, key, to, subject, html, text string) (bool, error) {
+			err := utils.SendServiceEmail(ctx, cfg.SMTP, key, to, subject, html, text)
+			return errors.Is(err, utils.ErrSMTPDeliveryUnknown), err
+		}
+	}
 	managedCtx, stopManaged := context.WithCancel(context.Background())
 	defer stopManaged()
 	managedDone := make(chan struct{})

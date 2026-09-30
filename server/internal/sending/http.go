@@ -201,25 +201,42 @@ func (s *Service) activateSender(c echo.Context) error {
 		return httpError(err)
 	}
 	err = s.DB.WithContext(c.Request().Context()).Transaction(func(tx *gorm.DB) error {
+		var account Account
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&account, "team_id = ?", workspace(c)).Error; err != nil {
+			return err
+		}
+		if !account.Approved || account.Suspended || account.Paused {
+			return ErrDenied
+		}
 		var d Domain
 		if e := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&d, "id = ? AND team_id = ? AND ready = true", c.Param("id"), workspace(c)).Error; e != nil {
 			return e
 		}
-		if strings.Split(from, "@")[1] != d.Name {
+		if !d.Ownership || !d.Provisioned || d.CheckedAt == nil || s.Now().Sub(*d.CheckedAt) > 24*time.Hour || strings.Split(from, "@")[1] != d.Name {
 			return ErrDenied
 		}
 		if d.SMTPConfigID != "" {
-			if e := tx.Session(&gorm.Session{SkipHooks: true}).Model(&models.SMTPConfig{}).Where("id = ? AND team_id = ? AND provider = ?", d.SMTPConfigID, d.TeamID, "MANAGED").Update("from_email", from).Error; e != nil {
-				return e
+			result := tx.Session(&gorm.Session{SkipHooks: true}).Model(&models.SMTPConfig{}).Where("id = ? AND team_id = ? AND provider = ? AND is_active = true AND is_deleted = false", d.SMTPConfigID, d.TeamID, "MANAGED").Update("from_email", from)
+			if result.Error != nil {
+				return result.Error
 			}
-			return tx.Model(&d).Update("from_email", from).Error
+			if result.RowsAffected != 1 {
+				return ErrDenied
+			}
+			if err := tx.Model(&d).Update("from_email", from).Error; err != nil {
+				return err
+			}
+			return QueueMilestone(tx, d.TeamID, d.ID, "sender_connected")
 		}
 		id := uuid.NewString()
 		sender := models.SMTPConfig{Base: models.Base{ID: id}, Provider: "MANAGED", Host: "managed.internal", Port: 587, Username: "managed", FromEmail: from, TeamID: d.TeamID, IsActive: true, SupportsTLS: true, RequiresAuth: true, MaxSendRate: 1}
 		if e := tx.Session(&gorm.Session{SkipHooks: true}).Create(&sender).Error; e != nil {
 			return e
 		}
-		return tx.Model(&d).Updates(map[string]any{"smtp_config_id": id, "from_email": from}).Error
+		if err := tx.Model(&d).Updates(map[string]any{"smtp_config_id": id, "from_email": from}).Error; err != nil {
+			return err
+		}
+		return QueueMilestone(tx, d.TeamID, d.ID, "sender_connected")
 	})
 	if err != nil {
 		return httpError(err)

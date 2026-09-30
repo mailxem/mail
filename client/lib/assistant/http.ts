@@ -10,7 +10,7 @@ export function publicConversation(row: Conversation) {
     messages: row.messages,
   };
 }
-export async function readJSON(request: Request) {
+export async function readJSON(request: Request, limit = 20_000) {
   if (!sameOrigin(request))
     throw new AssistantError(403, "Request origin was not accepted.");
   if (!request.headers.get("content-type")?.startsWith("application/json"))
@@ -23,7 +23,7 @@ export async function readJSON(request: Request) {
     const { done, value } = await reader.read();
     if (done) break;
     size += value.length;
-    if (size > 20_000) {
+    if (size > limit) {
       await reader.cancel();
       throw new AssistantError(413, "Your message is too long.");
     }

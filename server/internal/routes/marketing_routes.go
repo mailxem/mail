@@ -12,6 +12,7 @@ import (
 	"kori/internal/handlers"
 	"kori/internal/models"
 	"os"
+	"time"
 )
 
 func SetupMarketingRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
@@ -42,7 +43,7 @@ func SetupMarketingRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 		model = "gpt-4.1"
 	}
 	writer := ai.NewEmailWriter(endpoint, os.Getenv("AI_PROXY_API_KEY"), model)
-	g.POST("/email-draft", handlers.EmailDraftHandler(writer), em.BodyLimit("32K"), em.RateLimiterWithConfig(em.RateLimiterConfig{
+	g.POST("/email-draft", handlers.EmailDraftHandler(writer), em.BodyLimit("100K"), em.ContextTimeout(95*time.Second), em.RateLimiterWithConfig(em.RateLimiterConfig{
 		Store:               em.NewRateLimiterMemoryStoreWithConfig(em.RateLimiterMemoryStoreConfig{Rate: rate.Limit(0.1), Burst: 3}),
 		IdentifierExtractor: func(c echo.Context) (string, error) { id, _ := c.Get("teamID").(string); return id, nil },
 	}))
@@ -69,6 +70,8 @@ func SetupMarketingRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 	g.GET("/contacts/:id/tags", h.ContactTags)
 	g.PUT("/contacts/:id/tags", h.ContactTags)
 	g.GET("/templates/:id/preview", h.TemplatePreview)
+	g.POST("/templates", h.SaveTemplate, em.BodyLimit("2M"), middleware.RequirePermissions(db, "templates:create"))
+	g.PUT("/templates/:id", h.SaveTemplate, em.BodyLimit("2M"), middleware.RequirePermissions(db, "templates:update"))
 	g.PUT("/contacts/:id/stage", h.UpdateContactStage)
 	g.GET("/newsletters", h.Newsletters, middleware.RequirePermissions(db, "campaigns:read"))
 	g.POST("/newsletters", h.SaveNewsletter, middleware.RequirePermissions(db, "campaigns:create"))

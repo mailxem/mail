@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useId } from "react";
 import type { UIMessage } from "ai";
 import {
   ArrowDown,
@@ -227,6 +227,7 @@ function ToolPart({
   );
 }
 export interface ChatViewProps {
+  compact?: boolean;
   messages: UIMessage[];
   input: string;
   setInput: (v: string) => void;
@@ -246,6 +247,7 @@ export interface ChatViewProps {
   onRecover?: () => void;
 }
 export function ChatView({
+  compact = false,
   messages,
   input,
   setInput,
@@ -291,7 +293,7 @@ export function ChatView({
   }
   return (
     <div
-      className={`${styles.screen} ${empty ? "" : styles.transcript}`}
+      className={`${styles.screen} ${compact ? styles.embedded : ""} ${empty ? "" : styles.transcript}`}
       data-assistant
     >
       <header className={styles.header}>
@@ -587,6 +589,7 @@ function Composer({
   send: () => void;
   onStop: () => void;
 }) {
+  const inputId = useId();
   return (
     <form
       className={`${styles.composer} ${compact ? styles.compactComposer : ""}`}
@@ -595,12 +598,12 @@ function Composer({
         send();
       }}
     >
-      <label className="sr-only" htmlFor="xem-chat-input">
+      <label className="sr-only" htmlFor={inputId}>
         Message Xem
       </label>
       <textarea
         ref={field}
-        id="xem-chat-input"
+        id={inputId}
         value={input}
         maxLength={8000}
         rows={compact ? 1 : 2}

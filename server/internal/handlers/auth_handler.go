@@ -145,6 +145,13 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Email already exists"})
 	}
 
+	// Store the creator explicitly; invitations never change workspace ownership.
+	if createTeam {
+		if err := tx.Model(&team).Update("owner_user_id", user.ID).Error; err != nil {
+			tx.Rollback()
+			return c.JSON(500, map[string]string{"error": "Failed to assign workspace owner"})
+		}
+	}
 	// Assign default permissions based on role
 	if err := models.AssignDefaultPermissions(tx, &user); err != nil {
 		tx.Rollback()
@@ -964,6 +971,12 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 				return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create user"})
 			}
 
+			if inviteErr != nil {
+				if err := tx.Model(&models.Team{}).Where("id = ?", teamID).Update("owner_user_id", user.ID).Error; err != nil {
+					tx.Rollback()
+					return c.JSON(500, map[string]string{"error": "Failed to assign workspace owner"})
+				}
+			}
 			// Assign default permissions
 			if err := models.AssignDefaultPermissions(tx, &user); err != nil {
 				tx.Rollback()
