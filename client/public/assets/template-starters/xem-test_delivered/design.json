@@ -16,11 +16,16 @@
                   "_meta": {
                     "htmlID": "u_content_text_1"
                   },
-                  "color": "#50574b",
+                  "color": "#66695e",
                   "containerPadding": "12px 32px",
-                  "fontSize": "16px",
-                  "lineHeight": "175%",
-                  "text": "\u003cp style=\"margin:0;font-size:28px;font-weight:800;letter-spacing:-1.5px;color:#181a16\"\u003exem\u003cspan style=\"color:#728820\"\u003e.\u003c/span\u003e\u003c/p\u003e"
+                  "fontFamily": {
+                    "label": "DM Sans",
+                    "url": "/assets/template-starters/brand/fonts.css",
+                    "value": "'DM Sans',Arial,Helvetica,sans-serif"
+                  },
+                  "fontSize": "15px",
+                  "lineHeight": "180%",
+                  "text": "\u003ctable role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\"\u003e\u003ctr\u003e\u003ctd width=\"46\"\u003e\u003cimg src=\"/assets/template-starters/brand/xem-mark.png\" width=\"36\" height=\"36\" alt=\"\" style=\"display:block;border:0;border-radius:6px\"\u003e\u003c/td\u003e\u003ctd style=\"font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:28px;font-weight:600;letter-spacing:-1.5px;color:#22251f\"\u003eXem\u003c/td\u003e\u003c/tr\u003e\u003c/table\u003e"
                 }
               },
               {
@@ -30,11 +35,16 @@
                   "_meta": {
                     "htmlID": "u_content_text_2"
                   },
-                  "color": "#50574b",
+                  "color": "#66695e",
                   "containerPadding": "12px 32px",
-                  "fontSize": "16px",
-                  "lineHeight": "175%",
-                  "text": "\u003cp style=\"margin:0;color:#6b7165;font-size:11px;letter-spacing:2px\"\u003eYOUR MANAGED SENDING JOURNEY\u003c/p\u003e"
+                  "fontFamily": {
+                    "label": "DM Sans",
+                    "url": "/assets/template-starters/brand/fonts.css",
+                    "value": "'DM Sans',Arial,Helvetica,sans-serif"
+                  },
+                  "fontSize": "15px",
+                  "lineHeight": "180%",
+                  "text": "\u003cp style=\"margin:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:10px;font-weight:600;letter-spacing:1.7px;color:#164b3f\"\u003e\u003cspan style=\"display:inline-block;background:#edf09b;padding:8px 11px;border-radius:6px\"\u003eYOUR MANAGED SENDING JOURNEY\u003c/span\u003e\u003c/p\u003e"
                 }
               },
               {
@@ -44,11 +54,16 @@
                   "_meta": {
                     "htmlID": "u_content_text_3"
                   },
-                  "color": "#50574b",
+                  "color": "#66695e",
                   "containerPadding": "12px 32px",
-                  "fontSize": "16px",
-                  "lineHeight": "175%",
-                  "text": "\u003ch1 style=\"margin:0;font-size:34px;line-height:1.15;letter-spacing:-1px;color:#181a16\"\u003eA successful first connection.\u003c/h1\u003e"
+                  "fontFamily": {
+                    "label": "EB Garamond",
+                    "url": "/assets/template-starters/brand/fonts.css",
+                    "value": "'EB Garamond',Georgia,'Times New Roman',serif"
+                  },
+                  "fontSize": "15px",
+                  "lineHeight": "180%",
+                  "text": "\u003ch1 style=\"margin:0;font-family:'EB Garamond',Georgia,'Times New Roman',serif;font-size:44px;font-weight:400;line-height:1.03;letter-spacing:-1.5px;color:#22251f\"\u003eA successful first connection.\u003c/h1\u003e"
                 }
               },
               {
@@ -58,11 +73,16 @@
                   "_meta": {
                     "htmlID": "u_content_text_4"
                   },
-                  "color": "#50574b",
+                  "color": "#66695e",
                   "containerPadding": "12px 32px",
-                  "fontSize": "16px",
-                  "lineHeight": "175%",
-                  "text": "\u003cp style=\"margin:0;color:#50574b;line-height:1.75\"\u003eThe provider reported that the receiving mail server accepted your test email. Inbox placement can still vary.\u003c/p\u003e"
+                  "fontFamily": {
+                    "label": "DM Sans",
+                    "url": "/assets/template-starters/brand/fonts.css",
+                    "value": "'DM Sans',Arial,Helvetica,sans-serif"
+                  },
+                  "fontSize": "15px",
+                  "lineHeight": "180%",
+                  "text": "\u003cp style=\"margin:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:15px;line-height:1.8;color:#66695e\"\u003eThe provider reported that the receiving mail server accepted your test email. Inbox placement can still vary.\u003c/p\u003e"
                 }
               },
               {
@@ -72,11 +92,16 @@
                   "_meta": {
                     "htmlID": "u_content_text_5"
                   },
-                  "color": "#50574b",
+                  "color": "#66695e",
                   "containerPadding": "12px 32px",
-                  "fontSize": "16px",
-                  "lineHeight": "175%",
-                  "text": "\u003cp style=\"margin:0;padding:16px;background:#f4f6ef;border-radius:8px;color:#42483d;font-size:13px\"\u003eWorkspace: \u003cstrong\u003e{{workspace_name}}\u003c/strong\u003e\u003cbr\u003eDomain: \u003cstrong\u003e{{domain}}\u003c/strong\u003e\u003c/p\u003e"
+                  "fontFamily": {
+                    "label": "DM Sans",
+                    "url": "/assets/template-starters/brand/fonts.css",
+                    "value": "'DM Sans',Arial,Helvetica,sans-serif"
+                  },
+                  "fontSize": "15px",
+                  "lineHeight": "180%",
+                  "text": "\u003cp style=\"margin:0;padding:18px 20px;background:#e7d8fa;border-radius:12px;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:13px;line-height:1.8;overflow-wrap:anywhere;word-break:break-word;color:#22251f\"\u003eWorkspace: \u003cstrong\u003e{{workspace_name}}\u003c/strong\u003e\u003cbr\u003eDomain: \u003cstrong\u003e{{domain}}\u003c/strong\u003e\u003c/p\u003e"
                 }
               },
               {
@@ -86,11 +111,16 @@
                   "_meta": {
                     "htmlID": "u_content_text_6"
                   },
-                  "color": "#50574b",
+                  "color": "#66695e",
                   "containerPadding": "12px 32px",
-                  "fontSize": "16px",
-                  "lineHeight": "175%",
-                  "text": "\u003cp style=\"margin:0;color:#50574b;line-height:1.75\"\u003e\u003cstrong style=\"color:#181a16\"\u003eUp next\u003c/strong\u003e\u003cbr\u003eReview the email in your mailbox. You’re ready to prepare your first campaign.\u003c/p\u003e"
+                  "fontFamily": {
+                    "label": "DM Sans",
+                    "url": "/assets/template-starters/brand/fonts.css",
+                    "value": "'DM Sans',Arial,Helvetica,sans-serif"
+                  },
+                  "fontSize": "15px",
+                  "lineHeight": "180%",
+                  "text": "\u003cp style=\"margin:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:15px;line-height:1.8;color:#66695e\"\u003e\u003cstrong style=\"color:#164b3f\"\u003eUp next\u003c/strong\u003e\u003cbr\u003eReview the email in your mailbox. You’re ready to prepare your first campaign.\u003c/p\u003e"
                 }
               },
               {
@@ -100,11 +130,16 @@
                   "_meta": {
                     "htmlID": "u_content_text_7"
                   },
-                  "color": "#50574b",
+                  "color": "#66695e",
                   "containerPadding": "12px 32px",
-                  "fontSize": "16px",
-                  "lineHeight": "175%",
-                  "text": "\u003cp style=\"margin:8px 0\"\u003e\u003ca href=\"https://app.xem.email/settings/sending\" style=\"display:inline-block;padding:15px 24px;background:#d2f159;color:#1c2413;font-weight:600;text-decoration:none;border-radius:8px\"\u003eOpen managed sending \u0026rarr;\u003c/a\u003e\u003c/p\u003e"
+                  "fontFamily": {
+                    "label": "DM Sans",
+                    "url": "/assets/template-starters/brand/fonts.css",
+                    "value": "'DM Sans',Arial,Helvetica,sans-serif"
+                  },
+                  "fontSize": "15px",
+                  "lineHeight": "180%",
+                  "text": "\u003cp style=\"margin:6px 0 12px\"\u003e\u003ca href=\"https://app.xem.email/settings/sending\" style=\"display:inline-block;padding:14px 22px;background:#5b3cc4;border:1px solid #49309e;box-shadow:0 2px 0 #362278;color:#ffffff;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:14px;font-weight:600;text-decoration:none;border-radius:8px\"\u003eOpen managed sending \u0026rarr;\u003c/a\u003e\u003c/p\u003e"
                 }
               },
               {
@@ -114,11 +149,16 @@
                   "_meta": {
                     "htmlID": "u_content_text_8"
                   },
-                  "color": "#50574b",
+                  "color": "#66695e",
                   "containerPadding": "12px 32px",
-                  "fontSize": "16px",
-                  "lineHeight": "175%",
-                  "text": "\u003cp style=\"margin:0;font-size:12px;line-height:1.7;color:#858b7e\"\u003eA little less setup. A lot more possibility.\u003cbr\u003eYou received this service update as the workspace owner.\u003cbr\u003eBuilt with Xem · Email that feels like you.\u003c/p\u003e"
+                  "fontFamily": {
+                    "label": "EB Garamond",
+                    "url": "/assets/template-starters/brand/fonts.css",
+                    "value": "'EB Garamond',Georgia,'Times New Roman',serif"
+                  },
+                  "fontSize": "15px",
+                  "lineHeight": "180%",
+                  "text": "\u003cdiv style=\"padding:24px;background:#222d25;border-radius:16px;color:#ffffef\"\u003e\u003cp style=\"margin:0 0 12px;font-family:'EB Garamond',Georgia,'Times New Roman',serif;font-size:26px;line-height:1.1;letter-spacing:-0.5px\"\u003eEvery email,\u003cbr\u003ea little more human.\u003c/p\u003e\u003cp style=\"margin:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:11px;line-height:1.8;color:#ffffef\"\u003eYou received this service update as the workspace owner.\u003cbr\u003eBuilt with Xem · Made for the people on the other end.\u003c/p\u003e\u003c/div\u003e"
                 }
               }
             ],
@@ -127,7 +167,7 @@
               "_meta": {
                 "htmlID": "u_column_1"
               },
-              "backgroundColor": "#ffffff"
+              "backgroundColor": "#ffffef"
             }
           }
         ],
@@ -136,17 +176,17 @@
           "_meta": {
             "htmlID": "u_row_1"
           },
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#ffffef",
           "padding": "20px 0px"
         }
       }
     ],
     "values": {
-      "backgroundColor": "#edf0e8",
+      "backgroundColor": "#ffffef",
       "contentWidth": "560px",
       "fontFamily": {
-        "label": "Arial",
-        "value": "arial,helvetica,sans-serif"
+        "label": "DM Sans",
+        "value": "'DM Sans',Arial,Helvetica,sans-serif"
       }
     }
   },

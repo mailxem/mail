@@ -1,8 +1,11 @@
 import manifest from "./manifest.json";
+import { mapInlineImageSources } from "./inline-images";
 
 export type TemplateStarter = (typeof manifest)[number];
-export const templateStarters: readonly TemplateStarter[] = [...manifest].sort((a, b) =>
-  Number(b.collection === "Reference designs") - Number(a.collection === "Reference designs"),
+export const templateStarters: readonly TemplateStarter[] = [...manifest].sort(
+  (a, b) =>
+    Number(b.collection === "Reference designs") -
+    Number(a.collection === "Reference designs"),
 );
 export const starterCategories = [
   "All templates",
@@ -19,9 +22,18 @@ export function getTemplateStarter(key: string | null | undefined) {
   return templateStarters.find((starter) => starter.key === key);
 }
 
-export const starterCollections = ["All collections", "Reference designs", "Xem originals", "Editorial collection"] as const;
+export const starterCollections = [
+  "All collections",
+  "Reference designs",
+  "Xem originals",
+  "Editorial collection",
+] as const;
 
-export function filterTemplateStarters(category: string, search: string, collection = "All collections") {
+export function filterTemplateStarters(
+  category: string,
+  search: string,
+  collection = "All collections",
+) {
   const term = search.trim().toLowerCase();
   return templateStarters.filter(
     (starter) =>
@@ -61,9 +73,16 @@ export async function loadStarterDesign(key: string, signal?: AbortSignal) {
 // Unlayer runs in a cross-origin iframe, and sent emails need absolute image URLs.
 // Only resolve our registry-owned asset paths; never rewrite user template URLs.
 export function resolveStarterAssets<T>(design: T, origin: string): T {
+  const resolve = (value: string) => {
+    if (!value.startsWith("/assets/template-starters/")) return value;
+    const url = new URL(value, origin);
+    return url.pathname.startsWith("/assets/template-starters/")
+      ? url.href
+      : value;
+  };
   return JSON.parse(JSON.stringify(design), (_key, value) =>
-    typeof value === "string" && value.startsWith("/assets/template-starters/")
-      ? new URL(value, origin).href
+    typeof value === "string"
+      ? mapInlineImageSources(resolve(value), resolve)
       : value,
   );
 }

@@ -112,6 +112,20 @@ by “managed sending” or “onboarding”. Opening one creates an editable co
 system notification copy is maintained separately in version control; changing a
 workspace copy does not change emails sent to other workspace owners.
 
+These emails use the website brand kit: the original Xem symbol and wordmark,
+cream canvas, iris buttons (including the 8px radius), lemon and lavender accents,
+forest tones, DM Sans body text, and EB Garamond headings. The original logo and
+licensed font files are bundled with the app, so self-hosted installations serve
+them from their own dashboard origin. Both fonts are available in the template
+editor. Mail clients that block web fonts use Arial and Georgia; the Xem name,
+message, and action remain readable when images are blocked. Dark-mode email
+clients may apply their own color transformations.
+
+Deploy the client's public brand assets before enabling notifications. Font CORS
+headers are scoped to those public assets for the hosted editor iframe. Local
+editor previews inline bundled images temporarily and restore their hosted URLs
+on export; local font restrictions fall back to the system font stacks.
+
 The server's `internal/onboardingemails` package generates both HTML/plaintext
 notifications and the library's native editor designs. Regenerate after changes:
 

@@ -9,9 +9,24 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func main() {
+	brandDir := "../client/public/assets/template-starters/brand"
+	must(os.MkdirAll(brandDir, 0755))
+	for name, source := range map[string]string{
+		"xem-mark.png":            "../website/public/brand/xem-mark.png",
+		"dm-sans.woff2":           "../website/design/blog/fonts/dm-sans.woff2",
+		"eb-garamond.woff2":       "../website/design/blog/fonts/eb-garamond.woff2",
+		"dm-sans-LICENSE.txt":     "../website/design/blog/fonts/dm-sans-LICENSE.txt",
+		"eb-garamond-LICENSE.txt": "../website/design/blog/fonts/eb-garamond-LICENSE.txt",
+	} {
+		data, err := os.ReadFile(source)
+		must(err)
+		must(os.WriteFile(filepath.Join(brandDir, name), data, 0644))
+	}
+	must(os.WriteFile(filepath.Join(brandDir, "fonts.css"), []byte("@font-face{font-family:'DM Sans';font-style:normal;font-weight:100 1000;src:url('./dm-sans.woff2') format('woff2');font-display:swap}@font-face{font-family:'EB Garamond';font-style:normal;font-weight:400 800;src:url('./eb-garamond.woff2') format('woff2');font-display:swap}\n"), 0644))
 	manifestPath := "../client/lib/template-starters/manifest.json"
 	raw, err := os.ReadFile(manifestPath)
 	must(err)
@@ -33,8 +48,10 @@ func main() {
 		must(os.MkdirAll(dir, 0755))
 		must(os.WriteFile(filepath.Join(dir, "design.json"), t.Design(), 0644))
 		html, _ := t.Render("{{workspace_name}}", "{{domain}}", "https://app.xem.email/settings/sending")
+		// Gallery iframes use the same public assets as this installation's editor.
+		html = strings.ReplaceAll(html, "https://app.xem.email/assets/template-starters/", "/assets/template-starters/")
 		must(os.WriteFile(filepath.Join(dir, "preview.html"), []byte(html), 0644))
-		entry, err := json.Marshal(map[string]any{"key": key, "name": t.Subject, "category": "Transactional", "description": t.Description, "subject": t.Subject, "preheader": t.Next, "tags": []string{"managed sending", "onboarding", "xem"}, "marketing": false, "collection": "Xem originals", "source": "xem-managed-onboarding", "reference": "", "editingMode": "blocks", "version": 1, "designUrl": "/assets/template-starters/" + key + "/design.json", "previewUrl": "/assets/template-starters/" + key + "/preview.html"})
+		entry, err := json.Marshal(map[string]any{"key": key, "name": t.Subject, "category": "Transactional", "description": t.Description, "subject": t.Subject, "preheader": t.Next, "tags": []string{"managed sending", "onboarding", "xem"}, "marketing": false, "collection": "Xem originals", "source": "xem-managed-onboarding", "reference": "", "editingMode": "blocks", "version": 2, "designUrl": "/assets/template-starters/" + key + "/design.json", "previewUrl": "/assets/template-starters/" + key + "/preview.html"})
 		must(err)
 		keep = append(keep, entry)
 	}

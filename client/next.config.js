@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Public licensed brand fonts must be readable inside the hosted editor iframe.
+  headers: async () => [
+    {
+      source: "/assets/template-starters/brand/:path*",
+      headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
+    },
+  ],
   redirects: async () => {
     return [
       {

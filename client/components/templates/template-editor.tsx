@@ -684,6 +684,22 @@ export function TemplateEditor({
                   onReady={onReady}
                   options={{
                     locale: "en",
+                    fonts: {
+                      showDefaultFonts: true,
+                      customFonts: [
+                        {
+                          label: "DM Sans",
+                          value: "'DM Sans',Arial,Helvetica,sans-serif",
+                          url: `${typeof window === "undefined" ? "" : window.location.origin}/assets/template-starters/brand/fonts.css`,
+                        },
+                        {
+                          label: "EB Garamond",
+                          value:
+                            "'EB Garamond',Georgia,'Times New Roman',serif",
+                          url: `${typeof window === "undefined" ? "" : window.location.origin}/assets/template-starters/brand/fonts.css`,
+                        },
+                      ],
+                    },
                   }}
                   minHeight="calc(100vh - 120px)"
                 />
