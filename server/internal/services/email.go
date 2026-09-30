@@ -133,6 +133,9 @@ func registerEmailEventHandlers() {
 	})
 
 	events.On("users.created", func(data interface{}) {
+		if os.Getenv("SERVICE_NOTIFICATIONS_ENABLED") == "true" {
+			return
+		}
 		user := data.(*models.User)
 		log.Info("Sending welcome email to %s", user.Email)
 		if err := sendWelcomeEmail(user); err != nil {
@@ -144,6 +147,9 @@ func registerEmailEventHandlers() {
 	})
 
 	events.On("password.reset", func(data interface{}) {
+		if os.Getenv("SERVICE_NOTIFICATIONS_ENABLED") == "true" {
+			return
+		}
 		reset := data.(*models.PasswordReset)
 		log.Info("Sending password reset email to %s", reset.User.Email)
 		if err := sendPasswordResetEmail(reset); err != nil {

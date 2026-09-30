@@ -62,7 +62,11 @@ describe("native starter library", () => {
         ]),
       );
       // Transactional milestones intentionally share one consistent brand layout.
-      if (starter.source !== "xem-managed-onboarding") {
+      if (
+        !["xem-managed-onboarding", "xem-service-notifications"].includes(
+          starter.source,
+        )
+      ) {
         expect(structures.has(structure)).toBe(false);
         structures.add(structure);
       }
@@ -134,12 +138,10 @@ describe("native starter library", () => {
     await expect(loadStarterDesign("greenhouse-welcome")).rejects.toThrow(
       "could not be loaded",
     );
-    global.fetch = jest
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ schemaVersion: 18, body: { rows: [] } }),
-      });
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ schemaVersion: 18, body: { rows: [] } }),
+    });
     await expect(loadStarterDesign("greenhouse-welcome")).rejects.toThrow(
       "invalid",
     );

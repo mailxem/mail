@@ -4945,5 +4945,203 @@
       "xem"
     ],
     "version": 2
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "Welcome to Xem. Your account is ready, and there’s room to make your email feel like you.",
+    "designUrl": "/assets/template-starters/xem-welcome/design.json",
+    "editingMode": "blocks",
+    "key": "xem-welcome",
+    "marketing": false,
+    "name": "Welcome to Xem",
+    "preheader": "Explore the template library, connect a sender when you’re ready, and send a test to yourself.",
+    "previewUrl": "/assets/template-starters/xem-welcome/preview.html",
+    "reference": "",
+    "source": "xem-service-notifications",
+    "subject": "Welcome to Xem",
+    "tags": [
+      "account",
+      "security",
+      "sending alerts",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "We received a request to reset your Xem password. Use the button below to choose a new one. This link expires 15 minutes after it was requested and can be used once.",
+    "designUrl": "/assets/template-starters/xem-password_reset/design.json",
+    "editingMode": "blocks",
+    "key": "xem-password_reset",
+    "marketing": false,
+    "name": "Reset your Xem password",
+    "preheader": "If you didn’t request this, you can ignore this email. Your password stays the same until you choose a new one.",
+    "previewUrl": "/assets/template-starters/xem-password_reset/preview.html",
+    "reference": "",
+    "source": "xem-service-notifications",
+    "subject": "Reset your Xem password",
+    "tags": [
+      "account",
+      "security",
+      "sending alerts",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "The password for your Xem account was successfully changed. Existing sign-in sessions have been revoked; sign in again with your new password.",
+    "designUrl": "/assets/template-starters/xem-password_changed/design.json",
+    "editingMode": "blocks",
+    "key": "xem-password_changed",
+    "marketing": false,
+    "name": "Your Xem password has changed",
+    "preheader": "If this wasn’t you, reset your password immediately and contact your workspace administrator or support.",
+    "previewUrl": "/assets/template-starters/xem-password_changed/preview.html",
+    "reference": "",
+    "source": "xem-service-notifications",
+    "subject": "Your Xem password has changed",
+    "tags": [
+      "account",
+      "security",
+      "sending alerts",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "One or more emails could not be submitted successfully. This can happen when a sender is unavailable, credentials need attention, or a provider rejects a message.",
+    "designUrl": "/assets/template-starters/xem-sending_failed/design.json",
+    "editingMode": "blocks",
+    "key": "xem-sending_failed",
+    "marketing": false,
+    "name": "Some emails need your attention",
+    "preheader": "Review the sending logs and sender settings. Check the latest status before retrying; some failures may already be scheduled for another attempt.",
+    "previewUrl": "/assets/template-starters/xem-sending_failed/preview.html",
+    "reference": "",
+    "source": "xem-service-notifications",
+    "subject": "Some emails need your attention",
+    "tags": [
+      "account",
+      "security",
+      "sending alerts",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "The email provider reported a delivery delay. A delay is not a confirmed failure, and the provider may still be retrying delivery.",
+    "designUrl": "/assets/template-starters/xem-sending_delayed/design.json",
+    "editingMode": "blocks",
+    "key": "xem-sending_delayed",
+    "marketing": false,
+    "name": "An email delivery is delayed",
+    "preheader": "Check the latest delivery events before sending another copy. Give the provider’s retry process time to finish.",
+    "previewUrl": "/assets/template-starters/xem-sending_delayed/preview.html",
+    "reference": "",
+    "source": "xem-service-notifications",
+    "subject": "An email delivery is delayed",
+    "tags": [
+      "account",
+      "security",
+      "sending alerts",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "A sending acknowledgement was interrupted or could not be confirmed. The provider or receiving server may already have accepted the email.",
+    "designUrl": "/assets/template-starters/xem-sending_unknown/design.json",
+    "editingMode": "blocks",
+    "key": "xem-sending_unknown",
+    "marketing": false,
+    "name": "An email’s delivery outcome is uncertain",
+    "preheader": "Review provider events and sending logs before resending. Retrying an uncertain message can create a duplicate.",
+    "previewUrl": "/assets/template-starters/xem-sending_unknown/preview.html",
+    "reference": "",
+    "source": "xem-service-notifications",
+    "subject": "An email’s delivery outcome is uncertain",
+    "tags": [
+      "account",
+      "security",
+      "sending alerts",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "The email provider reported a bounce. Permanent bounces are added to suppression so future sends do not keep targeting an unreachable address.",
+    "designUrl": "/assets/template-starters/xem-sending_bounced/design.json",
+    "editingMode": "blocks",
+    "key": "xem-sending_bounced",
+    "marketing": false,
+    "name": "An email bounced",
+    "preheader": "Review the bounce details and check your audience data. Don’t remove a suppression until you have verified the address and the reason for the bounce.",
+    "previewUrl": "/assets/template-starters/xem-sending_bounced/preview.html",
+    "reference": "",
+    "source": "xem-service-notifications",
+    "subject": "An email bounced",
+    "tags": [
+      "account",
+      "security",
+      "sending alerts",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "The email provider reported a spam complaint. The affected recipient has been suppressed, and managed sending may be suspended for review.",
+    "designUrl": "/assets/template-starters/xem-sending_complaint/design.json",
+    "editingMode": "blocks",
+    "key": "xem-sending_complaint",
+    "marketing": false,
+    "name": "A recipient reported your email as spam",
+    "preheader": "Review audience consent, recent campaigns, and your managed sending status. Do not send again to the complaining recipient.",
+    "previewUrl": "/assets/template-starters/xem-sending_complaint/preview.html",
+    "reference": "",
+    "source": "xem-service-notifications",
+    "subject": "A recipient reported your email as spam",
+    "tags": [
+      "account",
+      "security",
+      "sending alerts",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
+    "description": "Managed sending for your workspace was suspended. Review the latest account status before attempting new sends.",
+    "designUrl": "/assets/template-starters/xem-sending_suspended/design.json",
+    "editingMode": "blocks",
+    "key": "xem-sending_suspended",
+    "marketing": false,
+    "name": "Managed sending has been suspended",
+    "preheader": "Open managed sending, review recent delivery feedback, and contact support or your administrator before resuming.",
+    "previewUrl": "/assets/template-starters/xem-sending_suspended/preview.html",
+    "reference": "",
+    "source": "xem-service-notifications",
+    "subject": "Managed sending has been suspended",
+    "tags": [
+      "account",
+      "security",
+      "sending alerts",
+      "xem"
+    ],
+    "version": 1
   }
 ]

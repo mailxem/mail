@@ -271,6 +271,11 @@ func (s *Service) ApplyFeedback(ctx context.Context, eventID string, raw []byte)
 				if e := tx.Model(&account).Update("suspended", true).Error; e != nil {
 					return e
 				}
+				if s.NotifyAlerts {
+					if err := models.QueueSendingNotice(tx, m.TeamID, "managed-suspension", eventID, "SUSPENDED", s.Now()); err != nil {
+						return err
+					}
+				}
 				if e := tx.Create(&Audit{ID: uuid.NewString(), TeamID: m.TeamID, Actor: "system:ses-feedback", Action: action, CreatedAt: s.Now()}).Error; e != nil {
 					return e
 				}
@@ -293,6 +298,11 @@ func (s *Service) ApplyFeedback(ctx context.Context, eventID string, raw []byte)
 				kind = "test_accepted"
 			}
 			if err := QueueMilestone(tx, m.TeamID, m.DomainID, kind); err != nil {
+				return err
+			}
+		}
+		if s.NotifyAlerts && !m.IsTest && rank[state] >= rank[m.Status] {
+			if err := models.QueueSendingNotice(tx, m.TeamID, "managed", m.ID, state, s.Now()); err != nil {
 				return err
 			}
 		}

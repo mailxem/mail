@@ -33,3 +33,18 @@ func TestBrandAssetURLsUseOnlyDashboardOrigin(t *testing.T) {
 		require.Empty(t, brandAsset(input, "fonts.css"))
 	}
 }
+
+func TestServiceTemplatesEscapeValuesAndKeepResetURLSeparate(t *testing.T) {
+	for _, template := range ServiceTemplates {
+		t.Run(template.Key, func(t *testing.T) {
+			body, plain := template.Render(ServiceData{Name: `<img onerror="bad">`, Email: `<script>bad</script>`, Workspace: `Studio <b>bad</b>`, Time: "30 Sep 2026, 12:00 UTC", Count: "3"}, "https://mail.example.net/auth/reset-password/private-token")
+			require.NotContains(t, body, "<script>")
+			require.NotContains(t, body, "<img onerror")
+			require.NotContains(t, body, "Studio <b>")
+			require.Contains(t, body, "Built with Xem")
+			require.Contains(t, plain, "https://mail.example.net/")
+			require.NotContains(t, string(template.Design()), "private-token")
+			require.Contains(t, body, `src="https://mail.example.net/assets/template-starters/brand/xem-mark.png"`)
+		})
+	}
+}

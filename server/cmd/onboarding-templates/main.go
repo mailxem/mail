@@ -38,7 +38,7 @@ func main() {
 			Source string `json:"source"`
 		}
 		must(json.Unmarshal(row, &existing))
-		if existing.Source != "xem-managed-onboarding" {
+		if existing.Source != "xem-managed-onboarding" && existing.Source != "xem-service-notifications" {
 			keep = append(keep, row)
 		}
 	}
@@ -55,6 +55,19 @@ func main() {
 		must(err)
 		keep = append(keep, entry)
 	}
+	for _, t := range onboardingemails.ServiceTemplates {
+		key := "xem-" + t.Key
+		dir := filepath.Join("../client/public/assets/template-starters", key)
+		must(os.MkdirAll(dir, 0755))
+		must(os.WriteFile(filepath.Join(dir, "design.json"), t.Design(), 0644))
+		html, _ := t.Render(onboardingemails.ServiceData{Name: "{{first_name}}", Email: "{{account_email}}", Workspace: "{{workspace_name}}", Time: "{{event_time}}", Count: "{{event_count}}"}, "https://app.xem.email"+t.Path)
+		html = strings.ReplaceAll(html, "https://app.xem.email/assets/template-starters/", "/assets/template-starters/")
+		must(os.WriteFile(filepath.Join(dir, "preview.html"), []byte(html), 0644))
+		entry, err := json.Marshal(map[string]any{"key": key, "name": t.Subject, "category": "Transactional", "description": t.Description, "subject": t.Subject, "preheader": t.Next, "tags": []string{"account", "security", "sending alerts", "xem"}, "marketing": false, "collection": "Xem originals", "source": "xem-service-notifications", "reference": "", "editingMode": "blocks", "version": 1, "designUrl": "/assets/template-starters/" + key + "/design.json", "previewUrl": "/assets/template-starters/" + key + "/preview.html"})
+		must(err)
+		keep = append(keep, entry)
+	}
+
 	var output bytes.Buffer
 	encoder := json.NewEncoder(&output)
 	encoder.SetEscapeHTML(false)

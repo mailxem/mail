@@ -1,0 +1,199 @@
+{
+  "body": {
+    "id": "onboarding-body",
+    "rows": [
+      {
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "contents": [
+              {
+                "id": "onboarding-text-0",
+                "type": "text",
+                "values": {
+                  "_meta": {
+                    "htmlID": "u_content_text_1"
+                  },
+                  "color": "#66695e",
+                  "containerPadding": "12px 32px",
+                  "fontFamily": {
+                    "label": "DM Sans",
+                    "url": "/assets/template-starters/brand/fonts.css",
+                    "value": "'DM Sans',Arial,Helvetica,sans-serif"
+                  },
+                  "fontSize": "15px",
+                  "lineHeight": "180%",
+                  "text": "\u003ctable role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\"\u003e\u003ctr\u003e\u003ctd width=\"46\"\u003e\u003cimg src=\"/assets/template-starters/brand/xem-mark.png\" width=\"36\" height=\"36\" alt=\"\" style=\"display:block;border:0;border-radius:6px\"\u003e\u003c/td\u003e\u003ctd style=\"font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:28px;font-weight:600;letter-spacing:-1.5px;color:#22251f\"\u003eXem\u003c/td\u003e\u003c/tr\u003e\u003c/table\u003e"
+                }
+              },
+              {
+                "id": "onboarding-text-1",
+                "type": "text",
+                "values": {
+                  "_meta": {
+                    "htmlID": "u_content_text_2"
+                  },
+                  "color": "#66695e",
+                  "containerPadding": "12px 32px",
+                  "fontFamily": {
+                    "label": "DM Sans",
+                    "url": "/assets/template-starters/brand/fonts.css",
+                    "value": "'DM Sans',Arial,Helvetica,sans-serif"
+                  },
+                  "fontSize": "15px",
+                  "lineHeight": "180%",
+                  "text": "\u003cp style=\"margin:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:10px;font-weight:600;letter-spacing:1.7px;color:#164b3f\"\u003e\u003cspan style=\"display:inline-block;background:#edf09b;padding:8px 11px;border-radius:6px\"\u003eWELCOME TO XEM\u003c/span\u003e\u003c/p\u003e"
+                }
+              },
+              {
+                "id": "onboarding-text-2",
+                "type": "text",
+                "values": {
+                  "_meta": {
+                    "htmlID": "u_content_text_3"
+                  },
+                  "color": "#66695e",
+                  "containerPadding": "12px 32px",
+                  "fontFamily": {
+                    "label": "EB Garamond",
+                    "url": "/assets/template-starters/brand/fonts.css",
+                    "value": "'EB Garamond',Georgia,'Times New Roman',serif"
+                  },
+                  "fontSize": "15px",
+                  "lineHeight": "180%",
+                  "text": "\u003ch1 style=\"margin:0;font-family:'EB Garamond',Georgia,'Times New Roman',serif;font-size:44px;font-weight:400;line-height:1.03;letter-spacing:-1.5px;color:#22251f\"\u003eYour next chapter starts here.\u003c/h1\u003e"
+                }
+              },
+              {
+                "id": "onboarding-text-3",
+                "type": "text",
+                "values": {
+                  "_meta": {
+                    "htmlID": "u_content_text_4"
+                  },
+                  "color": "#66695e",
+                  "containerPadding": "12px 32px",
+                  "fontFamily": {
+                    "label": "DM Sans",
+                    "url": "/assets/template-starters/brand/fonts.css",
+                    "value": "'DM Sans',Arial,Helvetica,sans-serif"
+                  },
+                  "fontSize": "15px",
+                  "lineHeight": "180%",
+                  "text": "\u003cp style=\"margin:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:15px;line-height:1.8;color:#66695e\"\u003eWelcome to Xem. Your account is ready, and there’s room to make your email feel like you.\u003c/p\u003e"
+                }
+              },
+              {
+                "id": "onboarding-text-4",
+                "type": "text",
+                "values": {
+                  "_meta": {
+                    "htmlID": "u_content_text_5"
+                  },
+                  "color": "#66695e",
+                  "containerPadding": "12px 32px",
+                  "fontFamily": {
+                    "label": "DM Sans",
+                    "url": "/assets/template-starters/brand/fonts.css",
+                    "value": "'DM Sans',Arial,Helvetica,sans-serif"
+                  },
+                  "fontSize": "15px",
+                  "lineHeight": "180%",
+                  "text": "\u003cp style=\"margin:0;padding:18px 20px;background:#e7d8fa;border-radius:12px;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:13px;line-height:1.8;overflow-wrap:anywhere;word-break:break-word;color:#22251f\"\u003eName: \u003cstrong\u003e{{first_name}}\u003c/strong\u003e\u003cbr\u003eWorkspace: \u003cstrong\u003e{{workspace_name}}\u003c/strong\u003e\u003c/p\u003e"
+                }
+              },
+              {
+                "id": "onboarding-text-5",
+                "type": "text",
+                "values": {
+                  "_meta": {
+                    "htmlID": "u_content_text_6"
+                  },
+                  "color": "#66695e",
+                  "containerPadding": "12px 32px",
+                  "fontFamily": {
+                    "label": "DM Sans",
+                    "url": "/assets/template-starters/brand/fonts.css",
+                    "value": "'DM Sans',Arial,Helvetica,sans-serif"
+                  },
+                  "fontSize": "15px",
+                  "lineHeight": "180%",
+                  "text": "\u003cp style=\"margin:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:15px;line-height:1.8;color:#66695e\"\u003e\u003cstrong style=\"color:#164b3f\"\u003eUp next\u003c/strong\u003e\u003cbr\u003eExplore the template library, connect a sender when you’re ready, and send a test to yourself.\u003c/p\u003e"
+                }
+              },
+              {
+                "id": "onboarding-text-6",
+                "type": "text",
+                "values": {
+                  "_meta": {
+                    "htmlID": "u_content_text_7"
+                  },
+                  "color": "#66695e",
+                  "containerPadding": "12px 32px",
+                  "fontFamily": {
+                    "label": "DM Sans",
+                    "url": "/assets/template-starters/brand/fonts.css",
+                    "value": "'DM Sans',Arial,Helvetica,sans-serif"
+                  },
+                  "fontSize": "15px",
+                  "lineHeight": "180%",
+                  "text": "\u003cp style=\"margin:6px 0 12px\"\u003e\u003ca href=\"https://app.xem.email/dashboard\" style=\"display:inline-block;padding:14px 22px;background:#5b3cc4;border:1px solid #49309e;box-shadow:0 2px 0 #362278;color:#ffffff;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:14px;font-weight:600;text-decoration:none;border-radius:8px\"\u003eOpen your workspace \u0026rarr;\u003c/a\u003e\u003c/p\u003e"
+                }
+              },
+              {
+                "id": "onboarding-text-7",
+                "type": "text",
+                "values": {
+                  "_meta": {
+                    "htmlID": "u_content_text_8"
+                  },
+                  "color": "#66695e",
+                  "containerPadding": "12px 32px",
+                  "fontFamily": {
+                    "label": "EB Garamond",
+                    "url": "/assets/template-starters/brand/fonts.css",
+                    "value": "'EB Garamond',Georgia,'Times New Roman',serif"
+                  },
+                  "fontSize": "15px",
+                  "lineHeight": "180%",
+                  "text": "\u003cdiv style=\"padding:24px;background:#222d25;border-radius:16px;color:#ffffef\"\u003e\u003cp style=\"margin:0 0 12px;font-family:'EB Garamond',Georgia,'Times New Roman',serif;font-size:26px;line-height:1.1;letter-spacing:-0.5px\"\u003eEvery email,\u003cbr\u003ea little more human.\u003c/p\u003e\u003cp style=\"margin:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:11px;line-height:1.8;color:#ffffef\"\u003eYou received this account email because you use Xem.\u003cbr\u003eBuilt with Xem · Made for the people on the other end.\u003c/p\u003e\u003c/div\u003e"
+                }
+              }
+            ],
+            "id": "onboarding-column",
+            "values": {
+              "_meta": {
+                "htmlID": "u_column_1"
+              },
+              "backgroundColor": "#ffffef"
+            }
+          }
+        ],
+        "id": "onboarding-row",
+        "values": {
+          "_meta": {
+            "htmlID": "u_row_1"
+          },
+          "backgroundColor": "#ffffef",
+          "padding": "20px 0px"
+        }
+      }
+    ],
+    "values": {
+      "backgroundColor": "#ffffef",
+      "contentWidth": "560px",
+      "fontFamily": {
+        "label": "DM Sans",
+        "value": "'DM Sans',Arial,Helvetica,sans-serif"
+      }
+    }
+  },
+  "counters": {
+    "u_column": 1,
+    "u_content_text": 8,
+    "u_row": 1
+  },
+  "schemaVersion": 18
+}

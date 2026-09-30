@@ -60,33 +60,60 @@ func brandAsset(link, name string) string {
 	u.User = nil
 	return u.String()
 }
+
+type detail struct{ Label, Value string }
+type presentation struct {
+	Label, Action, Footer string
+	Details               []detail
+}
+
+func managedPresentation(workspace, domain string) presentation {
+	return presentation{Label: "YOUR MANAGED SENDING JOURNEY", Action: "Open managed sending", Footer: "You received this service update as the workspace owner.", Details: []detail{{"Workspace", workspace}, {"Domain", domain}}}
+}
 func (t Template) fragments(workspace, domain, link string) []string {
+	return t.fragmentsWith(managedPresentation(workspace, domain), link)
+}
+func (t Template) fragmentsWith(p presentation, link string) []string {
+	var details []string
+	for _, d := range p.Details {
+		details = append(details, html.EscapeString(d.Label)+`: <strong>`+html.EscapeString(d.Value)+`</strong>`)
+	}
 	return []string{
 		`<table role="presentation" cellpadding="0" cellspacing="0"><tr><td width="46"><img src="` + html.EscapeString(brandAsset(link, "xem-mark.png")) + `" width="36" height="36" alt="" style="display:block;border:0;border-radius:6px"></td><td style="font-family:` + bodyFont + `;font-size:28px;font-weight:600;letter-spacing:-1.5px;color:` + ink + `">Xem</td></tr></table>`,
-		`<p style="margin:0;font-family:` + bodyFont + `;font-size:10px;font-weight:600;letter-spacing:1.7px;color:` + forest + `"><span style="display:inline-block;background:` + lemon + `;padding:8px 11px;border-radius:6px">YOUR MANAGED SENDING JOURNEY</span></p>`,
+		`<p style="margin:0;font-family:` + bodyFont + `;font-size:10px;font-weight:600;letter-spacing:1.7px;color:` + forest + `"><span style="display:inline-block;background:` + lemon + `;padding:8px 11px;border-radius:6px">` + html.EscapeString(p.Label) + `</span></p>`,
 		`<h1 style="margin:0;font-family:` + headingFont + `;font-size:44px;font-weight:400;line-height:1.03;letter-spacing:-1.5px;color:` + ink + `">` + html.EscapeString(t.Heading) + `</h1>`,
 		`<p style="margin:0;font-family:` + bodyFont + `;font-size:15px;line-height:1.8;color:` + muted + `">` + html.EscapeString(t.Description) + `</p>`,
-		`<p style="margin:0;padding:18px 20px;background:` + lavender + `;border-radius:12px;font-family:` + bodyFont + `;font-size:13px;line-height:1.8;overflow-wrap:anywhere;word-break:break-word;color:` + ink + `">Workspace: <strong>` + html.EscapeString(workspace) + `</strong><br>Domain: <strong>` + html.EscapeString(domain) + `</strong></p>`,
+		`<p style="margin:0;padding:18px 20px;background:` + lavender + `;border-radius:12px;font-family:` + bodyFont + `;font-size:13px;line-height:1.8;overflow-wrap:anywhere;word-break:break-word;color:` + ink + `">` + strings.Join(details, "<br>") + `</p>`,
 		`<p style="margin:0;font-family:` + bodyFont + `;font-size:15px;line-height:1.8;color:` + muted + `"><strong style="color:` + forest + `">Up next</strong><br>` + html.EscapeString(t.Next) + `</p>`,
-		`<p style="margin:6px 0 12px"><a href="` + html.EscapeString(link) + `" style="display:inline-block;padding:14px 22px;background:` + iris + `;border:1px solid #49309e;box-shadow:0 2px 0 #362278;color:#ffffff;font-family:` + bodyFont + `;font-size:14px;font-weight:600;text-decoration:none;border-radius:8px">Open managed sending &rarr;</a></p>`,
-		`<div style="padding:24px;background:` + footer + `;border-radius:16px;color:` + cream + `"><p style="margin:0 0 12px;font-family:` + headingFont + `;font-size:26px;line-height:1.1;letter-spacing:-0.5px">Every email,<br>a little more human.</p><p style="margin:0;font-family:` + bodyFont + `;font-size:11px;line-height:1.8;color:` + cream + `">You received this service update as the workspace owner.<br>Built with Xem · Made for the people on the other end.</p></div>`,
+		`<p style="margin:6px 0 12px"><a href="` + html.EscapeString(link) + `" style="display:inline-block;padding:14px 22px;background:` + iris + `;border:1px solid #49309e;box-shadow:0 2px 0 #362278;color:#ffffff;font-family:` + bodyFont + `;font-size:14px;font-weight:600;text-decoration:none;border-radius:8px">` + html.EscapeString(p.Action) + ` &rarr;</a></p>`,
+		`<div style="padding:24px;background:` + footer + `;border-radius:16px;color:` + cream + `"><p style="margin:0 0 12px;font-family:` + headingFont + `;font-size:26px;line-height:1.1;letter-spacing:-0.5px">Every email,<br>a little more human.</p><p style="margin:0;font-family:` + bodyFont + `;font-size:11px;line-height:1.8;color:` + cream + `">` + html.EscapeString(p.Footer) + `<br>Built with Xem · Made for the people on the other end.</p></div>`,
 	}
 }
 func (t Template) Render(workspace, domain, link string) (string, string) {
+	return t.renderWith(managedPresentation(workspace, domain), link)
+}
+func (t Template) renderWith(p presentation, link string) (string, string) {
 	var rows strings.Builder
-	for _, p := range t.fragments(workspace, domain, link) {
+	for _, p := range t.fragmentsWith(p, link) {
 		rows.WriteString(`<tr><td class="email-section" style="padding:12px 32px">` + p + `</td></tr>`)
 	}
 	// Web fonts enhance supported email clients. All essential typography and colors
 	// are inline, with safe fallbacks when remote fonts or images are blocked.
 	fonts := `@font-face{font-family:'DM Sans';font-style:normal;font-weight:100 1000;src:url('` + html.EscapeString(brandAsset(link, "dm-sans.woff2")) + `') format('woff2')}@font-face{font-family:'EB Garamond';font-style:normal;font-weight:400 800;src:url('` + html.EscapeString(brandAsset(link, "eb-garamond.woff2")) + `') format('woff2')}`
 	body := `<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta charset="utf-8"><meta name="color-scheme" content="light"><title>` + html.EscapeString(t.Subject) + `</title><style>` + fonts + `@media(max-width:480px){.email-section{padding-left:22px!important;padding-right:22px!important}}</style></head><body style="margin:0;background:` + cream + `;font-family:` + bodyFont + `;color:` + ink + `"><div style="display:none;max-height:0;overflow:hidden">` + html.EscapeString(t.Description) + `</div><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 12px"><table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;table-layout:fixed;background:` + cream + `;border:1px solid #deded0;border-radius:24px;padding:20px 0">` + rows.String() + `</table></td></tr></table></body></html>`
-	text := fmt.Sprintf("Xem\n\n%s\n\n%s\n\nWorkspace: %s\nDomain: %s\n\nUp next: %s\n\n%s\n\nEvery email, a little more human.\nXem workspace service update.", t.Heading, t.Description, workspace, domain, t.Next, link)
+	var details []string
+	for _, d := range p.Details {
+		details = append(details, d.Label+": "+d.Value)
+	}
+	text := fmt.Sprintf("Xem\n\n%s\n\n%s\n\n%s\n\nUp next: %s\n\n%s\n\nEvery email, a little more human.\n%s", t.Heading, t.Description, strings.Join(details, "\n"), t.Next, link, p.Footer)
 	return body, text
 }
 func (t Template) Design() []byte {
+	return t.designWith(managedPresentation("{{workspace_name}}", "{{domain}}"), "https://app.xem.email/settings/sending")
+}
+func (t Template) designWith(p presentation, link string) []byte {
 	contents := []any{}
-	for i, p := range t.fragments("{{workspace_name}}", "{{domain}}", "https://app.xem.email/settings/sending") {
+	for i, p := range t.fragmentsWith(p, link) {
 		// Registry-owned inline image URLs are resolved on import for self-hosted apps.
 		p = strings.ReplaceAll(p, "https://app.xem.email/assets/template-starters/", "/assets/template-starters/")
 		font := map[string]string{"label": "DM Sans", "value": bodyFont, "url": "/assets/template-starters/brand/fonts.css"}

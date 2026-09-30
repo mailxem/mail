@@ -242,6 +242,7 @@ func runMigrations() error {
 
 		// Models with single foreign key dependencies
 		&models.PasswordReset{},
+		&models.ServiceNotice{}, &models.ServiceNoticeEvent{},
 		&models.TeamSettings{},
 		&models.Contact{},
 		&models.Tag{},

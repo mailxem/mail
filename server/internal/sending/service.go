@@ -63,6 +63,7 @@ type Resolver interface {
 	LookupTXT(context.Context, string) ([]string, error)
 }
 type Service struct {
+	NotifyAlerts    bool
 	Notify          MilestoneSender
 	NotificationURL string
 	DB              *gorm.DB

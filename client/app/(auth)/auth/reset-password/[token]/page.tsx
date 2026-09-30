@@ -12,7 +12,13 @@ import { AuthPasswordField } from "@/components/auth/auth-fields";
 import styles from "@/components/auth/auth.module.css";
 const schema = z
   .object({
-    password: z.string().min(8, "Use at least 8 characters"),
+    password: z
+      .string()
+      .min(8, "Use at least 8 characters")
+      .refine(
+        (value) => new TextEncoder().encode(value).length <= 72,
+        "This password is too long. Try a shorter one.",
+      ),
     confirmPassword: z.string().min(8, "Use at least 8 characters"),
   })
   .refine((data) => data.password === data.confirmPassword, {

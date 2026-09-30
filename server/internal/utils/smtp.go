@@ -2,9 +2,11 @@ package utils
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"kori/internal/db"
 	"kori/internal/models"
 	"kori/internal/utils/base64"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -33,6 +35,7 @@ type BatchEmailResult struct {
 
 // EmailHandler handles sending emails via SMTP
 type EmailHandler struct {
+	NotifyFailures bool
 	rateLimiter    chan struct{}            // Global concurrency limiter
 	smtpRateLimits map[string]chan struct{} // Per-SMTP server rate limiters
 	logger         *logger.Logger
@@ -41,6 +44,7 @@ type EmailHandler struct {
 // NewEmailHandler creates a new EmailHandler with rate limiting
 func NewEmailHandler(maxSendRate int) *EmailHandler {
 	return &EmailHandler{
+		NotifyFailures: os.Getenv("SERVICE_NOTIFICATIONS_ENABLED") == "true",
 		rateLimiter:    make(chan struct{}, maxSendRate),
 		smtpRateLimits: make(map[string]chan struct{}),
 		logger:         logger.New("EMAIL_HANDLER"),
@@ -218,5 +222,13 @@ func (h *EmailHandler) UpdateEmail(email *models.Email) error {
 		return fmt.Errorf("email is nil")
 	}
 
-	return db.GetDB().Updates(email).Error
+	return db.GetDB().Transaction(func(tx *gorm.DB) error {
+		if err := tx.Updates(email).Error; err != nil {
+			return err
+		}
+		if h.NotifyFailures && !email.Test && (email.SMTPConfig == nil || email.SMTPConfig.Provider != "MANAGED") {
+			return models.QueueSendingNotice(tx, email.TeamID, "smtp", email.ID, string(email.Status), time.Now())
+		}
+		return nil
+	})
 }

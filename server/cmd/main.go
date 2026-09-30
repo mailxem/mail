@@ -9,6 +9,7 @@ import (
 	"kori/internal/handlers"
 	"kori/internal/keys"
 	"kori/internal/models/seeder/airley"
+	"kori/internal/notifications"
 	"kori/internal/sending"
 	"kori/internal/utils"
 	"kori/internal/utils/crypto"
@@ -132,6 +133,25 @@ func main() {
 	}
 	managedCtx, stopManaged := context.WithCancel(context.Background())
 	defer stopManaged()
+	if os.Getenv("SERVICE_NOTIFICATIONS_ENABLED") == "true" {
+		if cfg.SMTP.Host == "" || cfg.SMTP.FromEmail == "" {
+			log.Fatal("Service notifications require platform SMTP configuration")
+		}
+		noticeWorker, err := notifications.New(db_instance, os.Getenv("DASHBOARD_URL"), func(ctx context.Context, key, to, subject, html, text string) (bool, error) {
+			err := utils.SendServiceEmail(ctx, cfg.SMTP, key, to, subject, html, text)
+			return errors.Is(err, utils.ErrSMTPDeliveryUnknown), err
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+		noticeWorker.Suppressed = func(ctx context.Context, team, address string) (bool, error) {
+			return sending.Suppressed(db_instance.WithContext(ctx), team, address, false)
+		}
+		managed.NotifyAlerts = true
+		noticesDone := make(chan struct{})
+		go func() { defer close(noticesDone); noticeWorker.Run(managedCtx) }()
+		defer func() { stopManaged(); <-noticesDone }()
+	}
 	managedDone := make(chan struct{})
 	closeManagedSMTP := func() {}
 	utils.RecipientPolicy = func(team string, recipients []string) error {

@@ -138,3 +138,74 @@ Local automated and browser fixture checks do not establish production delivery
 or live AI provider availability. Validate a controlled workspace end to end after
 deploying: generate, revise, reopen the saved template, exercise each sender
 milestone, and inspect platform SMTP/provider feedback before enabling broadly.
+
+
+## Account and sending-alert emails
+
+The library also includes nine Xem service designs, bringing the collection to
+18 emails. They use the same website brand assets and remain editable copies;
+editing a workspace template does not modify the platform's security emails.
+
+| Email | Trigger and recipient |
+| --- | --- |
+| Welcome | Successful password signup, Google signup, or invitation acceptance; the new user |
+| Forgot password | A valid reset request; the affected account |
+| Password changed | A successful password reset; the affected account |
+| Sending failed | A recorded SMTP send failure or managed provider rejection/expired queue; workspace owner |
+| Delivery delayed | An authenticated managed provider delay event; workspace owner |
+| Outcome uncertain | An interrupted SMTP/managed acknowledgement or stale managed worker claim; workspace owner |
+| Bounced | An authenticated managed provider bounce; workspace owner |
+| Spam complaint | An authenticated managed provider complaint; workspace owner |
+| Sending suspended | Automatic managed suspension after complaint/bounce policy feedback; workspace owner |
+
+Enable this pipeline separately from the original managed milestones:
+
+```dotenv
+SERVICE_NOTIFICATIONS_ENABLED=true
+DASHBOARD_URL=https://app.xem.email
+# Reuse the operator SMTP_* configuration shown above.
+```
+
+Deploy the backend migration, then the client assets, before enabling. The backend
+adds `service_notices` and `service_notice_events` and an index for reset-code
+lookups. It does not create notices for historical accounts or past errors.
+The worker also runs when managed sending is disabled. With this flag off, the
+legacy welcome/reset delivery remains in place and the new alert producers are
+disabled. Enabling switches account emails to the durable platform-SMTP outbox,
+without also sending their legacy counterparts.
+
+Account notices commit in the same transaction as signup or password changes.
+Reset requests retain the same public response for unknown accounts and requests
+within the one-minute per-account cooldown. Links expire after 15 minutes; new
+requests invalidate older links. Successful resets atomically consume the link,
+invalidate other unused links, revoke existing sign-in sessions, and queue the
+password-changed email. Delivery rechecks that the account still exists, the
+recipient email has not changed, and the reset link is unused with at least 30
+seconds left. Reset tokens are referenced by ID rather than copied into the outbox.
+Account/security messages are independent of marketing opt-outs.
+
+Sending alerts recheck owner membership/admin status and suppression at delivery.
+They contain the workspace name, event count and UTC recording time; no message
+bodies, recipient lists, raw provider diagnostics, passwords, or SMTP credentials.
+A one-minute collection window groups events, with at most one notice for each
+category/workspace/UTC hour. Events received after that notice is sent increase
+the internal count without sending another email during the same hour. Duplicate
+callbacks and retries are deduplicated across hour boundaries. Test messages keep
+their existing managed milestone emails without duplicating these alerts.
+
+The outbox prioritizes reset and password-changed mail, retries definite failures
+up to five attempts, and quarantines ambiguous SMTP outcomes and stale claims as
+`DELIVERY_UNKNOWN`. Other pending notices expire after 48 hours. `ACCEPTED` only
+means platform SMTP accepted the notification, not that it reached an inbox.
+Notification failures never create another sending alert, avoiding email loops.
+
+Delivery/bounce/complaint alerts depend on the existing authenticated managed
+provider feedback. Ordinary SMTP errors are covered when the sending handler
+records them; this does not add Gmail/Cloudflare delivery webhooks, SMTP DSN
+processing, new-device detection, or alerts for intentional user pauses. Preflight
+validation/suppression failures that do not enter delivery are not delivery events.
+
+Before enabling broadly, use a controlled account to verify signup, reset-link
+receipt, reset/replay behavior, and the confirmation. Exercise provider feedback
+and check grouped owner alerts. Local tests and rendered previews do not establish
+production receipt.

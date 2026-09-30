@@ -104,6 +104,11 @@ func (s *Service) ProcessOne(ctx context.Context) error {
 				return err
 			}
 		}
+		if r.RowsAffected > 0 && s.NotifyAlerts && !m.IsTest {
+			if err := models.QueueSendingNotice(tx, m.TeamID, "managed", m.ID, status, s.Now()); err != nil {
+				return err
+			}
+		}
 		if r.RowsAffected > 0 && m.EmailID != "" {
 			fields := map[string]any{"status": status, "error": detail}
 			if status == "SENT" {
@@ -176,6 +181,11 @@ func (s *Service) MaintainMessages(ctx context.Context) error {
 			}
 			if err := tx.Model(&m).Updates(map[string]any{"status": status, "detail": detail}).Error; err != nil {
 				return err
+			}
+			if s.NotifyAlerts && !m.IsTest {
+				if err := models.QueueSendingNotice(tx, m.TeamID, "managed", m.ID, status, s.Now()); err != nil {
+					return err
+				}
 			}
 			if m.EmailID != "" {
 				if err := tx.Model(&models.Email{}).Where("id = ? AND team_id = ?", m.EmailID, m.TeamID).Updates(map[string]any{"status": status, "error": detail}).Error; err != nil {

@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -25,11 +26,12 @@ import (
 )
 
 type AuthHandler struct {
-	db *gorm.DB
+	db            *gorm.DB
+	serviceEmails bool
 }
 
 func NewAuthHandler(db *gorm.DB) *AuthHandler {
-	return &AuthHandler{db: db}
+	return &AuthHandler{db: db, serviceEmails: os.Getenv("SERVICE_NOTIFICATIONS_ENABLED") == "true"}
 }
 
 type RegisterRequest struct {
@@ -158,6 +160,12 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to assign permissions"})
 	}
 
+	if h.serviceEmails {
+		if err := models.QueueAccountNotice(tx, user, "welcome", "", time.Now()); err != nil {
+			tx.Rollback()
+			return c.JSON(500, map[string]string{"error": "Failed to prepare welcome email"})
+		}
+	}
 	// Commit the transaction
 	if err := tx.Commit().Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to commit transaction"})
@@ -235,55 +243,62 @@ func (h *AuthHandler) Login(c echo.Context) error {
 // @Failure 500 {object} map[string]string "Internal server error"
 // @Router /auth/password-reset [post]
 func (h *AuthHandler) RequestPasswordReset(c echo.Context) error {
-	tx := h.db.Begin()
-	if tx.Error != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to start transaction"})
-	}
-
 	var req ResetPasswordRequest
 	if err := c.Bind(&req); err != nil {
-		tx.Rollback()
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return c.JSON(400, map[string]string{"error": "Invalid request"})
 	}
-
 	if err := c.Validate(req); err != nil {
-		tx.Rollback()
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return c.JSON(400, map[string]string{"error": err.Error()})
 	}
-
+	accepted := func() error {
+		return c.JSON(200, map[string]string{"message": "If the email exists, a reset code will be sent"})
+	}
+	tx := h.db.WithContext(c.Request().Context()).Begin()
+	if tx.Error != nil {
+		return c.JSON(500, map[string]string{"error": "Unable to request a reset link"})
+	}
+	defer tx.Rollback()
 	var user models.User
-	if err := h.db.Where("email = ?", req.Email).First(&user).Error; err != nil {
-		tx.Rollback()
-		return c.JSON(http.StatusOK, map[string]string{"message": "If the email exists, a reset code will be sent"})
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("LOWER(email) = ? AND is_deleted = false", strings.ToLower(strings.TrimSpace(req.Email))).First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return accepted()
 	}
-
-	code, err := generateResetCode(10)
 	if err != nil {
-		tx.Rollback()
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate reset code"})
+		return c.JSON(500, map[string]string{"error": "Unable to request a reset link"})
 	}
-
-	reset := models.PasswordReset{
-		UserID:    user.ID,
-		Code:      code,
-		ExpiresAt: time.Now().Add(15 * time.Minute),
+	now := time.Now()
+	var recent int64
+	if err := tx.Model(&models.PasswordReset{}).Where("user_id = ? AND created_at > ?", user.ID, now.Add(-time.Minute)).Count(&recent).Error; err != nil {
+		return c.JSON(500, map[string]string{"error": "Unable to request a reset link"})
 	}
-
+	// Same public response for unknown accounts and requests in the cooldown.
+	if recent > 0 {
+		return accepted()
+	}
+	code, err := generateResetCode(32)
+	if err != nil {
+		return c.JSON(500, map[string]string{"error": "Unable to request a reset link"})
+	}
+	if err := tx.Model(&models.PasswordReset{}).Where("user_id = ? AND used = false", user.ID).Update("used", true).Error; err != nil {
+		return c.JSON(500, map[string]string{"error": "Unable to request a reset link"})
+	}
+	reset := models.PasswordReset{UserID: user.ID, Code: code, ExpiresAt: now.Add(15 * time.Minute)}
 	if err := tx.Create(&reset).Error; err != nil {
-		tx.Rollback()
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create reset code"})
+		return c.JSON(500, map[string]string{"error": "Unable to request a reset link"})
 	}
-
+	if h.serviceEmails {
+		if err := models.QueueAccountNotice(tx, user, "password_reset", reset.ID, now); err != nil {
+			return c.JSON(500, map[string]string{"error": "Unable to request a reset link"})
+		}
+	}
 	if err := tx.Commit().Error; err != nil {
-		tx.Rollback()
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to commit transaction"})
+		return c.JSON(500, map[string]string{"error": "Unable to request a reset link"})
 	}
-
-	reset.User = &user
-
-	events.Emit("password.reset", &reset)
-
-	return c.JSON(http.StatusOK, map[string]string{"message": "If the email exists, a reset code will be sent"})
+	if !h.serviceEmails {
+		reset.User = &user
+		events.Emit("password.reset", &reset)
+	}
+	return accepted()
 }
 
 // VerifyResetCode handles the verification of a reset code, updating the user's password, and marking the reset code as used.
@@ -300,33 +315,61 @@ func (h *AuthHandler) RequestPasswordReset(c echo.Context) error {
 func (h *AuthHandler) VerifyResetCode(c echo.Context) error {
 	var req VerifyResetCodeRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return c.JSON(400, map[string]string{"error": "Invalid request"})
 	}
-
 	if err := c.Validate(req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+		return c.JSON(400, map[string]string{"error": err.Error()})
 	}
-
+	invalid := func() error { return c.JSON(400, map[string]string{"error": "Invalid or expired reset code"}) }
 	var reset models.PasswordReset
-	if err := h.db.Where("code = ? AND used = ? AND expires_at > ?",
-		req.Code, false, time.Now()).First(&reset).Error; err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid or expired reset code"})
+	if err := h.db.WithContext(c.Request().Context()).Where("code = ? AND used = false AND is_deleted = false AND expires_at > ?", req.Code, time.Now()).First(&reset).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return invalid()
+		}
+		return c.JSON(500, map[string]string{"error": "Unable to reset password"})
 	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	hashed, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to hash password"})
+		return c.JSON(400, map[string]string{"error": "Password must be between 8 and 72 bytes"})
 	}
-
+	tx := h.db.WithContext(c.Request().Context()).Begin()
+	if tx.Error != nil {
+		return c.JSON(500, map[string]string{"error": "Unable to reset password"})
+	}
+	defer tx.Rollback()
 	var user models.User
-	if err := h.db.Where("id = ?", reset.UserID).First(&user).Error; err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to get user"})
+	// Match the user-before-reset lock order in reset requests.
+	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ? AND is_deleted = false", reset.UserID).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return invalid()
+		}
+		return c.JSON(500, map[string]string{"error": "Unable to reset password"})
 	}
-
-	h.db.Model(&user).Update("password", string(hashedPassword))
-	h.db.Model(&reset).Update("used", true)
-
-	return c.JSON(http.StatusOK, map[string]string{"message": "Password reset successfully"})
+	r := tx.Model(&models.PasswordReset{}).Where("id = ? AND used = false AND expires_at > ?", reset.ID, time.Now()).Update("used", true)
+	if r.Error != nil {
+		return c.JSON(500, map[string]string{"error": "Unable to reset password"})
+	}
+	if r.RowsAffected != 1 {
+		return invalid()
+	}
+	if err := tx.Model(&user).Update("password", string(hashed)).Error; err != nil {
+		return c.JSON(500, map[string]string{"error": "Unable to reset password"})
+	}
+	if err := tx.Model(&models.PasswordReset{}).Where("user_id = ? AND used = false", user.ID).Update("used", true).Error; err != nil {
+		return c.JSON(500, map[string]string{"error": "Unable to reset password"})
+	}
+	if err := tx.Where("user_id = ?", user.ID).Delete(&models.AuthTransaction{}).Error; err != nil {
+		return c.JSON(500, map[string]string{"error": "Unable to revoke existing sessions"})
+	}
+	if h.serviceEmails {
+		if err := models.QueueAccountNotice(tx, user, "password_changed", reset.ID, time.Now()); err != nil {
+			return c.JSON(500, map[string]string{"error": "Unable to prepare security confirmation"})
+		}
+	}
+	if err := tx.Commit().Error; err != nil {
+		return c.JSON(500, map[string]string{"error": "Unable to reset password"})
+	}
+	return c.JSON(200, map[string]string{"message": "Password reset successfully"})
 }
 
 // GenerateResetCode generates a cryptographically secure random code
@@ -748,6 +791,12 @@ func (h *AuthHandler) AcceptInvite(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to assign permissions"})
 	}
 
+	if h.serviceEmails {
+		if err := models.QueueAccountNotice(tx, newUser, "welcome", "", time.Now()); err != nil {
+			return c.JSON(500, map[string]string{"error": "Unable to prepare welcome email"})
+		}
+	}
+
 	if err := tx.Commit().Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to commit transaction"})
 	}
@@ -981,6 +1030,13 @@ func (h *AuthHandler) GoogleAuthCallback(c echo.Context) error {
 			if err := models.AssignDefaultPermissions(tx, &user); err != nil {
 				tx.Rollback()
 				return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to assign permissions"})
+			}
+
+			if h.serviceEmails {
+				if err := models.QueueAccountNotice(tx, user, "welcome", "", time.Now()); err != nil {
+					tx.Rollback()
+					return c.JSON(500, map[string]string{"error": "Unable to prepare welcome email"})
+				}
 			}
 
 			// Emit different events based on invitation status
