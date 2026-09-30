@@ -6,6 +6,7 @@ on:
       - 'server/internal/tasks/**'
       - 'server/internal/utils/**'
       - 'server/internal/models/**'
+      - 'server/internal/handlers/**'
       - 'server/cmd/**'
       - 'server/go.mod'
       - 'server/go.sum'
@@ -41,7 +42,7 @@ jobs:
           go-version-file: server/go.mod
           cache-dependency-path: server/go.sum
           cache: true
-      - run: go test -race ./internal/sending ./internal/utils
+      - run: go test -race ./internal/sending ./internal/utils ./internal/handlers
         env:
           POSTHOOT_TEST_DATABASE_URL: 'host=127.0.0.1 port=5432 user=postgres password=local-test-only dbname=sending_test sslmode=disable'
       - run: go build ./cmd/...

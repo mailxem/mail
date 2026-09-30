@@ -60,6 +60,9 @@ func (h *MarketingHandler) SaveTemplate(c echo.Context) error {
 		}
 	}
 	err = h.service.DB.WithContext(c.Request().Context()).Transaction(func(tx *gorm.DB) error {
+		// PostgreSQL stores microseconds. Return exactly the version persisted in
+		// the database so a successful save can be followed by another revision.
+		stamp := time.Now().UTC().Truncate(time.Microsecond)
 		if id == "" {
 			var existing models.Template
 			if e := tx.First(&existing, "id = ?", in.CreationID).Error; e == nil {
@@ -79,13 +82,16 @@ func (h *MarketingHandler) SaveTemplate(c echo.Context) error {
 			if !row.UpdatedAt.Equal(*in.ExpectedUpdatedAt) {
 				return echo.NewHTTPError(409, "Template changed; reload before saving")
 			}
+			if !stamp.After(row.UpdatedAt) {
+				stamp = row.UpdatedAt.Add(time.Microsecond).Truncate(time.Microsecond)
+			}
 		}
 		var category models.EmailCategory
 		if err := marketing.Scope(tx, team(c)).First(&category, "id = ?", in.CategoryID).Error; err != nil {
 			return bad("Choose a category in this workspace")
 		}
 		if id == "" {
-			row = models.Template{Base: models.Base{ID: in.CreationID}, TeamID: team(c), Name: in.Name, Subject: in.Subject, CategoryID: in.CategoryID, HTMLBody: in.HTMLBody, DesignJSON: in.DesignJSON, Variables: variables}
+			row = models.Template{Base: models.Base{ID: in.CreationID, UpdatedAt: stamp}, TeamID: team(c), Name: in.Name, Subject: in.Subject, CategoryID: in.CategoryID, HTMLBody: in.HTMLBody, DesignJSON: in.DesignJSON, Variables: variables}
 			result := tx.Omit(clause.Associations).Clauses(clause.OnConflict{DoNothing: true}).Create(&row)
 			if result.Error != nil {
 				return result.Error
@@ -103,7 +109,7 @@ func (h *MarketingHandler) SaveTemplate(c echo.Context) error {
 			return nil
 		}
 		// Clear the legacy file reference so previews and sends use the new HTML.
-		return tx.Model(&row).Updates(map[string]any{"name": in.Name, "subject": in.Subject, "category_id": in.CategoryID, "html_body": in.HTMLBody, "design_json": in.DesignJSON, "html_file_id": nil, "variables": variables}).Error
+		return tx.Model(&row).Updates(map[string]any{"name": in.Name, "subject": in.Subject, "category_id": in.CategoryID, "html_body": in.HTMLBody, "design_json": in.DesignJSON, "html_file_id": nil, "variables": variables, "updated_at": stamp}).Error
 	})
 	if err != nil {
 		return err
