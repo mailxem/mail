@@ -63,15 +63,22 @@ func (n Notification) canonical() (string, error) {
 var snsClient = &http.Client{Timeout: 5 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 
 func (s *Service) VerifyNotification(ctx context.Context, n Notification) error {
-	if !s.Config.Enabled || n.TopicARN != s.Config.TopicARN || len(n.MessageID) > 128 || n.MessageID == "" {
+	if !s.Config.Enabled {
+		return ErrDenied
+	}
+	return VerifySNSNotification(ctx, n, s.Config.TopicARN, s.Config.Region, s.Now())
+}
+
+func VerifySNSNotification(ctx context.Context, n Notification, topic, region string, now time.Time) error {
+	if n.TopicARN != topic || len(n.MessageID) > 128 || n.MessageID == "" {
 		return ErrDenied
 	}
 	stamp, e := time.Parse(time.RFC3339, n.Timestamp)
-	if e != nil || stamp.After(s.Now().Add(5*time.Minute)) || stamp.Before(s.Now().Add(-30*24*time.Hour)) {
+	if e != nil || stamp.After(now.Add(5*time.Minute)) || stamp.Before(now.Add(-30*24*time.Hour)) {
 		return ErrDenied
 	}
 	u, e := url.Parse(n.SigningCertURL)
-	if e != nil || u.Scheme != "https" || u.Host != "sns."+s.Config.Region+".amazonaws.com" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || !regexp.MustCompile(`^/SimpleNotificationService-[a-zA-Z0-9]+\.pem$`).MatchString(u.Path) {
+	if e != nil || u.Scheme != "https" || u.Host != "sns."+region+".amazonaws.com" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || !regexp.MustCompile(`^/SimpleNotificationService-[a-zA-Z0-9]+\.pem$`).MatchString(u.Path) {
 		return ErrDenied
 	}
 	canonical, e := n.canonical()
@@ -99,7 +106,7 @@ func (s *Service) VerifyNotification(ctx context.Context, n Notification) error 
 		return ErrDenied
 	}
 	cert, e := x509.ParseCertificate(block.Bytes)
-	if e != nil || s.Now().Before(cert.NotBefore) || s.Now().After(cert.NotAfter) {
+	if e != nil || now.Before(cert.NotBefore) || now.After(cert.NotAfter) {
 		return ErrDenied
 	}
 	key, ok := cert.PublicKey.(*rsa.PublicKey)

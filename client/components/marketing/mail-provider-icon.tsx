@@ -1,11 +1,11 @@
 import { Mail } from "lucide-react";
 import { SiCloudflare, SiGmail, SiIcloud } from "react-icons/si";
 
-export type MailProviderKind = "gmail" | "icloud" | "cloudflare" | "imap";
+export type MailProviderKind = "managed" | "gmail" | "icloud" | "cloudflare" | "imap";
 
 export type MailProviderIdentity = {
   kind: MailProviderKind;
-  label: "Gmail" | "iCloud Mail" | "Cloudflare" | "IMAP";
+  label: "Xem inbox" | "Gmail" | "iCloud Mail" | "Cloudflare" | "IMAP";
 };
 
 const GMAIL_HOSTS = new Set(["imap.gmail.com", "imap.googlemail.com"]);
@@ -21,6 +21,7 @@ export function inferMailProvider({
   const explicit = provider?.trim().toUpperCase();
   const canonicalHost = host?.trim().toLowerCase().replace(/\.$/, "");
 
+  if (explicit === "MANAGED") return { kind: "managed", label: "Xem inbox" };
   if (explicit === "GOOGLE_OAUTH" || explicit === "GMAIL")
     return { kind: "gmail", label: "Gmail" };
   if (explicit === "ICLOUD" || explicit === "APPLE")
@@ -49,7 +50,9 @@ export function MailProviderIcon({
 }) {
   const identity = inferMailProvider({ provider, host });
   const Icon =
-    identity.kind === "gmail"
+    identity.kind === "managed"
+      ? Mail
+      : identity.kind === "gmail"
       ? SiGmail
       : identity.kind === "icloud"
         ? SiIcloud
@@ -57,7 +60,9 @@ export function MailProviderIcon({
           ? SiCloudflare
           : Mail;
   const color =
-    identity.kind === "gmail"
+    identity.kind === "managed"
+      ? "#7C3AED"
+      : identity.kind === "gmail"
       ? "#EA4335"
       : identity.kind === "icloud"
         ? "#1687F8"

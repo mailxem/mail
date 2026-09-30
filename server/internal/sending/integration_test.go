@@ -18,6 +18,38 @@ import (
 	"kori/internal/utils"
 )
 
+type managedMailboxFixture struct {
+	ID, TeamID, DomainID, Address, Status, SMTPConfigID string
+	Active                                              bool
+}
+
+func (managedMailboxFixture) TableName() string { return "managed_receiving_mailboxes" }
+
+func TestManagedMailboxSenderRequiresExactActiveIdentity(t *testing.T) {
+	s, team, d, _ := setup(t)
+	require.NoError(t, s.DB.AutoMigrate(&managedMailboxFixture{}))
+	senderID := uuid.NewString()
+	box := managedMailboxFixture{ID: uuid.NewString(), TeamID: team, DomainID: d.ID, Address: "reply@example.com", Status: "active", SMTPConfigID: senderID, Active: true}
+	require.NoError(t, s.DB.Create(&box).Error)
+	email := models.Email{Base: models.Base{ID: uuid.NewString()}, TeamID: team, SMTPConfigID: senderID, From: box.Address, To: "reader@example.net"}
+	raw := []byte("From: reply@example.com\r\nTo: reader@example.net\r\n\r\nhello")
+	require.NoError(t, s.SubmitEmail(context.Background(), &email, raw))
+	email.ID = uuid.NewString()
+	email.From = "forged@example.com"
+	require.ErrorIs(t, s.SubmitEmail(context.Background(), &email, raw), ErrDenied)
+	email.From = box.Address
+	require.NoError(t, s.DB.Model(&managedMailboxFixture{}).Where("id = ?", box.ID).Update("active", false).Error)
+	require.ErrorIs(t, s.SubmitEmail(context.Background(), &email, raw), ErrDenied)
+	require.NoError(t, s.DB.Model(&managedMailboxFixture{}).Where("id = ?", box.ID).Update("active", true).Error)
+	require.NoError(t, s.DB.Model(&managedMailboxFixture{}).Where("id = ?", box.ID).Update("status", "error").Error)
+	require.ErrorIs(t, s.SubmitEmail(context.Background(), &email, raw), ErrDenied)
+	require.NoError(t, s.DB.Model(&managedMailboxFixture{}).Where("id = ?", box.ID).Update("status", "active").Error)
+	require.NoError(t, s.DB.Model(&Account{}).Where("team_id = ?", team).Update("paused", true).Error)
+	require.ErrorIs(t, s.SubmitEmail(context.Background(), &email, raw), ErrDenied)
+	email.TeamID = uuid.NewString()
+	require.ErrorIs(t, s.SubmitEmail(context.Background(), &email, raw), ErrDenied)
+}
+
 func TestCampaignTaskSubmissionCanRetryBeforeDurableAcceptance(t *testing.T) {
 	s, team, d, p := setup(t)
 	c, _ := apiContext(team, "POST", `{"from":"hello@example.com"}`)
