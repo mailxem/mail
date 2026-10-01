@@ -174,7 +174,6 @@ Resources:
     Properties:
       Queues:
         - !Ref ReceiptQueue
-        - !Ref DeadLetterQueue
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -182,9 +181,7 @@ Resources:
             Effect: Deny
             Principal: "*"
             Action: "sqs:*"
-            Resource:
-              - !GetAtt ReceiptQueue.Arn
-              - !GetAtt DeadLetterQueue.Arn
+            Resource: !GetAtt ReceiptQueue.Arn
             Condition:
               Bool:
                 aws:SecureTransport: "false"
@@ -198,6 +195,23 @@ Resources:
               StringEquals:
                 AWS:SourceAccount: !Ref AWS::AccountId
                 aws:SourceArn: !Ref ReceiptTopic
+
+  DeadLetterQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref DeadLetterQueue
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: "*"
+            Action: "sqs:*"
+            Resource: !GetAtt DeadLetterQueue.Arn
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
 
   ReceiptSubscription:
     Type: AWS::SNS::Subscription
