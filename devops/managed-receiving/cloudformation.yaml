@@ -121,7 +121,7 @@ Resources:
           - Sid: DenyInsecureTransport
             Effect: Deny
             Principal: "*"
-            Action: "sns:*"
+            Action: sns:Publish
             Resource: !Ref ReceiptTopic
             Condition:
               Bool:
