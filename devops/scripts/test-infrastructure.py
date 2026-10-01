@@ -31,6 +31,96 @@ guard = load("guard", "check-adoption-plan.py")
 exporter = load("exporter", "export-smtp-certificate.py")
 
 
+class ManagedReceivingTemplate(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        path = ROOT / "managed-receiving" / "cloudformation.yaml"
+        cls.raw = path.read_text()
+        # BaseLoader preserves CloudFormation's short-form intrinsic tags for
+        # offline structural assertions without contacting AWS.
+        cls.template = yaml.load(cls.raw, Loader=yaml.BaseLoader)
+        cls.resources = cls.template["Resources"]
+
+    def test_is_additive_and_never_activates_receipt_rules(self):
+        types = [resource["Type"] for resource in self.resources.values()]
+        self.assertIn("AWS::SES::ReceiptRuleSet", types)
+        self.assertNotIn("AWS::SES::ReceiptRule", types)
+        self.assertNotIn("SetActiveReceiptRuleSet", self.raw)
+        self.assertNotIn("AWS::S3::BucketName", self.raw)
+        for name in ["RawMailBucket", "ReceiptTopic", "ReceiptQueue", "DeadLetterQueue", "InactiveReceiptRuleSet"]:
+            self.assertEqual(self.resources[name]["DeletionPolicy"], "Retain")
+            self.assertEqual(self.resources[name]["UpdateReplacePolicy"], "Retain")
+
+    def test_private_storage_and_retention_boundaries(self):
+        bucket = self.resources["RawMailBucket"]["Properties"]
+        self.assertEqual(set(bucket["PublicAccessBlockConfiguration"].values()), {"true"})
+        rules = bucket["LifecycleConfiguration"]["Rules"]
+        self.assertEqual(rules, [{"Id": "ExpireUncommittedIncomingMIME", "Status": "Enabled",
+                                 "Prefix": "incoming/", "ExpirationInDays": "30"}])
+        policy = self.resources["RawMailBucketPolicy"]["Properties"]["PolicyDocument"]["Statement"]
+        self.assertTrue(any(s["Sid"] == "DenyInsecureTransport" for s in policy))
+        ses = next(s for s in policy if s["Sid"] == "AllowSESReceiptWritesForConfiguredRuleSet")
+        self.assertEqual(ses["Action"], "s3:PutObject")
+        self.assertIn("incoming/*", ses["Resource"])
+        self.assertIn("AWS:SourceAccount", ses["Condition"]["StringEquals"])
+        self.assertIn("receipt-rule-set/${RuleSetName}:receipt-rule/*", ses["Condition"]["ArnLike"]["AWS:SourceArn"])
+
+    def test_sns_sqs_path_is_restricted_and_bounded(self):
+        subscription = self.resources["ReceiptSubscription"]["Properties"]
+        self.assertEqual(subscription["RawMessageDelivery"], "false")
+        queue = self.resources["ReceiptQueue"]["Properties"]
+        self.assertEqual(queue["ReceiveMessageWaitTimeSeconds"], "20")
+        self.assertEqual(queue["SqsManagedSseEnabled"], "true")
+        self.assertEqual(self.resources["DeadLetterQueue"]["Properties"]["MessageRetentionPeriod"], "1209600")
+        statement = self.resources["ReceiptQueuePolicy"]["Properties"]["PolicyDocument"]["Statement"][0]
+        self.assertEqual(statement["Sid"], "DenyInsecureTransport")
+        statements = self.resources["ReceiptQueuePolicy"]["Properties"]["PolicyDocument"]["Statement"]
+        self.assertEqual(self.resources["ReceiptQueuePolicy"]["Properties"]["Queues"], ["ReceiptQueue"])
+        self.assertTrue(all(not isinstance(s["Resource"], list) for s in statements))
+        allowed = next(s for s in statements if s["Sid"] == "AllowOnlyReceiptTopic")
+        self.assertEqual(allowed["Principal"], {"Service": "sns.amazonaws.com"})
+        self.assertEqual(allowed["Condition"]["StringEquals"]["aws:SourceArn"], "ReceiptTopic")
+        dlq_policy = self.resources["DeadLetterQueuePolicy"]["Properties"]
+        self.assertEqual(dlq_policy["Queues"], ["DeadLetterQueue"])
+        self.assertEqual(len(dlq_policy["PolicyDocument"]["Statement"]), 1)
+        dlq_tls = dlq_policy["PolicyDocument"]["Statement"][0]
+        self.assertEqual(dlq_tls["Sid"], "DenyInsecureTransport")
+        self.assertEqual(dlq_tls["Resource"], "DeadLetterQueue.Arn")
+        self.assertNotIn("AllowOnlyReceiptTopic", str(dlq_policy))
+        topic_statements = self.resources["ReceiptTopicPolicy"]["Properties"]["PolicyDocument"]["Statement"]
+        topic_tls = next(s for s in topic_statements if s["Sid"] == "DenyInsecureTransport")
+        self.assertEqual(topic_tls["Action"], "sns:Publish")
+        self.assertFalse(any(
+            action == "sns:*"
+            for statement in topic_statements
+            for action in ([statement["Action"]] if isinstance(statement["Action"], str) else statement["Action"])
+        ))
+        publish = next(s for s in topic_statements if s["Sid"] == "AllowSESReceiptPublishForConfiguredRuleSet")
+        self.assertEqual(publish["Principal"], {"Service": "ses.amazonaws.com"})
+        self.assertIn("receipt-rule-set/${RuleSetName}:receipt-rule/*",
+                      publish["Condition"]["ArnLike"]["AWS:SourceArn"])
+
+    def test_runtime_policy_has_no_unrelated_storage_or_activation_access(self):
+        statements = self.resources["RuntimePolicy"]["Properties"]["PolicyDocument"]["Statement"]
+        actions = {action for statement in statements for action in
+                   ([statement["Action"]] if isinstance(statement["Action"], str) else statement["Action"])}
+        self.assertNotIn("s3:DeleteObject", actions)
+        self.assertNotIn("ses:SetActiveReceiptRuleSet", actions)
+        self.assertNotIn("ses:DeleteReceiptRuleSet", actions)
+        self.assertIn("s3:PutObject", actions)
+        self.assertIn("sqs:ReceiveMessage", actions)
+        resources = str([statement["Resource"] for statement in statements])
+        self.assertIn("incoming/*", resources)
+        self.assertIn("mail/*", resources)
+
+    def test_backlog_and_poison_alarms_exist(self):
+        for name in ["QueueBacklogAgeAlarm", "DeadLetterQueueAlarm"]:
+            alarm = self.resources[name]
+            self.assertEqual(alarm["Type"], "AWS::CloudWatch::Alarm")
+            self.assertIn("AlarmActions", alarm["Properties"])
+            self.assertIn("OKActions", alarm["Properties"])
+
+
 class AdoptionGuard(unittest.TestCase):
     def plan(self, actions):
         return {"resource_changes": [{"address": "example", "change": {"actions": actions}}]}

@@ -10,6 +10,7 @@ import (
 	"kori/internal/keys"
 	"kori/internal/models/seeder/airley"
 	"kori/internal/notifications"
+	"kori/internal/receiving"
 	"kori/internal/sending"
 	"kori/internal/utils"
 	"kori/internal/utils/crypto"
@@ -119,6 +120,25 @@ func main() {
 		}
 	}
 	managed := sending.New(db_instance, managedConfig, provider)
+	receivingConfig, err := receiving.LoadConfig()
+	if err != nil {
+		log.Fatalf("Invalid managed receiving configuration: %v", err)
+	}
+	if err := receiving.Migrate(db_instance); err != nil {
+		log.Fatalf("Managed receiving migration failed: %v", err)
+	}
+	var receivingRules receiving.RuleProvider
+	var receivingStore receiving.ObjectStore
+	var receivingWorker *receiving.Worker
+	if receivingConfig.Enabled {
+		receivingRules, receivingStore, receivingWorker, err = receiving.NewAWSRuntime(context.Background(), receivingConfig)
+		if err != nil {
+			log.Fatalf("Managed receiving initialization failed: %v", err)
+		}
+	}
+	managedReceiving := receiving.New(db_instance, receivingConfig, receivingRules)
+	managedReceiving.Store = receivingStore
+	receiving.RegisterDefault(managedReceiving)
 	if os.Getenv("MANAGED_NOTIFICATIONS_ENABLED") == "true" {
 		link, parseErr := url.Parse(os.Getenv("DASHBOARD_URL"))
 		if parseErr != nil || link.Scheme != "https" || link.Host == "" || link.User != nil || cfg.SMTP.Host == "" || cfg.SMTP.FromEmail == "" {
@@ -133,6 +153,33 @@ func main() {
 	}
 	managedCtx, stopManaged := context.WithCancel(context.Background())
 	defer stopManaged()
+	receivingDone := make(chan struct{})
+	reconciliationDone := make(chan struct{})
+	if receivingWorker != nil {
+		receivingWorker.Service = managedReceiving
+		go func() { defer close(receivingDone); receivingWorker.Run(managedCtx) }()
+	} else {
+		close(receivingDone)
+	}
+	if receivingConfig.Enabled {
+		go func() {
+			defer close(reconciliationDone)
+			ticker := time.NewTicker(5 * time.Minute)
+			defer ticker.Stop()
+			for {
+				if err := managedReceiving.ReconcileAll(managedCtx); err != nil && managedCtx.Err() == nil {
+					logger.Error("Managed receiving reconciliation failed", err)
+				}
+				select {
+				case <-managedCtx.Done():
+					return
+				case <-ticker.C:
+				}
+			}
+		}()
+	} else {
+		close(reconciliationDone)
+	}
 	if os.Getenv("SERVICE_NOTIFICATIONS_ENABLED") == "true" {
 		if cfg.SMTP.Host == "" || cfg.SMTP.FromEmail == "" {
 			log.Fatal("Service notifications require platform SMTP configuration")
@@ -288,6 +335,7 @@ func main() {
 	// Initialize API server
 	apiServer := api.NewServer(cfg, db_instance)
 	managed.Register(apiServer.GetEcho(), cfg.JWT.Secret)
+	managedReceiving.Register(apiServer.GetEcho(), cfg.JWT.Secret)
 
 	routes.SetupMarketingRoutes(apiServer.GetEcho(), db_instance, cfg)
 
@@ -379,6 +427,16 @@ func main() {
 
 	closeManagedSMTP()
 	stopManaged()
+	select {
+	case <-receivingDone:
+	case <-time.After(15 * time.Second):
+		logger.Info("Managed receiving worker shutdown timed out")
+	}
+	select {
+	case <-reconciliationDone:
+	case <-time.After(15 * time.Second):
+		logger.Info("Managed receiving reconciliation shutdown timed out")
+	}
 	if managedConfig.Enabled {
 		select {
 		case <-managedDone:

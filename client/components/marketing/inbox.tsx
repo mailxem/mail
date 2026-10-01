@@ -454,7 +454,9 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
       ) || [{ Name: "INBOX", Total: total }];
   const displayedRows = sortMailMessages(rows);
   const requiresDetail =
-    mailbox?.provider === "CLOUDFLARE" || mailbox?.provider === "GOOGLE_OAUTH";
+    mailbox?.provider === "CLOUDFLARE" ||
+    mailbox?.provider === "MANAGED" ||
+    mailbox?.provider === "GOOGLE_OAUTH";
   const index = displayedRows.findIndex(
     (e) => messageKey(e) === (selected ? messageKey(selected) : undefined),
   );
@@ -474,10 +476,11 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
   }, [emails.data, emails.isFetching, rows, selected]);
   const loadMessageDetail = async (m: MailMessage) => {
     const google = mailbox?.provider === "GOOGLE_OAUTH";
-    const cloudflare = mailbox?.provider === "CLOUDFLARE";
+    const numericDetail =
+      mailbox?.provider === "CLOUDFLARE" || mailbox?.provider === "MANAGED";
     if (
       outbox ||
-      (!google && !cloudflare) ||
+      (!google && !numericDetail) ||
       (google ? !m.providerMessageId : m.uid == null || m.uidValidity == null)
     ) {
       setDetailState("ready");
@@ -582,17 +585,29 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
     message: MailMessage,
     attachment: MailMessage["attachments"][number],
   ) {
-    if (!message.providerMessageId || !attachment.AttachmentID) return;
+    const google = mailbox?.provider === "GOOGLE_OAUTH";
+    if (
+      !attachment.AttachmentID ||
+      (google
+        ? !message.providerMessageId
+        : message.uid == null || message.uidValidity == null)
+    )
+      return;
     const requestGeneration = generation;
     const requestID = ++attachmentRequestRef.current;
-    const attachmentKey = `${message.providerMessageId}:${attachment.AttachmentID}`;
+    const attachmentKey = `${message.providerMessageId || `${message.uid}:${message.uidValidity}`}:${attachment.AttachmentID}`;
     setAttachmentBusy(attachmentKey);
     try {
       const result = await request<{ Data: string }>(
         `imap/attachment?${new URLSearchParams({
           config_id: configId,
           folder,
-          message_id: message.providerMessageId,
+          ...(google
+            ? { message_id: message.providerMessageId! }
+            : {
+                uid: String(message.uid),
+                uid_validity: String(message.uidValidity),
+              }),
           attachment_id: attachment.AttachmentID,
         })}`,
       );
@@ -1150,7 +1165,7 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
                               disabled={
                                 !a.AttachmentID ||
                                 attachmentBusy ===
-                                  `${current.providerMessageId}:${a.AttachmentID}`
+                                  `${current.providerMessageId || `${current.uid}:${current.uidValidity}`}:${a.AttachmentID}`
                               }
                               onClick={() =>
                                 void downloadAttachment(current, a)
@@ -1165,7 +1180,7 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
                               </span>
                               <em>
                                 {attachmentBusy ===
-                                `${current.providerMessageId}:${a.AttachmentID}`
+                                `${current.providerMessageId || `${current.uid}:${current.uidValidity}`}:${a.AttachmentID}`
                                   ? "Loading…"
                                   : "Download"}
                               </em>

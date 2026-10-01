@@ -52,6 +52,8 @@ Use a host IP or DNS name reachable from both browsers and containers. The defau
 
 Open the printed `/auth/register` URL, create your account, and connect your own SMTP provider. Managed SES sending, hosted billing, Google OAuth, and the AI assistant require additional configuration and are not provisioned by this starter.
 
+An opt-in custom-domain Xem inbox implementation is under development for operators using managed Amazon SES sending. It receives only explicitly created addresses through private AWS infrastructure and does not expose IMAP or import an external mailbox. See the [managed receiving operations guide](server/docs/managed-receiving.md); repository support and local validation do not mean the hosted service or an AWS deployment is available.
+
 
 Prefer to inspect the script first?
 

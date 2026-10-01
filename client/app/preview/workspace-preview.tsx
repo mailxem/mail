@@ -14,6 +14,7 @@ import { CRMPage } from "@/components/marketing/crm";
 import { AutomationsPage } from "@/components/marketing/automations";
 import { InboxPage, OutboxPage } from "@/components/marketing/inbox";
 import { MailConnections } from "@/components/settings/mail-connections";
+import { ManagedInboxes } from "@/components/settings/managed-inboxes";
 const stamp = "2026-09-09T08:45:00Z";
 const emailHTML =
   '<html><body style="font:15px/1.8 Arial;color:#5d5664;padding:25px"><p>Hi team,</p><p>I’ve gathered our latest product updates and a few ideas for the next edition. The focus is on making the experience feel simpler, more thoughtful, and easier to use.</p><p>Take a look and let me know what you think. I’d love to hear your feedback before we share it with the community.</p><p>Thanks,<br>Ava</p></body></html>';
@@ -240,9 +241,21 @@ type GoogleScenario =
   | "unconfigured"
   | "restricted"
   | "error";
+type ReceivingScenario =
+  | "disabled"
+  | "needs_verification"
+  | "needs_mailbox"
+  | "pending_mx"
+  | "mx_conflict"
+  | "provisioning"
+  | "ready"
+  | "error"
+  | "storage_full"
+  | "paused";
 const createTransport = (
   scenario: InboxScenario,
   googleScenario: GoogleScenario,
+  receivingScenario: ReceivingScenario,
 ): Transport => {
   let summaryAttempts = 0;
   let previewHistoryChecks = 0;
@@ -267,7 +280,76 @@ const createTransport = (
       enabled: true,
     },
   ];
+  let managedActive = receivingScenario !== "paused";
+  let managedMailboxes =
+    receivingScenario === "needs_mailbox"
+      ? []
+      : [
+          {
+            id: "preview-managed-mailbox",
+            domainId: "preview-managed-domain",
+            address: "alex@example.com",
+            displayName: "Alex",
+            active: managedActive,
+            smtpConfigId: "preview-managed-sender",
+            status:
+              receivingScenario === "storage_full"
+                ? "storage_full"
+                : managedActive
+                  ? "active"
+                  : "inactive",
+            usageBytes:
+              receivingScenario === "storage_full" ? 104857600 : 18874368,
+            quotaBytes: 104857600,
+            createdAt: stamp,
+          },
+        ];
   return async <T,>(path: string, method = "GET", body?: unknown) => {
+    if (path === "mail-connections/receiving/mailboxes" && method === "POST") {
+      const input = body as {
+        domainId: string;
+        localPart: string;
+        displayName?: string;
+      };
+      const created = {
+        id: "preview-managed-new",
+        domainId: input.domainId,
+        address: `${input.localPart}@example.com`,
+        displayName: input.displayName || "",
+        active: true,
+        smtpConfigId: "preview-managed-sender",
+        status: "active",
+        usageBytes: 0,
+        quotaBytes: 104857600,
+        createdAt: stamp,
+      };
+      managedMailboxes = [...managedMailboxes, created];
+      return created as T;
+    }
+    if (
+      path === "mail-connections/receiving/mailboxes/preview-managed-mailbox" &&
+      method === "PATCH"
+    ) {
+      managedActive = (body as { active: boolean }).active;
+      managedMailboxes = managedMailboxes.map((mailbox) =>
+        mailbox.id === "preview-managed-mailbox"
+          ? {
+              ...mailbox,
+              active: managedActive,
+              status: managedActive ? "active" : "inactive",
+            }
+          : mailbox,
+      );
+      return managedMailboxes[0] as T;
+    }
+    if (
+      path ===
+        "mail-connections/receiving/domains/preview-managed-domain/check" &&
+      method === "POST"
+    )
+      return {
+        receivingStatus: receivingScenario === "error" ? "error" : "ready",
+      } as T;
     if (path === "assistant/mail-summary" && method === "POST") {
       summaryAttempts += 1;
       if (scenario === "summary-retry" && summaryAttempts === 1)
@@ -334,6 +416,13 @@ const createTransport = (
       );
     if (path === "mail-connections/mailboxes")
       return [
+        ...managedMailboxes.map((mailbox) => ({
+          id: mailbox.id,
+          username: mailbox.address,
+          host: "example.com",
+          provider: "MANAGED",
+          smtpConfigId: mailbox.smtpConfigId,
+        })),
         {
           id: `preview-mailbox-${scenario}`,
           username: "alex@example.com",
@@ -360,6 +449,48 @@ const createTransport = (
           provider: "CLOUDFLARE",
         },
       ] as T;
+    if (path === "mail-connections/receiving") {
+      if (receivingScenario === "error")
+        throw new Error(
+          "The preview receiving service is temporarily unavailable.",
+        );
+      const status =
+        receivingScenario === "paused" ||
+        receivingScenario === "disabled" ||
+        receivingScenario === "storage_full"
+          ? "ready"
+          : receivingScenario;
+      return {
+        enabled: receivingScenario !== "disabled",
+        region: "sample-region-1",
+        maxMailboxesPerDomain: 10,
+        maxMessageBytes: 26214400,
+        domains: [
+          {
+            id: "preview-managed-domain",
+            name: "example.com",
+            ownership: "verified",
+            sendingReady: true,
+            receivingStatus: status,
+            mx: {
+              name: "example.com",
+              type: "MX",
+              value: "inbound.sample.xem.invalid",
+              priority: 10,
+            },
+            existingMX:
+              receivingScenario === "mx_conflict"
+                ? [{ host: "mx.current-provider.example", priority: 10 }]
+                : [],
+            detail:
+              receivingScenario === "provisioning"
+                ? "Provisioning normally completes shortly."
+                : undefined,
+          },
+        ],
+        mailboxes: managedMailboxes,
+      } as T;
+    }
     if (path === "mail-connections/cloudflare-relays")
       return { relays: previewRelays } as T;
     if (path === "assistant/mail-summary")
@@ -430,6 +561,18 @@ const createTransport = (
     }
     if (path === "mail-connections/senders")
       return [
+        ...((receivingScenario === "ready" ||
+          receivingScenario === "storage_full") &&
+        managedActive
+          ? [
+              {
+                id: "preview-managed-sender",
+                fromEmail: "alex@example.com",
+                provider: "MANAGED",
+                isDefault: false,
+              },
+            ]
+          : []),
         {
           id: "preview-sender",
           fromEmail: "alex@example.com",
@@ -643,9 +786,11 @@ export function WorkspacePreview() {
   const [inboxScenario, setInboxScenario] = useState<InboxScenario>("loaded");
   const [googleScenario, setGoogleScenario] =
     useState<GoogleScenario>("connected");
+  const [receivingScenario, setReceivingScenario] =
+    useState<ReceivingScenario>("ready");
   const transport = useMemo(
-    () => createTransport(inboxScenario, googleScenario),
-    [inboxScenario, googleScenario],
+    () => createTransport(inboxScenario, googleScenario, receivingScenario),
+    [inboxScenario, googleScenario, receivingScenario],
   );
   return (
     <PreviewTransport.Provider key={inboxScenario} value={transport}>
@@ -702,25 +847,50 @@ export function WorkspacePreview() {
           </>
         )}
         {page === "/settings/imap" && (
-          <label className="flex items-center gap-1.5">
-            <span className="hidden sm:inline">Google state</span>
-            <select
-              aria-label="Google connection state"
-              className="h-5 rounded border border-border bg-card px-1"
-              value={googleScenario}
-              onChange={(event) => {
-                queryClient.removeQueries({ queryKey: ["marketing"] });
-                setGoogleScenario(event.target.value as GoogleScenario);
-              }}
-            >
-              <option value="connected">Connected</option>
-              <option value="fresh">Not connected</option>
-              <option value="pending">Pending redirect</option>
-              <option value="unconfigured">Not configured</option>
-              <option value="restricted">Restricted</option>
-              <option value="error">Error</option>
-            </select>
-          </label>
+          <>
+            <label className="flex items-center gap-1.5">
+              <span className="hidden sm:inline">Google state</span>
+              <select
+                aria-label="Google connection state"
+                className="h-5 rounded border border-border bg-card px-1"
+                value={googleScenario}
+                onChange={(event) => {
+                  queryClient.removeQueries({ queryKey: ["marketing"] });
+                  setGoogleScenario(event.target.value as GoogleScenario);
+                }}
+              >
+                <option value="connected">Connected</option>
+                <option value="fresh">Not connected</option>
+                <option value="pending">Pending redirect</option>
+                <option value="unconfigured">Not configured</option>
+                <option value="restricted">Restricted</option>
+                <option value="error">Error</option>
+              </select>
+            </label>
+            <label className="flex items-center gap-1.5">
+              <span className="hidden sm:inline">Receiving state</span>
+              <select
+                aria-label="Managed receiving state"
+                className="h-5 rounded border border-border bg-card px-1"
+                value={receivingScenario}
+                onChange={(event) => {
+                  queryClient.removeQueries({ queryKey: ["marketing"] });
+                  setReceivingScenario(event.target.value as ReceivingScenario);
+                }}
+              >
+                <option value="disabled">Disabled</option>
+                <option value="needs_verification">Needs verification</option>
+                <option value="needs_mailbox">Needs mailbox</option>
+                <option value="pending_mx">Pending MX</option>
+                <option value="mx_conflict">MX conflict</option>
+                <option value="provisioning">Provisioning</option>
+                <option value="ready">Ready</option>
+                <option value="error">Error</option>
+                <option value="storage_full">Storage full</option>
+                <option value="paused">Paused mailbox</option>
+              </select>
+            </label>
+          </>
         )}
       </div>
       <div
@@ -764,6 +934,7 @@ export function WorkspacePreview() {
             <InboxPage />
           ) : page === "/settings/imap" || page === "/settings/smtp" ? (
             <div className="p-6">
+              {page === "/settings/imap" && <ManagedInboxes />}
               <MailConnections
                 provider={page === "/settings/imap" ? "google" : "cloudflare"}
               />

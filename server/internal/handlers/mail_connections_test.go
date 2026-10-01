@@ -116,3 +116,18 @@ func TestMailboxesReportsOnlyTruthfulProviderMetadata(t *testing.T) {
 		Provider string `json:"provider"`
 	}{{googleID, "GOOGLE_OAUTH"}, {customID, "CUSTOM"}}, rows)
 }
+
+func TestSendersWorksBeforeManagedReceivingMigration(t *testing.T) {
+	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	require.NoError(t, database.AutoMigrate(&models.SMTPConfig{}, &models.MailConnection{}))
+	sender := models.SMTPConfig{Base: models.Base{ID: "sender"}, TeamID: "team", Provider: "CUSTOM", Host: "smtp.example.com", Port: 587, Username: "sender@example.com", FromEmail: "sender@example.com", Password: "encrypted", IsActive: true}
+	require.NoError(t, database.Session(&gorm.Session{SkipHooks: true}).Create(&sender).Error)
+	rec := httptest.NewRecorder()
+	c := echo.New().NewContext(httptest.NewRequest(http.MethodGet, "/", nil), rec)
+	c.Set("teamID", "team")
+	require.NoError(t, (&MailConnectionsHandler{DB: database}).Senders(c))
+	var rows []map[string]any
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &rows))
+	require.Len(t, rows, 1)
+}

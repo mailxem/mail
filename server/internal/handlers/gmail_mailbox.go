@@ -281,6 +281,12 @@ func (h *IMAPHandler) gmailHead(c echo.Context, client gmailMailboxAPI) error {
 }
 
 func (h *IMAPHandler) GetAttachment(c echo.Context) error {
+	if service, handled, managedErr := managed(c, h.db); handled {
+		if managedErr != nil {
+			return managedErr
+		}
+		return h.managedAttachment(c, service)
+	}
 	if h.gmailConnect == nil {
 		if relay, _, relayErr := h.cloudflareRelay(c); relayErr != nil {
 			return relayErr

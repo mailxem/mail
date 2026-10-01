@@ -186,7 +186,9 @@ export function MailCompose({
                   ? "Google"
                   : sender.provider === "CLOUDFLARE"
                     ? "Cloudflare"
-                    : sender.provider}
+                    : sender.provider === "MANAGED"
+                      ? "Xem managed sending"
+                      : sender.provider}
               </option>
             ))}
           </select>

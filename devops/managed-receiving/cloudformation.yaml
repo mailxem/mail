@@ -1,0 +1,332 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Xem managed receiving resources. Creates private durable MIME storage, an
+  SES-restricted SNS to SQS path, an empty inactive receipt rule set, alarms,
+  and a separate runtime policy. It never activates a receipt rule set.
+
+Parameters:
+  RuleSetName:
+    Type: String
+    Default: xem-managed-receiving
+    AllowedPattern: "[A-Za-z0-9_-]{1,64}"
+    Description: Dedicated SES receipt rule set. Created empty and inactive.
+  QueueVisibilityTimeoutSeconds:
+    Type: Number
+    Default: 300
+    MinValue: 60
+    MaxValue: 43200
+  QueueRetentionSeconds:
+    Type: Number
+    Default: 345600
+    MinValue: 86400
+    MaxValue: 1209600
+  MaxReceiveCount:
+    Type: Number
+    Default: 5
+    MinValue: 2
+    MaxValue: 10
+  BacklogAgeAlarmSeconds:
+    Type: Number
+    Default: 600
+    MinValue: 60
+    MaxValue: 86400
+  AlarmTopicArn:
+    Type: String
+    Default: ""
+    AllowedPattern: "^$|^arn:[a-z0-9-]+:sns:[a-z0-9-]+:[0-9]{12}:[A-Za-z0-9_.-]+$"
+    Description: Existing operator SNS topic for alarm and recovery notifications. Required before production.
+
+Conditions:
+  HasAlarmTopic: !Not [!Equals [!Ref AlarmTopicArn, ""]]
+
+Resources:
+  RawMailBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireUncommittedIncomingMIME
+            Status: Enabled
+            Prefix: incoming/
+            ExpirationInDays: 30
+      Tags:
+        - Key: Project
+          Value: Xem
+        - Key: Purpose
+          Value: ManagedReceivingRawMail
+
+  RawMailBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref RawMailBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !GetAtt RawMailBucket.Arn
+              - !Sub "${RawMailBucket.Arn}/*"
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+          - Sid: AllowSESReceiptWritesForConfiguredRuleSet
+            Effect: Allow
+            Principal:
+              Service: ses.amazonaws.com
+            Action: s3:PutObject
+            Resource: !Sub "${RawMailBucket.Arn}/incoming/*"
+            Condition:
+              StringEquals:
+                AWS:SourceAccount: !Ref AWS::AccountId
+              ArnLike:
+                AWS:SourceArn: !Sub "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:receipt-rule-set/${RuleSetName}:receipt-rule/*"
+
+  ReceiptTopic:
+    Type: AWS::SNS::Topic
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      DisplayName: Xem managed receiving notifications
+      Tags:
+        - Key: Project
+          Value: Xem
+        - Key: Purpose
+          Value: ManagedReceiving
+
+  ReceiptTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+        - !Ref ReceiptTopic
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: "*"
+            Action: sns:Publish
+            Resource: !Ref ReceiptTopic
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+          - Sid: AllowSESReceiptPublishForConfiguredRuleSet
+            Effect: Allow
+            Principal:
+              Service: ses.amazonaws.com
+            Action: sns:Publish
+            Resource: !Ref ReceiptTopic
+            Condition:
+              StringEquals:
+                AWS:SourceAccount: !Ref AWS::AccountId
+              ArnLike:
+                AWS:SourceArn: !Sub "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:receipt-rule-set/${RuleSetName}:receipt-rule/*"
+
+  DeadLetterQueue:
+    Type: AWS::SQS::Queue
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      MessageRetentionPeriod: 1209600
+      SqsManagedSseEnabled: true
+      Tags:
+        - Key: Project
+          Value: Xem
+        - Key: Purpose
+          Value: ManagedReceivingDLQ
+
+  ReceiptQueue:
+    Type: AWS::SQS::Queue
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      MessageRetentionPeriod: !Ref QueueRetentionSeconds
+      ReceiveMessageWaitTimeSeconds: 20
+      VisibilityTimeout: !Ref QueueVisibilityTimeoutSeconds
+      SqsManagedSseEnabled: true
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt DeadLetterQueue.Arn
+        maxReceiveCount: !Ref MaxReceiveCount
+      Tags:
+        - Key: Project
+          Value: Xem
+        - Key: Purpose
+          Value: ManagedReceiving
+
+  ReceiptQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref ReceiptQueue
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: "*"
+            Action: "sqs:*"
+            Resource: !GetAtt ReceiptQueue.Arn
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+          - Sid: AllowOnlyReceiptTopic
+            Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Action: sqs:SendMessage
+            Resource: !GetAtt ReceiptQueue.Arn
+            Condition:
+              StringEquals:
+                AWS:SourceAccount: !Ref AWS::AccountId
+                aws:SourceArn: !Ref ReceiptTopic
+
+  DeadLetterQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref DeadLetterQueue
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: "*"
+            Action: "sqs:*"
+            Resource: !GetAtt DeadLetterQueue.Arn
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+
+  ReceiptSubscription:
+    Type: AWS::SNS::Subscription
+    DependsOn: ReceiptQueuePolicy
+    Properties:
+      Protocol: sqs
+      Endpoint: !GetAtt ReceiptQueue.Arn
+      TopicArn: !Ref ReceiptTopic
+      RawMessageDelivery: false
+
+  InactiveReceiptRuleSet:
+    Type: AWS::SES::ReceiptRuleSet
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      RuleSetName: !Ref RuleSetName
+
+  RuntimePolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: >-
+        Xem managed receiving queue, incoming MIME objects, and receipt-rule
+        management. Attach deliberately to the existing backend role.
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ConsumeReceivingQueue
+            Effect: Allow
+            Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+              - sqs:ReceiveMessage
+            Resource: !GetAtt ReceiptQueue.Arn
+          - Sid: ReadIncomingAndDurableMIME
+            Effect: Allow
+            Action:
+              - s3:GetObject
+            Resource:
+              - !Sub "${RawMailBucket.Arn}/incoming/*"
+              - !Sub "${RawMailBucket.Arn}/mail/*"
+          - Sid: PromoteAcceptedMIME
+            Effect: Allow
+            Action: s3:PutObject
+            Resource: !Sub "${RawMailBucket.Arn}/mail/*"
+          - Sid: ManageOwnedExactRecipientRules
+            Effect: Allow
+            Action:
+              - ses:CreateReceiptRule
+              - ses:DeleteReceiptRule
+              - ses:DescribeActiveReceiptRuleSet
+              - ses:DescribeReceiptRule
+              - ses:UpdateReceiptRule
+            Resource: "*"
+            Condition:
+              StringEquals:
+                aws:RequestedRegion: !Ref AWS::Region
+
+  QueueBacklogAgeAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Managed receiving queue oldest message exceeds the processing target.
+      Namespace: AWS/SQS
+      MetricName: ApproximateAgeOfOldestMessage
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt ReceiptQueue.QueueName
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 2
+      DatapointsToAlarm: 2
+      Threshold: !Ref BacklogAgeAlarmSeconds
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: !If [HasAlarmTopic, [!Ref AlarmTopicArn], !Ref AWS::NoValue]
+      OKActions: !If [HasAlarmTopic, [!Ref AlarmTopicArn], !Ref AWS::NoValue]
+
+  DeadLetterQueueAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Managed receiving has at least one poison or exhausted message in its DLQ.
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt DeadLetterQueue.QueueName
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: !If [HasAlarmTopic, [!Ref AlarmTopicArn], !Ref AWS::NoValue]
+      OKActions: !If [HasAlarmTopic, [!Ref AlarmTopicArn], !Ref AWS::NoValue]
+
+Outputs:
+  BucketName:
+    Value: !Ref RawMailBucket
+  BucketArn:
+    Value: !GetAtt RawMailBucket.Arn
+  TopicArn:
+    Value: !Ref ReceiptTopic
+  QueueUrl:
+    Value: !Ref ReceiptQueue
+  QueueArn:
+    Value: !GetAtt ReceiptQueue.Arn
+  DeadLetterQueueUrl:
+    Value: !Ref DeadLetterQueue
+  DeadLetterQueueArn:
+    Value: !GetAtt DeadLetterQueue.Arn
+  RuleSetName:
+    Value: !Ref InactiveReceiptRuleSet
+  RuntimePolicyArn:
+    Value: !Ref RuntimePolicy
+  Region:
+    Value: !Ref AWS::Region
+  AccountId:
+    Value: !Ref AWS::AccountId

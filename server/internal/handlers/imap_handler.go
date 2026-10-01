@@ -125,6 +125,12 @@ func (h *IMAPHandler) connect(c echo.Context) (*client.Client, *models.IMAPConfi
 	return im, cfg, nil
 }
 func (h *IMAPHandler) GetFolders(c echo.Context) error {
+	if service, handled, err := managed(c, h.db); handled {
+		if err != nil {
+			return err
+		}
+		return h.managedFolders(c, service)
+	}
 	if h.gmailConnect != nil {
 		gmail, _, _, err := h.gmail(c)
 		if err != nil {
@@ -286,6 +292,12 @@ func (h *IMAPHandler) GetEmails(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	if service, handled, managedErr := managed(c, h.db); handled {
+		if managedErr != nil {
+			return managedErr
+		}
+		return h.managedEmails(c, service, p)
+	}
 	criteria, err := mailCriteria(c)
 	if err != nil {
 		return err
@@ -406,6 +418,12 @@ func (h *IMAPHandler) GetHead(c echo.Context) error {
 	if len(query) > 1024 || strings.ContainsRune(query, '\x00') {
 		return echo.NewHTTPError(400, "Search query is invalid")
 	}
+	if service, handled, err := managed(c, h.db); handled {
+		if err != nil {
+			return err
+		}
+		return h.managedHead(c, service)
+	}
 	if h.headConnect == nil {
 		if h.gmailConnect != nil {
 			gmail, _, _, err := h.gmail(c)
@@ -461,6 +479,16 @@ func (h *IMAPHandler) GetHead(c echo.Context) error {
 // It never accepts message content from the caller and does not expose
 // attachment bytes. BODY.PEEK and a read-only mailbox keep retrieval inert.
 func (h *IMAPHandler) GetMessage(c echo.Context) error {
+	if service, handled, managedErr := managed(c, h.db); handled {
+		if managedErr != nil {
+			return managedErr
+		}
+		query, err := parseMessageQuery(c)
+		if err != nil {
+			return err
+		}
+		return h.managedMessage(c, service, query)
+	}
 	if h.messageConnect == nil {
 		if h.gmailConnect != nil {
 			gmail, cfg, _, err := h.gmail(c)
@@ -574,6 +602,23 @@ func (h *IMAPHandler) GetMessage(c echo.Context) error {
 // ChangeFlags addresses a message by UID and UIDVALIDITY, never by its changing
 // sequence number. It cannot permanently delete messages or expunge a mailbox.
 func (h *IMAPHandler) ChangeFlags(c echo.Context) error {
+	if service, handled, managedErr := managed(c, h.db); handled {
+		if managedErr != nil {
+			return managedErr
+		}
+		var request struct {
+			Folder      string `json:"folder"`
+			UID         uint32 `json:"uid"`
+			UIDValidity uint32 `json:"uidValidity"`
+			Flag        string `json:"flag"`
+			Enabled     bool   `json:"enabled"`
+		}
+		c.Request().Body = http.MaxBytesReader(c.Response(), c.Request().Body, 4096)
+		if c.Bind(&request) != nil || request.Folder == "" || request.UID == 0 || request.UIDValidity == 0 {
+			return echo.NewHTTPError(400, "Folder, UID, and UIDVALIDITY are required")
+		}
+		return h.managedFlags(c, service, request)
+	}
 	if h.gmailConnect == nil {
 		if relay, _, relayErr := h.cloudflareRelay(c); relayErr != nil {
 			return relayErr
