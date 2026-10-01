@@ -79,6 +79,13 @@ class ManagedReceivingTemplate(unittest.TestCase):
         self.assertEqual(allowed["Principal"], {"Service": "sns.amazonaws.com"})
         self.assertEqual(allowed["Condition"]["StringEquals"]["aws:SourceArn"], "ReceiptTopic")
         topic_statements = self.resources["ReceiptTopicPolicy"]["Properties"]["PolicyDocument"]["Statement"]
+        topic_tls = next(s for s in topic_statements if s["Sid"] == "DenyInsecureTransport")
+        self.assertEqual(topic_tls["Action"], "sns:Publish")
+        self.assertFalse(any(
+            action == "sns:*"
+            for statement in topic_statements
+            for action in ([statement["Action"]] if isinstance(statement["Action"], str) else statement["Action"])
+        ))
         publish = next(s for s in topic_statements if s["Sid"] == "AllowSESReceiptPublishForConfiguredRuleSet")
         self.assertEqual(publish["Principal"], {"Service": "ses.amazonaws.com"})
         self.assertIn("receipt-rule-set/${RuleSetName}:receipt-rule/*",
