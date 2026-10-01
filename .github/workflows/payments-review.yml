@@ -28,7 +28,7 @@ jobs:
           private-key: ${{ secrets.CORI_APP_PRIVATE_KEY }}
 
       - name: Payments review (optional)
-        uses: theboringhumane/cori-ai@1.2.9
+        uses: theboringhumane/cori-ai@1.2.12
         with:
           provider: "openai"
           model: gpt-4.1
