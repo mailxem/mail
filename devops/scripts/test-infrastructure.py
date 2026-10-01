@@ -75,9 +75,18 @@ class ManagedReceivingTemplate(unittest.TestCase):
         statement = self.resources["ReceiptQueuePolicy"]["Properties"]["PolicyDocument"]["Statement"][0]
         self.assertEqual(statement["Sid"], "DenyInsecureTransport")
         statements = self.resources["ReceiptQueuePolicy"]["Properties"]["PolicyDocument"]["Statement"]
+        self.assertEqual(self.resources["ReceiptQueuePolicy"]["Properties"]["Queues"], ["ReceiptQueue"])
+        self.assertTrue(all(not isinstance(s["Resource"], list) for s in statements))
         allowed = next(s for s in statements if s["Sid"] == "AllowOnlyReceiptTopic")
         self.assertEqual(allowed["Principal"], {"Service": "sns.amazonaws.com"})
         self.assertEqual(allowed["Condition"]["StringEquals"]["aws:SourceArn"], "ReceiptTopic")
+        dlq_policy = self.resources["DeadLetterQueuePolicy"]["Properties"]
+        self.assertEqual(dlq_policy["Queues"], ["DeadLetterQueue"])
+        self.assertEqual(len(dlq_policy["PolicyDocument"]["Statement"]), 1)
+        dlq_tls = dlq_policy["PolicyDocument"]["Statement"][0]
+        self.assertEqual(dlq_tls["Sid"], "DenyInsecureTransport")
+        self.assertEqual(dlq_tls["Resource"], "DeadLetterQueue.Arn")
+        self.assertNotIn("AllowOnlyReceiptTopic", str(dlq_policy))
         topic_statements = self.resources["ReceiptTopicPolicy"]["Properties"]["PolicyDocument"]["Statement"]
         topic_tls = next(s for s in topic_statements if s["Sid"] == "DenyInsecureTransport")
         self.assertEqual(topic_tls["Action"], "sns:Publish")
