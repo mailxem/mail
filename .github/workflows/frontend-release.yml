@@ -6,6 +6,10 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: release-pipeline-frontend-${{ github.ref }}
+  queue: max
+  cancel-in-progress: false
 jobs:
   validate:
     uses: ./.github/workflows/frontend-ci.yml
@@ -18,3 +22,49 @@ jobs:
       image: theboringhumane/xemapp
     secrets:
       DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+  wait-for-backend:
+    needs: release
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Wait for same-commit backend deployment when required
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BEFORE_SHA: ${{ github.event.before }}
+          HEAD_BRANCH: ${{ github.ref_name }}
+        run: |
+          if git diff --quiet "$BEFORE_SHA" "$GITHUB_SHA" -- server .github/workflows/backend-release.yml .github/workflows/backend-ci.yml .github/workflows/component-release.yml scripts/component-release.py; then
+            exit 0
+          else
+            result=$?
+          fi
+          test "$result" -eq 1 || { echo 'Unable to determine whether this push requires the backend release'; exit 1; }
+          for _ in $(seq 1 180); do
+            run=$(gh api --method GET "repos/$GITHUB_REPOSITORY/actions/workflows/backend-release.yml/runs" -f head_sha="$GITHUB_SHA" -f branch="$HEAD_BRANCH" -f event=push --jq '(.workflow_runs | max_by([.run_number, .run_attempt])) // {} | [(.status // ""), (.conclusion // "")] | @tsv')
+            status=${run%%$'\t'*}
+            conclusion=${run#*$'\t'}
+            if [ "$status" = completed ]; then
+              test "$conclusion" = success || { echo "Same-commit backend release ended with $conclusion"; exit 1; }
+              exit 0
+            fi
+            sleep 10
+          done
+          echo 'Timed out waiting for the same-commit backend deployment'
+          exit 1
+  deploy:
+    needs: [release, wait-for-backend]
+    if: ${{ !cancelled() && needs.release.result == 'success' && (needs.wait-for-backend.result == 'success' || needs.wait-for-backend.result == 'skipped') }}
+    uses: ./.github/workflows/hakopod-deploy.yml
+    with:
+      service: frontend
+      image: ${{ needs.release.outputs.image }}
+    secrets:
+      HAKOPOD_API_TOKEN: ${{ secrets.HAKOPOD_API_TOKEN }}

@@ -14,10 +14,15 @@ on:
     secrets:
       DOCKER_HUB_TOKEN:
         required: true
+    outputs:
+      image:
+        description: Published multi-platform image pinned by digest.
+        value: ${{ jobs.publish.outputs.image }}
 permissions:
   contents: read
 concurrency:
   group: release-${{ inputs.component }}
+  queue: max
   cancel-in-progress: false
 jobs:
   version:
@@ -123,6 +128,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      image: ${{ steps.published.outputs.image }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -150,6 +157,15 @@ jobs:
             --tag "$IMAGE:sha-$GITHUB_SHA" --tag "$IMAGE:$VERSION" \
             --tag "$IMAGE:sudo" --tag "$IMAGE:latest" "${images[@]}"
           docker buildx imagetools inspect "$IMAGE:$VERSION"
+      - name: Resolve immutable published image
+        id: published
+        env:
+          IMAGE: ${{ inputs.image }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          digest=$(docker buildx imagetools inspect "$IMAGE:$VERSION" --format '{{.Manifest.Digest}}')
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || { echo 'Published image did not resolve to a sha256 digest'; exit 1; }
+          echo "image=$IMAGE@$digest" >> "$GITHUB_OUTPUT"
       - name: Create component release after image publication
         env:
           GH_TOKEN: ${{ github.token }}

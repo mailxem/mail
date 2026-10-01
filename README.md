@@ -14,9 +14,14 @@
   <img src="https://img.shields.io/badge/backend-Go-5b3cc4?labelColor=22251f" alt="Go backend" />
   <img src="https://img.shields.io/badge/app-Next.js-ffffef?labelColor=22251f" alt="Next.js app" />
   <img src="https://img.shields.io/badge/self_host-Docker_Swarm-5b3cc4?labelColor=22251f" alt="Docker Swarm self hosting" />
+  <a href="https://hakopod.com"><picture><source media="(prefers-color-scheme: dark)" srcset=".github/assets/hakopod-horizontal-paper.svg"><img src=".github/assets/hakopod-horizontal-ink.svg" alt="Hosted on Hakopod" width="138" /></picture></a>
 </p>
 
 **Xem** (formerly Posthoot) is an open-source email platform for teams that want control over their delivery infrastructure. Bring your SMTP provider, create campaigns and templates, manage audiences, and build multi-step automations through a web app or API.
+
+## Hosted on Hakopod
+
+The Xem hosted service runs on [Hakopod](https://hakopod.com). Operators who want to deploy Xem on their own Hakopod installation can use the repository's [Hakopod configuration and deployment guide](devops/hakopod/README.md).
 
 ## Choose where to deploy
 
@@ -116,6 +121,7 @@ This is a **monorepo**: all eight components above are normal directories. No su
 - Backend changes run Go vet, race tests, builds, and the relevant PostgreSQL/SMTP integration checks.
 - Changes to either side run the full Docker Swarm smoke test.
 - Default-branch changes publish the affected component's amd64/arm64 images independently, then assemble the combined image and create a component-scoped release.
+- Published backend, frontend, MCP, and payments images can be deployed automatically to Hakopod using the [release deployment workflow](docs/hakopod-deployments.md).
 - Website, infrastructure, MCP, payments, and Go SDK workflows also run from the root, with checks scoped to their component paths.
 - Images keep `theboringhumane/xemapp` and `theboringhumane/xemgo`; Git tags use `frontend-v*` and `backend-v*` to avoid collisions.
 

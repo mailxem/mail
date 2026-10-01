@@ -10,7 +10,8 @@ permissions:
   contents: read
 concurrency:
   group: payments-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  queue: max
+  cancel-in-progress: false
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -34,6 +35,8 @@ jobs:
     permissions:
       contents: write
       packages: write
+    outputs:
+      image: ghcr.io/mailxem/payments.go@${{ steps.image.outputs.digest }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -54,6 +57,7 @@ jobs:
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
+        id: image
         with:
           context: payments.go
           platforms: linux/amd64,linux/arm64
@@ -73,3 +77,11 @@ jobs:
         run: |
           python3 scripts/component-release.py notes payments.go "$PREVIOUS" > "$RUNNER_TEMP/payments-notes.md"
           gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --notes-file "$RUNNER_TEMP/payments-notes.md"
+  deploy:
+    needs: publish
+    uses: ./.github/workflows/hakopod-deploy.yml
+    with:
+      service: payments
+      image: ${{ needs.publish.outputs.image }}
+    secrets:
+      HAKOPOD_API_TOKEN: ${{ secrets.HAKOPOD_API_TOKEN }}
