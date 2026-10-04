@@ -2,7 +2,68 @@ import {
   formHTMLSnippet,
   resolveFormTheme,
   formPresets,
+  publicFormAction,
 } from "@/lib/marketing/form-theme";
+
+describe("portable public form actions", () => {
+  const originalAPI = process.env.NEXT_PUBLIC_API_URL;
+  const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+
+  afterEach(() => {
+    if (originalAPI === undefined) delete process.env.NEXT_PUBLIC_API_URL;
+    else process.env.NEXT_PUBLIC_API_URL = originalAPI;
+    if (originalWindow) Object.defineProperty(globalThis, "window", originalWindow);
+    else Reflect.deleteProperty(globalThis, "window");
+  });
+
+  const browser = (origin: string) => {
+    Object.defineProperty(globalThis, "window", {
+      configurable: true,
+      value: { location: { origin } },
+    });
+  };
+
+  it.each(["/api/v1", "/api/v1/", ""])(
+    "keeps copied HTML on this installation with API URL %p",
+    (api) => {
+      process.env.NEXT_PUBLIC_API_URL = api;
+      browser("https://mail.example.test");
+      const action = publicFormAction("newsletter / weekly");
+      expect(action).toBe(
+        "https://mail.example.test/public/forms/newsletter%20%2F%20weekly",
+      );
+      expect(formHTMLSnippet(action, [], "Subscribe")).toContain(
+        `action="${action}"`,
+      );
+    },
+  );
+
+  it("uses the current installation and port without rebuilding", () => {
+    process.env.NEXT_PUBLIC_API_URL = "/api/v1";
+    browser("https://mail.example.test");
+    expect(publicFormAction("signup")).toBe(
+      "https://mail.example.test/public/forms/signup",
+    );
+    browser("https://newsletter.example.test:8443");
+    expect(publicFormAction("signup")).toBe(
+      "https://newsletter.example.test:8443/public/forms/signup",
+    );
+  });
+
+  it("preserves an explicitly configured hosted API origin", () => {
+    process.env.NEXT_PUBLIC_API_URL = "https://api.example.test/api/v1/";
+    browser("https://mail.example.test");
+    expect(publicFormAction("signup")).toBe(
+      "https://api.example.test/public/forms/signup",
+    );
+  });
+
+  it("renders on the server without a browser global", () => {
+    process.env.NEXT_PUBLIC_API_URL = "/api/v1";
+    Reflect.deleteProperty(globalThis, "window");
+    expect(publicFormAction("signup")).toBe("/public/forms/signup");
+  });
+});
 
 describe("hosted form branding", () => {
   it("keeps existing forms readable and fills partial dark themes", () => {

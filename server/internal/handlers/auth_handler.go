@@ -567,7 +567,7 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 
 	// get user from claims
 	var user models.User
-	if err := h.db.First(&user, authTransaction.UserID).Error; err != nil {
+	if err := h.db.Where("id = ?", authTransaction.UserID).First(&user).Error; err != nil {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "User not found"})
 	}
 

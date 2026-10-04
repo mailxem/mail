@@ -6,7 +6,10 @@ import GoogleProvider from "next-auth/providers/google";
 import { isJwtExpired } from "./lib/utils";
 
 const env = process.env;
-export const API_URL = env.NEXT_PUBLIC_API_URL;
+export const API_URL = (env.INTERNAL_API_URL || env.NEXT_PUBLIC_API_URL)?.replace(
+  /\/$/,
+  "",
+);
 
 const nextAuthConfig: NextAuthConfig = {
   callbacks: {

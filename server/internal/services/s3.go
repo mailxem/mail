@@ -3,6 +3,7 @@ package services
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/aws/smithy-go"
 
 	"kori/internal/utils/logger"
 
@@ -28,6 +30,8 @@ var _ models.FileURLGenerator = (*S3Service)(nil)
 
 type S3Service struct {
 	client      *s3.Client
+	presigner   *s3.Client
+	disableACL  bool
 	bucketName  string
 	endpoint    string
 	endpointURL string
@@ -53,6 +57,11 @@ func NewS3Service(bucketName, endpoint, region, accessKey, secretKey string) (*S
 		return nil, err
 	}
 
+	publicEndpointURL, err := resolveS3PublicEndpoint(os.Getenv("S3_PUBLIC_ENDPOINT_URL"), os.Getenv("S3_ENDPOINT_URL"), signingRegion)
+	if err != nil {
+		return nil, err
+	}
+
 	// Create AWS config with explicit credentials
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion(signingRegion),
@@ -73,18 +82,33 @@ func NewS3Service(bucketName, endpoint, region, accessKey, secretKey string) (*S
 		o.UsePathStyle = pathStyle
 	})
 
-	// Verify credentials by making a test API call
-	_, err = client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
-		Bucket: aws.String(bucketName),
-	})
+	// Sign browser reads for the public proxy without sending uploads through it.
+	presigner := client
+	if publicEndpointURL != "" {
+		presigner = s3.NewFromConfig(cfg, func(o *s3.Options) {
+			o.BaseEndpoint = aws.String(publicEndpointURL)
+			o.UsePathStyle = true
+		})
+	}
+
+	// Limit storage initialization even when the endpoint is unavailable.
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	err = verifyS3Bucket(ctx, client, bucketName, os.Getenv("S3_CREATE_BUCKET") == "true")
 	if err != nil {
 		return nil, log.Error("Failed to verify S3 credentials ❌", err)
 	}
 
 	log.Success("S3 service initialized successfully ✅")
 
+	if publicEndpointURL != "" {
+		endpointURL = publicEndpointURL
+	}
+
 	return &S3Service{
 		client:      client,
+		presigner:   presigner,
+		disableACL:  os.Getenv("S3_DISABLE_ACL") == "true",
 		bucketName:  bucketName,
 		endpoint:    endpoint,
 		endpointURL: endpointURL,
@@ -107,11 +131,12 @@ func (s *S3Service) UploadFile(ctx context.Context, file []byte, filename string
 
 	s.logger.Info("🔄 Processing upload for file: %s", filename)
 
-	is_r2 := os.Getenv("STORAGE_PROVIDER") == "r2"
-
-	ACL := acl
-	if is_r2 {
-		ACL = types.ObjectCannedACLPublicRead
+	// Preserve hosted ACL behavior unless the operator uses an ACL-disabled bucket.
+	objectACL := acl
+	if s.disableACL {
+		objectACL = ""
+	} else if os.Getenv("STORAGE_PROVIDER") == "r2" {
+		objectACL = types.ObjectCannedACLPublicRead
 	}
 
 	// Upload to storage
@@ -119,7 +144,7 @@ func (s *S3Service) UploadFile(ctx context.Context, file []byte, filename string
 		Bucket:      aws.String(s.bucketName),
 		Key:         aws.String(filename),
 		Body:        bytes.NewReader(file),
-		ACL:         ACL,
+		ACL:         objectACL,
 		ContentType: aws.String(contentType),
 	})
 	if err != nil {
@@ -144,7 +169,7 @@ func (s *S3Service) UploadFile(ctx context.Context, file []byte, filename string
 
 // GetSignedURL implements FileURLGenerator interface
 func (s *S3Service) GetSignedURL(ctx context.Context, path string, duration time.Duration) (string, error) {
-	presignClient := s3.NewPresignClient(s.client)
+	presignClient := s3.NewPresignClient(s.presigner)
 
 	s.logger.Info("🔄 Generating pre-signed URL for path: %s", path)
 
@@ -175,4 +200,41 @@ func resolveS3Endpoint(endpoint, region, explicit string) (string, string, bool,
 		return "", "", false, fmt.Errorf("S3_REGION is required with S3_ENDPOINT_URL")
 	}
 	return strings.TrimRight(explicit, "/"), region, true, nil
+}
+
+// A public origin changes object URLs and signatures, not the private S3 client.
+func resolveS3PublicEndpoint(public, private, region string) (string, error) {
+	if public == "" {
+		return "", nil
+	}
+	if private == "" {
+		return "", fmt.Errorf("S3_PUBLIC_ENDPOINT_URL requires S3_ENDPOINT_URL")
+	}
+	endpoint, _, _, err := resolveS3Endpoint("", region, public)
+	if err != nil || !strings.HasPrefix(endpoint, "https://") {
+		return "", fmt.Errorf("S3_PUBLIC_ENDPOINT_URL must be an HTTPS origin without credentials, query, or path")
+	}
+	return endpoint, nil
+}
+
+// Bucket creation is opt-in for MinIO-compatible stores and never changes policy.
+// Provision AWS regional buckets separately; no LocationConstraint is sent here.
+func verifyS3Bucket(ctx context.Context, client *s3.Client, bucket string, create bool) error {
+	list := &s3.ListObjectsV2Input{Bucket: aws.String(bucket), MaxKeys: aws.Int32(1)}
+	_, err := client.ListObjectsV2(ctx, list)
+	if !create || !isS3Error(err, "NoSuchBucket") {
+		return err
+	}
+	_, err = client.CreateBucket(ctx, &s3.CreateBucketInput{Bucket: aws.String(bucket)})
+	if err != nil && !isS3Error(err, "BucketAlreadyOwnedByYou") {
+		return err
+	}
+	// A create race is safe only after the configured credentials can list it.
+	_, err = client.ListObjectsV2(ctx, list)
+	return err
+}
+
+func isS3Error(err error, code string) bool {
+	var apiError smithy.APIError
+	return errors.As(err, &apiError) && apiError.ErrorCode() == code
 }

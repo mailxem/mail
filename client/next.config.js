@@ -8,7 +8,7 @@ const nextConfig = {
     },
   ],
   redirects: async () => {
-    return [
+    const redirects = [
       {
         source: "/login",
         destination: "/auth/login",
@@ -24,12 +24,19 @@ const nextConfig = {
         destination: "/billing/overview",
         permanent: true,
       },
-      {
-        source: "/api/billing/:path*",
-        destination: `${process.env.NEXT_PUBLIC_PAYWALL_URL}/:path*`,
-        permanent: false,
-      },
     ];
+    const paywallURL = process.env.NEXT_PUBLIC_PAYWALL_URL?.trim().replace(
+      /\/$/,
+      "",
+    );
+    if (paywallURL) {
+      redirects.push({
+        source: "/api/billing/:path*",
+        destination: `${paywallURL}/:path*`,
+        permanent: false,
+      });
+    }
+    return redirects;
   },
   images: {
     remotePatterns: [

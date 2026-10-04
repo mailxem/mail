@@ -46,6 +46,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        arch: [amd64, arm64]
+        variant: ${{ fromJSON(inputs.component == 'frontend' && '["", "-self-hosted"]' || '[""]') }}
         include:
           - arch: amd64
             runner: ubuntu-latest
@@ -58,7 +60,7 @@ jobs:
           TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
         run: test -n "$TOKEN" || { echo 'Configure DOCKER_HUB_TOKEN in this repository'; exit 1; }
       - name: Check frontend build configuration
-        if: inputs.component == 'frontend'
+        if: inputs.component == 'frontend' && matrix.variant == ''
         env:
           API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
           PAYWALL_URL: ${{ vars.NEXT_PUBLIC_PAYWALL_URL }}
@@ -100,15 +102,15 @@ jobs:
           push: true
           platforms: linux/${{ matrix.arch }}
           tags: |
-            ${{ inputs.image }}:sha-${{ github.sha }}-${{ matrix.arch }}
-            ${{ inputs.image }}:${{ needs.version.outputs.version }}-${{ matrix.arch }}
-            ${{ inputs.image }}:sudo-${{ matrix.arch }}
-            ${{ inputs.image }}:latest-${{ matrix.arch }}
+            ${{ inputs.image }}:sha-${{ github.sha }}${{ matrix.variant }}-${{ matrix.arch }}
+            ${{ inputs.image }}:${{ needs.version.outputs.version }}${{ matrix.variant }}-${{ matrix.arch }}
+            ${{ inputs.image }}:sudo${{ matrix.variant }}-${{ matrix.arch }}
+            ${{ inputs.image }}:latest${{ matrix.variant }}-${{ matrix.arch }}
           build-args: |
-            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
-            NEXT_PUBLIC_PAYWALL_URL=${{ vars.NEXT_PUBLIC_PAYWALL_URL }}
-          cache-from: type=gha,scope=${{ inputs.component }}-${{ matrix.arch }}
-          cache-to: type=gha,mode=max,scope=${{ inputs.component }}-${{ matrix.arch }}
+            NEXT_PUBLIC_API_URL=${{ matrix.variant == '-self-hosted' && '/api/v1' || vars.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_PAYWALL_URL=${{ matrix.variant == '' && vars.NEXT_PUBLIC_PAYWALL_URL || '' }}
+          cache-from: type=gha,scope=${{ inputs.component }}${{ matrix.variant }}-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ inputs.component }}${{ matrix.variant }}-${{ matrix.arch }}
           sbom: false
           provenance: false
       - name: Export digest
@@ -119,7 +121,7 @@ jobs:
           touch "$RUNNER_TEMP/digests/${DIGEST#sha256:}"
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.component }}-digest-${{ matrix.arch }}
+          name: ${{ inputs.component }}${{ matrix.variant }}-digest-${{ matrix.arch }}
           path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
           retention-days: 1
@@ -166,6 +168,26 @@ jobs:
           digest=$(docker buildx imagetools inspect "$IMAGE:$VERSION" --format '{{.Manifest.Digest}}')
           [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || { echo 'Published image did not resolve to a sha256 digest'; exit 1; }
           echo "image=$IMAGE@$digest" >> "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@v4
+        if: inputs.component == 'frontend'
+        with:
+          path: ${{ runner.temp }}/self-hosted-digests
+          pattern: frontend-self-hosted-digest-*
+          merge-multiple: true
+      - name: Publish portable frontend manifest
+        if: inputs.component == 'frontend'
+        working-directory: ${{ runner.temp }}/self-hosted-digests
+        env:
+          IMAGE: ${{ inputs.image }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          images=()
+          for digest in *; do images+=("$IMAGE@sha256:$digest"); done
+          test "${#images[@]}" -eq 2
+          docker buildx imagetools create \
+            --tag "$IMAGE:sha-$GITHUB_SHA-self-hosted" --tag "$IMAGE:$VERSION-self-hosted" \
+            --tag "$IMAGE:sudo-self-hosted" --tag "$IMAGE:latest-self-hosted" "${images[@]}"
+          docker buildx imagetools inspect "$IMAGE:$VERSION-self-hosted"
       - name: Create component release after image publication
         env:
           GH_TOKEN: ${{ github.token }}

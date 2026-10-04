@@ -22,6 +22,8 @@ func TestExplicitS3Endpoint(t *testing.T) {
 	}))
 	defer server.Close()
 	t.Setenv("S3_ENDPOINT_URL", server.URL)
+	t.Setenv("S3_PUBLIC_ENDPOINT_URL", "")
+	t.Setenv("S3_CREATE_BUCKET", "false")
 	svc, err := NewS3Service("xem", "", "us-east-1", "test", "test-secret")
 	if err != nil {
 		t.Fatal(err)

@@ -1,5 +1,7 @@
 # Xem on Hakopod
 
+For the app with bundled or existing PostgreSQL, Redis and MinIO/S3, see [portable self-hosting](self-hosting.md).
+
 `xem.toml` uses the updated schema v1 and the four requested image references. It targets **self-hosted Hakopod** with public SMTP on TCP 587, a backend certificate mount, and an operator-approved AWS workload identity. Managed-cloud Hakopod rejects public TCP. This configuration includes verified STARTTLS readiness, automatic renewal from the backend HTTP ingress certificate, and explicit stop-first updates. It is a migration target requiring operator setup, not an already provisioned deployment. Saving it changes no infrastructure or DNS.
 
 ## Prepare the application
