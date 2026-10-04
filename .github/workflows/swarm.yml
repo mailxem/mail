@@ -12,14 +12,14 @@ jobs:
   contract:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: bash -n scripts/install.sh && shellcheck scripts/install.sh
       - run: python3 -m unittest discover -s devops/swarm -p 'test_*.py'
   smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Configure disposable endpoints
         run: |
           python3 - <<'PY'
