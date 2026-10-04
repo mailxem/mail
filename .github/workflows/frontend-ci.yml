@@ -1,7 +1,7 @@
 name: Frontend CI
 on:
   pull_request:
-    paths: ['client/**', '.github/workflows/frontend-ci.yml']
+    paths: ['client/**', '.github/workflows/frontend-ci.yml', '.github/workflows/component-release.yml', 'scripts/test_hakopod_workflows.py']
   workflow_call:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -15,12 +15,15 @@ jobs:
   check:
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_API_URL: http://127.0.0.1:9001/api/v1
-      NEXT_PUBLIC_PAYWALL_URL: http://127.0.0.1:9002/api/v1
+      NEXT_PUBLIC_API_URL: /api/v1
+      NEXT_PUBLIC_PAYWALL_URL: ''
       INTERNAL_API_URL: http://127.0.0.1:9001/api/v1
       NEXT_TELEMETRY_DISABLED: '1'
     steps:
       - uses: actions/checkout@v4
+      - name: Check release workflow contracts
+        working-directory: .
+        run: python3 scripts/test_hakopod_workflows.py
       - uses: actions/setup-node@v4
         with:
           node-version: '22'

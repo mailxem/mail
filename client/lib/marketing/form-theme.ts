@@ -66,8 +66,16 @@ export function resolveFormTheme(value?: Partial<FormTheme>): FormTheme {
   } catch {}
   return theme;
 }
-export const publicFormAction = (slug: string) =>
-  `${(process.env.NEXT_PUBLIC_API_URL || "").replace(/\/api\/v1\/?$/, "").replace(/\/$/, "")}/public/forms/${encodeURIComponent(slug)}`;
+export const publicFormAction = (slug: string) => {
+  const configuredOrigin = (process.env.NEXT_PUBLIC_API_URL || "")
+    .replace(/\/api\/v1\/?$/, "")
+    .replace(/\/$/, "");
+  // Copied HTML forms must retain this installation's origin on another website.
+  const origin =
+    configuredOrigin ||
+    (typeof window !== "undefined" ? window.location.origin : "");
+  return `${origin}/public/forms/${encodeURIComponent(slug)}`;
+};
 const escapeHTML = (text: string) =>
   text.replace(
     /[&<>"']/g,
