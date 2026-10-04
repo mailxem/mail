@@ -19,7 +19,7 @@ jobs:
       run:
         working-directory: payments.go
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-go@v5
         with:
           go-version-file: payments.go/go.mod
@@ -38,7 +38,7 @@ jobs:
     outputs:
       image: ghcr.io/mailxem/payments.go@${{ steps.image.outputs.digest }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - id: version
