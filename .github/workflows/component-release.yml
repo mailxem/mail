@@ -136,7 +136,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: ${{ runner.temp }}/digests
           pattern: ${{ inputs.component }}-digest-*
@@ -168,7 +168,7 @@ jobs:
           digest=$(docker buildx imagetools inspect "$IMAGE:$VERSION" --format '{{.Manifest.Digest}}')
           [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]] || { echo 'Published image did not resolve to a sha256 digest'; exit 1; }
           echo "image=$IMAGE@$digest" >> "$GITHUB_OUTPUT"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         if: inputs.component == 'frontend'
         with:
           path: ${{ runner.temp }}/self-hosted-digests
