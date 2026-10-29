@@ -17,6 +17,7 @@ import {
   ArrowUpRight,
   BarChart3,
   Clock3,
+  LayoutGrid,
   Mail,
   MousePointer2,
   RefreshCw,
@@ -25,6 +26,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { AnalyticsWorkspace } from "./analytics-workspace";
+import { OverviewHome } from "./overview-home";
 import { useTeam } from "@/app/providers/team-provider";
 import { useAnalytics } from "@/lib/analytics/use-analytics";
 import { EmailReport, formatRate } from "@/lib/analytics/types";
@@ -84,41 +86,49 @@ function nextDay(value: string) {
 export function DashboardHome() {
   const search = useSearchParams();
   const router = useRouter();
-  const tab = search.get("tab") === "campaigns" ? "campaigns" : "email";
+  const requested = search.get("tab");
+  const tab =
+    requested === "campaigns" || requested === "email" ? requested : "overview";
   const [dates, setDates] = useState(() => period(30));
   const [days, setDays] = useState("30");
   return (
     <div className={styles.workspace}>
       <OnboardingBanner />
-      <PageHeading
-        title="Dashboard"
-        description="Your email activity and campaign performance, in one place."
-        action={
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" asChild>
-              <Link href="/developer/logs/emails">
-                Open outbox
-                <ArrowUpRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild>
-              <Link href="/campaigns/new">
-                <Plus className="mr-2 h-4 w-4" />
-                Create campaign
-              </Link>
-            </Button>
-          </div>
-        }
-      />
+      {tab !== "overview" && (
+        <PageHeading
+          title="Dashboard"
+          description="Your email activity and campaign performance, in one place."
+          action={
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="outline" asChild>
+                <Link href="/developer/logs/emails">
+                  Open outbox
+                  <ArrowUpRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/campaigns/new">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create campaign
+                </Link>
+              </Button>
+            </div>
+          }
+        />
+      )}
       <Tabs
         value={tab}
         onValueChange={(value) => {
           const q = new URLSearchParams(search);
           q.set("tab", value);
-          router.replace(`/?${q}`, { scroll: false });
+          router.replace(`?${q}`, { scroll: false });
         }}
       >
         <TabsList aria-label="Dashboard analytics" className={styles.tabs}>
+          <TabsTrigger value="overview" className={styles.tab}>
+            <LayoutGrid className="h-4 w-4" />
+            Overview
+          </TabsTrigger>
           <TabsTrigger value="email" className={styles.tab}>
             <Mail className="h-4 w-4" />
             Email
@@ -128,6 +138,9 @@ export function DashboardHome() {
             Campaigns
           </TabsTrigger>
         </TabsList>
+        <TabsContent value="overview" className="mt-6">
+          <OverviewHome />
+        </TabsContent>
         <TabsContent value="email" className="mt-6">
           <EmailActivity
             dates={dates}
