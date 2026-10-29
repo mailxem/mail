@@ -260,17 +260,18 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               data-intro
               className="mt-5 font-editorial text-[clamp(3.25rem,7.8vw,6rem)] font-normal leading-[.94] tracking-[-.055em]"
             >
-              Every email,
+              Your newsletter,
               <br />
-              <em className="font-normal">a little more human.</em>
+              <em className="font-normal">at the price of email.</em>
             </h1>
             <p
               data-intro
               className="mx-auto mt-6 max-w-[560px] text-[17px] leading-relaxed tracking-[-.02em] md:text-lg"
             >
-              Open-source email marketing for real connections.
-              <br className="hidden sm:block" /> Beautiful emails, thoughtful
-              automations, and room to make it your own.
+              Send through your own Amazon SES and pay what Amazon charges:
+              about $2 to $3 for 20,000 emails.
+              <br className="hidden sm:block" /> Newsletters, automations and a
+              shared inbox, all open source.
             </p>
             <div
               data-intro
