@@ -42,6 +42,7 @@ import { workspaceClassName } from "@/lib/workspace-styles";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/page-header";
 import { PhonePreview } from "@/components/campaigns/phone-preview";
+import { BestTimeHint } from "@/components/campaigns/best-time-hint";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -986,6 +987,15 @@ function NewCampaignForm() {
                 </div>
                 {isScheduled && (
                   <div className="space-y-5 border-t border-border pt-5">
+                    <BestTimeHint
+                      timezone={deviceTimezone}
+                      onPick={(date) =>
+                        form.setValue("scheduledFor", date, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        })
+                      }
+                    />
                     <FormField
                       control={form.control}
                       name="scheduledFor"
