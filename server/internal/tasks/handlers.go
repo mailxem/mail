@@ -16,6 +16,7 @@ import (
 	"gorm.io/gorm"
 
 	"maps"
+	"strings"
 
 	"github.com/hibiken/asynq"
 )
@@ -451,7 +452,10 @@ func (h *TaskHandler) HandleContactImport(ctx context.Context, t *asynq.Task) er
 		}
 
 		// Map all fields using the helper function
-		contact.Email = getFieldValue("email")
+		contact.Email = strings.TrimSpace(getFieldValue("email"))
+		if contact.Email == "" {
+			continue
+		}
 		contact.FirstName = getFieldValue("first_name")
 		contact.LastName = getFieldValue("last_name")
 		contact.LinkedIn = getFieldValue("linkedin")
