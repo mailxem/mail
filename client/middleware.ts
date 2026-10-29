@@ -13,6 +13,8 @@ export async function middleware(request: NextRequest) {
   // Check session (will work for both regular auth and API key auth)
   if (
     request.nextUrl.pathname.startsWith("/f/") ||
+    // Published newsletter archives are public web pages.
+    request.nextUrl.pathname.startsWith("/n/") ||
     request.nextUrl.pathname === "/forms/embed.js" ||
     (process.env.NODE_ENV === "development" &&
       request.nextUrl.pathname === "/preview")
