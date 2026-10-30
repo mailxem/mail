@@ -5,6 +5,7 @@ import { getPosts } from "@/lib/blog";
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: siteUrl, changeFrequency: "monthly", priority: 1 },
+    { url: `${siteUrl}/pricing`, changeFrequency: "monthly", priority: 0.9 },
     { url: `${siteUrl}/mcp`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${siteUrl}/blog`, changeFrequency: "weekly", priority: 0.8 },
     {
