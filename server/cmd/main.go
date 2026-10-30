@@ -156,6 +156,7 @@ func main() {
 	// Xem Cloud only: report sent emails to the payments service for billing.
 	if reporter := billing.FromEnv(db_instance); reporter != nil {
 		billing.Enabled = true
+		billing.Use(reporter)
 		billingDone := make(chan struct{})
 		go func() {
 			defer close(billingDone)
