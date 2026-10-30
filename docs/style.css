@@ -1,31 +1,74 @@
-* {
-    border-radius: 0 !important;
+/* Xem brand, matching xem.email: cream paper, ink text, iris accents,
+   DM Sans body and EB Garamond headings (fonts are set in docs.json). */
+:root {
+    --xem-cream: #ffffef;
+    --xem-paper: #f0eedf;
+    --xem-ink: #22251f;
+    --xem-muted: #66695e;
+    --xem-iris: #5b3cc4;
+    --xem-iris-dark: #49309e;
+    --xem-iris-shadow: #362278;
+    --xem-lavender: #e7d8fa;
+    --xem-lemon: #edf09b;
+    --xem-rule: rgba(34, 37, 31, 0.15);
 }
 
+body {
+    background-color: var(--xem-cream);
+    color: var(--xem-ink);
+}
+
+::selection {
+    background: var(--xem-lavender);
+    color: var(--xem-ink);
+}
+
+/* Top bar */
 #navbar .max-w-8xl {
     max-width: 100%;
-    border-bottom: 1px solid #00000024;
-    background-color: #ece9e9;
+    background-color: rgba(255, 255, 239, 0.95);
+    border-bottom: 1px solid var(--xem-rule);
 }
 
-.max-w-8xl {
-    /* background-color: #f5f5f5; */
+#navbar nav a {
+    color: var(--xem-ink);
+}
+
+#topbar-cta-button .group .absolute {
+    background-color: var(--xem-iris);
+    border: 1px solid var(--xem-iris-dark);
+    border-radius: 8px;
+    box-shadow: 0 2px 0 var(--xem-iris-shadow);
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+#topbar-cta-button .group:hover .absolute {
+    background-color: var(--xem-iris-dark);
+    box-shadow: 0 4px 0 var(--xem-iris-shadow);
+    transform: translateY(-2px);
+}
+
+#topbar-cta-button .group .flex {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-weight: 600;
 }
 
 /* Mintlify centres the sidebar in a max-w-8xl wrapper; pin it to the screen edge. */
-div:has(> #sidebar) {
-    max-width: none;
-    margin-left: 0;
-    padding-left: 0;
+@media (min-width: 1024px) {
+    div:has(> #sidebar) {
+        max-width: none;
+        margin-left: 0;
+        padding-left: 0;
+    }
 }
 
+/* Sidebar */
 #sidebar {
     left: 0;
     padding-right: 30px;
-    border-right: 1px;
-    border-color: #00000024;
-    background-color: #ece9e9;
-    border-right: 1px solid #00000024;
+    background-color: var(--xem-paper);
+    border-right: 1px solid var(--xem-rule);
 }
 
 #sidebar-content {
@@ -36,93 +79,146 @@ div:has(> #sidebar) {
     opacity: 0;
 }
 
-#sidebar li>div.mt-2 {
-    padding: 5px;
-}
-
-#sidebar li>a.text-primary {
-    background-color: #FFE5E5;
-    border-left: 4px solid #f08787;
-    padding: 5px;
-}
-
-#sidebar li>a.mt-2 {
-    padding: 5px;
-}
-
-#sidebar li>a.leading-6 {
-    padding: 0px;
-}
-
-/* #sidebar ul > div.mt-12 {
-    padding-top: 30px;
-    position: relative;
-  }
-  
-  #sidebar ul > div.mt-12 h5 {
-    position: absolute;
-    left: -12px;
-    top: -0px;
-  } */
-
-#header {
-    border-left: 4px solid #f08787;
-    padding-left: 16px;
-    padding-right: 16px;
-    background-color: #FDF0F0;
-    padding-bottom: 10px;
-    padding-top: 10px;
-}
-
-#content-area .mt-8 .block {
-    border-width: 1px;
-    background-color: #FCF7F7;
-    border-color: #00000024;
-}
-
-/* #content-area:hover .mt-8 .block:hover{
-    
-    border-width: 1px;
-    background-color: #FDF0F0;
-    border-color: #00000024;
-  } */
-
-#content-area div.my-4 {
-    border-width: 1px;
-}
-
-/* #content-area div.flex-1 {
-    opacity: 0.8;
-    font-weight: 400;
-  } */
-
-/* .eyebrow {
+#sidebar .sidebar-group-header {
+    color: var(--xem-muted);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
+}
+
+#sidebar li > a {
+    color: var(--xem-ink);
+    border-radius: 8px;
+}
+
+#sidebar li > a:hover {
+    color: var(--xem-iris);
+}
+
+#sidebar li > a.text-primary {
+    background-color: var(--xem-lavender);
+    color: var(--xem-iris);
+    font-weight: 500;
+}
+
+/* Page header: eyebrow and serif title, like a journal article */
+#header .eyebrow {
+    color: var(--xem-iris);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+#header h1 {
     font-weight: 400;
-    color: red;
-  } */
+    font-size: clamp(2.5rem, 4vw, 3.4rem);
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    word-break: normal;
+}
+
+#content-area #header p {
+    color: var(--xem-muted);
+    font-size: 1.125rem;
+    line-height: 1.6;
+}
 
 #content-container {
-    /* background-color: #f5f5f5; */
     margin-top: 2rem;
 }
 
-#topbar-cta-button .group .absolute {
-    background-color: #8B3A3A;
-    border-radius: 0px;
+/* Body content */
+#content-area h2,
+#content-area h3 {
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--xem-ink);
 }
 
-/* #topbar-cta-button .group .absolute:hover {
-    background-color: white;
-    border-radius: 0px;
-  } */
-
-#topbar-cta-button .group .flex {
-    margin-top: 5px;
-    margin-bottom: 5px;
-    font-size: medium;
+#content-area h2 {
+    font-size: 2rem;
 }
 
-.flex-1 .flex .items-center {
-    /* background-color: #f5f5f5; */
+#content-area p,
+#content-area li {
+    color: var(--xem-ink);
+}
+
+#content-area a:not(.card) {
+    color: var(--xem-iris);
+    text-decoration-color: rgba(91, 60, 196, 0.35);
+}
+
+#content-area :not(pre) > code {
+    color: var(--xem-iris);
+    background-color: rgba(231, 216, 250, 0.45);
+    border-radius: 6px;
+}
+
+#content-area table {
+    border-color: var(--xem-rule);
+}
+
+#content-area th {
+    color: var(--xem-ink);
+    font-weight: 600;
+}
+
+/* Cards and callouts */
+#content-area .card {
+    background-color: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--xem-rule);
+    border-radius: 14px;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+#content-area .card:hover {
+    border-color: var(--xem-iris);
+    transform: translateY(-2px);
+}
+
+#content-area .card h2,
+#content-area .card h3 {
+    font-size: 1.35rem;
+}
+
+#content-area .callout {
+    border-radius: 14px;
+}
+
+/* Notes and tips in brand lavender; warnings in lemon */
+#content-area .callout[data-callout-type="note"],
+#content-area .callout[data-callout-type="info"],
+#content-area .callout[data-callout-type="tip"] {
+    background-color: rgba(231, 216, 250, 0.55);
+    border-color: rgba(91, 60, 196, 0.25);
+}
+
+#content-area .callout[data-callout-type="note"] *,
+#content-area .callout[data-callout-type="info"] *,
+#content-area .callout[data-callout-type="tip"] * {
+    color: var(--xem-ink);
+}
+
+#content-area .callout[data-callout-type="note"] svg,
+#content-area .callout[data-callout-type="info"] svg,
+#content-area .callout[data-callout-type="tip"] svg {
+    color: var(--xem-iris);
+}
+
+#content-area .callout[data-callout-type="warning"] {
+    background-color: rgba(237, 240, 155, 0.45);
+    border-color: rgba(34, 37, 31, 0.2);
+}
+
+#content-area .callout[data-callout-type="warning"] * {
+    color: var(--xem-ink);
+}
+
+/* Step numbers in iris on lavender */
+#content-area .group\/step-indicator {
+    background-color: var(--xem-lavender);
+    color: var(--xem-iris);
 }

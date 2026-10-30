@@ -3,9 +3,18 @@
   "theme": "mint",
   "name": "Xem",
   "colors": {
-    "primary": "#F08787",
-    "light": "#FFB3B3",
-    "dark": "#D66767"
+    "primary": "#5b3cc4",
+    "light": "#e7d8fa",
+    "dark": "#49309e"
+  },
+  "fonts": {
+    "heading": {
+      "family": "EB Garamond",
+      "weight": 400
+    },
+    "body": {
+      "family": "DM Sans"
+    }
   },
   "styling": {
     "codeblocks": "dark"
@@ -221,8 +230,8 @@
     ]
   },
   "logo": {
-    "light": "https://i.ibb.co/d0kmdSjX/Group-160.png",
-    "dark": "https://framerusercontent.com/images/jsPyKWn60OKS9FxqTFddWtlsJBg.png?width=249&height=102",
+    "light": "/logo/xem.png",
+    "dark": "/logo/xem.png",
     "href": "https://xem.email"
   },
   "api": {
@@ -237,7 +246,7 @@
   },
   "background": {
     "color": {
-      "light": "#ffffff",
+      "light": "#ffffef",
       "dark": "#0D1117"
     }
   },
