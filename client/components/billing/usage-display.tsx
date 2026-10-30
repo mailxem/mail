@@ -5,13 +5,14 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import {
+  EMAILS_FEATURE,
   QUERIES_FEATURE,
   DATA_SOURCES_FEATURE,
   CHATS_FEATURE,
   MEMBERS_FEATURE,
   UNLIMITED_QUOTA,
 } from "@/app/lib/constants";
-import { TrendingUp, Database, MessageSquare, Users } from "lucide-react";
+import { TrendingUp, Database, MessageSquare, Users, Mail } from "lucide-react";
 
 interface UsageDisplayProps {
   usageStats: UsageStats | undefined;
@@ -25,6 +26,13 @@ export function UsageDisplay({ usageStats, planFeatures }: UsageDisplayProps) {
 
   const getFeatureInfo = (feature: string) => {
     switch (feature) {
+      case EMAILS_FEATURE:
+        return {
+          label: "Emails this month",
+          icon: Mail,
+          color: "text-blue-500",
+          bgColor: "bg-blue-500/10",
+        };
       case QUERIES_FEATURE:
         return {
           label: "Queries",

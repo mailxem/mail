@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mailxem/payments.go/internal/models"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type SubscriptionRepository interface {
@@ -232,6 +233,18 @@ type UsageRepository interface {
 	UpdateLimitWithCheck(ctx context.Context, subscriptionID string, period time.Time, usage int, feature models.PlanFeature, maxLimit int) error
 	GetUsageHistory(ctx context.Context, subscriptionID string, limit int, feature ...models.PlanFeature) ([]*models.UsageRecord, error)
 	DeleteAll(ctx context.Context, subscriptionID string) error
+	EventSeen(ctx context.Context, eventID string) (bool, error)
+	MarkEvent(ctx context.Context, eventID string) error
+}
+
+func (r *usageRepository) EventSeen(ctx context.Context, eventID string) (bool, error) {
+	var n int64
+	err := r.db.WithContext(ctx).Model(&models.UsageEvent{}).Where("event_id = ?", eventID).Count(&n).Error
+	return n > 0, err
+}
+
+func (r *usageRepository) MarkEvent(ctx context.Context, eventID string) error {
+	return r.db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(&models.UsageEvent{EventID: eventID, CreatedAt: time.Now()}).Error
 }
 
 type usageRepository struct {

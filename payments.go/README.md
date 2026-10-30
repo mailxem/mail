@@ -30,33 +30,41 @@ A comprehensive Go-based microservice for managing subscriptions, usage tracking
 
 ## Subscription Plans
 
-### 🆓 Free (Starter)
-- **Price**: $0/month
-- **Query Limit**: 10 queries/week
-- **Features**: 
-  - Single user
-  - 3 data sources
-  - Basic support
+Xem is billed per email sent. Each paid plan has a monthly fee that includes a
+number of emails; emails past that are billed through Dodo's usage meter.
 
-### 💼 Syne Scale  
-- **Price**: $29/seat/month
-- **Query Limit**: Unlimited
-- **Features**:
-  - Unlimited queries per month
-  - 24/7 support with founder
-  - White glove onboarding
-  - Custom features
-  - 20+ data sources
+| Plan | Monthly fee | Included emails | After that |
+| --- | --- | --- | --- |
+| Free (`xem-free`) | $0 | 3,000 (hard cap) | not available |
+| Starter (`xem-starter`) | $9 | 20,000 | $0.40 per 1,000 |
+| Growth (`xem-growth`) | $29 | 100,000 | $0.30 per 1,000 |
+| Scale (`xem-scale`) | $99 | 500,000 | $0.20 per 1,000 |
 
-### 🏢 Enterprise
-- **Price**: Custom pricing
-- **Query Limit**: Unlimited
-- **Features**:
-  - Everything in Syne Scale
-  - Custom integrations
-  - Dedicated support
-  - SLA guarantees
-  - Advanced security features
+Self-hosted Xem is free and does not use this service.
+
+### Setting up Dodo
+
+`cmd/setup-email-plans` creates the "Emails sent" meter (`email.sent`, summing
+`metadata.emails`) and one usage-based product per paid plan. It reuses
+anything that already exists, and `-sql` prints the plan seed for that mode's
+product IDs:
+
+```bash
+DODO_PAYMENTS_API_KEY=... DODO_TEST_MODE=true go run ./cmd/setup-email-plans -sql > scripts/seed/xem-email-plans.development.sql
+DODO_PAYMENTS_API_KEY=... DODO_TEST_MODE=false go run ./cmd/setup-email-plans -sql > scripts/seed/xem-email-plans.production.sql
+```
+
+The service applies `scripts/seed/xem-email-plans.<ENVIRONMENT>.sql` at
+startup. The upserts are safe to re-run; older plans become `inactive`, so
+existing subscribers keep them but no one new can choose them.
+
+### Recording usage
+
+The Xem backend counts emails per workspace and minute and reports finished
+minutes to `POST /api/v1/usage/record/:teamId` with `X-API-Key:
+$PAYMENTS_INTERNAL_KEY`, `feature: emails_per_month` and a stable `event_id`.
+A repeated `event_id` is ignored. Paid plans forward the count to the Dodo
+meter with the same ID, so retries are never billed twice.
 
 ## API Endpoints
 

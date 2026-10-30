@@ -6,6 +6,7 @@ import (
 	"errors"
 	"gopkg.in/gomail.v2"
 	"kori/docs/swagger"
+	"kori/internal/billing"
 	"kori/internal/handlers"
 	"kori/internal/keys"
 	"kori/internal/models/seeder/airley"
@@ -152,6 +153,16 @@ func main() {
 		}
 	}
 	managedCtx, stopManaged := context.WithCancel(context.Background())
+	// Xem Cloud only: report sent emails to the payments service for billing.
+	if reporter := billing.FromEnv(db_instance); reporter != nil {
+		billing.Enabled = true
+		billingDone := make(chan struct{})
+		go func() {
+			defer close(billingDone)
+			reporter.Run(managedCtx, func(err error) { logger.Error("Billing usage report failed: %v", err) })
+		}()
+		defer func() { stopManaged(); <-billingDone }()
+	}
 	defer stopManaged()
 	receivingDone := make(chan struct{})
 	reconciliationDone := make(chan struct{})

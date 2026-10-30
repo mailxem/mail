@@ -213,6 +213,8 @@ func (p *PlanFeaturesResponse) ToPlanFeature() PlanFeatures {
 }
 
 const (
+	// PlanFeatureEmails is Xem's billed unit: emails sent per calendar month.
+	PlanFeatureEmails             = "emails_per_month"
 	PlanFeatureQueries            = "queries"
 	PlanFeatureChats              = "chats"
 	PlanFeatureDataSources        = "data_sources"

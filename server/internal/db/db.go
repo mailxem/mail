@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"kori/internal/billing"
 	stdlog "log"
 	"net"
 	"net/http"
@@ -252,6 +253,7 @@ func runMigrations() error {
 		// Models with single foreign key dependencies
 		&models.PasswordReset{},
 		&models.ServiceNotice{}, &models.ServiceNoticeEvent{},
+		&billing.EmailUsage{},
 		&models.TeamSettings{},
 		&models.Contact{},
 		&models.Tag{},

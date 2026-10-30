@@ -26,6 +26,8 @@ type Config struct {
 	// Security
 	JWTSecret   string
 	AdminSecret string
+	// InternalAPIKey authenticates the Xem backend when it records usage.
+	InternalAPIKey string
 
 	// CORS
 	AllowedOrigins []string
@@ -58,11 +60,12 @@ func Load() (*Config, error) {
 		DodoWebhookSecret: getEnv("DODO_WEBHOOK_SECRET", ""),
 		JWTSecret:         getEnv("JWT_SECRET", "your-secret-key"),
 		AdminSecret:       getEnv("ADMIN_SECRET", ""),
+		InternalAPIKey:    getEnv("PAYMENTS_INTERNAL_KEY", ""),
 		AllowedOrigins: []string{
 			getEnv("FRONTEND_URL", "http://localhost:3000"),
 		},
 		Plans: PlanConfig{
-			FreePlanID: getEnv("FREE_PLAN_ID", "starter-plan-001"),
+			FreePlanID: getEnv("FREE_PLAN_ID", "xem-free"),
 		},
 		POSTGRES_MAX_OPEN_CONNS: getEnvInt("POSTGRES_MAX_OPEN_CONNS", 100),
 		DashboardURL:            getEnv("DASHBOARD_URL", "http://localhost:3000"),

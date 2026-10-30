@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gorm.io/gorm"
+	"kori/internal/billing"
 	"kori/internal/db"
 	"kori/internal/mailconnect"
 	"kori/internal/models"
@@ -320,9 +321,28 @@ func (h *EmailHandler) UpdateEmail(email *models.Email) error {
 		if err := tx.Updates(email).Error; err != nil {
 			return err
 		}
+		// Managed sends are counted by the managed worker, which sees the real outcome.
+		if email.Status == models.EmailStatusSent && !email.Test && (email.SMTPConfig == nil || email.SMTPConfig.Provider != "MANAGED") {
+			if err := billing.CountEmails(tx, email.TeamID, recipientCount(email.To, email.CC, email.BCC), time.Now()); err != nil {
+				return err
+			}
+		}
 		if h.NotifyFailures && !email.Test && (email.SMTPConfig == nil || email.SMTPConfig.Provider != "MANAGED") {
 			return models.QueueSendingNotice(tx, email.TeamID, "smtp", email.ID, string(email.Status), time.Now())
 		}
 		return nil
 	})
+}
+
+// recipientCount counts the addresses an email went to, which is what is billed.
+func recipientCount(lists ...string) int {
+	n := 0
+	for _, list := range lists {
+		for _, a := range strings.Split(list, ",") {
+			if strings.TrimSpace(a) != "" {
+				n++
+			}
+		}
+	}
+	return n
 }

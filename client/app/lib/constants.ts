@@ -1,10 +1,12 @@
 export const IS_DEV = process.env.APP_ENV === "development";
 export const UNLIMITED_QUOTA = -1;
-export const FREE_PLAN_ID = "starter-plan-001";
+export const FREE_PLAN_ID = "xem-free";
 export const PRO_MONTHLY_PLAN_ID = "pro-monthly-001";
 export const PRO_YEARLY_PLAN_ID = "pro-yearly-001";
 export const ENTERPRISE_PLAN_ID = "enterprise-plan-001";
 // features
+/** Xem's billed unit: emails sent per calendar month. */
+export const EMAILS_FEATURE = "emails_per_month";
 export const DATA_SOURCES_FEATURE = "data_sources";
 export const QUERIES_FEATURE = "queries";
 export const CHATS_FEATURE = "chat";

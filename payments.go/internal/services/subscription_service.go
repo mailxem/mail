@@ -380,6 +380,9 @@ func (s *subscriptionService) RecordUsage(ctx context.Context, teamID string, us
 	if err != nil {
 		return fmt.Errorf("subscription not found: %w", err)
 	}
+	if usage.Feature == models.PlanFeatureEmails {
+		return s.recordEmails(ctx, subscription, usage)
+	}
 
 	if subscription.Status == dodopayments.SubscriptionStatusCancelled || subscription.Status == dodopayments.SubscriptionStatusExpired || subscription.Status == dodopayments.SubscriptionStatusFailed || subscription.Status == dodopayments.SubscriptionStatusPaused {
 		return fmt.Errorf("subscription is cancelled, expired, failed, or paused")
@@ -673,4 +676,38 @@ func (s *paymentService) GetPaymentInvoicePDF(ctx context.Context, paymentID str
 	}
 
 	return pdfBytes, nil
+}
+
+// recordEmails counts emails that were already sent, so it never refuses them:
+// limits are checked before sending. Paid plans also report to the Dodo meter,
+// which bills emails past the plan's included amount. A repeated EventID is
+// ignored, and Dodo deduplicates by the same ID, so retries are safe.
+func (s *subscriptionService) recordEmails(ctx context.Context, subscription *models.Subscription, usage structs.RecordUsageRequest) error {
+	if usage.Usage <= 0 {
+		return nil
+	}
+	if usage.EventID != "" {
+		seen, err := s.usageRepo.EventSeen(ctx, usage.EventID)
+		if err != nil || seen {
+			return err
+		}
+	}
+	now := time.Now()
+	if subscription.PlanID != s.cfg.Plans.FreePlanID && subscription.DodoCustomerID != nil && *subscription.DodoCustomerID != "" {
+		eventID := usage.EventID
+		if eventID == "" {
+			eventID = fmt.Sprintf("%s-%d", subscription.ID, now.UnixNano())
+		}
+		if err := s.dodoClient.IngestEmails(ctx, eventID, *subscription.DodoCustomerID, usage.Usage, now); err != nil {
+			return err
+		}
+	}
+	period := time.Date(now.UTC().Year(), now.UTC().Month(), 1, 0, 0, 0, 0, time.UTC)
+	if err := s.usageRepo.UpdateLimit(ctx, subscription.ID, period, usage.Usage, models.PlanFeatureEmails); err != nil {
+		return fmt.Errorf("failed to record usage: %w", err)
+	}
+	if usage.EventID != "" {
+		return s.usageRepo.MarkEvent(ctx, usage.EventID)
+	}
+	return nil
 }
