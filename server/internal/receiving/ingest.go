@@ -82,7 +82,8 @@ func (s *Service) ProcessReceipt(ctx context.Context, event SESReceipt, store Ob
 	if event.NotificationType != "Received" || !providerIDPattern.MatchString(event.Mail.MessageID) || event.Receipt.Action.Type != "S3" || event.Receipt.Action.BucketName != s.Config.Bucket || event.Receipt.Action.TopicARN != s.Config.TopicARN || event.Receipt.Action.ObjectKey != s.Config.Prefix+event.Mail.MessageID {
 		return errors.New("invalid SES receipt routing")
 	}
-	if event.Receipt.VirusVerdict.Status != "PASS" || !(event.Receipt.SpamVerdict.Status == "PASS" || event.Receipt.SpamVerdict.Status == "FAIL") {
+	// Only the virus verdict decides visibility; spam only chooses the folder.
+	if event.Receipt.VirusVerdict.Status != "PASS" {
 		return s.reject(ctx, event, "quarantined")
 	}
 	raw, err := store.Get(ctx, event.Receipt.Action.ObjectKey)
