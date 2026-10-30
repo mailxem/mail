@@ -92,6 +92,13 @@ func (w *Worker) recipient(ctx context.Context, n models.ServiceNotice) (string,
 			return "", d, "", errSkip
 		}
 	}
+	if !template.Account {
+		reasons, err := models.TopAlertReasons(w.DB.WithContext(ctx), n.TeamID, n.Kind, n.CreatedAt)
+		if err != nil {
+			return "", d, "", err
+		}
+		d.Reasons = reasons
+	}
 	return address.Address, d, link, nil
 }
 

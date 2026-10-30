@@ -82,7 +82,7 @@
                   },
                   "fontSize": "15px",
                   "lineHeight": "180%",
-                  "text": "\u003cp style=\"margin:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:15px;line-height:1.8;color:#66695e\"\u003eThe email provider reported a spam complaint. The affected recipient has been suppressed, and managed sending may be suspended for review.\u003c/p\u003e"
+                  "text": "\u003cp style=\"margin:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:15px;line-height:1.8;color:#66695e\"\u003eSeveral recipients reported your emails as spam today. Complaining recipients are suppressed, and managed sending may be suspended for review if complaints continue.\u003c/p\u003e"
                 }
               },
               {
@@ -101,7 +101,7 @@
                   },
                   "fontSize": "15px",
                   "lineHeight": "180%",
-                  "text": "\u003cp style=\"margin:0;padding:18px 20px;background:#e7d8fa;border-radius:12px;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:13px;line-height:1.8;overflow-wrap:anywhere;word-break:break-word;color:#22251f\"\u003eWorkspace: \u003cstrong\u003e{{workspace_name}}\u003c/strong\u003e\u003cbr\u003eEvents recorded: \u003cstrong\u003e{{event_count}}\u003c/strong\u003e\u003cbr\u003eRecorded at: \u003cstrong\u003e{{event_time}}\u003c/strong\u003e\u003c/p\u003e"
+                  "text": "\u003cp style=\"margin:0;padding:18px 20px;background:#e7d8fa;border-radius:12px;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:13px;line-height:1.8;overflow-wrap:anywhere;word-break:break-word;color:#22251f\"\u003eWorkspace: \u003cstrong\u003e{{workspace_name}}\u003c/strong\u003e\u003cbr\u003eEvents today: \u003cstrong\u003e{{event_count}}\u003c/strong\u003e\u003cbr\u003eFirst recorded: \u003cstrong\u003e{{event_time}}\u003c/strong\u003e\u003c/p\u003e"
                 }
               },
               {
@@ -120,7 +120,7 @@
                   },
                   "fontSize": "15px",
                   "lineHeight": "180%",
-                  "text": "\u003cp style=\"margin:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:15px;line-height:1.8;color:#66695e\"\u003e\u003cstrong style=\"color:#164b3f\"\u003eUp next\u003c/strong\u003e\u003cbr\u003eReview audience consent, recent campaigns, and your managed sending status. Do not send again to the complaining recipient.\u003c/p\u003e"
+                  "text": "\u003cp style=\"margin:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:15px;line-height:1.8;color:#66695e\"\u003e\u003cstrong style=\"color:#164b3f\"\u003eUp next\u003c/strong\u003e\u003cbr\u003eReview audience consent and your recent campaigns. Make the unsubscribe link easy to find, and don’t send again to recipients who complained.\u003c/p\u003e"
                 }
               },
               {

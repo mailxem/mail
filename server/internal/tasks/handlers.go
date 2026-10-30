@@ -6,6 +6,8 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"os"
+	"time"
 	"github.com/google/uuid"
 	"kori/internal/config"
 	"kori/internal/models"
@@ -337,6 +339,21 @@ func (h *TaskHandler) HandleDomainVerification(ctx context.Context, t *asynq.Tas
 }
 
 // HandleContactImport processes a contact import task
+// failImport marks an import failed and, when service notifications are on,
+// records an alert for the workspace owner in the same transaction.
+func (h *TaskHandler) failImport(ci *models.ContactImport, reason string) error {
+	ci.Status = models.ContactImportStatusFailed
+	return h.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Save(ci).Error; err != nil {
+			return err
+		}
+		if os.Getenv("SERVICE_NOTIFICATIONS_ENABLED") != "true" {
+			return nil
+		}
+		return models.QueueAlert(tx, ci.TeamID, "import", ci.ID, "import_failed", reason, time.Now())
+	})
+}
+
 func (h *TaskHandler) HandleContactImport(ctx context.Context, t *asynq.Task) error {
 	h.logger.Info("🚀 Starting contact import task")
 
@@ -365,8 +382,7 @@ func (h *TaskHandler) HandleContactImport(ctx context.Context, t *asynq.Task) er
 	h.logger.Info("⬇️ Downloading file from: %s", file.SignedURL)
 	fileContent, err := h.storageHandler.DownloadFile(file.SignedURL)
 	if err != nil {
-		contact_import.Status = models.ContactImportStatusFailed
-		if err := h.db.Save(contact_import).Error; err != nil {
+		if err := h.failImport(contact_import, "The import file could not be downloaded"); err != nil {
 			return h.logger.Error("❌ failed to update contact import status: %w", err)
 		}
 		return h.logger.Error("❌ failed to download file: %w", err)
@@ -385,8 +401,7 @@ func (h *TaskHandler) HandleContactImport(ctx context.Context, t *asynq.Task) er
 	// now we need to parse the file content
 	records, err := reader.ReadAll()
 	if err != nil {
-		contact_import.Status = models.ContactImportStatusFailed
-		if err := h.db.Save(contact_import).Error; err != nil {
+		if err := h.failImport(contact_import, "The file could not be read as CSV"); err != nil {
 			return h.logger.Error("❌ failed to update contact import status: %w", err)
 		}
 		return h.logger.Error("❌ failed to read file: %w", err)
@@ -394,8 +409,7 @@ func (h *TaskHandler) HandleContactImport(ctx context.Context, t *asynq.Task) er
 
 	// Skip header row
 	if len(records) <= 1 {
-		contact_import.Status = models.ContactImportStatusFailed
-		if err := h.db.Save(contact_import).Error; err != nil {
+		if err := h.failImport(contact_import, "The file has no data rows"); err != nil {
 			return h.logger.Error("❌ failed to update contact import status: %w", err)
 		}
 		return h.logger.Error("❌ file has no data rows", fmt.Errorf("no data rows in file"))
@@ -405,8 +419,7 @@ func (h *TaskHandler) HandleContactImport(ctx context.Context, t *asynq.Task) er
 
 	fieldsMap, err := utils.JSONToMap(contact_import.FieldsMap)
 	if err != nil {
-		contact_import.Status = models.ContactImportStatusFailed
-		if err := h.db.Save(contact_import).Error; err != nil {
+		if err := h.failImport(contact_import, "The column mapping could not be read"); err != nil {
 			return h.logger.Error("❌ failed to update contact import status: %w", err)
 		}
 		return h.logger.Error("❌ failed to parse fields map from json: %w", err)
@@ -483,8 +496,7 @@ func (h *TaskHandler) HandleContactImport(ctx context.Context, t *asynq.Task) er
 
 	// save the contacts
 	if err := h.db.CreateInBatches(&contacts, 100).Error; err != nil {
-		contact_import.Status = models.ContactImportStatusFailed
-		if err := h.db.Save(contact_import).Error; err != nil {
+		if err := h.failImport(contact_import, "The contacts could not be saved"); err != nil {
 			return h.logger.Error("❌ failed to update contact import status: %w", err)
 		}
 		return h.logger.Error("❌ failed to create contacts: %w", err)

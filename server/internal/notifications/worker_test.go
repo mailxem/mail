@@ -60,45 +60,65 @@ func notice(t *testing.T, w *Worker, kind string) models.ServiceNotice {
 	return n
 }
 
-func TestSendingNoticesAggregateAndDeduplicateAcrossHours(t *testing.T) {
+func TestSendingAlertsWaitForTheDailyThresholdAndIncludeReasons(t *testing.T) {
+	t.Setenv("SERVICE_ALERT_DAILY_THRESHOLD", "3")
 	w, u := fixture(t)
 	start := w.Now()
-	for _, id := range []string{"one", "one", "two"} {
-		queue(t, w, func(tx *gorm.DB) error { return models.QueueSendingNotice(tx, u.TeamID, "smtp", id, "FAILED", start) })
+	fail := func(id, reason string, at time.Time) {
+		queue(t, w, func(tx *gorm.DB) error {
+			return models.QueueSendingNotice(tx, u.TeamID, "smtp", id, "FAILED", reason, at)
+		})
 	}
-	n := notice(t, w, "sending_failed")
-	require.EqualValues(t, 2, n.EventCount)
-	// A delayed retry callback must not become a fresh hourly alert.
-	queue(t, w, func(tx *gorm.DB) error {
-		return models.QueueSendingNotice(tx, u.TeamID, "smtp", "one", "FAILED", start.Add(time.Hour))
-	})
-	var count int64
-	require.NoError(t, w.DB.Model(&models.ServiceNotice{}).Count(&count).Error)
-	require.EqualValues(t, 1, count)
 	calls := 0
 	w.Send = func(_ context.Context, key, to, subject, html, text string) (bool, error) {
 		calls++
 		require.Equal(t, u.Email, to)
-		require.Contains(t, html, "Events recorded: <strong>2")
+		require.Contains(t, html, "Events today: <strong>3")
+		require.Contains(t, html, "2 × 535 Authentication failed for [address]")
+		require.Contains(t, html, "1 × Connection refused")
 		require.Contains(t, html, "Studio &lt;Xem&gt;")
-		require.NotContains(t, html, "smtp-password")
+		require.NotContains(t, html, "ada@example.org")
 		return false, nil
 	}
+	fail("one", "535 Authentication failed for ada@example.org", start)
+	fail("one", "535 Authentication failed for ada@example.org", start) // duplicate callback
+	fail("two", "535  Authentication failed for ada@example.org", start)
+	n := notice(t, w, "sending_failed")
+	require.EqualValues(t, 2, n.EventCount)
+	require.Equal(t, "COUNTING", n.Status)
+	w.Now = func() time.Time { return start.Add(time.Hour) }
 	require.ErrorIs(t, w.ProcessOne(context.Background()), gorm.ErrRecordNotFound)
-	w.Now = func() time.Time { return start.Add(time.Minute) }
+
+	fail("three", "Connection refused", start.Add(2*time.Hour))
+	require.Equal(t, "QUEUED", notice(t, w, "sending_failed").Status)
+	w.Now = func() time.Time { return start.Add(2*time.Hour + time.Minute) }
 	require.NoError(t, w.ProcessOne(context.Background()))
 	require.Equal(t, 1, calls)
 	require.Equal(t, "ACCEPTED", notice(t, w, "sending_failed").Status)
-	queue(t, w, func(tx *gorm.DB) error {
-		return models.QueueSendingNotice(tx, u.TeamID, "smtp", "three", "FAILED", start.Add(2*time.Minute))
-	})
+
+	// More failures the same day are counted but send no second email.
+	fail("four", "Connection refused", start.Add(3*time.Hour))
 	require.ErrorIs(t, w.ProcessOne(context.Background()), gorm.ErrRecordNotFound)
+	require.EqualValues(t, 4, notice(t, w, "sending_failed").EventCount)
 	require.Equal(t, 1, calls)
+
+	// The next UTC day starts a new count.
+	fail("five", "Connection refused", start.Add(24*time.Hour))
+	var count int64
+	require.NoError(t, w.DB.Model(&models.ServiceNotice{}).Where("kind = ?", "sending_failed").Count(&count).Error)
+	require.EqualValues(t, 2, count)
+}
+func TestSuspensionAlertsImmediately(t *testing.T) {
+	w, u := fixture(t)
+	queue(t, w, func(tx *gorm.DB) error {
+		return models.QueueSendingNotice(tx, u.TeamID, "managed-suspension", "event-1", "SUSPENDED", "Suspended after SES reported a complaint", w.Now())
+	})
+	require.Equal(t, "QUEUED", notice(t, w, "sending_suspended").Status)
 }
 func TestNoticesRollbackWithTheSourceEvent(t *testing.T) {
 	w, u := fixture(t)
 	err := w.DB.Transaction(func(tx *gorm.DB) error {
-		require.NoError(t, models.QueueSendingNotice(tx, u.TeamID, "smtp", "one", "FAILED", w.Now()))
+		require.NoError(t, models.QueueSendingNotice(tx, u.TeamID, "smtp", "one", "FAILED", "", w.Now()))
 		return errors.New("rollback")
 	})
 	require.Error(t, err)
@@ -152,7 +172,7 @@ func TestRecipientChangesAndSuppressionSkipAlerts(t *testing.T) {
 				queue(t, w, func(tx *gorm.DB) error { return models.QueueAccountNotice(tx, u, "password_reset", r.ID, start) })
 			} else {
 				queue(t, w, func(tx *gorm.DB) error {
-					return models.QueueSendingNotice(tx, u.TeamID, "smtp", "one", "FAILED", start)
+					return models.QueueSendingNotice(tx, u.TeamID, "managed-suspension", "one", "SUSPENDED", "", start)
 				})
 			}
 			switch scenario {
@@ -247,4 +267,21 @@ func TestDefiniteFailuresStopAfterFiveAttempts(t *testing.T) {
 	}
 	require.ErrorIs(t, w.ProcessOne(context.Background()), gorm.ErrRecordNotFound)
 	require.Equal(t, 5, calls)
+}
+func TestAutomationFailuresAlertAfterFiveRunsWithTheAutomationName(t *testing.T) {
+	w, u := fixture(t)
+	require.NoError(t, w.DB.Exec("CREATE TABLE automations (id text PRIMARY KEY, team_id text, name text)").Error)
+	require.NoError(t, w.DB.Exec("INSERT INTO automations (id, team_id, name) VALUES (?, ?, ?)", "auto-1", u.TeamID, "Welcome journey").Error)
+	for i := 1; i <= 5; i++ {
+		run := models.AutomationExecution{Base: models.Base{ID: fmt.Sprint("run-", i)}, AutomationID: "auto-1", Error: "send step: no active sender"}
+		require.NoError(t, RecordAutomationFailure(w.DB, run, w.Now()))
+		want := "COUNTING"
+		if i == 5 {
+			want = "QUEUED"
+		}
+		require.Equal(t, want, notice(t, w, "automation_failed").Status)
+	}
+	reasons, err := models.TopAlertReasons(w.DB, u.TeamID, "automation_failed", w.Now())
+	require.NoError(t, err)
+	require.Equal(t, []string{"5 × Welcome journey: send step: no active sender"}, reasons)
 }

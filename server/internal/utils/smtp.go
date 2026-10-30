@@ -321,7 +321,7 @@ func (h *EmailHandler) UpdateEmail(email *models.Email) error {
 			return err
 		}
 		if h.NotifyFailures && !email.Test && (email.SMTPConfig == nil || email.SMTPConfig.Provider != "MANAGED") {
-			return models.QueueSendingNotice(tx, email.TeamID, "smtp", email.ID, string(email.Status), time.Now())
+			return models.QueueSendingNotice(tx, email.TeamID, "smtp", email.ID, string(email.Status), email.Error, time.Now())
 		}
 		return nil
 	})

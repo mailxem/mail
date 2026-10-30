@@ -27,10 +27,10 @@ func TestSeedSuperAdminSystemTemplatesBackfillsOnlyRootAndPreservesCustomization
 	require.NoError(t, SeedSuperAdminSystemTemplates(db))
 	var rootCount, regularCount int64
 	require.NoError(t, db.Model(&Template{}).Where("team_id = ? AND starter_key LIKE ?", rootTeam, "xem-%").Count(&rootCount).Error)
-	require.EqualValues(t, 18, rootCount)
+	require.EqualValues(t, 20, rootCount)
 	var activeCount int64
 	require.NoError(t, db.Model(&Template{}).Where("team_id = ? AND starter_key LIKE ? AND is_deleted = false", rootTeam, "xem-%").Count(&activeCount).Error)
-	require.EqualValues(t, 17, activeCount)
+	require.EqualValues(t, 19, activeCount)
 	require.NoError(t, db.Model(&Template{}).Where("team_id = ?", regularTeam).Count(&regularCount).Error)
 	require.Zero(t, regularCount)
 	var preserved Template
@@ -57,7 +57,7 @@ func TestSeedSuperAdminSystemTemplatesFreshSharedWorkspace(t *testing.T) {
 	require.NoError(t, SeedSuperAdminSystemTemplates(db))
 	var templates, categories int64
 	require.NoError(t, db.Model(&Template{}).Where("team_id = ?", "shared-root-team").Count(&templates).Error)
-	require.EqualValues(t, 18, templates)
+	require.EqualValues(t, 20, templates)
 	require.NoError(t, db.Model(&EmailCategory{}).Where("team_id = ? AND LOWER(name) = ?", "shared-root-team", "transactional").Count(&categories).Error)
 	require.EqualValues(t, 1, categories)
 }
