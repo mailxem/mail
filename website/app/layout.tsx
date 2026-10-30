@@ -15,22 +15,22 @@ const editorial = EB_Garamond({
 });
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Xem — Your newsletter, at the price of email.",
+  title: "Xem — All your email marketing, at the price of email.",
   description:
-    "Open-source newsletters, automations and a shared inbox. Send through your own Amazon SES and pay what Amazon charges: about $2 to $3 for 20,000 emails.",
+    "The open-source email marketing suite: campaigns, newsletters, automations, forms, a CRM, a shared inbox and analytics. Send through Amazon SES and pay what Amazon charges: about $2 to $3 for 20,000 emails.",
   openGraph: {
     type: "website",
     siteName: "Xem",
-    title: "Your newsletter, at the price of email.",
+    title: "All your email marketing, at the price of email.",
     description:
-      "Open-source newsletters you send through your own Amazon SES, at Amazon's price. Bring your list from beehiiv, Substack or Mailchimp.",
+      "Campaigns, newsletters, automations, forms, CRM and a shared inbox in one open-source suite, sent through Amazon SES at Amazon's price. Bring your list from Mailchimp, beehiiv, Kit or Substack.",
     images: [{ url: "/opengraph-image.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     description:
-      "Proudly open-source email marketing. Explore Xem, build on it, and help shape what comes next.",
-    title: "Xem — Your newsletter, at the price of email.",
+      "The open-source email marketing suite: campaigns, newsletters, automations, CRM and a shared inbox, at Amazon SES prices.",
+    title: "Xem — All your email marketing, at the price of email.",
     images: ["/opengraph-image.png"],
   },
   icons: { icon: "/favicon.ico", apple: "/brand/xem-mark.png" },

@@ -6,11 +6,14 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
+  ChartColumn,
   Check,
+  ClipboardList,
   Code2,
   ExternalLink,
   GitBranch,
   Github,
+  Inbox,
   LayoutTemplate,
   Mail,
   Menu,
@@ -260,7 +263,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               data-intro
               className="mt-5 font-editorial text-[clamp(3.25rem,7.8vw,6rem)] font-normal leading-[.94] tracking-[-.055em]"
             >
-              Your newsletter,
+              All your email marketing,
               <br />
               <em className="font-normal">at the price of email.</em>
             </h1>
@@ -268,10 +271,9 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               data-intro
               className="mx-auto mt-6 max-w-[560px] text-[17px] leading-relaxed tracking-[-.02em] md:text-lg"
             >
-              Send through your own Amazon SES and pay what Amazon charges:
-              about $2 to $3 for 20,000 emails.
-              <br className="hidden sm:block" /> Newsletters, automations and a
-              shared inbox, all open source.
+              Campaigns, newsletters, automations, forms, a CRM and a shared
+              inbox in one open-source suite. Send through Amazon SES and pay
+              what Amazon charges: about $2 to $3 for 20,000 emails.
             </p>
             <div
               data-intro
@@ -328,10 +330,14 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 border-b border-cream/20 pb-10 text-xs text-cream/80 md:gap-x-12"
             >
               {[
-                [Mail, "Email & newsletters"],
+                [Mail, "Campaigns & newsletters"],
                 [Workflow, "Automations"],
                 [Users, "Audience & CRM"],
-                [LayoutTemplate, "Beautiful templates"],
+                [ClipboardList, "Forms"],
+                [Inbox, "Shared inbox"],
+                [ChartColumn, "Analytics"],
+                [LayoutTemplate, "Templates"],
+                [Code2, "API & webhooks"],
               ].map(([Icon, label]) => {
                 const I = Icon as typeof Mail;
                 return (
