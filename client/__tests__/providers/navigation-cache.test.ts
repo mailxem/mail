@@ -30,6 +30,8 @@ test("single-record responses never turn a successful list load into undefined q
   const record = { id: "list-id", name: "All Users" };
   expect(resourceEntity(record)).toEqual(record);
   expect(resourceEntity({ data: record })).toEqual(record);
+  const campaign = { id: "campaign-id", name: "Launch", data: {} };
+  expect(resourceEntity(campaign)).toEqual(campaign);
   expect(() => resourceEntity({ data: undefined })).toThrow("invalid record");
   expect(() => resourceEntity(null)).toThrow("invalid record");
 });
