@@ -12,6 +12,13 @@
     /* background-color: #f5f5f5; */
 }
 
+/* Mintlify centres the sidebar in a max-w-8xl wrapper; pin it to the screen edge. */
+div:has(> #sidebar) {
+    max-width: none;
+    margin-left: 0;
+    padding-left: 0;
+}
+
 #sidebar {
     left: 0;
     padding-right: 30px;
