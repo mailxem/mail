@@ -195,6 +195,7 @@ func main() {
 			return sending.Suppressed(db_instance.WithContext(ctx), team, address, false)
 		}
 		managed.NotifyAlerts = true
+		notifications.WatchAutomationFailures(db_instance)
 		noticesDone := make(chan struct{})
 		go func() { defer close(noticesDone); noticeWorker.Run(managedCtx) }()
 		defer func() { stopManaged(); <-noticesDone }()

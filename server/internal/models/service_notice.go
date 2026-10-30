@@ -3,6 +3,10 @@ package models
 import (
 	"crypto/sha256"
 	"fmt"
+	"os"
+	"regexp"
+	"strconv"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -29,7 +33,10 @@ type ServiceNotice struct {
 
 type ServiceNoticeEvent struct {
 	Key       string    `gorm:"primaryKey"`
-	CreatedAt time.Time `gorm:"index"`
+	TeamID    string    `gorm:"index:service_notice_event_day"`
+	Kind      string    `gorm:"index:service_notice_event_day"`
+	Reason    string    // short and sanitized; never message content or addresses
+	CreatedAt time.Time `gorm:"index;index:service_notice_event_day"`
 }
 
 func noticeKey(parts ...string) string {
@@ -54,22 +61,84 @@ func SendingNoticeKind(status string) string {
 	return map[string]string{"FAILED": "sending_failed", "DELIVERY_UNKNOWN": "sending_unknown", "DELAYED": "sending_delayed", "BOUNCED": "sending_bounced", "COMPLAINED": "sending_complaint", "SUSPENDED": "sending_suspended"}[status]
 }
 
-// One notice per category/workspace/UTC hour, with a one-minute collection window.
-// The event key deduplicates callbacks and retries even across hour boundaries.
-// Call within the transaction that persists the sending outcome.
-func QueueSendingNotice(tx *gorm.DB, team, source, resource, status string, now time.Time) error {
+// AlertThreshold is how many events of a kind a workspace may have in one UTC
+// day before its owner is emailed. SERVICE_ALERT_DAILY_THRESHOLD overrides the
+// default of 10 for routine delivery problems.
+func AlertThreshold(kind string) int64 {
+	routine := int64(10)
+	if v, err := strconv.ParseInt(os.Getenv("SERVICE_ALERT_DAILY_THRESHOLD"), 10, 64); err == nil && v > 0 {
+		routine = v
+	}
+	return map[string]int64{
+		"sending_failed": routine, "sending_bounced": routine, "sending_unknown": routine, "sending_delayed": routine,
+		"automation_failed": 5, "sending_complaint": 3, "sending_suspended": 1, "import_failed": 1,
+	}[kind]
+}
+
+var reasonAddress = regexp.MustCompile(`[^\s<>"'@]+@[^\s<>"'@]+`)
+
+// SanitizeReason keeps a short, single-line reason without email addresses.
+func SanitizeReason(reason string) string {
+	reason = strings.Join(strings.Fields(reasonAddress.ReplaceAllString(reason, "[address]")), " ")
+	if r := []rune(reason); len(r) > 160 {
+		reason = string(r[:157]) + "..."
+	}
+	return reason
+}
+
+// QueueSendingNotice records a sending outcome for the daily owner alert.
+// Call within the transaction that persists the outcome.
+func QueueSendingNotice(tx *gorm.DB, team, source, resource, status, reason string, now time.Time) error {
 	kind := SendingNoticeKind(status)
 	if kind == "" {
 		return nil
 	}
-	if team == "" || resource == "" {
-		return fmt.Errorf("sending notice requires workspace and event identifiers")
+	return QueueAlert(tx, team, source, resource, kind, reason, now)
+}
+
+// QueueAlert counts one event per workspace, kind and UTC day. The owner's
+// email is queued only once the day's count reaches AlertThreshold, so one
+// failure does not page anyone, and at most one email per kind is sent a day.
+// The event key deduplicates callbacks and retries.
+func QueueAlert(tx *gorm.DB, team, source, resource, kind, reason string, now time.Time) error {
+	threshold := AlertThreshold(kind)
+	if threshold == 0 {
+		return fmt.Errorf("unknown alert kind")
 	}
-	event := ServiceNoticeEvent{Key: noticeKey(team, source, resource, kind), CreatedAt: now}
+	if team == "" || resource == "" {
+		return fmt.Errorf("alert requires workspace and event identifiers")
+	}
+	event := ServiceNoticeEvent{Key: noticeKey(team, source, resource, kind), TeamID: team, Kind: kind, Reason: SanitizeReason(reason), CreatedAt: now}
 	r := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&event)
 	if r.Error != nil || r.RowsAffected == 0 {
 		return r.Error
 	}
-	n := ServiceNotice{Key: noticeKey(team, kind, now.UTC().Format("2006-01-02T15")), Kind: kind, TeamID: team, Status: "QUEUED", EventCount: 1, NextAttemptAt: now.Add(time.Minute), CreatedAt: now, UpdatedAt: now}
-	return tx.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "key"}}, DoUpdates: clause.Assignments(map[string]any{"event_count": gorm.Expr("service_notices.event_count + 1")})}).Create(&n).Error
+	status := "COUNTING"
+	if threshold <= 1 {
+		status = "QUEUED"
+	}
+	due := now.Add(time.Minute)
+	reached := "service_notices.status = 'COUNTING' AND service_notices.event_count + 1 >= ?"
+	n := ServiceNotice{Key: noticeKey(team, kind, now.UTC().Format("2006-01-02")), Kind: kind, TeamID: team, Status: status, EventCount: 1, NextAttemptAt: due, CreatedAt: now, UpdatedAt: now}
+	return tx.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "key"}}, DoUpdates: clause.Assignments(map[string]any{
+		"event_count":     gorm.Expr("service_notices.event_count + 1"),
+		"status":          gorm.Expr("CASE WHEN "+reached+" THEN 'QUEUED' ELSE service_notices.status END", threshold),
+		"next_attempt_at": gorm.Expr("CASE WHEN "+reached+" THEN ? ELSE service_notices.next_attempt_at END", threshold, due),
+	})}).Create(&n).Error
+}
+
+// TopAlertReasons returns up to three of the day's most common reasons for a
+// workspace and kind, formatted for the owner's email.
+func TopAlertReasons(db *gorm.DB, team, kind string, day time.Time) ([]string, error) {
+	start := time.Date(day.UTC().Year(), day.UTC().Month(), day.UTC().Day(), 0, 0, 0, 0, time.UTC)
+	var rows []struct {
+		Reason string
+		Total  int64
+	}
+	err := db.Model(&ServiceNoticeEvent{}).Select("reason, count(*) AS total").Where("team_id = ? AND kind = ? AND created_at >= ? AND created_at < ? AND reason <> ''", team, kind, start, start.Add(24*time.Hour)).Group("reason").Order("total DESC, reason").Limit(3).Scan(&rows).Error
+	reasons := make([]string, 0, len(rows))
+	for _, row := range rows {
+		reasons = append(reasons, fmt.Sprintf("%d × %s", row.Total, row.Reason))
+	}
+	return reasons, err
 }

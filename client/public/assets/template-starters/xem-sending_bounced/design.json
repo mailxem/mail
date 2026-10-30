@@ -63,7 +63,7 @@
                   },
                   "fontSize": "15px",
                   "lineHeight": "180%",
-                  "text": "\u003ch1 style=\"margin:0;font-family:'EB Garamond',Georgia,'Times New Roman',serif;font-size:44px;font-weight:400;line-height:1.03;letter-spacing:-1.5px;color:#22251f\"\u003eAn email couldn’t get through.\u003c/h1\u003e"
+                  "text": "\u003ch1 style=\"margin:0;font-family:'EB Garamond',Georgia,'Times New Roman',serif;font-size:44px;font-weight:400;line-height:1.03;letter-spacing:-1.5px;color:#22251f\"\u003eSome emails couldn’t get through.\u003c/h1\u003e"
                 }
               },
               {
@@ -82,7 +82,7 @@
                   },
                   "fontSize": "15px",
                   "lineHeight": "180%",
-                  "text": "\u003cp style=\"margin:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:15px;line-height:1.8;color:#66695e\"\u003eThe email provider reported a bounce. Permanent bounces are added to suppression so future sends do not keep targeting an unreachable address.\u003c/p\u003e"
+                  "text": "\u003cp style=\"margin:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:15px;line-height:1.8;color:#66695e\"\u003eEmail providers reported more bounces than usual for your workspace today. Permanent bounces are added to suppression so future sends do not keep targeting unreachable addresses.\u003c/p\u003e"
                 }
               },
               {
@@ -101,7 +101,7 @@
                   },
                   "fontSize": "15px",
                   "lineHeight": "180%",
-                  "text": "\u003cp style=\"margin:0;padding:18px 20px;background:#e7d8fa;border-radius:12px;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:13px;line-height:1.8;overflow-wrap:anywhere;word-break:break-word;color:#22251f\"\u003eWorkspace: \u003cstrong\u003e{{workspace_name}}\u003c/strong\u003e\u003cbr\u003eEvents recorded: \u003cstrong\u003e{{event_count}}\u003c/strong\u003e\u003cbr\u003eRecorded at: \u003cstrong\u003e{{event_time}}\u003c/strong\u003e\u003c/p\u003e"
+                  "text": "\u003cp style=\"margin:0;padding:18px 20px;background:#e7d8fa;border-radius:12px;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:13px;line-height:1.8;overflow-wrap:anywhere;word-break:break-word;color:#22251f\"\u003eWorkspace: \u003cstrong\u003e{{workspace_name}}\u003c/strong\u003e\u003cbr\u003eEvents today: \u003cstrong\u003e{{event_count}}\u003c/strong\u003e\u003cbr\u003eFirst recorded: \u003cstrong\u003e{{event_time}}\u003c/strong\u003e\u003c/p\u003e"
                 }
               },
               {
@@ -120,7 +120,7 @@
                   },
                   "fontSize": "15px",
                   "lineHeight": "180%",
-                  "text": "\u003cp style=\"margin:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:15px;line-height:1.8;color:#66695e\"\u003e\u003cstrong style=\"color:#164b3f\"\u003eUp next\u003c/strong\u003e\u003cbr\u003eReview the bounce details and check your audience data. Don’t remove a suppression until you have verified the address and the reason for the bounce.\u003c/p\u003e"
+                  "text": "\u003cp style=\"margin:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;font-size:15px;line-height:1.8;color:#66695e\"\u003e\u003cstrong style=\"color:#164b3f\"\u003eUp next\u003c/strong\u003e\u003cbr\u003eReview the bounce reasons below and check where these contacts came from. A sudden rise often points to an old or purchased list. Don’t remove a suppression until you have verified the address.\u003c/p\u003e"
                 }
               },
               {

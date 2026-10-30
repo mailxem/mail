@@ -105,7 +105,7 @@ func (s *Service) ProcessOne(ctx context.Context) error {
 			}
 		}
 		if r.RowsAffected > 0 && s.NotifyAlerts && !m.IsTest {
-			if err := models.QueueSendingNotice(tx, m.TeamID, "managed", m.ID, status, s.Now()); err != nil {
+			if err := models.QueueSendingNotice(tx, m.TeamID, "managed", m.ID, status, detail, s.Now()); err != nil {
 				return err
 			}
 		}
@@ -183,7 +183,7 @@ func (s *Service) MaintainMessages(ctx context.Context) error {
 				return err
 			}
 			if s.NotifyAlerts && !m.IsTest {
-				if err := models.QueueSendingNotice(tx, m.TeamID, "managed", m.ID, status, s.Now()); err != nil {
+				if err := models.QueueSendingNotice(tx, m.TeamID, "managed", m.ID, status, detail, s.Now()); err != nil {
 					return err
 				}
 			}
