@@ -187,9 +187,13 @@ export function ManagedInboxes() {
   ): Promise<boolean> {
     setBusy(key);
     try {
-      await action();
+      const result = await action();
       await refresh();
-      toast.success(message);
+      if ((result as { status?: string } | null)?.status === "error")
+        toast.warning(
+          "Mailbox created, but receiving isn’t set up yet. Use Check DNS to retry; mail won’t arrive until it shows as ready.",
+        );
+      else toast.success(message);
       return true;
     } catch (error) {
       toast.error((error as Error).message);
@@ -375,7 +379,22 @@ export function ManagedInboxes() {
                   </div>
                 </div>
               )}
-              {selectedDomain.mx.value && (
+              {selectedDomain.mx.value &&
+                !["pending_mx", "mx_conflict", "ready"].includes(
+                  selectedDomain.receivingStatus,
+                ) && (
+                  <p className="rounded-md border bg-background p-3 text-xs text-muted-foreground">
+                    Create a mailbox first. Xem shows the MX record here once
+                    the mailbox can accept mail. Publishing it earlier sends
+                    this domain’s mail to Xem before anything can receive it.
+                    If this domain already receives mail elsewhere, use a
+                    subdomain such as inbox.{selectedDomain.name}.
+                  </p>
+                )}
+              {selectedDomain.mx.value &&
+                ["pending_mx", "mx_conflict", "ready"].includes(
+                  selectedDomain.receivingStatus,
+                ) && (
                 <div>
                   <div className="flex flex-wrap items-end justify-between gap-2">
                     <div>

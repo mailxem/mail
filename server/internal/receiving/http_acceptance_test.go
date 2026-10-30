@@ -49,3 +49,21 @@ func TestReceivingStatusDisabledDoesNotAdvertiseStaleReadiness(t *testing.T) {
 	require.Equal(t, "unconfigured", body.Domains[0].ReceivingStatus)
 	require.Len(t, body.Mailboxes, 1)
 }
+
+func TestReceivingStatusLetsAVerifiedDomainCreateItsFirstMailbox(t *testing.T) {
+	service := receivingTestService(t)
+	box := addMailbox(t, service, "first@example.com")
+	require.NoError(t, service.DB.Delete(&Mailbox{}, "id = ?", box.ID).Error)
+	rec := httptest.NewRecorder()
+	c := echo.New().NewContext(httptest.NewRequest(http.MethodGet, "/", nil), rec)
+	c.Set("teamID", box.TeamID)
+	require.NoError(t, service.status(c))
+	var body struct {
+		Domains []struct {
+			ReceivingStatus string `json:"receivingStatus"`
+		} `json:"domains"`
+	}
+	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &body))
+	require.Len(t, body.Domains, 1)
+	require.Equal(t, "needs_mailbox", body.Domains[0].ReceivingStatus)
+}
