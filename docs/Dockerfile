@@ -2,13 +2,13 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-RUN npm install -g mint@4.2.13
+RUN npm install -g mint@4.2.1178
 
 COPY . .
 
 # Install a local version of our OpenAPI spec
 RUN apk add --no-cache wget jq && \
-    wget -O spec.json https://app.infisical.com/api/docs/json && \
+    wget -O spec.json https://api.xem.email/openapi.json && \
     jq '.api.openapi = "./spec.json"' docs.json > temp.json && \
     mv temp.json docs.json
 
@@ -21,7 +21,7 @@ WORKDIR /app
 
 RUN addgroup -g 1001 -S mintuser && \
     adduser -S -D -H -u 1001 -s /sbin/nologin -G mintuser mintuser && \
-    npm install -g mint@4.2.13
+    npm install -g mint@4.2.1178
 
 COPY --chown=mintuser:mintuser . .
 
