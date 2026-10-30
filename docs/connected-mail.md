@@ -74,7 +74,7 @@ Xem calls Cloudflare's REST API directly for outbound sending. That sender does 
 
 The optional inbound mailbox is a separate deployment. Cloudflare Email Routing invokes a Worker, private R2 stores raw MIME, bodies, and attachments, and D1 stores the mailbox index and flags. Xem's backend accesses it through a signed API; the browser receives neither the mailbox secret nor a Cloudflare API token.
 
-Follow [the mailbox setup guide](../devops/cloudflare-mailbox/README.md). Apply its D1 migration and the Xem backend migration before connecting the mailbox or switching routes in the UI. Each deployment accepts one exact `MAILBOX_ADDRESS`, rejects raw messages larger than 10 MiB, and does not automatically delete received or quarantined mail. This implementation has local tests and a Wrangler dry run; a production claim still requires an account-specific deployment and live Email Routing validation.
+Follow [the mailbox setup guide](https://github.com/mailxem/mail/blob/undefined/devops/cloudflare-mailbox/README.md). Apply its D1 migration and the Xem backend migration before connecting the mailbox or switching routes in the UI. Each deployment accepts one exact `MAILBOX_ADDRESS`, rejects raw messages larger than 10 MiB, and does not automatically delete received or quarantined mail. This implementation has local tests and a Wrangler dry run; a production claim still requires an account-specific deployment and live Email Routing validation.
 
 ## Outbound delivery status
 

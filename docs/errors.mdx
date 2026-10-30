@@ -1,350 +1,45 @@
 ---
-title: 'Error Handling'
-description: 'Learn how to handle API errors properly'
+title: 'Error handling'
+description: 'The error format the Xem API returns, what each status code means, and how to handle them.'
 ---
 
-# Error Handling
-
-Posthoot API uses standard HTTP status codes and provides detailed error messages to help you understand and resolve issues.
-
-## 📋 HTTP Status Codes
-
-### 2xx Success
-- **200 OK**: Request successful
-- **201 Created**: Resource created successfully
-
-### 4xx Client Errors
-- **400 Bad Request**: Invalid request data
-- **401 Unauthorized**: Authentication required
-- **403 Forbidden**: Insufficient permissions
-- **404 Not Found**: Resource not found
-- **409 Conflict**: Resource conflict
-- **422 Unprocessable Entity**: Validation errors
-- **429 Too Many Requests**: Rate limit exceeded
-
-### 5xx Server Errors
-- **500 Internal Server Error**: Server error
-- **502 Bad Gateway**: Gateway error
-- **503 Service Unavailable**: Service temporarily unavailable
-
-## 🚨 Error Response Format
-
-All error responses follow this format:
+When a request fails, the Xem API returns an HTTP status code and a JSON body:
 
 ```json
 {
-  "error": "error_type",
-  "message": "Human-readable error message",
-  "details": {
-    "field": "Additional error details"
-  },
-  "code": "ERROR_CODE",
-  "timestamp": "2024-01-01T00:00:00Z"
+  "error": "A valid recipient is required",
+  "code": 400,
+  "time": "2026-10-30T09:15:00Z"
 }
 ```
 
-## 🔍 Common Error Types
+| Field | Meaning |
+| --- | --- |
+| `error` | What went wrong. Usually a sentence; for validation failures it describes each invalid field. |
+| `code` | The HTTP status code, repeated for convenience |
+| `time` | When the error happened, in RFC 3339 format |
 
-### Validation Errors (400)
-```json
-{
-  "error": "validation_error",
-  "message": "Invalid request data",
-  "details": {
-    "email": "Invalid email format",
-    "password": "Password must be at least 8 characters"
-  },
-  "code": "VALIDATION_ERROR"
-}
-```
+Rate-limit responses use their own body, described in [Rate limiting](/rate-limiting).
 
-### Authentication Errors (401)
-```json
-{
-  "error": "unauthorized",
-  "message": "Invalid or expired token",
-  "code": "INVALID_TOKEN"
-}
-```
+## Status codes
 
-### Permission Errors (403)
-```json
-{
-  "error": "forbidden",
-  "message": "Insufficient permissions for this resource",
-  "code": "INSUFFICIENT_PERMISSIONS"
-}
-```
+| Status | Meaning | What to do |
+| --- | --- | --- |
+| `400 Bad Request` | The request body or a parameter is invalid | Read `error`, fix the request, and do not retry unchanged |
+| `401 Unauthorized` | The API key or access token is missing, invalid or expired | Check the `X-API-Key` header, or [refresh your access token](/api-reference/auth/refresh-access-token) |
+| `403 Forbidden` | Your key or account lacks permission for this action | Check the role or key permissions in your workspace |
+| `404 Not Found` | The resource does not exist in your workspace | Check the id; resources from other workspaces are never visible |
+| `409 Conflict` | The request conflicts with existing data, such as a reused `requestId` | Use a new id, or fetch the existing resource |
+| `413 Payload Too Large` | The body is over the endpoint's size limit | Send less data, for example smaller attachments |
+| `429 Too Many Requests` | You exceeded the rate limit | Wait for `retry_after` seconds |
+| `500 Internal Server Error` | Something failed on the server | Retry with backoff; contact support if it persists |
 
-### Not Found Errors (404)
-```json
-{
-  "error": "not_found",
-  "message": "Campaign not found",
-  "code": "RESOURCE_NOT_FOUND"
-}
-```
+## Retry safely
 
-### Rate Limit Errors (429)
-```json
-{
-  "error": "rate_limit_exceeded",
-  "message": "Rate limit exceeded. Try again in 60 seconds.",
-  "retry_after": 60,
-  "code": "RATE_LIMIT_EXCEEDED"
-}
-```
+Retry only errors that may succeed later: `429`, `500` and network failures. Use exponential backoff with jitter, as shown in [Rate limiting](/rate-limiting#retry-with-backoff).
 
-## 🛠️ Error Handling Examples
+When retrying a send, include the same `requestId` so the email is not sent twice. Do not retry `400`, `401`, `403`, `404` or `409` without changing the request.
 
-### JavaScript/Node.js
-```javascript
-async function makeApiCall() {
-  try {
-    const response = await fetch('/api/v1/campaigns', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
+## Get help
 
-    if (!response.ok) {
-      const error = await response.json();
-      
-      switch (response.status) {
-        case 401:
-          // Handle authentication error
-          await refreshToken();
-          break;
-        case 403:
-          // Handle permission error
-          console.error('Insufficient permissions');
-          break;
-        case 429:
-          // Handle rate limit
-          const retryAfter = error.retry_after || 60;
-          await delay(retryAfter * 1000);
-          return makeApiCall();
-        default:
-          throw new Error(error.message);
-      }
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('API Error:', error);
-    throw error;
-  }
-}
-```
-
-### Python
-```python
-import requests
-import time
-
-def make_api_call():
-    try:
-        response = requests.get(
-            'https://api.posthoot.com/api/v1/campaigns',
-            headers={'Authorization': f'Bearer {token}'}
-        )
-        
-        if response.status_code == 401:
-            # Handle authentication error
-            refresh_token()
-            return make_api_call()
-        elif response.status_code == 429:
-            # Handle rate limit
-            error = response.json()
-            retry_after = error.get('retry_after', 60)
-            time.sleep(retry_after)
-            return make_api_call()
-        elif response.status_code >= 400:
-            # Handle other errors
-            error = response.json()
-            raise Exception(error['message'])
-            
-        return response.json()
-        
-    except requests.exceptions.RequestException as e:
-        print(f"Request error: {e}")
-        raise
-```
-
-### cURL
-```bash
-# Check for errors in response
-response=$(curl -s -w "%{http_code}" \
-  -H "Authorization: Bearer $TOKEN" \
-  https://api.posthoot.com/api/v1/campaigns)
-
-http_code="${response: -3}"
-body="${response%???}"
-
-if [ "$http_code" -eq 401 ]; then
-    echo "Authentication error: $body"
-elif [ "$http_code" -eq 429 ]; then
-    echo "Rate limit exceeded: $body"
-elif [ "$http_code" -ge 400 ]; then
-    echo "Error $http_code: $body"
-else
-    echo "Success: $body"
-fi
-```
-
-## 🔄 Retry Strategies
-
-### Exponential Backoff
-```javascript
-async function retryWithBackoff(fn, maxRetries = 3) {
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      return await fn();
-    } catch (error) {
-      if (error.status === 429) {
-        const retryAfter = error.retry_after || Math.pow(2, i) * 1000;
-        await delay(retryAfter);
-        continue;
-      }
-      throw error;
-    }
-  }
-  throw new Error('Max retries exceeded');
-}
-```
-
-### Circuit Breaker
-```javascript
-class CircuitBreaker {
-  constructor(failureThreshold = 5, timeout = 60000) {
-    this.failureThreshold = failureThreshold;
-    this.timeout = timeout;
-    this.failures = 0;
-    this.lastFailure = null;
-    this.state = 'CLOSED';
-  }
-
-  async call(fn) {
-    if (this.state === 'OPEN') {
-      if (Date.now() - this.lastFailure > this.timeout) {
-        this.state = 'HALF_OPEN';
-      } else {
-        throw new Error('Circuit breaker is OPEN');
-      }
-    }
-
-    try {
-      const result = await fn();
-      this.onSuccess();
-      return result;
-    } catch (error) {
-      this.onFailure();
-      throw error;
-    }
-  }
-
-  onSuccess() {
-    this.failures = 0;
-    this.state = 'CLOSED';
-  }
-
-  onFailure() {
-    this.failures++;
-    this.lastFailure = Date.now();
-    
-    if (this.failures >= this.failureThreshold) {
-      this.state = 'OPEN';
-    }
-  }
-}
-```
-
-## 📊 Error Monitoring
-
-### Log Errors
-```javascript
-function logError(error, context = {}) {
-  console.error({
-    timestamp: new Date().toISOString(),
-    error: error.message,
-    status: error.status,
-    code: error.code,
-    context,
-    stack: error.stack
-  });
-}
-```
-
-### Error Tracking
-```javascript
-// Send errors to monitoring service
-function trackError(error) {
-  fetch('/api/errors', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      error: error.message,
-      status: error.status,
-      code: error.code,
-      userAgent: navigator.userAgent,
-      url: window.location.href
-    })
-  });
-}
-```
-
-## 🛡️ Best Practices
-
-### 1. Always Check Status Codes
-```javascript
-if (!response.ok) {
-  const error = await response.json();
-  throw new Error(error.message);
-}
-```
-
-### 2. Handle Specific Error Types
-```javascript
-switch (error.code) {
-  case 'INVALID_TOKEN':
-    await refreshToken();
-    break;
-  case 'RATE_LIMIT_EXCEEDED':
-    await delay(error.retry_after * 1000);
-    break;
-  default:
-    console.error('Unknown error:', error);
-}
-```
-
-### 3. Provide User-Friendly Messages
-```javascript
-const errorMessages = {
-  'VALIDATION_ERROR': 'Please check your input and try again',
-  'INVALID_TOKEN': 'Please log in again',
-  'RATE_LIMIT_EXCEEDED': 'Too many requests. Please wait a moment.',
-  'INSUFFICIENT_PERMISSIONS': 'You don\'t have permission to perform this action'
-};
-
-const userMessage = errorMessages[error.code] || error.message;
-```
-
-### 4. Implement Proper Logging
-```javascript
-function handleError(error, context) {
-  // Log for debugging
-  console.error('API Error:', { error, context });
-  
-  // Show user-friendly message
-  showUserMessage(getUserMessage(error));
-  
-  // Track for monitoring
-  trackError(error);
-}
-```
-
-## 📚 Related Topics
-
-- [Authentication](/authentication) - Handle authentication errors
-- [Rate Limiting](/rate-limiting) - Handle rate limit errors
-- [Quickstart Guide](/guides/quickstart) - Learn error handling basics
+If an error persists, open an issue on [GitHub](https://github.com/mailxem/mail/issues) or email [team@xem.email](mailto:team@xem.email). Include the endpoint, the status code, the `time` value and the `error` message, but never your API key.

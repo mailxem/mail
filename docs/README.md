@@ -1,6 +1,6 @@
-# Posthoot API Documentation
+# Xem API Documentation
 
-This directory contains the comprehensive API documentation for the Posthoot backend service. The documentation is built using [Mintlify](https://mintlify.com/) and provides a modern, searchable interface for developers.
+This directory contains the comprehensive API documentation for the Xem backend service. The documentation is built using [Mintlify](https://mintlify.com/) and provides a modern, searchable interface for developers.
 
 ## 📁 Structure
 
@@ -176,7 +176,7 @@ The documentation is automatically deployed when changes are pushed to the main 
 Create a pull request to preview changes before merging.
 
 ### Custom Domain
-The documentation is served at `https://docs.posthoot.com`
+The documentation is served at `https://docs.xem.email`
 
 ## 📊 Analytics
 
@@ -224,7 +224,7 @@ The documentation is served at `https://docs.posthoot.com`
 ### Resources
 - [Mintlify Documentation](https://mintlify.com/docs)
 - [MDX Guide](https://mdxjs.com/)
-- [Posthoot API Reference](https://api.posthoot.com)
+- [Xem API Reference](https://api.xem.email)
 
 ## 📄 License
 

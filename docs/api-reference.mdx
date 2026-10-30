@@ -1,18 +1,18 @@
 ---
 title: 'API Reference'
-description: 'Complete API reference for Posthoot - Email automation and analytics platform'
+description: 'Complete API reference for Xem - Email automation and analytics platform'
 ---
 
 # API Reference
 
-Welcome to the Posthoot API reference. This is your complete guide to integrating with our email automation and analytics platform.
+Welcome to the Xem API reference. This is your complete guide to integrating with our email automation and analytics platform.
 
 ## Quick Start
 
-The Posthoot API is RESTful and follows standard HTTP conventions. All requests should be made to `https://api.posthoot.com` and include proper authentication headers.
+The Xem API is RESTful and follows standard HTTP conventions. All requests should be made to `https://api.xem.email` and include proper authentication headers.
 
 ```bash
-curl -X GET "https://api.posthoot.com/api/v1/users/me" \
+curl -X GET "https://api.xem.email/api/v1/users/me" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json"
 ```
@@ -35,7 +35,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ## Base URL
 
 ```
-https://api.posthoot.com
+https://api.xem.email
 ```
 
 ## API Versioning
@@ -45,7 +45,7 @@ The API is versioned using the URL path. Currently, we support:
 - **v1**: Current stable version (recommended)
 
 ```
-https://api.posthoot.com/api/v1/
+https://api.xem.email/api/v1/
 ```
 
 ## Response Format
@@ -82,11 +82,7 @@ Errors follow a consistent format:
 
 ## Rate Limiting
 
-API requests are rate-limited to ensure fair usage:
-
-- **Authentication endpoints**: 5 requests per minute
-- **API endpoints**: 100 requests per minute
-- **File uploads**: 10 requests per minute
+API requests are limited to 100 per minute per IP address, with bursts of up to 50. See [Rate limiting](/rate-limiting) for details and retry advice.
 
 Rate limit headers are included in all responses:
 
@@ -101,52 +97,52 @@ X-RateLimit-Reset: 1640995200
 ### Authentication
 - [Register User](/auth/register) - Create a new user account
 - [Login User](/auth/login) - Authenticate and get JWT token
-- [Google OAuth](/auth/google) - Authenticate with Google
-- [Refresh Token](/auth/refresh) - Refresh expired JWT token
-- [Password Reset](/auth/password-reset) - Request password reset
-- [Invite User](/auth/invite) - Invite user to team
+- [Google OAuth](/api-reference/auth/authenticate-with-google) - Authenticate with Google
+- [Refresh Token](/api-reference/auth/refresh-access-token) - Refresh expired JWT token
+- [Password Reset](/api-reference/auth/request-password-reset) - Request password reset
+- [Invite User](/api-reference/auth/invite-a-user-to-join-a-team) - Invite user to team
 
 ### User Management
-- [Get Current User](/users/me) - Get authenticated user details
-- [List Users](/users/list) - List all users in team
-- [Get User](/users/get) - Get specific user details
-- [Update User](/users/update) - Update user information
-- [Delete User](/users/delete) - Delete user account
+- [Get Current User](/api-reference/users/get-current-user) - Get authenticated user details
+- [List Users](/api-reference/users/list-all-users) - List all users in team
+- [Get User](/api-reference/users/get-user-details) - Get specific user details
+- [Update User](/api-reference/users/update-user-details) - Update user information
+- [Delete User](/api-reference/users/delete-user) - Delete user account
 
 ### Email Operations
-- [Send Email](/email/send) - Send transactional emails
-- [Email Templates](/templates) - Manage email templates
-- [Campaigns](/campaigns) - Create and manage email campaigns
+- [Send Email](/api-reference/email/send-an-email) - Send transactional emails
+- Email Templates - Manage email templates
+- Campaigns - Create and manage email campaigns
 
 ### Analytics
 - [Campaign Analytics](/analytics/campaign) - Campaign performance metrics
-- [Email Analytics](/analytics/email) - Email delivery and engagement
-- [Audience Insights](/analytics/audience) - Subscriber behavior analysis
-- [Team Overview](/analytics/team) - Team-wide performance summary
-- [Trend Analysis](/analytics/trends) - Historical performance trends
-- [Click Heatmap](/analytics/heatmap) - Visual click tracking data
+- [Email Analytics](/api-reference/get-email-analytics) - Email delivery and engagement
+- [Audience Insights](/api-reference/get-audience-insights) - Subscriber behavior analysis
+- [Team Overview](/api-reference/get-team-overview) - Team-wide performance summary
+- [Trend Analysis](/api-reference/get-trend-analysis) - Historical performance trends
+- [Click Heatmap](/api-reference/get-click-heatmap) - Visual click tracking data
 
 ### File Management
-- [Upload File](/files/upload) - Upload files for email attachments
+- [Upload File](/api-reference/files/upload-a-file) - Upload files for email attachments
 
 ### Subscriptions & Billing
-- [Get Plans](/plans) - View available subscription plans
+- [Get Plans](/api-reference/plans/get-all-plans) - View available subscription plans
 - [Create Subscription](/subscriptions/create) - Start a new subscription
-- [Get Features](/subscriptions/features) - View enabled features
-- [Manage Subscription](/subscriptions/portal) - Access billing portal
+- [Get Features](/api-reference/subscriptions/get-enabled-features) - View enabled features
+- [Manage Subscription](/api-reference/subscriptions/get-subscription-management-portal-url) - Access billing portal
 
 ### Email Tracking
 - [Open Tracking](/tracking/open) - Track email opens
-- [Click Tracking](/tracking/click) - Track link clicks
+- [Click Tracking](/api-reference/handle-click-tracking) - Track link clicks
 
 ## SDKs & Libraries
 
-We provide official SDKs for popular languages:
+Xem has two official SDKs:
 
-- **Node.js**: `npm install @posthoot/sdk`
-- **Python**: `pip install posthoot-sdk`
-- **Go**: `go get github.com/posthoot/go-sdk`
-- **PHP**: `composer require posthoot/php-sdk`
+- **Node.js and TypeScript**: `npm install @xem.email/sdk` ([example](/examples/nodejs))
+- **Go**: `go get github.com/mailxem/mail/sdk-go`
+
+From any other language, call the REST API with the `X-API-Key` header.
 
 ## Webhooks
 
@@ -162,8 +158,8 @@ Need help integrating with our API?
 
 - **Documentation**: Browse our guides and examples
 - **Community**: Join our [Discord server](https://discord.gg/MXQgb9s5bA)
-- **Support**: Email us at [support@posthoot.com](mailto:support@posthoot.com)
-- **GitHub**: Check our [open source repositories](https://github.com/posthoot)
+- **Support**: Email us at [team@xem.email](mailto:team@xem.email)
+- **GitHub**: Check our [open source repositories](https://github.com/mailxem/mail)
 
 ## Changelog
 

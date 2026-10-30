@@ -5,7 +5,7 @@ description: 'Learn about JWT authentication and authentication flows'
 
 # Authentication
 
-Posthoot uses JWT (JSON Web Tokens) for authentication. The API supports both traditional email/password authentication and Google OAuth integration.
+Xem uses JWT (JSON Web Tokens) for authentication. The API supports both traditional email/password authentication and Google OAuth integration.
 
 ## 🔐 Authentication Methods
 
@@ -26,7 +26,7 @@ Generate API keys with granular permissions for programmatic access.
 - **Purpose**: Authenticate API requests
 
 ### Refresh Token
-- **Lifetime**: 7 days
+- **Lifetime**: 30 days
 - **Usage**: Obtain new access tokens
 - **Purpose**: Maintain session without re-authentication
 
@@ -127,7 +127,7 @@ JWT tokens contain the following claims:
 When your access token expires, use the refresh token to get a new one:
 
 ```bash
-curl -X POST https://api.posthoot.com/auth/refresh \
+curl -X POST https://api.xem.email/api/v1/auth/refresh \
   -H "Content-Type: application/json" \
   -d '{
     "refresh_token": "your_refresh_token"
@@ -159,5 +159,5 @@ curl -X POST https://api.posthoot.com/auth/refresh \
 
 - [Register User](/auth/register) - Create a new account
 - [Login](/auth/login) - Authenticate with email/password
-- [Google OAuth](/auth/google) - Authenticate with Google
-- [Password Reset](/auth/password-reset) - Reset forgotten password
+- [Google OAuth](/api-reference/auth/authenticate-with-google) - Authenticate with Google
+- [Password Reset](/api-reference/auth/request-password-reset) - Reset forgotten password

@@ -54,4 +54,4 @@ The two purposes of the Google connector are SMTP sending and IMAP receiving/rea
 
 Policy drafts, code tests and a security checklist cannot substitute for an assessor's Letter of Assessment or Google's approval. No retention infrastructure, public policy, OAuth console setting or hosted availability is changed by this document. The privacy notice is a reviewable proposal until the gate is completed.
 
-Related: [Google verification packet](google-mail-verification.md), [connected-mail implementation](connected-mail.md), [assistant data handling](../client/docs/assistant.md).
+Related: [Google verification packet](google-mail-verification.md), [connected-mail implementation](connected-mail.md), [assistant data handling](https://github.com/mailxem/mail/blob/undefined/client/docs/assistant.md).

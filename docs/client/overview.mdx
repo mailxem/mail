@@ -1,46 +1,35 @@
 ---
-title: 'Client Overview'
-description: 'Overview of the Posthoot client (Next.js) application'
+title: 'Client overview'
+description: 'The Xem web app: a Next.js application for campaigns, newsletters, automations, contacts, the inbox, analytics and settings.'
 ---
 
-# Client Overview
+The Xem client is the web app in the [`client/`](https://github.com/mailxem/mail/tree/undefined/client) folder of the monorepo. It talks to the Go API in `server/` and provides every screen in Xem: campaigns, newsletters, templates, automations, audience and CRM, the inbox, analytics, the Ask Xem assistant and workspace settings.
 
-The Posthoot client is a Next.js 14 app that provides the web UI for campaigns, analytics, templates, contacts, and settings.
+## Stack
 
-## Tech Stack
+| Part | Choice |
+| --- | --- |
+| Framework | Next.js 16 with the App Router and Turbopack |
+| UI | React 19, Tailwind CSS, shadcn/ui components |
+| Data fetching | TanStack Query |
+| Sign-in | NextAuth.js v5 |
+| Tests | Jest with ts-jest and Testing Library |
+| Package manager | Bun (`bun.lockb`) |
 
-- Framework: Next.js 14 (App Router)
-- Language: TypeScript
-- UI: Tailwind CSS, shadcn/ui
-- Auth: NextAuth.js
-- State/Queries: React Query
-- Testing: Jest + Testing Library
-- Build: Bun/Node
-
-## Folder Structure (client/)
+## Folders
 
 ```text
 client/
-  app/                 # Next.js routes (App Router)
-  components/          # Reusable UI and feature components
-  hooks/               # Custom React hooks
-  lib/                 # Client-side utilities/services
-  types/               # TypeScript types
-  public/              # Static assets
-  scripts/             # Helper scripts
+├── app/          # Routes: campaigns, newsletters, audience, automations, inbox, analytics, settings…
+├── components/   # Feature components and shared UI
+├── lib/          # API helpers, validation and domain logic
+├── __tests__/    # Jest tests
+├── auth.ts       # NextAuth configuration
+└── middleware.ts # Route protection and public pages
 ```
 
-## Key Features
+Public pages that need no sign-in, such as hosted forms at `/f/…` and the newsletter web archive at `/n/…`, are allowed through in `middleware.ts`.
 
-- Authentication via NextAuth with server-side session
-- API integration via lib/services (typed)
-- Rich UI components for analytics and campaigns
-- Email template builder components
+## How it reaches the API
 
-## Related Docs
-
-- [Setup](/client/setup)
-- [Environment Variables](/client/env)
-- [Development & Scripts](/client/development)
-- [Testing](/client/testing)
-- [Deployment](/client/deployment)
+Browser requests go to `NEXT_PUBLIC_API_URL`. On a self-hosted install this is `/api/v1`, which your reverse proxy forwards to the backend. Server-side code uses `INTERNAL_API_URL` to reach the backend directly. See [Client setup](/client/setup) for the variables.

@@ -44,11 +44,7 @@
             "group": "Authentication",
             "pages": [
               "auth/register",
-              "auth/login",
-              "auth/google",
-              "auth/refresh",
-              "auth/password-reset",
-              "auth/invite"
+              "auth/login"
             ]
           },
           {
@@ -58,45 +54,19 @@
           {
             "group": "Analytics",
             "pages": [
-              "analytics/campaign",
-              "analytics/email",
-              "analytics/audience",
-              "analytics/team",
-              "analytics/trends",
-              "analytics/heatmap",
-              "analytics/export"
+              "analytics/campaign"
             ]
           },
           {
             "group": "Email Tracking",
             "pages": [
-              "tracking/open",
-              "tracking/click"
+              "tracking/open"
             ]
           },
           {
             "group": "Subscriptions",
             "pages": [
-              "subscriptions/create",
-              "subscriptions/features",
-              "subscriptions/portal",
-              "subscriptions/webhook"
-            ]
-          },
-          {
-            "group": "File Management",
-            "pages": [
-              "files/upload"
-            ]
-          },
-          {
-            "group": "User Management",
-            "pages": [
-              "users/me",
-              "users/list",
-              "users/get",
-              "users/update",
-              "users/delete"
+              "subscriptions/create"
             ]
           }
         ]
@@ -190,15 +160,6 @@
             ]
           },
           {
-            "group": "Self-Hosting",
-            "pages": [
-              "guides/self-hosting",
-              "guides/kubernetes-deployment",
-              "guides/docker-deployment",
-              "guides/systemd-deployment"
-            ]
-          },
-          {
             "group": "Technical",
             "pages": [
               "guides/technical-details"
@@ -207,9 +168,7 @@
           {
             "group": "Examples",
             "pages": [
-              "examples/nodejs",
-              "examples/python",
-              "examples/curl"
+              "examples/nodejs"
             ]
           }
         ]
@@ -224,18 +183,8 @@
           {
             "group": "Setup",
             "pages": [
-              "client/setup",
-              "client/env",
-              "client/development"
+              "client/setup"
             ]
-          },
-          {
-            "group": "Testing",
-            "pages": ["client/testing"]
-          },
-          {
-            "group": "Deployment",
-            "pages": ["client/deployment"]
           }
         ]
       },

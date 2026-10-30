@@ -1,46 +1,29 @@
 ---
-title: 'Rate Limiting'
-description: 'Understand API rate limits and best practices'
+title: 'Rate limiting'
+description: 'How the Xem API limits request rates, the headers it returns, and how to retry after a 429 response.'
 ---
 
-# Rate Limiting
+The Xem API limits how many requests each client can make, to keep the service responsive for everyone. Limits are counted per client IP address.
 
-Posthoot API implements rate limiting to ensure fair usage and protect against abuse. Rate limits are applied per IP address and API key.
+## Default limit
 
-## 📊 Rate Limit Headers
+Each IP address can make **100 requests per minute**, with bursts of up to 50 requests. Health checks at `/health` and `/api/v1/health` are not limited.
 
-All API responses include rate limit headers:
+The limit is stored in Redis, so it is shared by every API instance. If Redis is unavailable, each API instance falls back to an in-memory limit of 20 requests per second per IP address.
 
-```http
-X-RateLimit-Limit: 1000
-X-RateLimit-Remaining: 999
-X-RateLimit-Reset: 1640995200
-```
+## Response headers
 
-## 🔢 Default Limits
+Every limited response includes:
 
-### Authentication Endpoints
-- **Login**: 5 requests per minute per IP
-- **Register**: 3 requests per hour per IP
-- **Password Reset**: 3 requests per hour per IP
-- **Token Refresh**: 10 requests per minute per IP
+| Header | Meaning |
+| --- | --- |
+| `X-RateLimit-Limit` | Requests allowed per minute |
+| `X-RateLimit-Remaining` | Requests left in the current window |
+| `X-RateLimit-Reset` | When the window resets, as a Unix timestamp |
 
-### API Endpoints
-- **Analytics**: 100 requests per minute per IP
-- **Email Sending**: 50 requests per minute per IP
-- **File Upload**: 20 requests per minute per IP
-- **Tracking (Open/Click)**: 1000 requests per minute per IP
-- **Default**: 100 requests per minute per IP
+## When you exceed the limit
 
-### Rate Limit Windows
-- **Authentication**: 1 minute to 1 hour depending on endpoint
-- **API Calls**: 1 minute window
-- **File Operations**: 1 minute window
-- **Tracking**: 1 minute window (high volume expected)
-
-## 🚨 Rate Limit Exceeded
-
-When you exceed rate limits, you'll receive a `429 Too Many Requests` response:
+The API returns `429 Too Many Requests` with this body:
 
 ```json
 {
@@ -52,256 +35,31 @@ When you exceed rate limits, you'll receive a `429 Too Many Requests` response:
 }
 ```
 
-The response includes:
-- `error`: Error type identifier
-- `message`: Human-readable error message
-- `retry_after`: Seconds to wait before retrying
-- `limit`: Total requests allowed in the window
-- `window`: Time window in seconds
+`retry_after` is the number of seconds to wait before trying again.
 
-## 🔄 Retry Strategy
+## Retry with backoff
 
-### Exponential Backoff
-Implement exponential backoff when hitting rate limits:
+Wait for `retry_after` seconds, or back off exponentially if it is missing, and add a little random jitter so many clients do not retry at once:
 
-```javascript
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-async function makeRequest() {
-  try {
-    return await apiCall();
-  } catch (error) {
-    if (error.status === 429) {
-      const retryAfter = error.headers['retry-after'] || 60;
-      await delay(retryAfter * 1000);
-      return makeRequest();
-    }
-    throw error;
+```ts
+async function withRetry<T>(call: () => Promise<Response>, attempts = 5): Promise<Response> {
+  for (let i = 0; ; i++) {
+    const res = await call();
+    if (res.status !== 429 || i === attempts - 1) return res;
+    const body = await res.clone().json().catch(() => ({}));
+    const seconds = body.retry_after ?? 2 ** i;
+    await new Promise((r) => setTimeout(r, seconds * 1000 + Math.random() * 250));
   }
 }
 ```
 
-### Jitter
-Add random jitter to avoid thundering herd:
+When you send email through the API, include a `requestId` so a retried request cannot send the same message twice. See the [quickstart](/guides/quickstart#5-send-through-the-api).
 
-```javascript
-const jitter = Math.random() * 1000; // 0-1000ms
-await delay(retryAfter * 1000 + jitter);
-```
+## Staying under the limit
 
-## 📈 Monitoring Usage
+- Send campaigns to lists from the app, instead of one API call per recipient.
+- Cache data that rarely changes, such as templates and lists.
+- Spread scheduled jobs out instead of starting them all on the minute.
+- Watch `X-RateLimit-Remaining` and slow down before it reaches zero.
 
-### Check Current Usage
-Monitor your rate limit usage via response headers:
-
-```javascript
-const remaining = response.headers['x-ratelimit-remaining'];
-const limit = response.headers['x-ratelimit-limit'];
-const reset = response.headers['x-ratelimit-reset'];
-
-console.log(`Used ${limit - remaining}/${limit} requests`);
-console.log(`Resets at ${new Date(reset * 1000)}`);
-```
-
-### Rate Limit Headers Explained
-- `X-RateLimit-Limit`: Total requests allowed per window
-- `X-RateLimit-Remaining`: Requests remaining in current window
-- `X-RateLimit-Reset`: Unix timestamp when the window resets
-
-### Usage Alerts
-Set up alerts when approaching limits:
-
-```javascript
-if (remaining < limit * 0.1) { // Less than 10% remaining
-  console.warn('Rate limit nearly exceeded!');
-}
-```
-
-## 🛡️ Best Practices
-
-### 1. Implement Caching
-```javascript
-// Cache responses to reduce API calls
-const cache = new Map();
-const cacheKey = `${endpoint}-${params}`;
-
-if (cache.has(cacheKey)) {
-  return cache.get(cacheKey);
-}
-
-const response = await apiCall();
-cache.set(cacheKey, response);
-```
-
-### 2. Batch Requests
-```javascript
-// Instead of multiple single requests
-const promises = items.map(item => apiCall(item));
-
-// Batch them together
-const batchResponse = await batchApiCall(items);
-```
-
-### 3. Use Webhooks
-```javascript
-// Instead of polling, use webhooks
-app.post('/webhook', (req, res) => {
-  // Handle real-time updates
-  res.status(200).send('OK');
-});
-```
-
-### 4. Optimize Request Frequency
-```javascript
-// Use appropriate intervals
-const interval = 60000; // 1 minute for analytics
-setInterval(async () => {
-  await fetchAnalytics();
-}, interval);
-```
-
-## 🔧 Custom Limits
-
-### IP-Based Limits
-The system supports custom rate limits for specific IP addresses:
-
-```go
-IPLimits: map[string]IPLimit{
-    "192.168.1.100": {
-        Limit:  200.0 / 60.0, // 200 requests per minute
-        Burst:  100,
-        Window: time.Minute,
-    },
-}
-```
-
-### User-Based Limits
-Authenticated users can have custom rate limits:
-
-```go
-AuthLimits: map[string]AuthLimit{
-    "user123": {
-        Limit:  500.0 / 60.0, // 500 requests per minute
-        Burst:  250,
-        Window: time.Minute,
-    },
-}
-```
-
-### Enterprise Plans
-Enterprise customers can request custom rate limits:
-
-- Higher limits for specific endpoints
-- Custom burst allowances
-- Priority queuing
-- IP-based whitelisting
-
-### Contact Support
-Email [team@posthoot.com](mailto:team@posthoot.com) to discuss custom rate limits.
-
-## 🔧 Technical Implementation
-
-### Rate Limiting Architecture
-The rate limiting system uses Redis for distributed rate limiting with the following components:
-
-- **Redis Storage**: Rate limit counters stored with TTL
-- **Client Identification**: User ID or IP address based
-- **Endpoint Grouping**: Normalized paths for better grouping
-- **Pipeline Operations**: Atomic Redis operations for consistency
-
-### Endpoint Normalization
-Dynamic parts of URLs are normalized for better rate limit grouping:
-
-```go
-// Example normalizations
-"/api/v1/analytics/campaign/123" → "/api/v1/analytics/campaign"
-"/auth/users/456" → "/auth/users"
-```
-
-### Redis Key Structure
-```
-rate_limit:{clientID}:{method}:{normalizedPath}
-```
-
-Examples:
-- `rate_limit:user:123:POST:/auth/login`
-- `rate_limit:ip:192.168.1.100:GET:/api/v1/analytics`
-
-### Burst Handling
-The system supports burst allowances for handling traffic spikes:
-
-- **Burst**: Maximum requests allowed in a single burst
-- **Window**: Time window for rate limiting
-- **Default Burst**: 50 requests for standard endpoints
-
-## 📊 Rate Limit Analytics
-
-### Client Identification
-The system identifies clients using the following priority:
-
-1. **User ID** (for authenticated requests)
-2. **IP Address** (fallback for unauthenticated requests)
-
-IP addresses are extracted from:
-- `X-Forwarded-For` header (for proxy setups)
-- `X-Real-IP` header
-- Remote address
-
-### Redis Storage
-Rate limit data is stored in Redis with keys formatted as:
-```
-rate_limit:{clientID}:{endpointKey}
-```
-
-Example keys:
-- `rate_limit:user:123:POST:/auth/login`
-- `rate_limit:ip:192.168.1.100:GET:/api/v1/analytics`
-
-### Dashboard
-Monitor your API usage in the Posthoot dashboard:
-
-- Real-time request counts
-- Rate limit history
-- Usage trends
-- Alert configuration
-
-### API Usage Endpoint
-```bash
-curl -X GET https://api.posthoot.com/usage \
-  -H "Authorization: Bearer YOUR_TOKEN"
-```
-
-## 🚀 Optimization Tips
-
-1. **Use Connection Pooling**
-   - Reuse HTTP connections
-   - Reduce connection overhead
-
-2. **Implement Request Queuing**
-   - Queue requests when near limits
-   - Process in background
-
-3. **Cache Aggressively**
-   - Cache static data
-   - Use ETags for conditional requests
-
-4. **Monitor Performance**
-   - Track response times
-   - Identify slow endpoints
-
-5. **Handle Redis Failures Gracefully**
-   - The system allows requests when Redis is unavailable
-   - Log Redis errors for monitoring
-   - Implement fallback rate limiting if needed
-
-6. **Use Appropriate Endpoints**
-   - Use tracking endpoints for email opens/clicks (high limits)
-   - Use analytics endpoints for data retrieval (moderate limits)
-   - Use authentication endpoints sparingly (strict limits)
-
-## 📚 Related Topics
-
-- [Error Handling](/errors) - Handle rate limit errors gracefully
-- [Authentication](/authentication) - Understand JWT token limits
-- [Webhooks](/guides/webhooks) - Use webhooks to reduce polling
-- [Self Hosting](/guides/self-hosting) - Configure rate limits for your deployment
+Self-hosted installs can change these limits in `server/internal/api/middleware/ratelimit.go`.

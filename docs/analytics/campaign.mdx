@@ -22,13 +22,13 @@ The unique identifier of the campaign to analyze.
 ## 📤 Request Example
 
 ```bash
-curl -X GET "https://api.posthoot.com/api/v1/analytics/campaign?campaignId=campaign_123" \
+curl -X GET "https://api.xem.email/api/v1/analytics/campaign?campaignId=campaign_123" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
 ```javascript
 const response = await fetch(
-  'https://api.posthoot.com/api/v1/analytics/campaign?campaignId=campaign_123',
+  'https://api.xem.email/api/v1/analytics/campaign?campaignId=campaign_123',
   {
     headers: {
       'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
@@ -43,7 +43,7 @@ const analytics = await response.json();
 import requests
 
 response = requests.get(
-    'https://api.posthoot.com/api/v1/analytics/campaign',
+    'https://api.xem.email/api/v1/analytics/campaign',
     params={'campaignId': 'campaign_123'},
     headers={'Authorization': 'Bearer YOUR_ACCESS_TOKEN'}
 )
@@ -362,8 +362,8 @@ app.post('/webhook/analytics', (req, res) => {
 
 ## 📚 Related Endpoints
 
-- [Email Analytics](/analytics/email) - Get analytics for specific emails
-- [Campaign Comparison](/analytics/campaign/compare) - Compare multiple campaigns
-- [Audience Analytics](/analytics/audience) - Get audience insights
-- [Team Overview](/analytics/team/overview) - Get team-wide analytics
-- [Export Analytics](/analytics/export/campaign) - Export campaign data
+- [Email Analytics](/api-reference/get-email-analytics) - Get analytics for specific emails
+- [Campaign Comparison](/api-reference/compare-multiple-campaigns) - Compare multiple campaigns
+- [Audience Analytics](/api-reference/get-audience-insights) - Get audience insights
+- [Team Overview](/api-reference/get-team-overview) - Get team-wide analytics
+- [Export Analytics](/api-reference/export-campaign-analytics) - Export campaign data

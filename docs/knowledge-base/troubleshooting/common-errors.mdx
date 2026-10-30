@@ -1,6 +1,6 @@
 # Common Errors & Solutions
 
-Here are the most common errors you'll encounter with Posthoot and how to fix them.
+Here are the most common errors you'll encounter with Xem and how to fix them.
 
 ## 🔐 Authentication Errors
 
@@ -14,7 +14,7 @@ Here are the most common errors you'll encounter with Posthoot and how to fix th
 ```bash
 # Check your API key
 curl -H "Authorization: Bearer YOUR_API_KEY" \
-  https://api.posthoot.com/api/v1/users/me
+  https://api.xem.email/api/v1/users/me
 ```
 
 ### `403 Forbidden`
@@ -84,7 +84,6 @@ if (response.status === 429) {
 ### `500 Internal Server Error`
 **Problem**: Server-side error
 **Solution**:
-- Check our [status page](https://status.posthoot.com)
 - Retry the request (implement retry logic)
 - Contact support if persistent
 
@@ -114,7 +113,7 @@ console.log('Response body:', await response.json());
 ### Check Request Format
 ```bash
 # Test your API call with curl
-curl -X POST https://api.posthoot.com/api/v1/email/send \
+curl -X POST https://api.xem.email/api/v1/emails \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -132,5 +131,5 @@ If none of these solutions work:
 2. **Review recent changes**: Did you recently update your code or configuration?
 3. **Contact support**: Include your request ID and error details
 
-**Support Email**: [support@posthoot.com](mailto:support@posthoot.com)
+**Support Email**: [team@xem.email](mailto:team@xem.email)
 **Community**: [Discord](https://discord.gg/MXQgb9s5bA)
