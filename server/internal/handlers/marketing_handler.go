@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"errors"
+	"kori/internal/events"
 	"net/http"
 	"strings"
 	"time"
@@ -54,6 +56,8 @@ func (h *MarketingHandler) SaveNewsletter(c echo.Context) error {
 	var input struct {
 		Name, Subject, Description, TemplateID, ListID, SMTPConfigID, Status, Cadence, Timezone, PostalAddress string
 		NextSendAt                                                                                             *time.Time
+		// Absent keeps the current web archive setting; "" turns it off.
+		PublicSlug *string
 	}
 	if err := c.Bind(&input); err != nil {
 		return bad("Invalid newsletter")
@@ -61,6 +65,13 @@ func (h *MarketingHandler) SaveNewsletter(c echo.Context) error {
 	n := models.Newsletter{TeamID: team(c), Name: input.Name, Subject: input.Subject, Description: input.Description, TemplateID: input.TemplateID, ListID: input.ListID, SMTPConfigID: input.SMTPConfigID, Status: input.Status, Cadence: input.Cadence, Timezone: input.Timezone, NextSendAt: input.NextSendAt, PostalAddress: input.PostalAddress}
 	if err := h.service.ValidateNewsletter(c.Request().Context(), &n); err != nil {
 		return bad(err.Error())
+	}
+	if input.PublicSlug != nil {
+		slug, err := marketing.NormalizePublicSlug(*input.PublicSlug)
+		if err != nil {
+			return bad(err.Error())
+		}
+		n.PublicSlug = slug
 	}
 	if n.NextSendAt != nil {
 		loc, _ := time.LoadLocation(n.Timezone) // Validated above.
@@ -73,12 +84,18 @@ func (h *MarketingHandler) SaveNewsletter(c echo.Context) error {
 				return missing()
 			}
 			n.Base, n.Editions, n.LastSentAt = old.Base, old.Editions, old.LastSentAt
+			if input.PublicSlug == nil {
+				n.PublicSlug = old.PublicSlug
+			}
 			if n.NextSendAt != nil && old.NextSendAt != nil && n.NextSendAt.Equal(*old.NextSendAt) && n.Timezone == old.Timezone {
 				n.MonthDay = old.MonthDay
 			}
 		}
 		return tx.Omit(clause.Associations).Save(&n).Error
 	})
+	if errors.Is(err, gorm.ErrDuplicatedKey) || (err != nil && strings.Contains(err.Error(), "idx_newsletters_public_slug")) {
+		return bad("That web address is already taken; choose another")
+	}
 	if err != nil {
 		return err
 	}
@@ -93,6 +110,25 @@ func (h *MarketingHandler) PauseNewsletter(c echo.Context) error {
 		return missing()
 	}
 	return c.JSON(200, map[string]string{"status": "PAUSED"})
+}
+
+// ResumeCampaign continues a campaign that staged sending paused. The rest of
+// the list is sent without further stages: the sender has seen the warning.
+func (h *MarketingHandler) ResumeCampaign(c echo.Context) error {
+	var campaign models.Campaign
+	if err := h.scoped(c).Where("id = ? AND status = ?", c.Param("id"), models.CampaignStatusPaused).First(&campaign).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return missing()
+		}
+		return err
+	}
+	off := false
+	if err := h.scoped(c).Model(&campaign).Updates(map[string]any{"send_in_stages": off, "pause_reason": "", "status": models.CampaignStatusSending}).Error; err != nil {
+		return err
+	}
+	campaign.SendInStages, campaign.PauseReason, campaign.Status = &off, "", models.CampaignStatusSending
+	events.Emit("campaign.created", &campaign) // queues the send, as on launch
+	return c.JSON(200, map[string]string{"status": string(models.CampaignStatusSending)})
 }
 func (h *MarketingHandler) NewsletterEditions(c echo.Context) error {
 	if !h.service.Owns(c.Request().Context(), &models.Newsletter{}, c.Param("id"), team(c)) {

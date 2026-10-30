@@ -21,7 +21,7 @@ export function PrivacyLayout({
 }) {
   return (
     <>
-      <SiteHeader />
+      <SiteHeader active="none" />
       <main
         id="main"
         className="mx-auto max-w-[1160px] px-5 pb-20 pt-16 md:pt-24"

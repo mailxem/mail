@@ -129,7 +129,7 @@ export default function McpPage() {
   };
   return (
     <>
-      <SiteHeader />
+      <SiteHeader active="mcp" />
       <main id="main">
         <script
           type="application/ld+json"

@@ -26,6 +26,7 @@ import (
 type sesAPI interface {
 	DescribeActiveReceiptRuleSet(context.Context, *ses.DescribeActiveReceiptRuleSetInput, ...func(*ses.Options)) (*ses.DescribeActiveReceiptRuleSetOutput, error)
 	DescribeReceiptRule(context.Context, *ses.DescribeReceiptRuleInput, ...func(*ses.Options)) (*ses.DescribeReceiptRuleOutput, error)
+	DescribeReceiptRuleSet(context.Context, *ses.DescribeReceiptRuleSetInput, ...func(*ses.Options)) (*ses.DescribeReceiptRuleSetOutput, error)
 	CreateReceiptRule(context.Context, *ses.CreateReceiptRuleInput, ...func(*ses.Options)) (*ses.CreateReceiptRuleOutput, error)
 	UpdateReceiptRule(context.Context, *ses.UpdateReceiptRuleInput, ...func(*ses.Options)) (*ses.UpdateReceiptRuleOutput, error)
 	DeleteReceiptRule(context.Context, *ses.DeleteReceiptRuleInput, ...func(*ses.Options)) (*ses.DeleteReceiptRuleOutput, error)
@@ -78,7 +79,17 @@ func (r *AWSRules) PutRule(ctx context.Context, name string, recipients []string
 	rule := r.desired(name, append([]string(nil), recipients...))
 	out, err := r.client.DescribeReceiptRule(ctx, &ses.DescribeReceiptRuleInput{RuleName: aws.String(name), RuleSetName: aws.String(r.config.RuleSet)})
 	if awsNotFound(err) {
-		_, err = r.client.CreateReceiptRule(ctx, &ses.CreateReceiptRuleInput{RuleSetName: aws.String(r.config.RuleSet), Rule: rule})
+		// SES inserts a rule without After at the top of the set; append it
+		// so the operator's existing rules keep running first.
+		set, err := r.client.DescribeReceiptRuleSet(ctx, &ses.DescribeReceiptRuleSetInput{RuleSetName: aws.String(r.config.RuleSet)})
+		if err != nil {
+			return err
+		}
+		input := &ses.CreateReceiptRuleInput{RuleSetName: aws.String(r.config.RuleSet), Rule: rule}
+		if n := len(set.Rules); n > 0 {
+			input.After = set.Rules[n-1].Name
+		}
+		_, err = r.client.CreateReceiptRule(ctx, input)
 		return err
 	}
 	if err != nil {

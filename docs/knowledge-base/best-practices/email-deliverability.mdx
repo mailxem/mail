@@ -5,18 +5,14 @@ Want your emails to actually reach inboxes instead of spam folders? Here's every
 ## 🏠 Domain & DNS Setup
 
 ### SPF Record
-Add this to your DNS to prevent spoofing:
+SPF lists the servers allowed to send for your domain. The record comes from your email provider. For Amazon SES with a custom MAIL FROM domain, it is:
 ```
-v=spf1 include:_spf.google.com include:_spf.posthoot.com ~all
+v=spf1 include:amazonses.com ~all
 ```
+See [Send with Amazon SES](/guides/amazon-ses) for the full setup.
 
 ### DKIM Authentication
-Enable DKIM signing for your domain:
-```bash
-# Generate DKIM key
-openssl genrsa -out private.key 2048
-openssl rsa -in private.key -pubout -out public.key
-```
+DKIM signs each message so receivers can check it was not altered. Most providers generate the keys for you: in Amazon SES, Easy DKIM gives you three CNAME records to add to your DNS. Turn DKIM on with your provider rather than creating keys by hand.
 
 ### DMARC Policy
 Set up DMARC to monitor and protect your domain:
@@ -192,5 +188,5 @@ If you're still having deliverability issues:
 3. **Verify your DNS settings** are correct
 4. **Contact our support team** for personalized help
 
-**Support**: [support@posthoot.com](mailto:support@posthoot.com)
+**Support**: [team@xem.email](mailto:team@xem.email)
 **Community**: [Discord](https://discord.gg/MXQgb9s5bA)

@@ -10,7 +10,7 @@ beforeEach(() => {
   session.mockResolvedValue(null);
 });
 
-test.each(["/forms/embed.js", "/forms/embed.js?version=1", "/f/example"]) (
+test.each(["/forms/embed.js", "/forms/embed.js?version=1", "/f/example", "/n/weekly", "/n/weekly/2f1c"]) (
   "visitors can load public form content at %s without a session",
   async (path) => {
     const response = await middleware(new NextRequest(`https://app.example${path}`));
@@ -20,7 +20,7 @@ test.each(["/forms/embed.js", "/forms/embed.js?version=1", "/f/example"]) (
   },
 );
 
-test.each(["/forms", "/forms/new", "/forms/embed.js/private", "/forms/embed.js.bak"]) (
+test.each(["/forms", "/forms/new", "/forms/embed.js/private", "/forms/embed.js.bak", "/newsletters", "/n"]) (
   "the public asset exception does not expose workspace pages at %s",
   async (path) => {
     const response = await middleware(new NextRequest(`https://app.example${path}`));

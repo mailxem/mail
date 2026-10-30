@@ -4,16 +4,8 @@ Want to send more emails faster without hitting rate limits? Here's how to optim
 
 ## 🚀 Understanding Rate Limits
 
-### Default Limits by Endpoint
-```javascript
-const rateLimits = {
-  'POST:/auth/login': { limit: 5, window: '1m' },
-  'GET:/api/v1/analytics': { limit: 100, window: '1m' },
-  'POST:/email': { limit: 50, window: '1m' },
-  'POST:/api/v1/files/upload': { limit: 10, window: '1m' },
-  'GET:/api/v1/t/open': { limit: 1000, window: '1m' }
-};
-```
+### Default limit
+Most endpoints allow 100 requests per minute per IP address, counted separately for each endpoint. Authentication endpoints are stricter. The [Rate limiting](/rate-limiting) page lists every limit and explains the headers and the `429` response.
 
 ### Rate Limit Headers
 Every response includes these headers:
@@ -52,7 +44,7 @@ const agent = new https.Agent({
 });
 
 const client = axios.create({
-  baseURL: 'https://api.posthoot.com',
+  baseURL: 'https://api.xem.email',
   httpsAgent: agent,
   timeout: 30000
 });
@@ -297,5 +289,5 @@ If you're hitting rate limits frequently:
 3. **Monitor your usage** - are you tracking rate limit headers?
 4. **Contact support** for custom rate limit increases
 
-**Support**: [support@posthoot.com](mailto:support@posthoot.com)
+**Support**: [team@xem.email](mailto:team@xem.email)
 **Community**: [Discord](https://discord.gg/MXQgb9s5bA)

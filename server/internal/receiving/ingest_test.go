@@ -214,14 +214,20 @@ func TestVerdictsFailClosedAndSpamPassesToSpamFolder(t *testing.T) {
 		})
 	}
 
-	service := receivingTestService(t)
-	box := addMailbox(t, service, "inbox@example.com")
-	event := officialReceipt(t)
-	event.Receipt.SpamVerdict.Status = "FAIL"
-	require.NoError(t, service.ProcessReceipt(context.Background(), event, &memoryObjects{raw: plainMail(box.Address)}))
-	var message Message
-	require.NoError(t, service.DB.First(&message).Error)
-	require.Equal(t, "Spam", message.Folder)
+	// Virus-clean mail is always kept: a failed spam check goes to Spam and
+	// an uncertain one stays in the inbox rather than being quarantined.
+	for spam, folder := range map[string]string{"FAIL": "Spam", "GRAY": "INBOX", "PROCESSING_FAILED": "INBOX", "": "INBOX"} {
+		t.Run("spam_"+spam, func(t *testing.T) {
+			service := receivingTestService(t)
+			box := addMailbox(t, service, "inbox@example.com")
+			event := officialReceipt(t)
+			event.Receipt.SpamVerdict.Status = spam
+			require.NoError(t, service.ProcessReceipt(context.Background(), event, &memoryObjects{raw: plainMail(box.Address)}))
+			var message Message
+			require.NoError(t, service.DB.First(&message).Error)
+			require.Equal(t, folder, message.Folder)
+		})
+	}
 }
 
 func TestDuplicateCrossWorkspaceReceiptIsIdempotentAndKeepsAttachmentMetadata(t *testing.T) {

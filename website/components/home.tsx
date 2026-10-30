@@ -6,11 +6,14 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
+  ChartColumn,
   Check,
+  ClipboardList,
   Code2,
   ExternalLink,
   GitBranch,
   Github,
+  Inbox,
   LayoutTemplate,
   Mail,
   Menu,
@@ -28,7 +31,13 @@ import {
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { productViews, templates, faqs } from "@/lib/content";
-import { appLink, githubUrl, selfHostUrl, contributeUrl } from "@/lib/site";
+import {
+  appLink,
+  githubUrl,
+  selfHostUrl,
+  contributeUrl,
+  docsUrl,
+} from "@/lib/site";
 import { SiteDialog } from "./site-dialog";
 import { McpSection } from "./mcp-section";
 import { AnalyticsSection } from "./analytics-section";
@@ -172,8 +181,14 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
             <a href="#sending" className="transition-colors hover:text-forest">
               Sending
             </a>
+            <a href="/pricing" className="transition-colors hover:text-iris">
+              Pricing
+            </a>
             <a href="/blog" className="transition-colors hover:text-iris">
               Journal
+            </a>
+            <a href={docsUrl} className="transition-colors hover:text-iris">
+              Docs
             </a>
             <a
               href="#questions"
@@ -224,7 +239,9 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               ["How it works", "#how-it-works"],
               ["Open source", "#open-source"],
               ["FAQs", "#questions"],
+              ["Pricing", "/pricing"],
               ["Journal", "/blog"],
+              ["Docs", docsUrl],
               ["Log in", appLink("/auth/login")],
             ].map(([label, href]) => (
               <a
@@ -260,17 +277,17 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               data-intro
               className="mt-5 font-editorial text-[clamp(3.25rem,7.8vw,6rem)] font-normal leading-[.94] tracking-[-.055em]"
             >
-              Every email,
+              All your email marketing,
               <br />
-              <em className="font-normal">a little more human.</em>
+              <em className="font-normal">at the price of email.</em>
             </h1>
             <p
               data-intro
               className="mx-auto mt-6 max-w-[560px] text-[17px] leading-relaxed tracking-[-.02em] md:text-lg"
             >
-              Open-source email marketing for real connections.
-              <br className="hidden sm:block" /> Beautiful emails, thoughtful
-              automations, and room to make it your own.
+              Campaigns, newsletters, automations, forms, a CRM and a shared
+              inbox in one open-source suite. Xem Cloud starts free and costs $9
+              for 20,000 emails; self-host it and pay only Amazon’s $2 to $3.
             </p>
             <div
               data-intro
@@ -327,10 +344,14 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 border-b border-cream/20 pb-10 text-xs text-cream/80 md:gap-x-12"
             >
               {[
-                [Mail, "Email & newsletters"],
+                [Mail, "Campaigns & newsletters"],
                 [Workflow, "Automations"],
                 [Users, "Audience & CRM"],
-                [LayoutTemplate, "Beautiful templates"],
+                [ClipboardList, "Forms"],
+                [Inbox, "Shared inbox"],
+                [ChartColumn, "Analytics"],
+                [LayoutTemplate, "Templates"],
+                [Code2, "API & webhooks"],
               ].map(([Icon, label]) => {
                 const I = Icon as typeof Mail;
                 return (

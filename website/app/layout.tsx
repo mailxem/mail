@@ -15,22 +15,22 @@ const editorial = EB_Garamond({
 });
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Xem — Every email, a little more human.",
+  title: "Xem — All your email marketing, at the price of email.",
   description:
-    "Open-source email marketing with Xem. Design beautiful emails, send newsletters, and build customer journeys. Explore the code and make it your own.",
+    "The open-source email marketing suite: campaigns, newsletters, automations, forms, a CRM, a shared inbox and analytics. Priced per email: free for 3,000 a month, $9 for 20,000, or self-host it for free.",
   openGraph: {
     type: "website",
     siteName: "Xem",
-    title: "Every email, a little more human.",
+    title: "All your email marketing, at the price of email.",
     description:
-      "Proudly open-source email marketing. Beautiful emails, thoughtful automations, and room to make it your own.",
+      "Campaigns, newsletters, automations, forms, CRM and a shared inbox in one open-source suite, priced per email sent. Bring your list from Mailchimp, beehiiv, Kit or Substack.",
     images: [{ url: "/opengraph-image.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     description:
-      "Proudly open-source email marketing. Explore Xem, build on it, and help shape what comes next.",
-    title: "Xem — Every email, a little more human.",
+      "The open-source email marketing suite: campaigns, newsletters, automations, CRM and a shared inbox, priced per email sent.",
+    title: "Xem — All your email marketing, at the price of email.",
     images: ["/opengraph-image.png"],
   },
   icons: { icon: "/favicon.ico", apple: "/brand/xem-mark.png" },

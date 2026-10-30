@@ -279,7 +279,7 @@ func (s *Service) ApplyFeedback(ctx context.Context, eventID string, raw []byte)
 					return e
 				}
 				if s.NotifyAlerts {
-					if err := models.QueueSendingNotice(tx, m.TeamID, "managed-suspension", eventID, "SUSPENDED", s.Now()); err != nil {
+					if err := models.QueueSendingNotice(tx, m.TeamID, "managed-suspension", eventID, "SUSPENDED", "Suspended after SES reported a "+strings.ToLower(f.EventType), s.Now()); err != nil {
 						return err
 					}
 				}
@@ -309,7 +309,7 @@ func (s *Service) ApplyFeedback(ctx context.Context, eventID string, raw []byte)
 			}
 		}
 		if s.NotifyAlerts && !m.IsTest && rank[state] >= rank[m.Status] {
-			if err := models.QueueSendingNotice(tx, m.TeamID, "managed", m.ID, state, s.Now()); err != nil {
+			if err := models.QueueSendingNotice(tx, m.TeamID, "managed", m.ID, state, feedbackReason(f), s.Now()); err != nil {
 				return err
 			}
 		}
@@ -322,4 +322,12 @@ func (s *Service) ApplyFeedback(ctx context.Context, eventID string, raw []byte)
 		}
 		return nil
 	})
+}
+
+// feedbackReason names the SES event, and the bounce type for bounces.
+func feedbackReason(f Feedback) string {
+	if f.EventType == "Bounce" && f.Bounce.BounceType != "" {
+		return "SES reported a " + strings.ToLower(f.Bounce.BounceType) + " bounce"
+	}
+	return "SES reported " + f.EventType
 }

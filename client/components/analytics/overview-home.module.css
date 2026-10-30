@@ -1,0 +1,259 @@
+.overview {
+  --display: ui-serif, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.headActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.range {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--card);
+}
+
+.range button {
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.range button[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--foreground);
+}
+
+.range button:focus-visible,
+.primary:focus-visible,
+.list a:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.primary {
+  padding: 7px 14px;
+  border-radius: 9px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.kpi,
+.panel {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+}
+
+.kpiLabel,
+.panelHead {
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+
+.kpiValue {
+  font-family: var(--display);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.good,
+.bad,
+.flat {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.good {
+  color: #4ade80;
+}
+
+.bad {
+  color: #f87171;
+}
+
+.flat {
+  color: var(--muted-foreground);
+}
+
+:global(.light) .good {
+  color: #15803d;
+}
+
+:global(.light) .bad {
+  color: #b91c1c;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.panelHead {
+  display: flex;
+  justify-content: space-between;
+}
+
+.big {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 2px 0 8px;
+}
+
+.big strong {
+  font-family: var(--display);
+  font-size: 34px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart {
+  height: 260px;
+  width: 100%;
+  aspect-ratio: auto;
+}
+
+.emptyChart,
+.emptyList {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+  min-height: 160px;
+  color: var(--muted-foreground);
+}
+
+.emptyChart p,
+.emptyList p {
+  margin: 0;
+}
+
+.emptyChart a,
+.emptyList a,
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--foreground);
+  font-size: 13px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "issue rate" "meta rate";
+  gap: 0 12px;
+  padding: 10px 8px;
+  margin: 0 -8px;
+  border-radius: 8px;
+}
+
+.list a:hover {
+  background: var(--accent);
+}
+
+.issue {
+  grid-area: issue;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  grid-area: meta;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+
+.rate {
+  grid-area: rate;
+  align-self: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.more {
+  margin-top: auto;
+  padding-top: 12px;
+  color: var(--muted-foreground);
+}
+
+@media (max-width: 900px) {
+  .kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

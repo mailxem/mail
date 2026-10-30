@@ -34,7 +34,7 @@ The user's last name.
 ## 📤 Request Example
 
 ```bash
-curl -X POST https://api.posthoot.com/auth/register \
+curl -X POST https://api.xem.email/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "john.doe@example.com",
@@ -45,7 +45,7 @@ curl -X POST https://api.posthoot.com/auth/register \
 ```
 
 ```javascript
-const response = await fetch('https://api.posthoot.com/auth/register', {
+const response = await fetch('https://api.xem.email/api/v1/auth/register', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json'
@@ -65,7 +65,7 @@ const data = await response.json();
 import requests
 
 response = requests.post(
-    'https://api.posthoot.com/auth/register',
+    'https://api.xem.email/api/v1/auth/register',
     json={
         'email': 'john.doe@example.com',
         'password': 'secure_password123',
@@ -181,6 +181,6 @@ After successful registration:
 ## 📚 Related Endpoints
 
 - [Login](/auth/login) - Authenticate existing user
-- [Google OAuth](/auth/google) - Register with Google
-- [Password Reset](/auth/password-reset) - Reset forgotten password
-- [Get Current User](/users/me) - Get user details
+- [Google OAuth](/api-reference/auth/authenticate-with-google) - Register with Google
+- [Password Reset](/api-reference/auth/request-password-reset) - Reset forgotten password
+- [Get Current User](/api-reference/users/get-current-user) - Get user details

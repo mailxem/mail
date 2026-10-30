@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Save, Trash2 } from "lucide-react";
+import { AlertTriangle, Save, Trash2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
@@ -37,7 +37,11 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [loadingTemplate, setLoadingTemplate] = useState(false);
 
-  const { data: campaign, error: campaignError } = useQuery({
+  const {
+    data: campaign,
+    error: campaignError,
+    refetch: reloadCampaign,
+  } = useQuery({
     queryKey: ["campaign", session?.user?.teamId, id],
     queryFn: () => getCampaign(id as string),
     enabled: !!id && !!session?.accessToken,
@@ -53,8 +57,8 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
               acc[varName] = "";
               return acc;
             },
-            {} as Record<string, any>
-          )
+            {} as Record<string, any>,
+          ),
         );
       }
       // Fetch the associated template
@@ -83,7 +87,7 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
               acc[varName] = "";
               return acc;
             },
-            {} as Record<string, any>
+            {} as Record<string, any>,
           );
           const initialVars: Record<string, any> = {};
 
@@ -138,6 +142,24 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
     }
   };
 
+  const [resuming, setResuming] = useState(false);
+  const handleResume = async () => {
+    setResuming(true);
+    try {
+      const response = await apiFetch(`marketing/campaigns/${id}/resume`, {
+        method: "POST",
+      });
+      if (!response.ok) throw new Error();
+      toast.success("Campaign resumed. The rest of the list sends now.");
+      await reloadCampaign();
+      refetch();
+    } catch {
+      toast.error("Couldn’t resume this campaign. Please try again.");
+    } finally {
+      setResuming(false);
+    }
+  };
+
   const handleDelete = async () => {
     const response = await apiFetch("campaigns/" + id, {
       method: "DELETE",
@@ -152,8 +174,21 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
     }
   };
 
-  if (campaignError) return <div role="alert" className="rounded-2xl border border-border bg-white p-8">Unable to load this campaign. Please try again.</div>;
-  if (!campaign) return <div role="status" className="p-8 text-muted-foreground">Loading campaign…</div>;
+  if (campaignError)
+    return (
+      <div
+        role="alert"
+        className="rounded-2xl border border-border bg-white p-8"
+      >
+        Unable to load this campaign. Please try again.
+      </div>
+    );
+  if (!campaign)
+    return (
+      <div role="status" className="p-8 text-muted-foreground">
+        Loading campaign…
+      </div>
+    );
 
   return (
     <div className="container mx-auto">
@@ -170,6 +205,34 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
       </PageHeader>
 
       <div className="mt-4 px-8 space-y-6">
+        {campaign.status === "PAUSED" && campaign.pauseReason && (
+          <div
+            role="alert"
+            className="flex flex-wrap items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm"
+          >
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600" />
+            <div className="min-w-0 flex-1">
+              <p className="font-medium">
+                Sending paused to protect your sender reputation
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                {campaign.pauseReason}
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                Resuming sends to the rest of the list at once, without further
+                stages.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => void handleResume()}
+              disabled={resuming}
+            >
+              {resuming ? "Resuming…" : "Resume sending"}
+            </Button>
+          </div>
+        )}
         {/* Campaign Details Card */}
         <Card>
           <CardHeader>

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+	"kori/internal/billing"
 	"kori/internal/db"
 	"kori/internal/mailconnect"
 	"kori/internal/models"
@@ -79,6 +81,20 @@ func (h *EmailHandler) SendEmail(email *models.Email) error {
 
 	if email.SMTPConfig == nil || email.SMTPConfig.TeamID != email.TeamID || !email.SMTPConfig.IsActive {
 		return fmt.Errorf("SMTP config is nil")
+	}
+	// Managed sending enforces its own account limits.
+	if !email.Test && email.SMTPConfig.Provider != "MANAGED" {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		err := billing.AllowSend(ctx, email.TeamID, recipientCount(email.To, email.CC, email.BCC))
+		cancel()
+		if err != nil {
+			email.Error = err.Error()
+			email.Status = models.EmailStatusFailed
+			if dbErr := h.UpdateEmail(email); dbErr != nil {
+				return h.logger.Error("❌ Failed to update email status", dbErr)
+			}
+			return err
+		}
 	}
 
 	h.logger.Info("📧 Sending email to: %s using SMTP server: %s", email.To, email.SMTPConfig.Host)
@@ -317,12 +333,33 @@ func (h *EmailHandler) UpdateEmail(email *models.Email) error {
 	}
 
 	return db.GetDB().Transaction(func(tx *gorm.DB) error {
-		if err := tx.Updates(email).Error; err != nil {
+		// Save only the email: saving its loaded SMTPConfig would re-encrypt the
+		// stored password and fail, leaving failed emails stuck as PENDING.
+		if err := tx.Omit(clause.Associations).Updates(email).Error; err != nil {
 			return err
 		}
+		// Managed sends are counted by the managed worker, which sees the real outcome.
+		if email.Status == models.EmailStatusSent && !email.Test && (email.SMTPConfig == nil || email.SMTPConfig.Provider != "MANAGED") {
+			if err := billing.CountEmails(tx, email.TeamID, recipientCount(email.To, email.CC, email.BCC), time.Now()); err != nil {
+				return err
+			}
+		}
 		if h.NotifyFailures && !email.Test && (email.SMTPConfig == nil || email.SMTPConfig.Provider != "MANAGED") {
-			return models.QueueSendingNotice(tx, email.TeamID, "smtp", email.ID, string(email.Status), time.Now())
+			return models.QueueSendingNotice(tx, email.TeamID, "smtp", email.ID, string(email.Status), email.Error, time.Now())
 		}
 		return nil
 	})
+}
+
+// recipientCount counts the addresses an email went to, which is what is billed.
+func recipientCount(lists ...string) int {
+	n := 0
+	for _, list := range lists {
+		for _, a := range strings.Split(list, ",") {
+			if strings.TrimSpace(a) != "" {
+				n++
+			}
+		}
+	}
+	return n
 }

@@ -61,39 +61,47 @@ type RateLimitResponse struct {
 	RetryAfter int       `json:"retry_after,omitempty"`
 }
 
-// Default rate limit configurations
+// Default rate limit configurations, keyed "METHOD:path" by the request path
+// before routing. A key ending in "/" covers every path below it with one
+// shared counter.
 var defaultEndpointLimits = map[string]EndpointLimit{
 	// Authentication endpoints - stricter limits
-	"POST:/auth/login": {
+	"POST:/api/v1/auth/login": {
 		Limit:  5.0 / 60.0, // 5 requests per minute
 		Burst:  3,
 		Window: time.Minute,
 	},
-	"POST:/auth/register": {
+	"POST:/api/v1/auth/register": {
 		Limit:  3.0 / 3600.0, // 3 requests per hour
 		Burst:  1,
 		Window: time.Hour,
 	},
-	"POST:/auth/password-reset": {
+	"POST:/api/v1/auth/password-reset": {
 		Limit:  3.0 / 3600.0, // 3 requests per hour
 		Burst:  1,
 		Window: time.Hour,
 	},
-	"POST:/auth/refresh": {
+	// Reset codes are short, so guesses must stay rare
+	"POST:/api/v1/auth/password-reset/verify": {
+		Limit:  10.0 / 3600.0, // 10 requests per hour
+		Burst:  3,
+		Window: time.Hour,
+	},
+	"POST:/api/v1/auth/refresh": {
 		Limit:  10.0 / 60.0, // 10 requests per minute
 		Burst:  5,
 		Window: time.Minute,
 	},
 
 	// Analytics endpoints - moderate limits
-	"GET:/api/v1/analytics": {
+	"GET:/api/v1/analytics/": {
 		Limit:  100.0 / 60.0, // 100 requests per minute
 		Burst:  50,
 		Window: time.Minute,
 	},
 
-	// Email sending - moderate limits
-	"POST:/email": {
+	// Email sending - moderate limits (/email forwards to /emails)
+	"POST:/api/v1/emails": {
 		Limit:  100.0 / 60.0, // 100 requests per minute
 		Burst:  50,
 		Window: time.Minute,
@@ -107,12 +115,12 @@ var defaultEndpointLimits = map[string]EndpointLimit{
 	},
 
 	// Tracking endpoints - high limits (used by email clients)
-	"GET:/api/v1/t/open": {
+	"GET:/t/open": {
 		Limit:  1000.0 / 60.0, // 1000 requests per minute
 		Burst:  500,
 		Window: time.Minute,
 	},
-	"GET:/api/v1/t/click": {
+	"GET:/t/click/": {
 		Limit:  1000.0 / 60.0, // 1000 requests per minute
 		Burst:  500,
 		Window: time.Minute,
@@ -143,11 +151,8 @@ func RateLimiter(config RateLimitConfig) echo.MiddlewareFunc {
 			// Get client identifier (IP address or user ID)
 			clientID := getClientID(c)
 
-			// Get endpoint key
-			endpointKey := getEndpointKey(c)
-
-			// Get rate limit configuration for this endpoint
-			limitConfig := getLimitConfig(endpointKey, config)
+			// Get the limit for this endpoint and the counter it shares
+			endpointKey, limitConfig := getLimitConfig(getEndpointKey(c), config)
 
 			// Check rate limit
 			allowed, remaining, reset, retryAfter := checkRateLimit(
@@ -217,37 +222,25 @@ func getClientIP(c echo.Context) string {
 
 // getEndpointKey returns a unique key for the endpoint
 func getEndpointKey(c echo.Context) string {
-	method := c.Request().Method
-	path := c.Request().URL.Path
-
-	// Normalize path to remove dynamic parts
-	path = normalizePath(path)
-
-	return fmt.Sprintf("%s:%s", method, path)
+	return fmt.Sprintf("%s:%s", c.Request().Method, strings.TrimSuffix(c.Request().URL.Path, "/"))
 }
 
-// normalizePath removes dynamic parts from the path for better grouping
-func normalizePath(path string) string {
-	// Replace UUIDs with placeholder
-	path = strings.ReplaceAll(path, "/", "/")
-
-	// Replace common dynamic patterns
-	path = strings.ReplaceAll(path, "/api/v1/analytics/campaign", "/api/v1/analytics/campaign")
-	path = strings.ReplaceAll(path, "/api/v1/analytics/email", "/api/v1/analytics/email")
-	path = strings.ReplaceAll(path, "/auth/users/", "/auth/users/")
-
-	return path
-}
-
-// getLimitConfig returns the rate limit configuration for an endpoint
-func getLimitConfig(endpointKey string, config RateLimitConfig) EndpointLimit {
-	// Check for endpoint-specific limit
+// getLimitConfig returns the counter key and limit for an endpoint: an exact
+// match, else the longest "/"-terminated prefix, else the default limit.
+func getLimitConfig(endpointKey string, config RateLimitConfig) (string, EndpointLimit) {
 	if limit, exists := config.EndpointLimits[endpointKey]; exists {
-		return limit
+		return endpointKey, limit
 	}
-
-	// Return default limit
-	return EndpointLimit{
+	matched := ""
+	for key := range config.EndpointLimits {
+		if strings.HasSuffix(key, "/") && strings.HasPrefix(endpointKey, key) && len(key) > len(matched) {
+			matched = key
+		}
+	}
+	if matched != "" {
+		return matched, config.EndpointLimits[matched]
+	}
+	return endpointKey, EndpointLimit{
 		Limit:  config.DefaultLimit,
 		Burst:  config.DefaultBurst,
 		Window: time.Minute,

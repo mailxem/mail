@@ -12,7 +12,8 @@ import (
 )
 
 type Client struct {
-	client *dodopayments.Client
+	client  *dodopayments.Client
+	baseURL string
 }
 
 type BillingDetails struct {
@@ -118,8 +119,13 @@ func NewClient(cfg *config.Config) *Client {
 		)
 	}
 
+	base := "https://live.dodopayments.com"
+	if cfg.DodoTestMode {
+		base = "https://test.dodopayments.com"
+	}
 	return &Client{
-		client: client,
+		client:  client,
+		baseURL: base,
 	}
 }
 

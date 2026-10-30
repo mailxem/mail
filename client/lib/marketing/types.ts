@@ -39,6 +39,8 @@ export type Newsletter = {
   lastSentAt?: string;
   editions: number;
   postalAddress: string;
+  /** Web archive address (/n/{publicSlug}); null when the archive is private. */
+  publicSlug?: string | null;
 };
 export type FormField = {
   id?: string;

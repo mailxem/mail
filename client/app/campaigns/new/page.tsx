@@ -36,11 +36,15 @@ import {
 } from "@/app/providers/mailinglist-provider";
 import { SMTPProvider, useSMTP } from "@/app/providers/smtp-provider";
 import { useTeam } from "@/app/providers/team-provider";
+import { useMarketingQuery } from "@/lib/marketing/api";
+import type { Newsletter } from "@/lib/marketing/types";
 import { useApi } from "@/hooks/use-api";
 import { resourceEntity } from "@/lib/resource-response";
 import { workspaceClassName } from "@/lib/workspace-styles";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/page-header";
+import { PhonePreview } from "@/components/campaigns/phone-preview";
+import { BestTimeHint } from "@/components/campaigns/best-time-hint";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -87,6 +91,8 @@ const campaignSchema = z.object({
   timezone: z.string().default("UTC"),
   subject: z.string().trim().min(1, "Add a subject line"),
   smtpConfigId: z.string().uuid("Choose a sender"),
+  archiveNewsletterId: z.string().optional(),
+  stages: z.enum(["auto", "on", "off"]).default("auto"),
 });
 type CampaignFormValues = z.infer<typeof campaignSchema>;
 type ContactPreview = {
@@ -256,8 +262,13 @@ function NewCampaignForm() {
       batchSize: 100,
       processed: 0,
       timezone: "UTC",
+      archiveNewsletterId: "",
+      stages: "auto",
     },
   });
+  const archives = (
+    useMarketingQuery<Newsletter[]>("marketing/newsletters").data ?? []
+  ).filter((n) => n.publicSlug);
   useEffect(() => {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     setDeviceTimezone(timezone);
@@ -370,6 +381,10 @@ function NewCampaignForm() {
         method: "POST",
         body: JSON.stringify({
           ...values,
+          archiveNewsletterId: values.archiveNewsletterId || undefined,
+          stages: undefined,
+          sendInStages:
+            values.stages === "auto" ? undefined : values.stages === "on",
           teamId: team?.id,
           status: "DRAFT",
           scheduledFor: isScheduled ? values.scheduledFor : undefined,
@@ -985,6 +1000,15 @@ function NewCampaignForm() {
                 </div>
                 {isScheduled && (
                   <div className="space-y-5 border-t border-border pt-5">
+                    <BestTimeHint
+                      timezone={deviceTimezone}
+                      onPick={(date) =>
+                        form.setValue("scheduledFor", date, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        })
+                      }
+                    />
                     <FormField
                       control={form.control}
                       name="scheduledFor"
@@ -1136,6 +1160,76 @@ function NewCampaignForm() {
                       )}
                   </div>
                 )}
+                {archives.length > 0 && (
+                  <FormField
+                    control={form.control}
+                    name="archiveNewsletterId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Publish on the web (optional)</FormLabel>
+                        <Select
+                          value={field.value || "none"}
+                          onValueChange={(value) =>
+                            field.onChange(value === "none" ? "" : value)
+                          }
+                        >
+                          <FormControl>
+                            <SelectTrigger className="h-11">
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="none">Don’t publish</SelectItem>
+                            {archives.map((n) => (
+                              <SelectItem key={n.id} value={n.id}>
+                                {n.name} · /n/{n.publicSlug}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          Once sent, this campaign appears in that newsletter’s
+                          public archive and RSS feed, with personal fields
+                          removed.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+                <FormField
+                  control={form.control}
+                  name="stages"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Send in stages</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="h-11">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="auto">
+                            Automatically for new lists
+                          </SelectItem>
+                          <SelectItem value="on">Always</SelectItem>
+                          <SelectItem value="off">Never</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Sends to 5% of the list first, then 25%, then everyone,
+                        an hour apart. If too many emails bounce or get reported
+                        as spam, sending pauses so you can check the list. Lists
+                        of 500 or fewer always send at once.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <p className="flex items-start gap-2 rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
                   <Clock3 className="mt-0.5 size-3.5 shrink-0" />
                   Saving creates a draft. Your campaign will not send until you
@@ -1226,57 +1320,20 @@ function NewCampaignForm() {
             </section>
 
             <section
-              className="overflow-hidden rounded-[20px] border border-border bg-white shadow-sm"
+              className="overflow-hidden rounded-[20px] border border-border bg-card shadow-sm"
               aria-labelledby="inbox-preview-heading"
             >
               <div className="flex items-center justify-between border-b border-border bg-muted/30 px-5 py-4">
                 <h2 id="inbox-preview-heading" className="text-sm font-medium">
-                  Inbox preview
+                  Phone preview
                 </h2>
                 <Mail size={16} className="text-muted-foreground" />
               </div>
-              <div className="p-5">
-                <div className="mb-4 flex items-center gap-3">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <Mail size={18} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-medium">
-                      {selectedSender?.fromEmail || "Your sender address"}
-                    </p>
-                    <p className="mt-1 text-[11px] text-muted-foreground">
-                      to {selectedList?.name || "your audience"}
-                    </p>
-                  </div>
-                </div>
-                <p
-                  className={cn(
-                    "break-words text-base font-semibold leading-relaxed tracking-tight",
-                    !draft.subject && "text-muted-foreground",
-                  )}
-                >
-                  {draft.subject || "Your subject line goes here"}
-                </p>
-                <div className="mt-5 flex items-center gap-3 rounded-xl border border-dashed border-border bg-muted/20 p-3">
-                  <LayoutTemplate
-                    size={20}
-                    className="shrink-0 text-muted-foreground"
-                  />
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-medium">
-                      {selectedTemplate?.name || "No template selected"}
-                    </p>
-                    <p className="mt-1 text-[11px] text-muted-foreground">
-                      {selectedTemplate
-                        ? "Your saved email design"
-                        : "Choose a design from your library"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="border-t border-border px-5 py-3 text-[11px] text-muted-foreground">
-                A preview of your sender and subject line.
-              </div>
+              <PhonePreview
+                templateId={selectedTemplate?.id}
+                subject={draft.subject}
+                sender={selectedSender?.fromEmail}
+              />
             </section>
             <div className="flex items-center gap-2 px-1 text-xs text-muted-foreground">
               <Clock3 size={14} />

@@ -142,8 +142,8 @@ milestone, and inspect platform SMTP/provider feedback before enabling broadly.
 
 ## Account and sending-alert emails
 
-The library also includes nine Xem service designs, bringing the collection to
-18 emails. They use the same website brand assets and remain editable copies;
+The library also includes eleven Xem service designs, bringing the collection to
+20 emails. They use the same website brand assets and remain editable copies;
 editing a workspace template does not modify the platform's security emails.
 
 | Email | Trigger and recipient |
@@ -151,18 +151,22 @@ editing a workspace template does not modify the platform's security emails.
 | Welcome | Successful password signup, Google signup, or invitation acceptance; the new user |
 | Forgot password | A valid reset request; the affected account |
 | Password changed | A successful password reset; the affected account |
-| Sending failed | A recorded SMTP send failure or managed provider rejection/expired queue; workspace owner |
-| Delivery delayed | An authenticated managed provider delay event; workspace owner |
-| Outcome uncertain | An interrupted SMTP/managed acknowledgement or stale managed worker claim; workspace owner |
-| Bounced | An authenticated managed provider bounce; workspace owner |
-| Spam complaint | An authenticated managed provider complaint; workspace owner |
-| Sending suspended | Automatic managed suspension after complaint/bounce policy feedback; workspace owner |
+| Sending failed | 10 SMTP send failures or managed rejections/expired queues in a UTC day; workspace owner |
+| Delivery delayed | 10 authenticated managed provider delay events in a UTC day; workspace owner |
+| Outcome uncertain | 10 interrupted SMTP/managed acknowledgements or stale managed claims in a UTC day; workspace owner |
+| Bounced | 10 authenticated managed provider bounces in a UTC day; workspace owner |
+| Spam complaint | 3 authenticated managed provider complaints in a UTC day; workspace owner |
+| Sending suspended | Automatic managed suspension after complaint/bounce policy feedback, immediately; workspace owner |
+| Import failed | A contact import that fails, immediately; workspace owner |
+| Automations failing | 5 failed automation runs in a UTC day; workspace owner |
 
 Enable this pipeline separately from the original managed milestones:
 
 ```dotenv
 SERVICE_NOTIFICATIONS_ENABLED=true
 DASHBOARD_URL=https://app.xem.email
+# Optional: daily count for failed/delayed/uncertain/bounced alerts (default 10).
+SERVICE_ALERT_DAILY_THRESHOLD=10
 # Reuse the operator SMTP_* configuration shown above.
 ```
 
@@ -185,12 +189,17 @@ seconds left. Reset tokens are referenced by ID rather than copied into the outb
 Account/security messages are independent of marketing opt-outs.
 
 Sending alerts recheck owner membership/admin status and suppression at delivery.
-They contain the workspace name, event count and UTC recording time; no message
-bodies, recipient lists, raw provider diagnostics, passwords, or SMTP credentials.
-A one-minute collection window groups events, with at most one notice for each
-category/workspace/UTC hour. Events received after that notice is sent increase
-the internal count without sending another email during the same hour. Duplicate
-callbacks and retries are deduplicated across hour boundaries. Test messages keep
+They contain the workspace name, the day's event count, the time of the first
+event, and up to three of the day's most common reasons with their counts. A
+reason is a short line from the SMTP error, the managed status detail, the SES
+event and bounce type, the import step, or the automation name and error, with
+email addresses replaced by `[address]` and cut to 160 characters. Alerts never
+include message bodies, recipient lists, passwords, or SMTP credentials.
+Events are counted per category, workspace and UTC day. A notice is queued only
+when the day's count reaches the category threshold above, then sent after a
+one-minute collection window, so at most one email per category is sent each
+day. Later events that day increase the count without another email. Duplicate
+callbacks and retries are deduplicated. Test messages keep
 their existing managed milestone emails without duplicating these alerts.
 
 The outbox prioritizes reset and password-changed mail, retries definite failures

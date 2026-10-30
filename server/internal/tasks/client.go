@@ -146,7 +146,7 @@ func (c *TaskClient) EnqueueCampaignTask(ctx context.Context, task CampaignTask,
 		asynq.Queue(QueueDefault),
 		asynq.Timeout(TimeoutLong),
 		asynq.MaxRetry(RetryMax),
-		asynq.TaskID(task.CampaignID),
+		asynq.TaskID(campaignTaskID(task)),
 	)
 
 	switch {
@@ -343,4 +343,13 @@ func (c *TaskClient) EnqueueAutomationTask(ctx context.Context, task AutomationE
 	c.logger.Info("Enqueued automation task [%s] in queue %s for automation %s and contact %s",
 		info.ID, info.Queue, task.AutomationID, task.ContactID)
 	return nil
+}
+
+// campaignTaskID lets a staged campaign queue its next stage while the
+// current run still holds the campaign's own task ID.
+func campaignTaskID(t CampaignTask) string {
+	if t.Stage > 0 {
+		return fmt.Sprintf("%s-stage-%d", t.CampaignID, t.Stage)
+	}
+	return t.CampaignID
 }

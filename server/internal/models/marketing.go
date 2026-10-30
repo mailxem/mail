@@ -21,6 +21,8 @@ type Newsletter struct {
 	LastSentAt    *time.Time `json:"lastSentAt"`
 	Editions      int        `gorm:"default:0" json:"editions"`
 	PostalAddress string     `json:"postalAddress"`
+	// PublicSlug publishes sent editions at /n/{slug}; nil keeps the archive private.
+	PublicSlug *string `gorm:"uniqueIndex" json:"publicSlug"`
 }
 
 type ContactNote struct {

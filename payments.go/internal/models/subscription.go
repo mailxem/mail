@@ -138,3 +138,9 @@ func (u *UsageRecord) BeforeCreate(tx *gorm.DB) error {
 	}
 	return nil
 }
+
+// UsageEvent remembers processed usage reports so retries are not counted twice.
+type UsageEvent struct {
+	EventID   string    `gorm:"primaryKey"`
+	CreatedAt time.Time
+}

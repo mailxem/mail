@@ -11,7 +11,8 @@ const posts = fs
     ...matter(
       fs.readFileSync(path.join(process.cwd(), "content/blog", p), "utf8"),
     ),
-  }));
+  }))
+  .filter((p) => p.data.published !== false);
 
 test("journal contains complete published Markdown stories and filters by topic and search", async ({
   page,

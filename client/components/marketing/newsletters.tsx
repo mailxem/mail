@@ -287,6 +287,7 @@ function NewsletterEditor({
     timezone:
       value.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
     postalAddress: value.postalAddress || "",
+    publicSlug: value.publicSlug || "",
   });
   const [at, setAt] = useState(localDate(value.nextSendAt));
   const [status, setStatus] = useState(
@@ -474,6 +475,25 @@ function NewsletterEditor({
                 value={draft.postalAddress}
                 onChange={(e) => set("postalAddress", e.target.value)}
                 placeholder="Company, street, city, postal code, country"
+              />
+            </Field>
+            <Field
+              label="Web archive (optional)"
+              hint={
+                draft.publicSlug
+                  ? `Sent editions appear at ${typeof window !== "undefined" ? window.location.origin : ""}/n/${draft.publicSlug.toLowerCase()}, readable by anyone.`
+                  : "Leave empty to keep editions private. Add an address to publish every sent edition on its own web page."
+              }
+            >
+              <input
+                value={draft.publicSlug}
+                onChange={(e) =>
+                  set("publicSlug", e.target.value.replace(/\s+/g, "-"))
+                }
+                pattern="[a-zA-Z0-9][a-zA-Z0-9-]{1,46}[a-zA-Z0-9]"
+                title="3 to 48 letters, numbers or hyphens"
+                maxLength={48}
+                placeholder="weekly-notes"
               />
             </Field>
           </div>

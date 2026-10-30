@@ -21,7 +21,7 @@ jest.mock("@/lib/marketing/api", () => ({
   useMarketingQuery: () => result,
 }));
 jest.mock("sonner", () => ({
-  toast: { success: jest.fn(), error: jest.fn() },
+  toast: { success: jest.fn(), error: jest.fn(), warning: jest.fn() },
 }));
 
 const receiving = {
@@ -203,4 +203,20 @@ test("keeps form values when mailbox creation fails", async () => {
   });
   await act(async () => button("Create mailbox").click());
   expect(input.value).toBe("alex");
+});
+
+test("hides the MX record until the domain has a mailbox that can receive", async () => {
+  result = {
+    ...result,
+    data: {
+      ...receiving,
+      domains: [{ ...receiving.domains[0], receivingStatus: "needs_mailbox", existingMX: [] }],
+      mailboxes: [],
+    },
+  };
+  await render();
+  expect(container.textContent).not.toContain("inbound.sample.invalid");
+  expect(container.textContent).toContain("Create a mailbox first");
+  expect(container.textContent).toContain("inbox.example.com");
+  expect(Array.from(container.querySelectorAll("button")).some((b) => b.textContent?.includes("Copy value"))).toBe(false);
 });

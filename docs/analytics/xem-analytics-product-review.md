@@ -152,4 +152,4 @@ The first release succeeds when a marketer can identify a specific audience prob
 
 ## Implementation follow-up
 
-The core reporting, tenant isolation, dashboard, cohort drilldowns, and subscription-history instrumentation are implemented. See [the release notes](xem-analytics-release.md) for exact behavior, validation, deployment requirements, and remaining data limitations.
+The core reporting, tenant isolation, dashboard, cohort drilldowns, and subscription-history instrumentation are implemented. See [the release notes](/analytics/xem-analytics-release) for exact behavior, validation, deployment requirements, and remaining data limitations.

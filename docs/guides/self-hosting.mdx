@@ -1,614 +1,116 @@
 ---
-title: 'Self-Hosting Guide'
-description: 'Complete guide to self-host the Posthoot backend service'
+title: 'Self-host Xem'
+description: 'Run Xem on your own Linux server with Docker Swarm: requirements, the one-line installer, first use, HTTPS, updates and backups.'
 ---
 
-# Self-Hosting Guide
+You can run Xem on your own Linux server under the GPL-3.0 licence. A one-line installer builds the app and API from the same commit and deploys them with PostgreSQL 16, Redis 7 and S3-compatible storage (RustFS) on Docker Swarm. Data lives in named Docker volumes, and the installer generates every credential for you.
 
-Want to run Posthoot on your own servers? This guide will walk you through setting up your own instance. It's actually pretty straightforward - we've made it as simple as possible.
+This page summarises the [full self-hosting README](https://github.com/mailxem/mail/blob/undefined/devops/swarm/README.md), which covers every option.
 
-## What you'll need
+## Requirements
 
-Before we start, make sure you have these installed:
+- A Linux host with Docker Engine (including the build plugin), Git, Python 3 and OpenSSL.
+- For light use, **2 CPU cores, 2 GB RAM and 20 GB of free disk**. Builds, especially the Next.js app, need extra memory or swap.
+- An IP address or hostname that both your browser and the containers can reach. Do not use `localhost`.
+- Free ports for the app, API and storage. The defaults are `3000`, `9001` and `9000`.
+- Outbound HTTPS for downloads, and access to your SMTP provider for sending.
 
-- **Go 1.21+** - [Download here](https://golang.org/dl/)
-- **PostgreSQL 14+** - [Download here](https://www.postgresql.org/download/)
-- **Redis 6+** - [Download here](https://redis.io/download)
-- **Git** - [Download here](https://git-scm.com/downloads)
-
-### Server specs
-
-For a basic setup, you'll want:
-- **CPU**: 2+ cores (more is better)
-- **RAM**: 4GB minimum, 8GB recommended
-- **Storage**: 20GB for database and logs
-- **Network**: Stable internet connection
-
-If you're just testing locally, you can get away with less, but for production, these are the minimums we'd recommend.
-
-## Quick Start
-
-### 1. Get the code
+## Install
 
 ```bash
-git clone https://github.com/posthoot/posthoot-backend.go.git
-cd posthoot-backend
+curl -fsSL https://raw.githubusercontent.com/mailxem/mail/undefined/scripts/install.sh | bash
 ```
 
-### 2. Set up your environment
+Answer the prompts with your addresses. On a trusted local network, for example: `http://192.168.1.10:3000` for the app, `http://192.168.1.10:9001` for the API and `http://192.168.1.10:9000` for storage.
 
-Copy the example config and edit it:
+For an unattended install, write a config file:
 
-```bash
-cp .env.example .env
-```
-
-Here's what you need to configure in your `.env` file:
-
-```env
-# Server settings
-SERVER_HOST=0.0.0.0
-SERVER_PORT=8080
-PUBLIC_URL=http://your-domain.com
-
-# Database (PostgreSQL)
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_USER=posthoot_user
-POSTGRES_PASSWORD=your_secure_password
-POSTGRES_DB=posthoot
-POSTGRES_SSLMODE=disable
-
-# Security
-JWT_SECRET=your_very_long_and_secure_jwt_secret_key_here
-
-# Storage
-STORAGE_PROVIDER=local
-STORAGE_BASE_PATH=./storage
-
-# Workers (for processing emails)
-WORKER_CONCURRENCY=5
-WORKER_QUEUE_SIZE=100
-
-# Redis (for caching and rate limiting)
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=your_redis_password
-REDIS_DB=0
-
-# Admin account (created on first run)
-SUPERADMIN_EMAIL=admin@yourdomain.com
-SUPERADMIN_PASSWORD=secure_admin_password
-SUPERADMIN_NAME=Admin
-
-# SMTP (for sending emails)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
-SMTP_FROM_EMAIL=noreply@yourdomain.com
-SMTP_PROVIDER=GMAIL
-
-# Optional: S3 for file storage
-S3_BUCKET_NAME=your-bucket-name
-S3_ENDPOINT=https://s3.amazonaws.com
-S3_REGION=us-east-1
-S3_ACCESS_KEY=your-access-key
-S3_SECRET_KEY=your-secret-key
-
-# Optional: Dodo Payments for subscriptions
-DODO_API_KEY=your_dodo_api_key
-DODO_WEBHOOK_SECRET=your_dodo_webhook_secret
-```
-
-### 3. Set up the database
-
-Create your PostgreSQL database:
-
-```bash
-# Connect to PostgreSQL
-sudo -u postgres psql
-
-# Create database and user
-CREATE DATABASE posthoot;
-CREATE USER posthoot_user WITH PASSWORD 'your_secure_password';
-GRANT ALL PRIVILEGES ON DATABASE posthoot TO posthoot_user;
-\q
-```
-
-### 4. Install Redis
-
-Install and start Redis (pick your OS):
-
-```bash
-# Ubuntu/Debian
-sudo apt update
-sudo apt install redis-server
-sudo systemctl enable redis-server
-sudo systemctl start redis-server
-
-# macOS
-brew install redis
-brew services start redis
-
-# CentOS/RHEL
-sudo yum install redis
-sudo systemctl enable redis
-sudo systemctl start redis
-```
-
-### 5. Get the dependencies
-
-```bash
-go mod download
-```
-
-### 6. Start the server
-
-```bash
-go run cmd/server/main.go
-```
-
-That's it! Your server should be running on `http://localhost:8080` (or whatever you configured).
-
-## Production Deployment Options
-
-For production deployments, we offer several options depending on your infrastructure and requirements:
-
-### 🐳 Docker Deployment (Recommended)
-The easiest way to deploy with containerization. Perfect for most users.
-- **Quick setup** with Docker Compose
-- **Isolated environments** for each component
-- **Easy scaling** and management
-- **Consistent deployments** across environments
-
-> Prebuilt container images
->
-> You can pull ready-to-run images from GitHub Container Registry:
->
-> ```bash
-> # Next.js client (app)
-> docker pull ghcr.io/posthoot/posthoot-app.ts:latest
->
-> # Go backend API (server)
-> docker pull ghcr.io/posthoot/posthoot-backend.go:latest
-> ```
->
-> Use these images directly in your Docker Compose / Kubernetes manifests for faster deployments.
-
-[**View Docker Deployment Guide →**](./docker-deployment)
-
-### 🚀 Kubernetes Deployment
-Enterprise-grade deployment for high availability and scalability.
-- **Multi-replica deployments** with load balancing
-- **Automatic scaling** based on demand
-- **Advanced monitoring** and health checks
-- **Production-grade security** and networking
-
-[**View Kubernetes Deployment Guide →**](./kubernetes-deployment)
-
-### ⚙️ Systemd Deployment
-Native Linux service deployment for traditional server setups.
-- **System service integration** with automatic startup
-- **Resource management** and security features
-- **Traditional server administration**
-- **Direct system integration**
-
-[**View Systemd Deployment Guide →**](./systemd-deployment)
-
-### 📊 PM2 Deployment
-Node.js-style process management for Go applications.
-- **Process clustering** and load balancing
-- **Zero-downtime deployments**
-- **Built-in monitoring** and logging
-- **Familiar for Node.js developers**
-
-Choose the deployment method that best fits your infrastructure and team expertise.
-
-## Configuration
-
-### Environment variables
-
-Here are the main settings you can configure:
-
-| Variable | What it does | Default | Required? |
-|----------|-------------|---------|----------|
-| `SERVER_HOST` | Where to bind the server | `localhost` | No |
-| `SERVER_PORT` | Port to run on | `8080` | No |
-| `PUBLIC_URL` | Your public URL | `http://localhost:8080` | No |
-| `POSTGRES_HOST` | Database host | `localhost` | Yes |
-| `POSTGRES_PORT` | Database port | `5432` | No |
-| `POSTGRES_USER` | Database username | - | Yes |
-| `POSTGRES_PASSWORD` | Database password | - | Yes |
-| `POSTGRES_DB` | Database name | `posthoot` | No |
-| `JWT_SECRET` | Secret for signing tokens | - | Yes |
-| `REDIS_HOST` | Redis host | `localhost` | No |
-| `REDIS_PORT` | Redis port | `6379` | No |
-| `REDIS_PASSWORD` | Redis password | - | No |
-| `SUPERADMIN_EMAIL` | Admin email | - | Yes (first run) |
-| `SUPERADMIN_PASSWORD` | Admin password | - | Yes (first run) |
-
-### Storage Options
-
-#### Local Storage
-```env
-STORAGE_PROVIDER=local
-STORAGE_BASE_PATH=./storage
-```
-
-#### S3 Storage
-```env
-STORAGE_PROVIDER=s3
-S3_BUCKET_NAME=your-bucket
-S3_ENDPOINT=https://s3.amazonaws.com
-S3_REGION=us-east-1
-S3_ACCESS_KEY=your-key
-S3_SECRET_KEY=your-secret
-```
-
-### SMTP Configuration
-
-#### Gmail
-```env
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
-SMTP_PROVIDER=GMAIL
-```
-
-#### SendGrid
-```env
-SMTP_HOST=smtp.sendgrid.net
-SMTP_PORT=587
-SMTP_USER=apikey
-SMTP_PASSWORD=your-sendgrid-api-key
-SMTP_PROVIDER=SENDGRID
-```
-
-## Security Considerations
-
-### Basic Security Setup
-
-For production deployments, consider these essential security measures:
-
-- **Firewall configuration** - Restrict access to necessary ports only
-- **Reverse proxy setup** - Use Nginx or Apache for SSL termination
-- **SSL certificates** - Install Let's Encrypt or commercial certificates
-- **Database security** - Create read-only users for backups
-- **Regular updates** - Keep system and dependencies updated
-
-Each deployment guide includes detailed security configurations specific to that method:
-
-- [**Docker Security →**](./docker-deployment#security)
-- [**Kubernetes Security →**](./kubernetes-deployment#security)
-- [**Systemd Security →**](./systemd-deployment#security)
-
-## Monitoring and Logging
-
-### Essential Monitoring
-
-For production deployments, implement these monitoring components:
-
-- **Health checks** - Use the `/health` endpoint for service monitoring
-- **Application logs** - Configure log rotation and aggregation
-- **Metrics collection** - Set up Prometheus and Grafana
-- **Alerting** - Configure alerts for critical issues
-
-Each deployment guide includes specific monitoring setup:
-
-- [**Docker Monitoring →**](./docker-deployment#monitoring)
-- [**Kubernetes Monitoring →**](./kubernetes-deployment#monitoring-setup)
-- [**Systemd Monitoring →**](./systemd-deployment#monitoring-and-logging)
-
-### Health Check Endpoint
-
-The application provides a health check endpoint:
-
-```bash
-curl http://localhost:9001/health
-```
-
-Expected response:
-```json
+```json config.json
 {
-  "status": "healthy",
-  "version": "1.0.0",
-  "time": "2024-01-01T12:00:00Z"
+  "app_url": "http://192.0.2.10:3000",
+  "api_url": "http://192.0.2.10:9001",
+  "storage_url": "http://192.0.2.10:9000",
+  "app_port": 3000,
+  "api_port": 9001,
+  "storage_port": 9000
 }
 ```
 
-## Backup Strategy
-
-### Essential Backup Components
-
-For production deployments, implement these backup strategies:
-
-- **Database backups** - Regular PostgreSQL dumps with compression
-- **File storage backups** - Backup application data and uploads
-- **Configuration backups** - Backup environment files and settings
-- **Automated scheduling** - Use cron jobs for regular backups
-
-Each deployment guide includes specific backup procedures:
-
-- [**Docker Backup →**](./docker-deployment#backup-and-restore)
-- [**Kubernetes Backup →**](./kubernetes-deployment#backup-and-recovery)
-- [**Systemd Backup →**](./systemd-deployment#backup-and-recovery)
-
-### Basic Database Backup
+Then run:
 
 ```bash
-# Create backup
-pg_dump -h localhost -U posthoot_user -d posthoot > backup.sql
-
-# Restore backup
-psql -h localhost -U posthoot_user -d posthoot < backup.sql
+bash install-xem.sh --config ./config.json --state "$HOME/.local/share/xem"
 ```
 
-## Troubleshooting
+The installer stores generated credentials, including a base64-encoded RSA key, in the state directory with owner-only permissions. It reports success only after the API health check and the app's login page both return HTTP 200. Database migrations run automatically when the API starts.
 
-### Common Issues
+<Warning>
+Keep the state directory. Later runs reuse its credentials and volumes. Losing the RSA key can make previously encrypted data unreadable.
+</Warning>
 
-For detailed troubleshooting guides specific to each deployment method:
+## First use
 
-- [**Docker Troubleshooting →**](./docker-deployment#troubleshooting)
-- [**Kubernetes Troubleshooting →**](./kubernetes-deployment#troubleshooting)
-- [**Systemd Troubleshooting →**](./systemd-deployment#troubleshooting)
+<Steps>
+  <Step title="Create your account">
+    Open `<app_url>/auth/register`. There is no default admin password.
+  </Step>
+  <Step title="Connect a sender">
+    In **Settings → SMTP senders**, add your SMTP provider. To use Amazon SES, follow [Send with Amazon SES](/guides/amazon-ses).
+  </Step>
+  <Step title="Authenticate your domain">
+    Set up SPF, DKIM and DMARC with your provider before sending.
+  </Step>
+  <Step title="Test">
+    Import contacts, pick a template and send a test to an address you control.
+  </Step>
+</Steps>
 
-### Basic Debugging Commands
+A self-hosted install does not include managed sending, managed inbound mail, Google login, hosted billing, the MCP server or the AI assistant. Some of these appear in the interface but need separate setup.
+
+## HTTPS and public servers
+
+The default HTTP addresses are for a trusted network. For a public server, put the app, API and storage behind a TLS reverse proxy, with addresses such as `https://app.example.com`, `https://api.example.com` and `https://files.example.com`. Storage requests must keep their original host, path and query so S3 signatures still match.
+
+Restrict the published ports with a firewall that applies to Docker traffic, so outside requests go through the proxy. The installer does not set up DNS, certificates, a proxy or firewall rules.
+
+## Check status and logs
 
 ```bash
-# Check service status
-systemctl status posthoot
-
-# View logs
-journalctl -u posthoot -f
-
-# Test database connection
-psql -h localhost -U posthoot_user -d posthoot
-
-# Test Redis connection
-redis-cli ping
-
-# Check port usage
-netstat -tlnp | grep :9001
+docker stack services xem
+docker service logs --tail 100 xem_api
+docker service logs --tail 100 xem_app
 ```
 
-## Performance Tuning
+All five long-running services should show one replica. The `xem_storage-init` service exits after creating the storage bucket, so `0/1` is expected for it.
 
-### Optimization Areas
+## Update
 
-For production deployments, consider these performance optimizations:
+Back up first, because the API applies database migrations on start. Then run the install command again as the same user, with the same state directory. It rebuilds from the latest revision and updates the services, which can briefly interrupt service.
 
-- **Database tuning** - Index optimization and query performance
-- **Redis configuration** - Memory management and persistence
-- **Application settings** - Worker concurrency and connection pooling
-- **System resources** - CPU, memory, and network optimization
+To pin a reviewed revision:
 
-Each deployment guide includes specific performance tuning:
-
-- [**Docker Performance →**](./docker-deployment#performance-tuning)
-- [**Kubernetes Performance →**](./kubernetes-deployment#performance-tuning)
-- [**Systemd Performance →**](./systemd-deployment#performance-tuning)
-
-### Basic Database Optimization
-
-```sql
--- Analyze table statistics
-ANALYZE;
-
--- Create indexes for frequently queried columns
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_campaigns_status ON campaigns(status);
-CREATE INDEX idx_emails_sent_at ON emails(sent_at);
-```
-
-## Support
-
-If you encounter issues while self-hosting:
-
-1. **Check the logs** for error messages
-2. **Review this documentation** for common solutions
-3. **Search existing issues** on GitHub
-4. **Create a new issue** with detailed information including:
-   - Your environment (OS, Go version, etc.)
-   - Configuration (sanitized)
-   - Error logs
-   - Steps to reproduce
-
-## Kubernetes Deployment
-
-For production environments, we recommend using Kubernetes for better scalability, reliability, and management. We've created a comprehensive Kubernetes setup that includes all necessary components.
-
-### Prerequisites
-
-- Kubernetes cluster (v1.20+)
-- kubectl configured to access your cluster
-- Docker registry access
-- NGINX Ingress Controller installed
-- cert-manager installed (for SSL certificates)
-
-### Quick Deployment
-
-1. **Navigate to the Kubernetes directory:**
 ```bash
-cd server/k8s
+XEM_REV=<reviewed-commit-sha>
+curl -fsSLo install-xem.sh "https://raw.githubusercontent.com/mailxem/mail/$XEM_REV/scripts/install.sh"
+XEM_REF="$XEM_REV" bash install-xem.sh
 ```
 
-2. **Update configuration:**
-   - Edit `secret.yaml` with your actual passwords and keys
-   - Update `configmap.yaml` for non-sensitive configuration
-   - Modify `ingress.yaml` with your domain name
+## Back up
 
-3. **Build and deploy:**
+Keep an encrypted copy of the state directory, the `xem_storage` volume and a PostgreSQL dump:
+
 ```bash
-# Make the deployment script executable
-chmod +x deploy.sh
-
-# Deploy everything
-./deploy.sh --registry your-registry --tag latest
+umask 077
+DB_CONTAINER=$(docker ps -q --filter label=com.docker.swarm.service.name=xem_postgres)
+docker exec "$DB_CONTAINER" pg_dump -U xem -d xem -Fc > xem-postgres.dump
 ```
 
-### Architecture Overview
+Stop sending during a restore so queued emails are not sent twice.
 
-The Kubernetes setup includes:
+## Stop
 
-- **Namespace**: `posthoot-server` for isolation
-- **Database**: PostgreSQL with persistent storage (10Gi)
-- **Cache**: Redis with persistent storage (5Gi)
-- **Application**: Posthoot server (2 replicas with HPA)
-- **Monitoring**: Asynqmon for background job monitoring
-- **Networking**: Ingress with SSL termination
-- **Security**: Network policies and proper RBAC
-
-### Key Features
-
-#### High Availability
-- Multiple server replicas with load balancing
-- Persistent storage for database and cache
-- Health checks and automatic recovery
-- Horizontal Pod Autoscaler (2-10 replicas)
-
-#### Security
-- Network policies restricting pod communication
-- Secrets management for sensitive data
-- SSL termination with automatic certificate renewal
-- Isolated namespace
-
-#### Monitoring
-- Health check endpoints (`/health`)
-- Asynqmon dashboard for background jobs
-- Resource monitoring and alerting
-- Comprehensive logging
-
-#### Scaling
-- Automatic scaling based on CPU/memory usage
-- Resource limits and requests
-- Connection pooling optimization
-- Background job processing
-
-### Configuration
-
-#### Environment Variables
-All environment variables are managed through ConfigMaps and Secrets:
-
-```yaml
-# Non-sensitive configuration (configmap.yaml)
-SERVER_HOST: "0.0.0.0"
-SERVER_PORT: "9001"
-DB_HOST: "posthoot-postgres"
-REDIS_HOST: "posthoot-redis"
-
-# Sensitive configuration (secret.yaml)
-POSTGRES_PASSWORD: "base64-encoded-password"
-JWT_SECRET: "base64-encoded-jwt-secret"
-```
-
-#### Resource Allocation
-- **PostgreSQL**: 256Mi-512Mi RAM, 250m-500m CPU
-- **Redis**: 128Mi-256Mi RAM, 100m-200m CPU
-- **Server**: 512Mi-1Gi RAM, 500m-1000m CPU
-- **Asynqmon**: 128Mi-256Mi RAM, 100m-200m CPU
-
-### Management Commands
-
-#### Check Status
 ```bash
-# View all resources
-kubectl get all -n posthoot-server
-
-# Check pod status
-kubectl get pods -n posthoot-server
-
-# View logs
-kubectl logs -n posthoot-server deployment/posthoot-server
+docker stack rm xem
 ```
 
-#### Scaling
-```bash
-# Scale server replicas
-kubectl scale deployment posthoot-server --replicas=5 -n posthoot-server
-
-# Check HPA status
-kubectl get hpa -n posthoot-server
-```
-
-#### Updates
-```bash
-# Update image
-kubectl set image deployment/posthoot-server posthoot-server=your-registry/posthoot-server:v1.1.0 -n posthoot-server
-
-# Monitor rollout
-kubectl rollout status deployment/posthoot-server -n posthoot-server
-```
-
-#### Backup
-```bash
-# Database backup
-kubectl exec -n posthoot-server deployment/posthoot-postgres -- pg_dump -U posthoot posthoot > backup.sql
-
-# Restore backup
-kubectl exec -n posthoot-server deployment/posthoot-postgres -- psql -U posthoot posthoot < backup.sql
-```
-
-### Troubleshooting
-
-#### Common Issues
-
-1. **Image Pull Errors**
-   ```bash
-   # Check image availability
-   kubectl describe pod -n posthoot-server <pod-name>
-   ```
-
-2. **Database Connection Issues**
-   ```bash
-   # Check PostgreSQL logs
-   kubectl logs -n posthoot-server deployment/posthoot-postgres
-   ```
-
-3. **Ingress Issues**
-   ```bash
-   # Check ingress status
-   kubectl get ingress -n posthoot-server
-   kubectl describe ingress posthoot-ingress -n posthoot-server
-   ```
-
-#### Debugging
-```bash
-# Port forward for local access
-kubectl port-forward -n posthoot-server svc/posthoot-server 9001:80
-
-# Access Asynqmon dashboard
-kubectl port-forward -n posthoot-server svc/posthoot-asynqmon 8080:8080
-```
-
-### Production Considerations
-
-#### Monitoring Setup
-- Install Prometheus and Grafana for metrics
-- Set up alerting for critical issues
-- Configure log aggregation (ELK stack)
-
-#### Backup Strategy
-- Regular database backups with retention policy
-- Persistent volume snapshots
-- Disaster recovery testing
-
-#### Security Hardening
-- Network policies for pod isolation
-- RBAC with least privilege access
-- Regular security updates
-- Secrets rotation
-
-For detailed Kubernetes configuration and advanced setup options, see the [Kubernetes README](../server/k8s/README.md).
-
-## Next Steps
-
-After successfully setting up your self-hosted instance:
-
-1. **Configure your frontend** to point to your API
-2. **Set up monitoring** and alerting
-3. **Configure backups** and test restore procedures
-4. **Review security** settings and update regularly
-5. **Join the community** for updates and support
+This removes the services and network but keeps the data volumes and the state directory. Run the installer again to start Xem with the same data.

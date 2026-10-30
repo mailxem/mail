@@ -1,678 +1,124 @@
 ---
-title: 'Node.js Examples'
-description: 'Complete Node.js examples for the Posthoot API'
+title: 'Node.js'
+description: 'Send email from Node.js with the Xem SDK, or call the Xem API directly with fetch.'
 ---
 
-# Node.js Examples
+The quickest way to send email from Node.js is the official SDK, [`@xem.email/sdk`](https://www.npmjs.com/package/@xem.email/sdk). For anything the SDK does not cover yet, such as analytics, call the API directly with `fetch`.
 
-Complete examples showing how to use the Posthoot API with Node.js.
+Both need an API key. Create one in **Settings → API keys** and keep it in an environment variable, never in code.
 
-## 📦 Installation
-
-First, install the required dependencies:
+## Install
 
 ```bash
-npm install axios dotenv
+npm install @xem.email/sdk
 ```
 
-## 🔧 Setup
+## Send an email
 
-Create a `.env` file for your configuration:
+```ts
+import { Xem } from "@xem.email/sdk";
 
-```env
-POSTHOOT_API_URL=https://api.posthoot.com
-POSTHOOT_EMAIL=your-email@example.com
-POSTHOOT_PASSWORD=your-secure-password
+const xem = new Xem({ apiKey: process.env.XEM_API_KEY });
+
+const result = await xem.email.send({
+  to: "reader@example.com",
+  subject: "Welcome to the newsletter",
+  html: "<p>Thanks for signing up.</p>",
+});
+
+console.log(result); // { status: "Email saved to outbox", id: "…" }
 ```
 
-## 🚀 Basic Setup
+Xem queues the email in your workspace outbox and sends it through your default sender.
 
-```javascript
-const axios = require('axios');
-require('dotenv').config();
+## Send a saved template
 
-class PosthootAPI {
-  constructor() {
-    this.baseURL = process.env.POSTHOOT_API_URL || 'https://api.posthoot.com';
-    this.tokens = null;
-  }
-
-  // Set default headers for all requests
-  setAuthHeaders() {
-    if (this.tokens?.access_token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${this.tokens.access_token}`;
-    }
-  }
-
-  // Handle API errors
-  handleError(error) {
-    if (error.response) {
-      const { status, data } = error.response;
-      switch (status) {
-        case 401:
-          throw new Error('Authentication failed. Please log in again.');
-        case 403:
-          throw new Error('Insufficient permissions.');
-        case 429:
-          throw new Error('Rate limit exceeded. Please wait before trying again.');
-        default:
-          throw new Error(data.message || 'An error occurred');
-      }
-    } else {
-      throw new Error('Network error');
-    }
-  }
-}
-```
-
-## 🔐 Authentication Examples
-
-### Register New User
-
-```javascript
-async register(email, password, firstName, lastName) {
-  try {
-    const response = await axios.post(`${this.baseURL}/auth/register`, {
-      email,
-      password,
-      first_name: firstName,
-      last_name: lastName
-    });
-
-    this.tokens = {
-      access_token: response.data.access_token,
-      refresh_token: response.data.refresh_token
-    };
-
-    this.setAuthHeaders();
-    return response.data;
-  } catch (error) {
-    this.handleError(error);
-  }
-}
-
-// Usage
-const api = new PosthootAPI();
-await api.register(
-  'john.doe@example.com',
-  'secure_password123',
-  'John',
-  'Doe'
-);
-```
-
-### Login Existing User
-
-```javascript
-async login(email, password) {
-  try {
-    const response = await axios.post(`${this.baseURL}/auth/login`, {
-      email,
-      password
-    });
-
-    this.tokens = {
-      access_token: response.data.access_token,
-      refresh_token: response.data.refresh_token
-    };
-
-    this.setAuthHeaders();
-    return response.data;
-  } catch (error) {
-    this.handleError(error);
-  }
-}
-
-// Usage
-await api.login('john.doe@example.com', 'secure_password123');
-```
-
-### Refresh Token
-
-```javascript
-async refreshToken() {
-  try {
-    const response = await axios.post(`${this.baseURL}/auth/refresh`, {
-      refresh_token: this.tokens.refresh_token
-    });
-
-    this.tokens = {
-      access_token: response.data.access_token,
-      refresh_token: response.data.refresh_token
-    };
-
-    this.setAuthHeaders();
-    return response.data;
-  } catch (error) {
-    // If refresh fails, redirect to login
-    this.tokens = null;
-    throw new Error('Session expired. Please log in again.');
-  }
-}
-```
-
-## 📧 Email Examples
-
-### Send Simple Email
-
-```javascript
-async sendEmail(to, subject, html, options = {}) {
-  try {
-    const response = await axios.post(`${this.baseURL}/email`, {
-      to,
-      subject,
-      html,
-      provider: options.provider || 'CUSTOM',
-      data: options.data || [],
-      cc: options.cc,
-      bcc: options.bcc,
-      replyTo: options.replyTo,
-      test: options.test || false
-    });
-
-    return response.data;
-  } catch (error) {
-    this.handleError(error);
-  }
-}
-
-// Usage
-const emailResult = await api.sendEmail(
-  'recipient@example.com',
-  'Welcome to Posthoot!',
-  '<h1>Hello!</h1><p>This is a test email sent via the Posthoot API.</p>',
-  {
-    test: true // Send as test email
-  }
-);
-```
-
-### Send Email with Template
-
-```javascript
-async sendEmailWithTemplate(to, templateId, data, options = {}) {
-  try {
-    const response = await axios.post(`${this.baseURL}/email`, {
-      to,
-      templateId,
-      data,
-      provider: options.provider || 'CUSTOM',
-      cc: options.cc,
-      bcc: options.bcc,
-      replyTo: options.replyTo,
-      test: options.test || false
-    });
-
-    return response.data;
-  } catch (error) {
-    this.handleError(error);
-  }
-}
-
-// Usage
-const templateData = [
-  { name: 'John', company: 'Acme Corp' },
-  { name: 'Jane', company: 'Tech Inc' }
-];
-
-const emailResult = await api.sendEmailWithTemplate(
-  'recipient@example.com',
-  'template_123',
-  templateData,
-  { test: true }
-);
-```
-
-### Send Bulk Email
-
-```javascript
-async sendBulkEmails(recipients, subject, html, options = {}) {
-  const results = [];
-  const batchSize = options.batchSize || 100;
-  
-  for (let i = 0; i < recipients.length; i += batchSize) {
-    const batch = recipients.slice(i, i + batchSize);
-    
-    const promises = batch.map(recipient => 
-      this.sendEmail(recipient.email, subject, html, {
-        ...options,
-        data: recipient.data || []
-      })
-    );
-    
-    const batchResults = await Promise.allSettled(promises);
-    results.push(...batchResults);
-    
-    // Rate limiting - wait between batches
-    if (i + batchSize < recipients.length) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-  }
-  
-  return results;
-}
-
-// Usage
-const recipients = [
-  { email: 'user1@example.com', data: [{ name: 'John' }] },
-  { email: 'user2@example.com', data: [{ name: 'Jane' }] },
-  { email: 'user3@example.com', data: [{ name: 'Bob' }] }
-];
-
-const results = await api.sendBulkEmails(
-  recipients,
-  'Special Offer!',
-  '<h1>Hello {{name}}!</h1><p>Check out our special offer.</p>',
-  { batchSize: 50 }
-);
-```
-
-## 📊 Analytics Examples
-
-### Get Email Analytics
-
-```javascript
-async getEmailAnalytics(emailId) {
-  try {
-    const response = await axios.get(`${this.baseURL}/api/v1/analytics/email`, {
-      params: { emailId }
-    });
-
-    return response.data;
-  } catch (error) {
-    this.handleError(error);
-  }
-}
-
-// Usage
-const analytics = await api.getEmailAnalytics('email_123');
-console.log('Open Rate:', analytics.openRate);
-console.log('Click Rate:', analytics.clickRate);
-console.log('Engagement Score:', analytics.engagementScore);
-```
-
-### Get Campaign Analytics
-
-```javascript
-async getCampaignAnalytics(campaignId) {
-  try {
-    const response = await axios.get(`${this.baseURL}/api/v1/analytics/campaign`, {
-      params: { campaignId }
-    });
-
-    return response.data;
-  } catch (error) {
-    this.handleError(error);
-  }
-}
-
-// Usage
-const campaignAnalytics = await api.getCampaignAnalytics('campaign_123');
-
-// Create charts data
-const geoData = Object.entries(campaignAnalytics.geoBreakdown).map(([country, count]) => ({
-  country,
-  opens: count
-}));
-
-const deviceData = Object.entries(campaignAnalytics.deviceBreakdown).map(([device, count]) => ({
-  device,
-  opens: count
-}));
-
-console.log('Geographic Data:', geoData);
-console.log('Device Data:', deviceData);
-```
-
-### Compare Campaigns
-
-```javascript
-async compareCampaigns(campaignIds) {
-  try {
-    const response = await axios.get(`${this.baseURL}/api/v1/analytics/campaign/compare`, {
-      params: { campaignIds: campaignIds.join(',') }
-    });
-
-    return response.data;
-  } catch (error) {
-    this.handleError(error);
-  }
-}
-
-// Usage
-const comparison = await api.compareCampaigns(['campaign_1', 'campaign_2', 'campaign_3']);
-
-Object.entries(comparison).forEach(([campaignId, analytics]) => {
-  console.log(`Campaign ${campaignId}:`);
-  console.log(`  Open Rate: ${analytics.openRate}`);
-  console.log(`  Click Rate: ${analytics.clickRate}`);
-  console.log(`  Engagement Score: ${analytics.engagementScore}`);
+```ts
+await xem.email.send({
+  to: "reader@example.com",
+  subject: "Your weekly digest",
+  templateId: process.env.DIGEST_TEMPLATE_ID,
+  data: [{ first_name: "Ada" }],
 });
 ```
 
-## 🔄 Webhook Examples
+## Schedule, reply-to and test sends
 
-### Set Up Webhook Server
-
-```javascript
-const express = require('express');
-const crypto = require('crypto');
-
-const app = express();
-app.use(express.json());
-
-// Verify webhook signature
-function verifyWebhookSignature(payload, signature, secret) {
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(JSON.stringify(payload))
-    .digest('hex');
-  
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  );
-}
-
-// Handle email events
-app.post('/webhook/email-events', (req, res) => {
-  const signature = req.headers['x-posthoot-signature'];
-  const secret = process.env.WEBHOOK_SECRET;
-  
-  if (!verifyWebhookSignature(req.body, signature, secret)) {
-    return res.status(401).send('Invalid signature');
-  }
-  
-  const { event, data } = req.body;
-  
-  switch (event) {
-    case 'email.opened':
-      console.log('Email opened:', data.emailId, data.recipient);
-      break;
-    case 'email.clicked':
-      console.log('Email clicked:', data.emailId, data.recipient, data.url);
-      break;
-    case 'email.bounced':
-      console.log('Email bounced:', data.emailId, data.recipient, data.reason);
-      break;
-    case 'email.complained':
-      console.log('Email complained:', data.emailId, data.recipient);
-      break;
-  }
-  
-  res.status(200).send('OK');
-});
-
-app.listen(3000, () => {
-  console.log('Webhook server running on port 3000');
+```ts
+await xem.email.send({
+  to: "reader@example.com",
+  subject: "Reminder",
+  html: "<p>The webinar starts tomorrow.</p>",
+  scheduleAt: "2026-11-02T09:00:00Z",
+  replyTo: "hello@yourdomain.com",
+  test: true,
 });
 ```
 
-## 📁 File Upload Examples
+## Self-hosted installs
 
-### Upload File
+Point the SDK at your own API:
 
-```javascript
-const FormData = require('form-data');
-const fs = require('fs');
-
-async uploadFile(filePath, options = {}) {
-  try {
-    const formData = new FormData();
-    formData.append('file', fs.createReadStream(filePath));
-    
-    const response = await axios.post(`${this.baseURL}/api/v1/files/upload`, formData, {
-      headers: {
-        ...formData.getHeaders(),
-        'Authorization': `Bearer ${this.tokens.access_token}`
-      }
-    });
-
-    return response.data;
-  } catch (error) {
-    this.handleError(error);
-  }
-}
-
-// Usage
-const fileResult = await api.uploadFile('./logo.png', {
-  description: 'Company logo'
+```ts
+const xem = new Xem({
+  apiKey: process.env.XEM_API_KEY,
+  baseUrl: "https://api.example.com/api/v1",
 });
-console.log('File uploaded:', fileResult.fileId);
 ```
 
-## 🛡️ Error Handling & Retry Logic
+## Call the API with fetch
 
-```javascript
-class PosthootAPIWithRetry extends PosthootAPI {
-  async makeRequestWithRetry(requestFn, maxRetries = 3) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        return await requestFn();
-      } catch (error) {
-        if (error.message.includes('rate_limit') && attempt < maxRetries) {
-          const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
-          console.log(`Rate limited. Retrying in ${delay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-          continue;
-        }
-        
-        if (error.message.includes('unauthorized') && attempt < maxRetries) {
-          console.log('Token expired. Refreshing...');
-          await this.refreshToken();
-          continue;
-        }
-        
-        throw error;
-      }
-    }
-  }
+Every endpoint accepts the API key in the `X-API-Key` header. This example sends an email with a `requestId`, so a retry after a network error cannot send it twice:
 
-  async sendEmailWithRetry(to, subject, html, options = {}) {
-    return this.makeRequestWithRetry(() => 
-      this.sendEmail(to, subject, html, options)
-    );
-  }
+```ts
+import { randomUUID } from "node:crypto";
+
+const API = process.env.XEM_API_URL ?? "https://api.xem.email/api/v1";
+
+async function xem(path: string, init: RequestInit = {}) {
+  const res = await fetch(`${API}${path}`, {
+    ...init,
+    headers: {
+      "X-API-Key": process.env.XEM_API_KEY!,
+      "Content-Type": "application/json",
+      ...init.headers,
+    },
+  });
+  if (!res.ok) throw new Error(`Xem API ${res.status}: ${await res.text()}`);
+  return res.json();
 }
 
-// Usage
-const apiWithRetry = new PosthootAPIWithRetry();
-await apiWithRetry.login('user@example.com', 'password');
-
-const result = await apiWithRetry.sendEmailWithRetry(
-  'recipient@example.com',
-  'Test Email',
-  '<h1>Hello!</h1>'
-);
-```
-
-## 📊 Monitoring & Logging
-
-```javascript
-const winston = require('winston');
-
-// Set up logging
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.File({ filename: 'posthoot-api.log' }),
-    new winston.transports.Console()
-  ]
+const requestId = randomUUID();
+await xem("/emails", {
+  method: "POST",
+  body: JSON.stringify({
+    to: "reader@example.com",
+    subject: "Your receipt",
+    html: "<p>Thanks for your order.</p>",
+    data: {},
+    requestId,
+  }),
 });
-
-class PosthootAPIWithLogging extends PosthootAPI {
-  async sendEmail(to, subject, html, options = {}) {
-    const startTime = Date.now();
-    
-    try {
-      logger.info('Sending email', { to, subject, options });
-      
-      const result = await super.sendEmail(to, subject, html, options);
-      
-      const duration = Date.now() - startTime;
-      logger.info('Email sent successfully', { 
-        emailId: result.emailId, 
-        duration,
-        to 
-      });
-      
-      return result;
-    } catch (error) {
-      const duration = Date.now() - startTime;
-      logger.error('Email send failed', { 
-        error: error.message, 
-        duration,
-        to 
-      });
-      throw error;
-    }
-  }
-}
 ```
 
-## 📚 Complete Example
+Reusing a `requestId` for a different message returns `409`.
 
-Here's a complete working example:
+## Read campaign analytics
 
-```javascript
-const axios = require('axios');
-const winston = require('winston');
-require('dotenv').config();
-
-// Set up logging
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.Console()
-  ]
-});
-
-class PosthootAPI {
-  constructor() {
-    this.baseURL = process.env.POSTHOOT_API_URL || 'https://api.posthoot.com';
-    this.tokens = null;
-  }
-
-  setAuthHeaders() {
-    if (this.tokens?.access_token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${this.tokens.access_token}`;
-    }
-  }
-
-  handleError(error) {
-    if (error.response) {
-      const { status, data } = error.response;
-      logger.error('API Error', { status, data });
-      
-      switch (status) {
-        case 401:
-          throw new Error('Authentication failed');
-        case 403:
-          throw new Error('Insufficient permissions');
-        case 429:
-          throw new Error('Rate limit exceeded');
-        default:
-          throw new Error(data.message || 'An error occurred');
-      }
-    } else {
-      throw new Error('Network error');
-    }
-  }
-
-  async login(email, password) {
-    try {
-      const response = await axios.post(`${this.baseURL}/auth/login`, {
-        email,
-        password
-      });
-
-      this.tokens = {
-        access_token: response.data.access_token,
-        refresh_token: response.data.refresh_token
-      };
-
-      this.setAuthHeaders();
-      logger.info('Login successful', { email });
-      return response.data;
-    } catch (error) {
-      this.handleError(error);
-    }
-  }
-
-  async sendEmail(to, subject, html, options = {}) {
-    try {
-      const response = await axios.post(`${this.baseURL}/email`, {
-        to,
-        subject,
-        html,
-        provider: options.provider || 'CUSTOM',
-        data: options.data || [],
-        test: options.test || false
-      });
-
-      logger.info('Email sent', { emailId: response.data.emailId, to });
-      return response.data;
-    } catch (error) {
-      this.handleError(error);
-    }
-  }
-
-  async getEmailAnalytics(emailId) {
-    try {
-      const response = await axios.get(`${this.baseURL}/api/v1/analytics/email`, {
-        params: { emailId }
-      });
-
-      return response.data;
-    } catch (error) {
-      this.handleError(error);
-    }
-  }
-}
-
-// Usage example
-async function main() {
-  const api = new PosthootAPI();
-  
-  try {
-    // Login
-    await api.login(process.env.POSTHOOT_EMAIL, process.env.POSTHOOT_PASSWORD);
-    
-    // Send email
-    const emailResult = await api.sendEmail(
-      'recipient@example.com',
-      'Hello from Posthoot!',
-      '<h1>Welcome</h1><p>This is a test email.</p>',
-      { test: true }
-    );
-    
-    // Check analytics
-    const analytics = await api.getEmailAnalytics(emailResult.emailId);
-    logger.info('Email analytics', analytics);
-    
-  } catch (error) {
-    logger.error('Application error', { error: error.message });
-  }
-}
-
-if (require.main === module) {
-  main();
-}
-
-module.exports = PosthootAPI;
+```ts
+const stats = await xem(`/analytics/campaign?campaignId=${campaignId}`);
 ```
 
-## 📚 Related Resources
+See the [API reference](/api-reference) for the full list of endpoints and response fields.
 
-- [Authentication Guide](/guides/authentication) - Learn about JWT authentication
-- [Analytics Guide](/guides/analytics) - Understand email analytics
-- [Webhooks Guide](/guides/webhooks) - Set up real-time notifications
-- [Error Handling](/errors) - Handle API errors properly
+## Handle errors
+
+| Status | Meaning | What to do |
+| --- | --- | --- |
+| `400` | The request is invalid, or the chosen sender is unavailable | Check the fields and that a sender is active |
+| `401` | The API key is missing or invalid | Check the `X-API-Key` header |
+| `404` | The template does not exist | Check `templateId` |
+| `409` | The `requestId` was used for a different message | Generate a new UUID |
+| `429` | Too many requests | Wait and retry with backoff |
+
+See [Error handling](/errors) and [Rate limiting](/rate-limiting) for details.

@@ -12,7 +12,7 @@ import {
 } from '@/app/lib/payments-client';
 import { toast } from 'sonner';
 import { useLocalStorage } from 'usehooks-ts';
-import { FREE_PLAN_ID, QUERIES_FEATURE, SUBSCRIPTION_STATUS_ACTIVE, SUBSCRIPTION_STATUS_CANCELLED, SUBSCRIPTION_STATUS_EXPIRED, SUBSCRIPTION_STATUS_FAILED, SUBSCRIPTION_STATUS_ON_HOLD, SUBSCRIPTION_STATUS_PAUSED, SUBSCRIPTION_STATUS_PENDING, UNLIMITED_QUOTA } from '@/app/lib/constants';
+import { FREE_PLAN_ID, EMAILS_FEATURE, SUBSCRIPTION_STATUS_ACTIVE, SUBSCRIPTION_STATUS_CANCELLED, SUBSCRIPTION_STATUS_EXPIRED, SUBSCRIPTION_STATUS_FAILED, SUBSCRIPTION_STATUS_ON_HOLD, SUBSCRIPTION_STATUS_PAUSED, SUBSCRIPTION_STATUS_PENDING, UNLIMITED_QUOTA } from '@/app/lib/constants';
 
 // Query Keys Factory - Ensures consistent cache keys
 export const billingKeys = {
@@ -148,7 +148,7 @@ export const useBillingData = (teamId: string) => {
     const subscription = useSubscription(teamId);
     const usageStats = useUsageStats(subscription.data?.id);
     const paymentHistory = usePaymentHistory(subscription.data?.id);
-    const usageCheck = useUsageCheck(teamId, 'queries');
+    const usageCheck = useUsageCheck(teamId, EMAILS_FEATURE);
     const billingDetails = useGetBillingDetails(teamId);
 
     return {
@@ -186,7 +186,7 @@ export const useCreateSubscription = () => {
         onSuccess: (data, variables) => {
             // Invalidate and refetch subscription data
             queryClient.invalidateQueries({ queryKey: billingKeys.subscription(variables.team_id) });
-            queryClient.invalidateQueries({ queryKey: billingKeys.usageCheck(variables.team_id, 'queries') });
+            queryClient.invalidateQueries({ queryKey: billingKeys.usageCheck(variables.team_id, EMAILS_FEATURE) });
             toast.success('Subscription created successfully');
         },
         onError: (error: Error) => {
@@ -223,7 +223,7 @@ export const useUpdateSubscription = () => {
             if (isCheckoutRequired(result)) {
                 // Old subscription was removed; invalidate so UI refetches
                 queryClient.invalidateQueries({ queryKey: billingKeys.subscription(variables.teamId) });
-                queryClient.invalidateQueries({ queryKey: billingKeys.usageCheck(variables.teamId, 'queries') });
+                queryClient.invalidateQueries({ queryKey: billingKeys.usageCheck(variables.teamId, EMAILS_FEATURE) });
                 // Caller handles checkout redirect
                 return;
             }
@@ -233,7 +233,7 @@ export const useUpdateSubscription = () => {
                 result
             );
             queryClient.invalidateQueries({ queryKey: billingKeys.usageStats(result.id) });
-            queryClient.invalidateQueries({ queryKey: billingKeys.usageCheck(variables.teamId, 'queries') });
+            queryClient.invalidateQueries({ queryKey: billingKeys.usageCheck(variables.teamId, EMAILS_FEATURE) });
             toast.success('Subscription updated successfully');
         },
         onError: (error: Error) => {
@@ -255,7 +255,7 @@ export const useCancelSubscription = () => {
         onSuccess: (result, variables) => {
             // Invalidate subscription data to refetch updated status
             queryClient.invalidateQueries({ queryKey: billingKeys.subscription(variables.teamId) });
-            queryClient.invalidateQueries({ queryKey: billingKeys.usageCheck(variables.teamId, QUERIES_FEATURE) });
+            queryClient.invalidateQueries({ queryKey: billingKeys.usageCheck(variables.teamId, EMAILS_FEATURE) });
             toast.success('Subscription cancelled successfully');
         },
         onError: (error: Error) => {
@@ -350,7 +350,7 @@ export const useRecordUsage = () => {
         },
         onSuccess: (result, variables) => {
             // Invalidate usage-related queries to get fresh data
-            queryClient.invalidateQueries({ queryKey: billingKeys.usageCheck(variables.teamId, QUERIES_FEATURE) });
+            queryClient.invalidateQueries({ queryKey: billingKeys.usageCheck(variables.teamId, EMAILS_FEATURE) });
             // Find and invalidate usage stats for this team's subscription
             const subscriptionQuery = queryClient.getQueryData(billingKeys.subscription(variables.teamId)) as Subscription | null;
             if (subscriptionQuery?.id) {
@@ -442,7 +442,7 @@ export const useClearBillingCache = () => {
         },
         clearTeamData: (teamId: string) => {
             queryClient.removeQueries({ queryKey: billingKeys.subscription(teamId) });
-            queryClient.removeQueries({ queryKey: billingKeys.usageCheck(teamId, QUERIES_FEATURE) });
+            queryClient.removeQueries({ queryKey: billingKeys.usageCheck(teamId, EMAILS_FEATURE) });
         },
         clearSubscriptionData: (subscriptionId: string) => {
             queryClient.removeQueries({ queryKey: billingKeys.usageStats(subscriptionId) });
@@ -475,7 +475,7 @@ export const useBillingStatus = (teamId: string) => {
         false,
     );
 
-    const hasUsageLimit = usageStats.data && subscription.data?.plan?.features?.some((f: any) => f.feature === QUERIES_FEATURE && f.quota !== UNLIMITED_QUOTA);
+    const hasUsageLimit = usageStats.data && subscription.data?.plan?.features?.some((f: any) => f.feature === EMAILS_FEATURE && f.quota !== UNLIMITED_QUOTA);
 
     return {
         hasSubscription: !!subscription.data,
