@@ -19,9 +19,17 @@
           {
             "group": "Introduction",
             "pages": [
-              "vision",
               "introduction",
+              "vision",
               "roadmap"
+            ]
+          },
+          {
+            "group": "Start here",
+            "pages": [
+              "guides/amazon-ses",
+              "guides/import-contacts",
+              "guides/self-hosting"
             ]
           },
           {
@@ -178,13 +186,13 @@
             "group": "Tutorials",
             "pages": [
               "guides/quickstart",
-              "guides/self-hosting",
               "guides/contributing"
             ]
           },
           {
             "group": "Self-Hosting",
             "pages": [
+              "guides/self-hosting",
               "guides/kubernetes-deployment",
               "guides/docker-deployment",
               "guides/systemd-deployment"
@@ -288,33 +296,28 @@
     "links": [
       {
         "label": "Log In",
-        "href": "https://office.xem.email/auth/login"
+        "href": "https://app.xem.email/auth/login"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Start for Free",
-      "href": "https://office.xem.email/auth/register"
+      "href": "https://app.xem.email/auth/register"
     }
   },
   "footer": {
     "socials": {
       "x": "https://www.twitter.com/mailxem/",
       "linkedin": "https://www.linkedin.com/company/mailxem/",
-      "github": "https://github.com/mailxem/mail",
-      "slack": "https://xem.email/slack"
+      "github": "https://github.com/mailxem/mail"
     },
     "links": [
       {
         "header": "PRODUCT",
         "items": [
           {
-            "label": "Mail",
+            "label": "Xem",
             "href": "https://xem.email/"
-          },
-          {
-            "label": "Pricing",
-            "href": "https://xem.email#pricing"
           },
           {
             "label": "Blog",
@@ -327,21 +330,17 @@
         "items": [
           {
             "label": "Changelog",
-            "href": "https://docs.xem.email/changelog"
+            "href": "https://docs.xem.email/changelog/overview"
           },
           {
             "label": "How to contribute",
-            "href": "https://docs.xem.email/heroes"
+            "href": "https://docs.xem.email/guides/contributing"
           }
         ]
       },
       {
         "header": "OTHERS",
         "items": [
-          {
-            "label": "Terms of Service",
-            "href": "https://xem.email/terms"
-          },
           {
             "label": "Privacy Policy",
             "href": "https://xem.email/privacy"
@@ -356,7 +355,7 @@
           },
           {
             "label": "Support",
-            "href": "https://xem.email/slack"
+            "href": "https://github.com/mailxem/mail/issues"
           }
         ]
       }

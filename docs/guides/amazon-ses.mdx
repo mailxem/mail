@@ -1,0 +1,130 @@
+---
+title: 'Send with Amazon SES'
+description: 'Connect your own Amazon SES account to Xem: verify your domain, create SMTP credentials, leave the sandbox and add SES as an SMTP sender.'
+---
+
+Xem can send through your own Amazon SES account. You verify your domain in SES, create SES SMTP credentials, request production access, and add SES as an SMTP sender in **Settings → SMTP senders**. Sending then costs what Amazon charges: \$0.10 per 1,000 emails on pay-as-you-go, or \$0.16 per 1,000 on the Essentials plan that new SES accounts start on.
+
+This guide was checked against Amazon's documentation on October 30, 2026.
+
+<Note>
+On the hosted app you can also use **Settings → Managed sending**, where Xem runs the SES account for you. This guide is for connecting an SES account you own. Self-hosted installs need their own account, because managed sending is turned off there.
+</Note>
+
+## Before you start
+
+You need:
+
+- an AWS account;
+- a domain you control, with access to its DNS records;
+- a from address on that domain, such as `news@yourdomain.com`;
+- a Xem workspace where you can open **Settings**.
+
+Pick one AWS Region and use it throughout. SES identities, credentials and sending limits all belong to a single Region.
+
+## 1. Verify your domain in SES
+
+Verifying the domain lets you send from any address on it and sets up DKIM signing.
+
+<Steps>
+  <Step title="Create the identity">
+    In the Amazon SES console, open **Identities → Create identity**, choose **Domain**, and enter your domain.
+  </Step>
+  <Step title="Use Easy DKIM">
+    Keep **Easy DKIM** selected. SES gives you three CNAME records.
+  </Step>
+  <Step title="Add the DNS records">
+    Add the three CNAME records at your DNS provider exactly as shown. SES marks the identity **Verified** once it can see them, which can take from minutes to a few days depending on your DNS provider.
+  </Step>
+</Steps>
+
+## 2. Add SPF and DMARC
+
+Gmail and Yahoo require bulk senders to authenticate their mail with SPF and DKIM and to publish a DMARC policy. DKIM is covered by step 1.
+
+- **SPF.** For SPF to align with your domain, set a **custom MAIL FROM domain** on the SES identity, such as `mail.yourdomain.com`. SES shows the MX and SPF TXT records to add for it.
+- **DMARC.** Add a TXT record at `_dmarc.yourdomain.com`. A cautious start is `v=DMARC1; p=none; rua=mailto:dmarc@yourdomain.com`, which reports problems without blocking mail. Tighten the policy once reports look clean.
+
+## 3. Create SES SMTP credentials
+
+Xem connects to SES over SMTP, so it needs SMTP credentials. These are not the same as your AWS access keys.
+
+<Steps>
+  <Step title="Open SMTP settings">
+    In the SES console, open **SMTP settings**. Note the **SMTP endpoint**, for example `email-smtp.eu-west-1.amazonaws.com`.
+  </Step>
+  <Step title="Create credentials">
+    Choose **Create SMTP credentials**. SES creates an IAM user and shows an SMTP username and password once.
+  </Step>
+  <Step title="Store them safely">
+    Copy both into your password manager. If you lose the password, create new credentials.
+  </Step>
+</Steps>
+
+## 4. Request production access
+
+New SES accounts start in a sandbox. In the sandbox you can send at most 200 messages in 24 hours, at one message per second, and only to addresses you have verified. That is enough for testing but not for a newsletter.
+
+Request production access from the SES account dashboard. Describe how people sign up to your list, how you handle bounces and complaints, and roughly how much you will send. AWS says it responds within 96 hours.
+
+You can test the rest of this guide while you wait by sending to an address you verified in SES.
+
+## 5. Choose a pricing plan
+
+Accounts with no SES activity since June 1, 2025 start on the **Essentials** plan from July 21, 2026, at \$0.16 per 1,000 emails. It includes deliverability tools. **Pay-as-you-go** costs \$0.10 per 1,000 and has no plan features. Amazon says you can switch at any time.
+
+For a weekly newsletter to 10,000 people, about 40,000 emails a month, that is \$4.00 on pay-as-you-go or \$6.40 on Essentials. See [what it costs to send a newsletter through Amazon SES](https://xem.email/blog/amazon-ses-newsletter-cost) for more examples.
+
+## 6. Add SES as a sender in Xem
+
+<Steps>
+  <Step title="Open SMTP senders">
+    In Xem, go to **Settings → SMTP senders** and choose **Add SMTP connection**.
+  </Step>
+  <Step title="Choose Amazon">
+    Set **Provider Type** to **AMAZON**. Xem fills in `email-smtp.us-east-1.amazonaws.com` and port `587`.
+  </Step>
+  <Step title="Match your Region">
+    Replace the host with the SMTP endpoint from step 3 if your Region is not `us-east-1`. Keep port `587`.
+  </Step>
+  <Step title="Enter credentials">
+    Turn on **Requires Authentication** and enter the SES SMTP username and password.
+  </Step>
+  <Step title="Set the from address">
+    Enter a **From Address** on your verified domain.
+  </Step>
+  <Step title="Set the send rate">
+    Set **Max Send Rate** to your SES maximum send rate per second, shown on the SES account dashboard. In the sandbox it is `1`. Xem sends in batches of this size, about one batch per second.
+  </Step>
+  <Step title="Save">
+    Keep **Supports TLS** on. Turn on **Make this the default provider** if campaigns should use SES unless you choose otherwise, then save.
+  </Step>
+</Steps>
+
+Send a test campaign to an address you control before you send to your list.
+
+## 7. Watch bounces and complaints
+
+Your SES account's reputation depends on your bounce and complaint rates. After each send, check **Reputation metrics** in the SES console. Amazon recommends keeping bounces below 2% and complaints below 0.1%. It places an account under review at a bounce rate of 5% or a complaint rate of 0.1%, and may pause sending at 10% or 0.5%.
+
+Keep rates low by importing only people who opted in, removing addresses that hard-bounce, and keeping unsubscribe links easy to find. If you are moving from another platform, see [Import contacts](/guides/import-contacts).
+
+## Troubleshooting
+
+| Problem | Likely cause | What to do |
+| --- | --- | --- |
+| Authentication fails | AWS access keys were used instead of SMTP credentials, or the Region does not match the host | Create SES SMTP credentials and use the endpoint from the same Region |
+| "Email address is not verified" | The account is still in the sandbox | Send only to verified addresses until production access is granted |
+| Mail is rejected for the from address | The from address is not on a verified identity | Use an address on the domain you verified |
+| Sending stops partway through a large list | The send rate is above your SES quota | Lower **Max Send Rate** to your SES maximum send rate |
+| Mail lands in spam | Missing SPF alignment or DMARC, or a cold domain | Add the records in step 2 and start with your most engaged readers |
+
+## Sources
+
+- [Amazon SES pricing](https://aws.amazon.com/ses/pricing/)
+- [Amazon SES: Request production access](https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html)
+- [Amazon SES: Obtaining SMTP credentials](https://docs.aws.amazon.com/ses/latest/dg/smtp-credentials.html)
+- [Amazon SES: Easy DKIM](https://docs.aws.amazon.com/ses/latest/dg/send-email-authentication-dkim-easy.html)
+- [Amazon SES: Custom MAIL FROM domain](https://docs.aws.amazon.com/ses/latest/dg/mail-from.html)
+- [Amazon SES: Reputation metrics](https://docs.aws.amazon.com/ses/latest/dg/reputation-dashboard-dg.html) and [sending review FAQs](https://docs.aws.amazon.com/ses/latest/dg/faqs-enforcement.html)
+- [Google: Email sender guidelines](https://support.google.com/a/answer/81126?hl=en)
