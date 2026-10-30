@@ -260,3 +260,35 @@ func TestAcceptanceLifecycleRecoversAfterRuleProviderFailure(t *testing.T) {
 	require.True(t, persisted.Active)
 	require.Equal(t, "active", persisted.Status)
 }
+
+type recordingRules struct {
+	acceptanceRules
+	recipients []string
+}
+
+func (r *recordingRules) PutRule(ctx context.Context, name string, recipients []string) error {
+	r.recipients = append([]string(nil), recipients...)
+	return r.acceptanceRules.PutRule(ctx, name, recipients)
+}
+
+func TestAcceptanceFullMailboxStaysFullThroughPauseAndResume(t *testing.T) {
+	service := receivingTestService(t)
+	require.NoError(t, service.DB.AutoMigrate(&models.SMTPConfig{}))
+	full := addMailbox(t, service, "full@example.com")
+	open := acceptanceSibling(t, service, full, "open")
+	require.NoError(t, service.DB.Model(&Mailbox{}).Where("id = ?", full.ID).Update("status", "storage_full").Error)
+	rules := &recordingRules{}
+	service.Rules = rules
+	service.Config.RuleSet = "acceptance-rules"
+
+	paused, err := service.SetActive(context.Background(), full.TeamID, full.ID, false)
+	require.NoError(t, err)
+	require.False(t, paused.Active)
+	require.Equal(t, "storage_full", paused.Status)
+
+	resumed, err := service.SetActive(context.Background(), full.TeamID, full.ID, true)
+	require.NoError(t, err)
+	require.True(t, resumed.Active)
+	require.Equal(t, "storage_full", resumed.Status)
+	require.Equal(t, []string{open.Address}, rules.recipients)
+}

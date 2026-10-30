@@ -21,6 +21,7 @@ import (
 
 type fakeSES struct {
 	describeErr error
+	existing    []sestypes.ReceiptRule
 	described   *sestypes.ReceiptRule
 	created     *ses.CreateReceiptRuleInput
 	updated     *ses.UpdateReceiptRuleInput
@@ -29,6 +30,9 @@ type fakeSES struct {
 
 func (f *fakeSES) DescribeActiveReceiptRuleSet(context.Context, *ses.DescribeActiveReceiptRuleSetInput, ...func(*ses.Options)) (*ses.DescribeActiveReceiptRuleSetOutput, error) {
 	return &ses.DescribeActiveReceiptRuleSetOutput{Metadata: &sestypes.ReceiptRuleSetMetadata{Name: aws.String("xem-managed-receiving")}}, nil
+}
+func (f *fakeSES) DescribeReceiptRuleSet(context.Context, *ses.DescribeReceiptRuleSetInput, ...func(*ses.Options)) (*ses.DescribeReceiptRuleSetOutput, error) {
+	return &ses.DescribeReceiptRuleSetOutput{Rules: f.existing}, nil
 }
 func (f *fakeSES) DescribeReceiptRule(context.Context, *ses.DescribeReceiptRuleInput, ...func(*ses.Options)) (*ses.DescribeReceiptRuleOutput, error) {
 	return &ses.DescribeReceiptRuleOutput{Rule: f.described}, f.describeErr
@@ -186,4 +190,23 @@ func TestQueueIdentityMustMatchConfiguredRegionAndAccount(t *testing.T) {
 	require.EqualError(t, verifyQueue(context.Background(), queue, config), "managed receiving queue ARN does not match its configured URL")
 	config.QueueURL = "https://sqs.us-east-1.amazonaws.com/123456789012/xem-receiving"
 	require.EqualError(t, verifyQueue(context.Background(), queue, config), "managed receiving queue URL does not match the configured AWS region")
+}
+
+type ruleNotFound struct{}
+
+func (ruleNotFound) Error() string     { return "rule does not exist" }
+func (ruleNotFound) ErrorCode() string { return "RuleDoesNotExist" }
+
+func TestNewReceiptRuleIsAppendedAfterExistingRules(t *testing.T) {
+	name := "xem-inbox-0123456789abcdef0123456789abcdef"
+	config := Config{Bucket: "private-bucket", Prefix: "incoming/", TopicARN: receiptTopic, RuleSet: "xem-managed-receiving"}
+
+	fake := &fakeSES{describeErr: ruleNotFound{}, existing: []sestypes.ReceiptRule{{Name: aws.String("operator-block-list")}, {Name: aws.String("operator-archive")}}}
+	require.NoError(t, NewAWSRules(fake, config).PutRule(context.Background(), name, []string{"one@example.com"}))
+	require.NotNil(t, fake.created)
+	require.Equal(t, "operator-archive", aws.ToString(fake.created.After))
+
+	empty := &fakeSES{describeErr: ruleNotFound{}}
+	require.NoError(t, NewAWSRules(empty, config).PutRule(context.Background(), name, []string{"one@example.com"}))
+	require.Nil(t, empty.created.After)
 }
