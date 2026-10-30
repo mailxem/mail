@@ -12,6 +12,7 @@ export function GET() {
 ## Product
 
 - [Home](${siteUrl}/): what Xem does, templates, analytics and FAQs
+- [Pricing](${siteUrl}/pricing): per email sent. Free 3,000 a month; Starter $9 with 20,000, then $0.40 per 1,000; Growth $29 with 100,000, then $0.30; Scale $99 with 500,000, then $0.20. Self-hosting is free.
 - [MCP server](${siteUrl}/mcp): 44 tools that let AI assistants run Xem campaigns, contacts and analytics
 - [Source code](${githubUrl}): app, Go backend, SDKs and self-hosting tools
 

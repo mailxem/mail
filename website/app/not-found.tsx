@@ -4,7 +4,7 @@ import { primaryButton } from "@/lib/brand";
 export default function NotFound() {
   return (
     <>
-      <SiteHeader />
+      <SiteHeader active="none" />
       <main id="main" className="mx-auto max-w-3xl px-5 py-28 text-center">
         <p className="text-xs uppercase tracking-widest text-iris">
           404 / A small detour

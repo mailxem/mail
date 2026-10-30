@@ -17,19 +17,19 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "Xem — All your email marketing, at the price of email.",
   description:
-    "The open-source email marketing suite: campaigns, newsletters, automations, forms, a CRM, a shared inbox and analytics. Send through Amazon SES and pay what Amazon charges: $2.00 to $3.20 for 20,000 emails.",
+    "The open-source email marketing suite: campaigns, newsletters, automations, forms, a CRM, a shared inbox and analytics. Priced per email: free for 3,000 a month, $9 for 20,000, or self-host it for free.",
   openGraph: {
     type: "website",
     siteName: "Xem",
     title: "All your email marketing, at the price of email.",
     description:
-      "Campaigns, newsletters, automations, forms, CRM and a shared inbox in one open-source suite, sent through Amazon SES at Amazon's price. Bring your list from Mailchimp, beehiiv, Kit or Substack.",
+      "Campaigns, newsletters, automations, forms, CRM and a shared inbox in one open-source suite, priced per email sent. Bring your list from Mailchimp, beehiiv, Kit or Substack.",
     images: [{ url: "/opengraph-image.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     description:
-      "The open-source email marketing suite: campaigns, newsletters, automations, CRM and a shared inbox, at Amazon SES prices.",
+      "The open-source email marketing suite: campaigns, newsletters, automations, CRM and a shared inbox, priced per email sent.",
     title: "Xem — All your email marketing, at the price of email.",
     images: ["/opengraph-image.png"],
   },

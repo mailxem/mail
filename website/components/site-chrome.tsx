@@ -30,7 +30,14 @@ export function Brand({ light = false }: { light?: boolean }) {
     </Link>
   );
 }
-export function SiteHeader() {
+/** `active` highlights the current section's link; the journal by default. */
+export function SiteHeader({
+  active = "journal",
+}: {
+  active?: "journal" | "pricing" | "mcp" | "none";
+}) {
+  const link = (section: string, extra = "") =>
+    `${extra} ${active === section ? "font-medium text-iris" : "hover:text-iris"}`.trim();
   return (
     <header className="relative z-30 mx-auto w-[calc(100%-32px)] max-w-[1160px] pt-5">
       <div className="flex min-h-[66px] flex-wrap items-center justify-between gap-4 rounded-xl border border-ink/15 bg-cream/95 px-4 py-3 md:px-5">
@@ -45,10 +52,13 @@ export function SiteHeader() {
           <Link href="/#templates" className="hidden hover:text-iris sm:block">
             Templates
           </Link>
-          <Link href="/mcp" className="hover:text-iris">
+          <Link href="/pricing" className={link("pricing")}>
+            Pricing
+          </Link>
+          <Link href="/mcp" className={link("mcp", "hidden sm:block")}>
             MCP
           </Link>
-          <Link href="/blog" className="font-medium text-iris">
+          <Link href="/blog" className={link("journal")}>
             Journal
           </Link>
           <a href={docsUrl} className="hidden hover:text-iris sm:block">
@@ -84,6 +94,7 @@ export function SiteFooter() {
             <Link href="/#product">Explore Xem</Link>
             <Link href="/#assistant">Ask Xem</Link>
             <Link href="/#sending">Sending & setup</Link>
+            <Link href="/pricing">Pricing</Link>
             <Link href="/blog">Journal</Link>
             <Link href="/#templates">Email templates</Link>
             <Link href="/mcp">MCP server</Link>

@@ -181,6 +181,9 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
             <a href="#sending" className="transition-colors hover:text-forest">
               Sending
             </a>
+            <a href="/pricing" className="transition-colors hover:text-iris">
+              Pricing
+            </a>
             <a href="/blog" className="transition-colors hover:text-iris">
               Journal
             </a>
@@ -236,6 +239,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               ["How it works", "#how-it-works"],
               ["Open source", "#open-source"],
               ["FAQs", "#questions"],
+              ["Pricing", "/pricing"],
               ["Journal", "/blog"],
               ["Docs", docsUrl],
               ["Log in", appLink("/auth/login")],
@@ -282,8 +286,8 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               className="mx-auto mt-6 max-w-[560px] text-[17px] leading-relaxed tracking-[-.02em] md:text-lg"
             >
               Campaigns, newsletters, automations, forms, a CRM and a shared
-              inbox in one open-source suite. Send through Amazon SES and pay
-              what Amazon charges: $2.00 to $3.20 for 20,000 emails.
+              inbox in one open-source suite. Xem Cloud starts free and costs $9
+              for 20,000 emails; self-host it and pay only Amazon’s $2 to $3.
             </p>
             <div
               data-intro
