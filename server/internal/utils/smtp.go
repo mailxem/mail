@@ -81,6 +81,20 @@ func (h *EmailHandler) SendEmail(email *models.Email) error {
 	if email.SMTPConfig == nil || email.SMTPConfig.TeamID != email.TeamID || !email.SMTPConfig.IsActive {
 		return fmt.Errorf("SMTP config is nil")
 	}
+	// Managed sending enforces its own account limits.
+	if !email.Test && email.SMTPConfig.Provider != "MANAGED" {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		err := billing.AllowSend(ctx, email.TeamID, recipientCount(email.To, email.CC, email.BCC))
+		cancel()
+		if err != nil {
+			email.Error = err.Error()
+			email.Status = models.EmailStatusFailed
+			if dbErr := h.UpdateEmail(email); dbErr != nil {
+				return h.logger.Error("❌ Failed to update email status", dbErr)
+			}
+			return err
+		}
+	}
 
 	h.logger.Info("📧 Sending email to: %s using SMTP server: %s", email.To, email.SMTPConfig.Host)
 
