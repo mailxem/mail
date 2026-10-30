@@ -264,6 +264,7 @@ Resources:
               - ses:DeleteReceiptRule
               - ses:DescribeActiveReceiptRuleSet
               - ses:DescribeReceiptRule
+              - ses:DescribeReceiptRuleSet
               - ses:UpdateReceiptRule
             Resource: "*"
             Condition:

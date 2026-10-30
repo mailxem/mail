@@ -66,12 +66,19 @@ func (s *Service) status(c echo.Context) error {
 		byID[v.DomainID] = v
 	}
 	domainReady := map[string]bool{}
+	hasMailbox := map[string]bool{}
+	for _, b := range boxes {
+		hasMailbox[b.DomainID] = true
+	}
 	views := make([]domainView, 0, len(domains))
 	for _, d := range domains {
 		state, ok := byID[d.ID]
 		status := "unconfigured"
 		if ok {
 			status = state.Status
+		} else if s.Config.Enabled && d.Ownership && !hasMailbox[d.ID] {
+			// Nothing has checked this domain yet; it is ready for a first mailbox.
+			status = "needs_mailbox"
 		}
 		if s.Config.Enabled && !d.Ownership {
 			status = "needs_verification"
@@ -157,6 +164,9 @@ func receivingHTTPError(err error) error {
 	}
 	if errors.Is(err, ErrMailboxExists) {
 		return echo.NewHTTPError(http.StatusConflict, "A mailbox already exists for this address")
+	}
+	if err.Error() == "domain receiving is unavailable" {
+		return echo.NewHTTPError(http.StatusForbidden, "Receiving is unavailable while this workspace is suspended")
 	}
 	for _, safe := range []string{"invalid mailbox local part", "display name is too long", "domain ownership must be verified", "mailbox limit reached"} {
 		if err.Error() == safe {

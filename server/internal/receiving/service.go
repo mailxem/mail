@@ -186,6 +186,11 @@ func (s *Service) SetActive(ctx context.Context, team, id string, active bool) (
 		if active {
 			status = "provisioning"
 		}
+		// A full mailbox stays full through pause and resume, so resuming
+		// cannot put an over-quota address back into the receipt rule.
+		if box.Status == "storage_full" {
+			status = "storage_full"
+		}
 		if e := tx.Model(&box).Updates(map[string]any{"active": active, "status": status, "updated_at": s.Now()}).Error; e != nil {
 			return e
 		}

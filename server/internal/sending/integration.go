@@ -20,7 +20,8 @@ func (s *Service) SubmitEmail(ctx context.Context, email *models.Email, raw []by
 		managedQuery = s.DB.WithContext(ctx).Table("managed_receiving_mailboxes").Select("domain_id,address,status,active").Where("smtp_config_id = ? AND team_id = ?", email.SMTPConfigID, email.TeamID).Take(&managedMailbox)
 	}
 	if managedQuery.Error == nil {
-		if !managedMailbox.Active || managedMailbox.Status != "active" || email.From != managedMailbox.Address {
+		// A full mailbox cannot receive, but replies from it still send.
+		if !managedMailbox.Active || (managedMailbox.Status != "active" && managedMailbox.Status != "storage_full") || email.From != managedMailbox.Address {
 			return ErrDenied
 		}
 		if e := s.DB.WithContext(ctx).First(&d, "id = ? AND team_id = ? AND ready = true AND ownership = true AND provisioned = true", managedMailbox.DomainID, email.TeamID).Error; e != nil {
