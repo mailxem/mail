@@ -27,10 +27,11 @@ func (h *MarketingHandler) publicNewsletter(c echo.Context) (models.Newsletter, 
 	return n, err
 }
 
-// sentEditions scopes campaigns to finished editions of one newsletter.
+// sentEditions scopes campaigns to one newsletter's finished editions and the
+// one-off campaigns its team chose to publish in the same archive.
 func (h *MarketingHandler) sentEditions(c echo.Context, n models.Newsletter) *gorm.DB {
 	return h.service.DB.WithContext(c.Request().Context()).Model(&models.Campaign{}).
-		Where("newsletter_id = ? AND team_id = ? AND status = ? AND is_deleted = ?", n.ID, n.TeamID, models.CampaignStatusCompleted, false)
+		Where("(newsletter_id = ? OR archive_newsletter_id = ?) AND team_id = ? AND status = ? AND is_deleted = ?", n.ID, n.ID, n.TeamID, models.CampaignStatusCompleted, false)
 }
 
 // PublicNewsletter lists a published newsletter's sent editions, newest first.

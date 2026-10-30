@@ -495,6 +495,8 @@ type APIKeyUsage struct {
 type Campaign struct {
 	Base
 	NewsletterID      *string                   `gorm:"type:uuid;index" json:"newsletterId,omitempty"`
+	// ArchiveNewsletterID publishes a one-off campaign in that newsletter's web archive.
+	ArchiveNewsletterID *string `gorm:"type:uuid;index" json:"archiveNewsletterId,omitempty"`
 	HTMLBody          string                    `gorm:"type:text" json:"htmlBody,omitempty"`
 	Subject           string                    `json:"subject"`
 	PostalAddress     string                    `json:"postalAddress"`

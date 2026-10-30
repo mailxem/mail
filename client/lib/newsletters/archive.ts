@@ -16,12 +16,16 @@ export type ArchiveEdition = {
 };
 
 /** Public archive endpoints live at the API's origin under /public, not /api/v1. */
-export async function archiveFetch<T>(path: string): Promise<T> {
+export function archiveResponse(path: string) {
   const base = process.env.INTERNAL_API_URL?.replace(/\/api\/v1\/?$/, "");
   if (!base) throw new Error("INTERNAL_API_URL is not configured");
-  const res = await fetch(`${base}/public/newsletters/${path}`, {
+  return fetch(`${base}/public/newsletters/${path}`, {
     next: { revalidate: 300 },
   });
+}
+
+export async function archiveFetch<T>(path: string): Promise<T> {
+  const res = await archiveResponse(path);
   if (res.status === 404) notFound();
   if (!res.ok) throw new Error(`Newsletter archive unavailable (${res.status})`);
   return res.json();

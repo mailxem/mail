@@ -12,6 +12,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     title: a.name,
     description: a.description || `Every issue of ${a.name}.`,
     openGraph: { title: a.name, description: a.description, type: "website" },
+    alternates: {
+      types: { "application/rss+xml": `/n/${encodeURIComponent(a.slug)}/feed.xml` },
+    },
     robots: "index, follow",
   };
 }
@@ -45,7 +48,8 @@ export default async function NewsletterArchive({ params }: Params) {
         <p className={styles.empty}>The first issue is on its way.</p>
       )}
       <footer className={styles.footer}>
-        Published with <a href="https://xem.email">Xem</a>
+        Published with <a href="https://xem.email">Xem</a> ·{" "}
+        <a href={`/n/${a.slug}/feed.xml`}>RSS feed</a>
       </footer>
     </main>
   );
