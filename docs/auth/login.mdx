@@ -134,7 +134,7 @@ data = response.json()
 ## 🛡️ Security Features
 
 ### Rate Limiting
-Login requests share the API's default limit of 100 requests per minute per IP address. See [Rate limiting](/rate-limiting).
+Each IP address can try to log in 5 times a minute. Further attempts get `429 Too Many Requests` until the minute passes. See [Rate limiting](/rate-limiting).
 
 ### Password Security
 - **Bcrypt hashing**: Passwords are securely hashed

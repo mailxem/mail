@@ -82,7 +82,7 @@ Errors follow a consistent format:
 
 ## Rate Limiting
 
-API requests are limited to 100 per minute per IP address, with bursts of up to 50. See [Rate limiting](/rate-limiting) for details and retry advice.
+Most endpoints allow 100 requests per minute per IP address. Sign-in, registration and password-reset endpoints are stricter. See [Rate limiting](/rate-limiting) for every limit and for retry advice.
 
 Rate limit headers are included in all responses:
 

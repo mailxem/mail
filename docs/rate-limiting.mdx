@@ -3,13 +3,26 @@ title: 'Rate limiting'
 description: 'How the Xem API limits request rates, the headers it returns, and how to retry after a 429 response.'
 ---
 
-The Xem API limits how many requests each client can make, to keep the service responsive for everyone. Limits are counted per client IP address.
+The Xem API limits how many requests each client can make, to keep the service responsive and to slow down password guessing. Limits are counted per client IP address and per endpoint.
 
-## Default limit
+## Limits
 
-Each IP address can make **100 requests per minute**, with bursts of up to 50 requests. Health checks at `/health` and `/api/v1/health` are not limited.
+| Endpoint | Limit per IP address |
+| --- | --- |
+| `POST /api/v1/auth/login` | 5 per minute |
+| `POST /api/v1/auth/register` | 3 per hour |
+| `POST /api/v1/auth/password-reset` | 3 per hour |
+| `POST /api/v1/auth/password-reset/verify` | 10 per hour |
+| `POST /api/v1/auth/refresh` | 10 per minute |
+| `POST /api/v1/files/upload` | 20 per minute |
+| `POST /api/v1/emails` | 100 per minute |
+| `GET /api/v1/analytics/…` (all analytics together) | 100 per minute |
+| `GET /t/open` and `GET /t/click/…` (email tracking) | 1,000 per minute each |
+| Every other endpoint | 100 per minute, per endpoint |
 
-The limit is stored in Redis, so it is shared by every API instance. If Redis is unavailable, each API instance falls back to an in-memory limit of 20 requests per second per IP address.
+Health checks at `/health` and `/api/v1/health` are not limited.
+
+The limit is stored in Redis, so it is shared by every API instance. If Redis is unavailable, each API instance falls back to a single in-memory limit of 20 requests per second per IP address, and the stricter limits above do not apply. Self-hosted installs should keep Redis running.
 
 ## Response headers
 
@@ -17,7 +30,7 @@ Every limited response includes:
 
 | Header | Meaning |
 | --- | --- |
-| `X-RateLimit-Limit` | Requests allowed per minute |
+| `X-RateLimit-Limit` | Requests allowed per minute for this endpoint |
 | `X-RateLimit-Remaining` | Requests left in the current window |
 | `X-RateLimit-Reset` | When the window resets, as a Unix timestamp |
 
@@ -30,12 +43,12 @@ The API returns `429 Too Many Requests` with this body:
   "error": "rate_limit_exceeded",
   "message": "Rate limit exceeded. Try again later.",
   "retry_after": 60,
-  "limit": 100,
+  "limit": 5,
   "window": 60
 }
 ```
 
-`retry_after` is the number of seconds to wait before trying again.
+`retry_after` is the number of seconds to wait before trying again: the length of that endpoint's window.
 
 ## Retry with backoff
 

@@ -5,7 +5,7 @@ Want to send more emails faster without hitting rate limits? Here's how to optim
 ## 🚀 Understanding Rate Limits
 
 ### Default limit
-Every endpoint shares one limit: 100 requests per minute per IP address, with bursts of up to 50. The [Rate limiting](/rate-limiting) page explains the headers and the `429` response.
+Most endpoints allow 100 requests per minute per IP address, counted separately for each endpoint. Authentication endpoints are stricter. The [Rate limiting](/rate-limiting) page lists every limit and explains the headers and the `429` response.
 
 ### Rate Limit Headers
 Every response includes these headers:
