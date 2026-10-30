@@ -27,6 +27,7 @@ const schema = z.object({
     "Design",
     "Analytics",
     "Automation",
+    "Comparisons",
   ]),
   tags: z.array(z.string().min(2)).min(2).max(6),
   cover: z.string().regex(/^\/images\/blog\/[a-z0-9-]+\.webp$/),

@@ -366,7 +366,128 @@ const designs = [
       ) +
       star(1080, 624, 41, C.lemon),
   },
+  {
+    slug: "open-source-email-marketing",
+    bg: C.forest,
+    light: true,
+    category: "COMPARISONS",
+    alt: "Forest green cover with an open padlock beside four stacked cream cards labelled campaigns, automations, CRM and inbox, under the words Open by default.",
+    body:
+      title(76, 230, ["Open by default."], 96, C.cream) +
+      text(80, 300, "Email marketing you can read, run and change.", 23, C.cream) +
+      pill(80, 352, "SOURCE YOU CAN SEE", C.lemon, C.forest, 200) +
+      group(
+        690,
+        170,
+        -4,
+        rect(0, 0, 360, 92, C.cream, 14, C.ink) +
+          label(24, 55, "CAMPAIGNS") +
+          rect(0, 112, 360, 92, C.lavender, 14, C.ink) +
+          label(24, 167, "AUTOMATIONS") +
+          rect(0, 224, 360, 92, C.lemon, 14, C.ink) +
+          label(24, 279, "AUDIENCE & CRM") +
+          rect(0, 336, 360, 92, C.cream, 14, C.ink) +
+          label(24, 391, "SHARED INBOX"),
+      ) +
+      group(
+        180,
+        470,
+        0,
+        rect(0, 70, 170, 140, C.lemon, 18, C.ink) +
+          pathStroke("M38 70V38a47 47 0 0 1 94 0", C.cream, 14) +
+          circle(85, 130, 14, C.ink) +
+          rect(80, 135, 10, 38, C.ink, 4),
+      ) +
+      star(1110, 640, 34, C.lemon) +
+      star(520, 600, 24, C.lavender),
+  },
+  {
+    slug: "mailchimp-alternative",
+    bg: C.cream,
+    category: "COMPARISONS",
+    alt: "Cream cover with two price tags side by side, a tall one marked per contact and a short one marked per email, under the words Pay for what you send.",
+    body:
+      title(76, 222, ["Pay for what", "you send."], 100) +
+      text(80, 450, "Compare the bill, not just the features.", 23) +
+      pill(80, 505, "PER EMAIL, NOT PER CONTACT", C.lavender, C.iris, 280) +
+      circle(905, 420, 232, C.lemon) +
+      group(
+        700,
+        190,
+        -6,
+        rect(0, 0, 190, 380, C.iris, 18, C.ink) +
+          circle(95, 40, 14, C.cream) +
+          text(95, 220, "per", 30, C.cream, true, 'text-anchor="middle"') +
+          text(95, 262, "contact", 30, C.cream, true, 'text-anchor="middle"'),
+      ) +
+      group(
+        930,
+        370,
+        5,
+        rect(0, 0, 190, 200, C.forest, 18, C.ink) +
+          circle(95, 40, 14, C.cream) +
+          text(95, 118, "per", 30, C.cream, true, 'text-anchor="middle"') +
+          text(95, 160, "email", 30, C.cream, true, 'text-anchor="middle"'),
+      ) +
+      star(640, 640, 36, C.iris),
+  },
+  {
+    slug: "amazon-ses-newsletter-cost",
+    bg: C.lavender,
+    category: "COMPARISONS",
+    alt: "Lavender cover with a large receipt listing 10,000 subscribers, four sends and a small total, under the words The real price of email.",
+    body:
+      title(76, 222, ["The real price", "of email."], 100) +
+      text(80, 450, "What a newsletter costs to send through Amazon SES.", 23) +
+      pill(80, 505, "WORKED EXAMPLES", C.cream, C.iris, 190) +
+      group(
+        740,
+        140,
+        4,
+        rect(10, 14, 330, 470, C.ink + "16", 14) +
+          rect(0, 0, 330, 470, C.cream, 14, C.ink) +
+          label(28, 52, "RECEIPT") +
+          line(28, 76, 302, 76, C.ink + "44") +
+          text(28, 126, "Subscribers", 20) +
+          text(302, 126, "10,000", 20, C.ink, false, 'text-anchor="end"') +
+          text(28, 172, "Sends a month", 20) +
+          text(302, 172, "4", 20, C.ink, false, 'text-anchor="end"') +
+          text(28, 218, "Emails", 20) +
+          text(302, 218, "40,000", 20, C.ink, false, 'text-anchor="end"') +
+          line(28, 250, 302, 250, C.ink + "44") +
+          text(28, 320, "Total", 34, C.iris, true) +
+          rect(28, 360, 274, 60, C.lemon, 10) +
+          label(48, 397, "SEE THE MATH INSIDE"),
+      ) +
+      star(650, 640, 36, C.forest) +
+      star(1130, 120, 24, C.iris),
+  },
+  {
+    slug: "move-your-newsletter-list",
+    bg: C.lemon,
+    category: "GROWTH",
+    alt: "Lemon cover showing a stack of contact cards travelling along a dotted path into a cream envelope, under the words Bring your readers with you.",
+    body:
+      title(76, 222, ["Bring your readers", "with you."], 92) +
+      text(80, 440, "Move a list without losing consent or trust.", 23) +
+      pill(80, 495, "EXPORT · CHECK · IMPORT", C.forest, C.cream, 260) +
+      pathStroke("M640 560C760 420 860 640 980 470", C.forest, 4) +
+      portrait(620, 590, C.iris, 44) +
+      portrait(700, 640, C.forest, 38) +
+      group(895, 300, -6, envelope(0, 0, 230, C.cream, C.ink)) +
+      group(
+        760,
+        170,
+        5,
+        rect(0, 0, 170, 110, C.cream, 12, C.ink) +
+          label(18, 40, "CSV") +
+          line(18, 64, 150, 64, C.ink + "44", 3) +
+          line(18, 82, 110, 82, C.ink + "44", 3),
+      ) +
+      star(1110, 640, 30, C.iris),
+  },
 ];
+const only = process.argv.slice(2);
 const output = path.resolve("public/images/blog");
 await fs.mkdir("design/blog/svg", { recursive: true });
 const browser = await chromium.launch({ channel: "chrome", headless: true });
@@ -376,6 +497,7 @@ try {
     deviceScaleFactor: 1,
   });
   for (let i = 0; i < designs.length; i++) {
+    if (only.length && !only.includes(designs[i].slug)) continue;
     const d = designs[i],
       fg = d.light ? C.cream : C.ink;
     const mark = await fs.readFile("public/brand/xem-mark.png");
@@ -429,7 +551,12 @@ try {
     })),
   );
   await sharp({
-    create: { width: 960, height: 1600, channels: 3, background: C.cream },
+    create: {
+      width: 960,
+      height: Math.ceil(designs.length / 2) * 320,
+      channels: 3,
+      background: C.cream,
+    },
   })
     .composite(tiles)
     .png()
