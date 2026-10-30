@@ -494,7 +494,11 @@ type APIKeyUsage struct {
 
 type Campaign struct {
 	Base
-	NewsletterID      *string                   `gorm:"type:uuid;index" json:"newsletterId,omitempty"`
+	NewsletterID *string `gorm:"type:uuid;index" json:"newsletterId,omitempty"`
+	// SendInStages: nil sends in stages automatically to never-mailed lists.
+	SendInStages *bool `json:"sendInStages,omitempty"`
+	// PauseReason says why staged sending paused the campaign.
+	PauseReason       string                    `json:"pauseReason,omitempty"`
 	HTMLBody          string                    `gorm:"type:text" json:"htmlBody,omitempty"`
 	Subject           string                    `json:"subject"`
 	PostalAddress     string                    `json:"postalAddress"`
@@ -519,7 +523,7 @@ type Campaign struct {
 	SMTPConfig        *SMTPConfig               `json:"smtpConfig,omitempty"`
 	BatchSize         int                       `gorm:"not null;default:100" json:"batchSize"`
 	Processed         int                       `gorm:"not null;default:0" json:"processed"`
-	BatchDelay        time.Duration             `gorm:"not null;default:3600" json:"batchDelay"` // 1 hour delay between batches
+	BatchDelay        Duration                  `gorm:"not null;default:3600" json:"batchDelay"` // nanoseconds between batches
 	Timezone          string                    `gorm:"not null;default:'America/New_York'" json:"timezone"`
 	Data              datatypes.JSON            `gorm:"type:jsonb;default:'{}'" json:"data" validate:"omitempty,json"`
 }

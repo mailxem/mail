@@ -90,6 +90,8 @@ type CampaignTask struct {
 	Parameters     map[string]interface{} `json:"parameters,omitempty"`
 	ScheduledAt    time.Time              `json:"scheduled_at,omitempty"`
 	CronExpression string                 `json:"cron_expression,omitempty"`
+	// Stage counts staged-sending runs after the first; it keeps task IDs unique.
+	Stage int `json:"stage,omitempty"`
 }
 
 type WebhookDeliveryTask struct {

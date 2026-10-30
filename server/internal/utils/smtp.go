@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"kori/internal/db"
 	"kori/internal/mailconnect"
 	"kori/internal/models"
@@ -317,7 +318,9 @@ func (h *EmailHandler) UpdateEmail(email *models.Email) error {
 	}
 
 	return db.GetDB().Transaction(func(tx *gorm.DB) error {
-		if err := tx.Updates(email).Error; err != nil {
+		// Save only the email: saving its loaded SMTPConfig would re-encrypt the
+		// stored password and fail, leaving failed emails stuck as PENDING.
+		if err := tx.Omit(clause.Associations).Updates(email).Error; err != nil {
 			return err
 		}
 		if h.NotifyFailures && !email.Test && (email.SMTPConfig == nil || email.SMTPConfig.Provider != "MANAGED") {
