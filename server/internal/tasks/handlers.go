@@ -134,6 +134,10 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		h.logger.Info("✅ Campaign %s is already completed", task.CampaignID)
 		return nil
 	}
+	if campaign.Status == models.CampaignStatusPaused {
+		h.logger.Info("⏸️ Campaign %s is paused", task.CampaignID)
+		return nil
+	}
 
 	// update campaign status to sending
 	campaign.Status = models.CampaignStatusSending
@@ -168,6 +172,46 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		alreadyProcessedContacts[i] = email.ContactID
 	}
 
+	// Staged sending: check the results so far, then send only up to the
+	// next stage's target.
+	var activeContacts int64
+	if err := h.db.Model(&models.Contact{}).Where("list_id = ? AND status = ?", emailList.ID, models.SubscriberStatusActive).Count(&activeContacts).Error; err != nil {
+		return h.logger.Error("❌ failed to count contacts: %w", err)
+	}
+	sentSoFar := len(alreadyProcessedEmails)
+	total := max(int(activeContacts), sentSoFar) // sent contacts are still active
+	staged := useStages(h.db, campaign, total)
+	stageLimit, lastStage := contactCount, true
+	if staged {
+		if sentSoFar > 0 {
+			sent, failed, complained, err := campaignResults(h.db, campaign.ID)
+			if err != nil {
+				return h.logger.Error("❌ failed to check campaign results: %w", err)
+			}
+			// Judge a stage only once most of it has an outcome.
+			if waiting := int64(sentSoFar) - sent; waiting*10 > int64(sentSoFar) {
+				next := CampaignTask{CampaignID: campaign.ID, BatchSize: task.BatchSize, Stage: task.Stage + 1}
+				if err := h.taskClient.EnqueueCampaignTask(ctx, next, stageWait()); err != nil {
+					return h.logger.Error("❌ failed to queue the next stage: %w", err)
+				}
+				h.logger.Info("⏳ Campaign %s: %d emails still sending; checking again in %s", campaign.ID, waiting, stageWait())
+				return nil
+			}
+			if reason := stageHealth(sent, failed, complained); reason != "" {
+				campaign.Status = models.CampaignStatusPaused
+				campaign.PauseReason = reason
+				if err := h.db.Save(campaign).Error; err != nil {
+					return h.logger.Error("❌ failed to pause campaign: %w", err)
+				}
+				h.logger.Info("⏸️ Paused campaign %s: %s", campaign.ID, reason)
+				return nil
+			}
+		}
+		var target int
+		target, lastStage = stageTarget(total, sentSoFar)
+		stageLimit = target - sentSoFar
+	}
+
 	// Get contacts for this batch, ordered by last email sent date
 	var contacts []models.Contact
 	query := h.db.Table("contacts").
@@ -180,11 +224,16 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		query = query.Where("contacts.id NOT IN (?)", alreadyProcessedContacts)
 	}
 
-	if err := query.Group("contacts.id").
-		Order("MAX(emails.sent_at) ASC NULLS FIRST"). // Contacts with no emails come first
-		Offset(campaign.Processed).
-		Limit(contactCount).
-		Find(&contacts).Error; err != nil {
+	if staged {
+		// Longest-standing contacts first; earlier stages are already excluded.
+		query = query.Group("contacts.id").Order("contacts.created_at ASC").Limit(stageLimit)
+	} else {
+		query = query.Group("contacts.id").
+			Order("MAX(emails.sent_at) ASC NULLS FIRST"). // Contacts with no emails come first
+			Offset(campaign.Processed).
+			Limit(contactCount)
+	}
+	if err := query.Find(&contacts).Error; err != nil {
 		return h.logger.Error("❌ failed to get contacts: %w", err)
 	}
 
@@ -244,7 +293,7 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		maps.Copy(variables, data)
 
 		messageID := uuid.NewString()
-		parsedBody := utils.ReplaceVariables(htmlFromTemplate, variables, messageID, h.cfg, true, campaign.Template.Category.Name == "Marketing")
+		parsedBody := utils.ReplaceVariables(htmlFromTemplate, variables, messageID, h.cfg, true, campaign.Template.Category != nil && campaign.Template.Category.Name == "Marketing")
 		parsedSubject := utils.ReplaceVariables(campaign.Template.Subject, variables, campaign.ID, h.cfg, false, false)
 
 		parsedSubject, err = base64.DecodeFromBase64(parsedSubject)
@@ -289,9 +338,23 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		return h.logger.Error("❌ failed to create emails: %w", err)
 	}
 
-	h.mailHandler.SendCampaignEmails(emails, task.BatchSize, campaign.BatchDelay, smtpConfig)
+	h.mailHandler.SendCampaignEmails(emails, task.BatchSize, time.Duration(campaign.BatchDelay), smtpConfig)
 
 	campaign.Processed += contactCount
+	if staged {
+		campaign.Processed = sentSoFar + len(contacts)
+	}
+	if staged && !lastStage {
+		if err := h.db.Save(campaign).Error; err != nil {
+			return h.logger.Error("❌ failed to update campaign processed: %w", err)
+		}
+		next := CampaignTask{CampaignID: campaign.ID, BatchSize: task.BatchSize, Stage: task.Stage + 1}
+		if err := h.taskClient.EnqueueCampaignTask(ctx, next, stageWait()); err != nil {
+			return h.logger.Error("❌ failed to queue the next stage: %w", err)
+		}
+		h.logger.Info("⏳ Campaign %s sent %d of %d; next stage in %s", campaign.ID, campaign.Processed, total, stageWait())
+		return nil
+	}
 	campaign.Status = models.CampaignStatusCompleted
 	if err := h.db.Save(campaign).Error; err != nil {
 		return h.logger.Error("❌ failed to update campaign processed: %w", err)

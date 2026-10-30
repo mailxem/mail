@@ -3,7 +3,7 @@ import { useConfirmSheet } from "@/components/ui/confirm-sheet";
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Edit, Mail, MoreHorizontal, Trash } from "lucide-react";
+import { AlertTriangle, Edit, Mail, MoreHorizontal, Trash } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { useCampaigns } from "@/app/providers/campaigns-provider";
@@ -30,6 +30,16 @@ export function CampaignsList() {
     } catch { toast.error("Failed to delete campaign"); }
     finally { setBusy(""); }
   };
+  const resume = async (id: string) => {
+    setBusy(id);
+    try {
+      const response = await apiFetch(`marketing/campaigns/${id}/resume`, { method: "POST" });
+      if (!response.ok) throw new Error();
+      await refetch();
+      toast.success("Campaign resumed. The rest of the list sends now.");
+    } catch { toast.error("Couldn’t resume this campaign. Please try again."); }
+    finally { setBusy(""); }
+  };
   if (loading || error) return <QueryState loading={loading} error={error} retry={refetch}/>;
   if (!campaigns.length) return <Empty title="Create your first campaign" description="Connect an existing template, choose your audience, and schedule your email." action={<Button asChild><Link href="/campaigns/new">Create campaign</Link></Button>}/>;
   return <>
@@ -40,6 +50,11 @@ export function CampaignsList() {
           {campaign.status !== "SENDING" && <><DropdownMenuSeparator/><DropdownMenuItem className="text-destructive" onClick={() => deleteCampaign(campaign.id)}><Trash className="mr-2 size-4"/>Delete campaign</DropdownMenuItem></>}
         </DropdownMenuContent></DropdownMenu>
       }>
+        {campaign.status === "PAUSED" && campaign.pauseReason && <div role="alert" className="mt-5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
+          <p className="flex gap-2 font-medium"><AlertTriangle className="size-3.5 shrink-0 text-amber-600"/>Paused to protect your sender reputation</p>
+          <p className="mt-1 text-muted-foreground">{campaign.pauseReason}</p>
+          <Button size="sm" variant="outline" className="mt-3" disabled={busy === campaign.id} onClick={(e) => { e.preventDefault(); void resume(campaign.id); }}>Resume sending</Button>
+        </div>}
         <div className="mt-5 grid grid-cols-2 gap-3">
           <div className="rounded-xl bg-muted p-3"><p className="text-xs text-muted-foreground">Schedule</p><p className="mt-2 text-xs font-medium">{campaign.scheduledFor ? format(new Date(campaign.scheduledFor), "MMM d, p") : campaign.schedule || "Not scheduled"}</p></div>
           <div className="rounded-xl bg-muted p-3"><p className="text-xs text-muted-foreground">Created</p><p className="mt-2 text-xs font-medium">{format(new Date(campaign.createdAt), "MMM d, yyyy")}</p></div>

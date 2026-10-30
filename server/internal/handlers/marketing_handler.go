@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"kori/internal/events"
 	"net/http"
 	"strings"
 	"time"
@@ -109,6 +110,25 @@ func (h *MarketingHandler) PauseNewsletter(c echo.Context) error {
 		return missing()
 	}
 	return c.JSON(200, map[string]string{"status": "PAUSED"})
+}
+
+// ResumeCampaign continues a campaign that staged sending paused. The rest of
+// the list is sent without further stages: the sender has seen the warning.
+func (h *MarketingHandler) ResumeCampaign(c echo.Context) error {
+	var campaign models.Campaign
+	if err := h.scoped(c).Where("id = ? AND status = ?", c.Param("id"), models.CampaignStatusPaused).First(&campaign).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return missing()
+		}
+		return err
+	}
+	off := false
+	if err := h.scoped(c).Model(&campaign).Updates(map[string]any{"send_in_stages": off, "pause_reason": "", "status": models.CampaignStatusSending}).Error; err != nil {
+		return err
+	}
+	campaign.SendInStages, campaign.PauseReason, campaign.Status = &off, "", models.CampaignStatusSending
+	events.Emit("campaign.created", &campaign) // queues the send, as on launch
+	return c.JSON(200, map[string]string{"status": string(models.CampaignStatusSending)})
 }
 func (h *MarketingHandler) NewsletterEditions(c echo.Context) error {
 	if !h.service.Owns(c.Request().Context(), &models.Newsletter{}, c.Param("id"), team(c)) {

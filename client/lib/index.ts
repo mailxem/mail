@@ -185,7 +185,11 @@ export interface Campaign {
   id: string;
   name: string;
   description?: string;
-  status: "DRAFT" | "SCHEDULED" | "SENDING" | "COMPLETED" | "FAILED";
+  status: "DRAFT" | "SCHEDULED" | "SENDING" | "COMPLETED" | "FAILED" | "PAUSED";
+  /** Unset: staged automatically for lists that have never been mailed. */
+  sendInStages?: boolean;
+  /** Why staged sending paused the campaign. */
+  pauseReason?: string;
   templateId: string;
   listId: string;
   schedule?: string;

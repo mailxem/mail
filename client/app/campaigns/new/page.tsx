@@ -92,6 +92,7 @@ const campaignSchema = z.object({
   subject: z.string().trim().min(1, "Add a subject line"),
   smtpConfigId: z.string().uuid("Choose a sender"),
   archiveNewsletterId: z.string().optional(),
+  stages: z.enum(["auto", "on", "off"]).default("auto"),
 });
 type CampaignFormValues = z.infer<typeof campaignSchema>;
 type ContactPreview = {
@@ -262,6 +263,7 @@ function NewCampaignForm() {
       processed: 0,
       timezone: "UTC",
       archiveNewsletterId: "",
+      stages: "auto",
     },
   });
   const archives = (
@@ -380,6 +382,9 @@ function NewCampaignForm() {
         body: JSON.stringify({
           ...values,
           archiveNewsletterId: values.archiveNewsletterId || undefined,
+          stages: undefined,
+          sendInStages:
+            values.stages === "auto" ? undefined : values.stages === "on",
           teamId: team?.id,
           status: "DRAFT",
           scheduledFor: isScheduled ? values.scheduledFor : undefined,
@@ -1192,6 +1197,39 @@ function NewCampaignForm() {
                     )}
                   />
                 )}
+                <FormField
+                  control={form.control}
+                  name="stages"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Send in stages</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="h-11">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="auto">
+                            Automatically for new lists
+                          </SelectItem>
+                          <SelectItem value="on">Always</SelectItem>
+                          <SelectItem value="off">Never</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        Sends to 5% of the list first, then 25%, then everyone,
+                        an hour apart. If too many emails bounce or get reported
+                        as spam, sending pauses so you can check the list. Lists
+                        of 500 or fewer always send at once.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <p className="flex items-start gap-2 rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
                   <Clock3 className="mt-0.5 size-3.5 shrink-0" />
                   Saving creates a draft. Your campaign will not send until you
