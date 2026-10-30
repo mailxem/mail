@@ -40,6 +40,8 @@ temporary_mounts = [{ mount_path = "/tmp", size_mib = 32, memory = true }]
 tls = { issuer = "hakopod-acme" }
 # Requested operator binding name; it is not provisioned by this file.
 aws_identity = "xem-managed-sending"
+# RDS is private; /etc/hakopod/private-egress.toml binding "xem-rds" grants 5432.
+private_egress = ["xem-rds"]
 
 # Keep public HTTP on 9001 and declare SMTP as a separate private TCP endpoint.
 [[services.backend.ports]]
@@ -164,6 +166,7 @@ working_dir = "/code"
 termination_grace_seconds = 60
 temporary_mounts = [{ mount_path = "/tmp", size_mib = 32, memory = true }]
 tls = { issuer = "hakopod-acme" }
+private_egress = ["xem-rds"]
 
 [services.payments.network_access]
 from = ["frontend", "backend"]
