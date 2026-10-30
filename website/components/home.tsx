@@ -31,7 +31,13 @@ import {
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { productViews, templates, faqs } from "@/lib/content";
-import { appLink, githubUrl, selfHostUrl, contributeUrl } from "@/lib/site";
+import {
+  appLink,
+  githubUrl,
+  selfHostUrl,
+  contributeUrl,
+  docsUrl,
+} from "@/lib/site";
 import { SiteDialog } from "./site-dialog";
 import { McpSection } from "./mcp-section";
 import { AnalyticsSection } from "./analytics-section";
@@ -178,6 +184,9 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
             <a href="/blog" className="transition-colors hover:text-iris">
               Journal
             </a>
+            <a href={docsUrl} className="transition-colors hover:text-iris">
+              Docs
+            </a>
             <a
               href="#questions"
               className="transition-colors hover:text-forest"
@@ -228,6 +237,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               ["Open source", "#open-source"],
               ["FAQs", "#questions"],
               ["Journal", "/blog"],
+              ["Docs", docsUrl],
               ["Log in", appLink("/auth/login")],
             ].map(([label, href]) => (
               <a

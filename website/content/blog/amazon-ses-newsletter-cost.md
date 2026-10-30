@@ -92,7 +92,7 @@ If your list is small and you value not thinking about infrastructure, a free ti
 
 Xem is an open-source email marketing suite that sends through Amazon SES or any SMTP provider. It adds the parts SES leaves out: the editor and templates, newsletters and campaigns, automations, signup forms, a contact CRM, a shared inbox and analytics. Your sending bill stays whatever your provider charges.
 
-You can run Xem on your own server under the GPL-3.0 licence, or use the hosted app. Either way, the SES account, its limits and its reputation remain yours. For the authentication steps, see [email deliverability in 2026](/blog/email-deliverability).
+You can run Xem on your own server under the GPL-3.0 licence, or use the hosted app. Either way, the SES account, its limits and its reputation remain yours. The step-by-step setup is in the [Amazon SES guide](https://docs.xem.email/guides/amazon-ses), and the wider authentication picture is in [email deliverability in 2026](/blog/email-deliverability).
 
 ## Common questions
 

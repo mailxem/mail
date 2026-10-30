@@ -1,6 +1,6 @@
 import { getPosts } from "@/lib/blog";
 import { faqs } from "@/lib/content";
-import { githubUrl, siteUrl } from "@/lib/site";
+import { docsUrl, githubUrl, siteUrl } from "@/lib/site";
 export const dynamic = "force-static";
 // Plain-text map of the site for AI assistants (llmstxt.org).
 export function GET() {
@@ -14,6 +14,13 @@ export function GET() {
 - [Home](${siteUrl}/): what Xem does, templates, analytics and FAQs
 - [MCP server](${siteUrl}/mcp): 44 tools that let AI assistants run Xem campaigns, contacts and analytics
 - [Source code](${githubUrl}): app, Go backend, SDKs and self-hosting tools
+
+## Docs
+
+- [Introduction](${docsUrl}/introduction): what Xem includes and how sending costs work
+- [Send with Amazon SES](${docsUrl}/guides/amazon-ses): verify a domain, leave the SES sandbox and connect SES as an SMTP sender
+- [Import contacts](${docsUrl}/guides/import-contacts): import CSVs and exports from beehiiv, Substack, Mailchimp, Ghost and Kit
+- [Self-host Xem](${docsUrl}/guides/self-hosting): install on your own Linux server with Docker Swarm
 
 ## Questions
 

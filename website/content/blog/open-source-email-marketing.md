@@ -47,7 +47,7 @@ It is also the heaviest to run. Mautic’s own documentation advises against che
 
 Choose Xem if you want the day-to-day email work of a small team in one place: campaigns, recurring newsletters, visual automations, signup forms, a contact CRM, a shared inbox and analytics. It includes 200+ editable templates, AI help for drafting, an API with webhooks, and an MCP server so AI assistants can work with your campaigns and contacts.
 
-Xem is younger than Listmonk and Mautic, with a smaller community. It does not handle paid subscriptions, and contact imports do not carry tags across yet. You can self-host it or use the hosted app, and in both cases sending goes through Amazon SES or your own SMTP provider.
+Xem is younger than Listmonk and Mautic, with a smaller community. It does not handle paid subscriptions, and contact imports do not carry tags across yet. You can self-host it with a one-line installer, described in the [self-hosting guide](https://docs.xem.email/guides/self-hosting), or use the hosted app. In both cases sending goes through Amazon SES or your own SMTP provider.
 
 ## Where does Sendy fit?
 
