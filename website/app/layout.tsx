@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "Xem — All your email marketing, at the price of email.",
   description:
-    "The open-source email marketing suite: campaigns, newsletters, automations, forms, a CRM, a shared inbox and analytics. Send through Amazon SES and pay what Amazon charges: about $2 to $3 for 20,000 emails.",
+    "The open-source email marketing suite: campaigns, newsletters, automations, forms, a CRM, a shared inbox and analytics. Send through Amazon SES and pay what Amazon charges: $2.00 to $3.20 for 20,000 emails.",
   openGraph: {
     type: "website",
     siteName: "Xem",

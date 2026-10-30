@@ -273,7 +273,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
             >
               Campaigns, newsletters, automations, forms, a CRM and a shared
               inbox in one open-source suite. Send through Amazon SES and pay
-              what Amazon charges: about $2 to $3 for 20,000 emails.
+              what Amazon charges: $2.00 to $3.20 for 20,000 emails.
             </p>
             <div
               data-intro
