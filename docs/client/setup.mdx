@@ -1,41 +1,63 @@
 ---
-title: 'Client Setup'
-description: 'How to install and run the Posthoot client locally'
+title: 'Client setup'
+description: 'Install, configure, test and build the Xem web app for local development.'
 ---
 
-# Client Setup
-
-## Prerequisites
-
-- Node.js 20+ (or Bun 1.1+)
-- pnpm/npm/yarn (your preference)
-- Git
+These steps run the Xem web app locally against a running Xem API. To run the whole product on a server, use [Self-host Xem](/guides/self-hosting) instead.
 
 ## Install
 
-```bash
-cd client
-pnpm install   # or npm install / yarn
-```
-
-## Run Dev Server
+You need [Bun](https://bun.sh) and a running Xem API. Locally, the API listens on port `9001` by default.
 
 ```bash
-pnpm dev       # http://localhost:3000
+git clone https://github.com/mailxem/mail.git
+cd mail/client
+bun install --frozen-lockfile
+cp .env.example .env.local
 ```
 
-## Build & Start
+## Configure
+
+Edit `client/.env.local`. The values that matter for local development:
+
+| Variable | Purpose | Local example |
+| --- | --- | --- |
+| `NEXT_PUBLIC_API_URL` | API URL used by the browser. Read at build time. | `http://localhost:9001/api/v1` |
+| `INTERNAL_API_URL` | API URL used by server-side code. Server-only. | `http://127.0.0.1:9001/api/v1` |
+| `NEXTAUTH_URL` | The app's own public URL | `http://localhost:3000` |
+| `NEXTAUTH_SECRET` | Random secret for session encryption | output of `openssl rand -base64 32` |
+| `NEXT_PUBLIC_APP_URL` | Public app URL used in links | `http://localhost:3000` |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Optional Google sign-in | leave empty |
+| `NEXT_PUBLIC_PAYWALL_URL` | Optional billing redirect for hosted builds | leave empty |
+
+On a self-hosted install behind a reverse proxy, set `NEXT_PUBLIC_API_URL=/api/v1` and route `/api/v1/*` and `/public/forms/*` to the backend. `.env.example` also lists the server-only settings for the Ask Xem assistant, which you can leave unset.
+
+<Warning>
+Only variables that start with `NEXT_PUBLIC_` reach the browser. Never give a secret that prefix.
+</Warning>
+
+## Run
 
 ```bash
-pnpm build
-pnpm start     # production
+bun run dev
 ```
 
-## Scripts (package.json)
+The app starts on [http://localhost:3000](http://localhost:3000). Create an account at `/auth/register`.
 
-- `dev`: start Next.js dev server
-- `build`: build production
-- `start`: start production server
-- `test`: run unit tests
+## Test
 
-See also: [Environment](/client/env), [Development](/client/development)
+```bash
+bunx jest
+bunx tsc --noEmit
+```
+
+Tests live in `client/__tests__/`. Run both commands before opening a pull request; CI runs the same TypeScript and Jest checks plus a production build.
+
+## Build
+
+```bash
+bun run build
+bun run start
+```
+
+The build uses Next.js standalone output. `client/Dockerfile` builds the same output on `oven/bun` and accepts `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_PAYWALL_URL` as build arguments, because public variables are fixed at build time.

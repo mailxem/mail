@@ -1,151 +1,48 @@
 ---
 title: 'Introduction'
-description: 'Welcome to the Posthoot documentation'
+description: 'Xem is an open-source email marketing suite: campaigns, newsletters, automations, forms, a CRM, a shared inbox and analytics, sent through Amazon SES or any SMTP provider.'
 ---
 
-# Welcome to Posthoot
+Xem is an open-source email marketing suite. It brings campaigns, recurring newsletters, visual automations, signup forms, a contact CRM, a shared inbox and analytics into one app. It sends through Amazon SES or any SMTP provider, so sending costs what your provider charges rather than a fee per subscriber.
 
-Hey there! 👋 You're probably here because you're tired of being locked into expensive email marketing platforms that don't give you the control you need. We get it - we've been there too.
+You can use the hosted app at [app.xem.email](https://app.xem.email) or run Xem on your own server under the GPL-3.0 licence. The source is on [GitHub](https://github.com/mailxem/mail).
 
-Posthoot is what we built to solve that problem. It's an open-source email marketing engine that puts you back in control. No more vendor lock-in, no more black-box algorithms, and definitely no more surprise bills.
+## Start here
 
-## What's the deal with Posthoot?
+<CardGroup cols={2}>
+  <Card title="Send with Amazon SES" icon="paper-plane" href="/guides/amazon-ses">
+    Verify your domain, leave the SES sandbox and connect SES as a sender.
+  </Card>
+  <Card title="Import contacts" icon="file-import" href="/guides/import-contacts">
+    Bring a list from beehiiv, Substack, Mailchimp, Ghost or Kit.
+  </Card>
+  <Card title="Self-host Xem" icon="server" href="/guides/self-hosting">
+    Install Xem on your own Linux server with one command.
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference">
+    Work with contacts, campaigns and analytics from your own product.
+  </Card>
+</CardGroup>
 
-Think of Posthoot as your own personal email marketing platform, but better. Here's what makes it different:
+## What Xem includes
 
-- **You own the code** - It's open source, so you can see exactly what's happening and modify anything you want
-- **Multiple SMTP providers** - Use SendGrid, Mailgun, Amazon SES, or any other provider. Switch between them without losing data
-- **AI that actually helps** - We're building real AI features that optimize your campaigns, not just marketing buzzwords
-- **Self-hosted** - Run it on your own servers, keep your data under your control
-- **Actually affordable** - No hidden fees or enterprise pricing tiers
+| Area | What you can do |
+| --- | --- |
+| Campaigns and newsletters | Send one-off campaigns or recurring newsletters with a cadence and timezone, and publish sent editions in a public web archive |
+| Templates | Edit 200+ templates built from native editor blocks, with AI help for drafts |
+| Automations | Build visual journeys triggered by events such as opens and clicks |
+| Audience | Manage lists, tags, signup forms and a contact CRM with notes and stages |
+| Inbox | Read and reply to mail from connected mailboxes in a shared inbox |
+| Analytics | See delivery separately from opens and clicks, with growth and send-time insights |
+| Sending | Use Amazon SES, Gmail, Outlook or any SMTP server; the hosted app also offers managed sending |
+| Integrations | Use API keys, webhooks and an MCP server for AI assistants |
 
-## Why we built this
+## How sending costs work
 
-We got frustrated with the current email marketing landscape. You either get locked into expensive platforms like Mailchimp or SendGrid, or you're stuck with basic SMTP libraries that don't give you the features you need for serious email marketing.
+Xem does not charge per email. Your provider does. Through Amazon SES that is \$0.10 to \$0.16 per 1,000 emails, so a weekly newsletter to 10,000 people costs about \$4.00 to \$6.40 a month to send. The [Amazon SES guide](/guides/amazon-ses) covers setup and pricing plans.
 
-Posthoot bridges that gap. You get enterprise-level features (analytics, automation, templates) without the enterprise-level lock-in. Plus, since it's built in Go, it's fast, reliable, and easy to deploy.
+## Get help
 
-## What you can actually do with it
-
-### Send emails through multiple providers
-Don't put all your eggs in one basket. Connect to SendGrid, Mailgun, Amazon SES, or any other SMTP provider. If one goes down, your emails keep flowing through the others.
-
-```go
-// Example: Send through multiple providers
-email := &Email{
-    To: "user@example.com",
-    Subject: "Welcome!",
-    Providers: []string{"sendgrid", "mailgun"}, // Will try SendGrid first, then Mailgun
-}
-```
-
-### Build custom email templates
-No more fighting with WYSIWYG editors. Write your templates in HTML/CSS, use our templating engine for dynamic content, and preview exactly how they'll look.
-
-### AI-powered optimization (coming soon)
-We're working on real AI features that will:
-- Predict which subject lines will perform better
-- Suggest the best time to send emails
-- Automatically segment your audience based on behavior
-- Run A/B tests and optimize based on results
-
-### Track everything
-Open rates, click rates, conversions, bounces - you name it, we track it. Plus, you get real-time analytics so you can see how your campaigns are performing right now.
-
-### Automate your campaigns
-Set up drip campaigns, trigger emails based on user actions, and let the system handle the rest. No more manually sending follow-up emails.
-
-## Tech stack (for the nerds)
-
-We built this with modern, battle-tested tech:
-
-- **Backend**: Go 1.21+ (because we like fast, reliable code)
-- **Database**: PostgreSQL 14+ (ACID compliance matters for email data)
-- **Cache**: Redis (for speed and rate limiting)
-- **Authentication**: JWT + Firebase (secure and flexible)
-- **Email processing**: Asynchronous queues (so your API doesn't block)
-
-The whole thing is designed to handle millions of emails without breaking a sweat.
-
-
-
-## Getting started
-
-### If you're using our hosted version
-The API is available at `https://api.posthoot.com`. You'll need an account and API key to get started.
-
-### If you're self-hosting
-You'll need:
-- Go 1.21+ 
-- PostgreSQL 14+
-- Redis 6.0+
-- At least one SMTP provider (SendGrid, Mailgun, etc.)
-
-Docker makes this a lot easier - check out our [self-hosting guide](/guides/self-hosting) for the full setup.
-
-## Quick example
-
-Here's how you'd send your first email with Posthoot:
-
-```bash
-# 1. Create an account
-curl -X POST https://api.posthoot.com/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "your@email.com",
-    "password": "your_password",
-    "first_name": "Your",
-    "last_name": "Name"
-  }'
-
-# 2. Login to get your token
-curl -X POST https://api.posthoot.com/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "your@email.com",
-    "password": "your_password"
-  }'
-
-# 3. Send an email (replace YOUR_TOKEN with the token from step 2)
-curl -X POST https://api.posthoot.com/email \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "to": "recipient@example.com",
-    "subject": "Hello from Posthoot!",
-    "html": "<h1>Welcome!</h1><p>This email was sent via Posthoot.</p>",
-    "from": "you@yourdomain.com"
-  }'
-```
-
-That's it! Your email is sent and tracked. Check out the [authentication guide](/authentication) for more details on tokens and security.
-
-## Where to go from here
-
-### If you're new to Posthoot
-Start with the [vision](/vision) to understand what we're building, then check out the [authentication guide](/authentication) to learn how to get your API tokens.
-
-### If you want to dive deeper
-- [Rate limiting](/rate-limiting) - How we handle API usage
-- [Error handling](/errors) - What to do when things go wrong
-- [Quickstart guide](/guides/quickstart) - A more detailed walkthrough
-
-### If you're ready to build
-- [Self-hosting](/guides/self-hosting) - Run your own instance
-- [Campaign management](/guides/campaigns) - Build email campaigns
-- [Templates](/guides/templates) - Create custom email templates
-
-## Need help?
-
-We're here to help! Here's where to find us:
-
-- **Discord community** - Join our [Discord](https://discord.gg/MXQgb9s5bA) for real-time help
-- **GitHub issues** - Found a bug? [Report it here](https://github.com/posthoot/mail/issues)
-- **Feature requests** - Want something new? [Let us know](https://github.com/posthoot/mail/discussions)
-- **Email** - [team@posthoot.com](mailto:team@posthoot.com) for general questions
-
-### Contributing
-
-Posthoot is open source, and we love contributions! Check out our [contributing guide](https://github.com/posthoot/mail/blob/main/CONTRIBUTING.md) to get started.
-
-Star us on [GitHub](https://github.com/posthoot/mail) if you find this useful! ⭐
+- Open an issue on [GitHub](https://github.com/mailxem/mail/issues).
+- Email [team@xem.email](mailto:team@xem.email).
+- Read the [Xem journal](https://xem.email/blog) for guides on sending, design and growth.

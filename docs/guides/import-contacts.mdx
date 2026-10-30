@@ -1,0 +1,75 @@
+---
+title: 'Import contacts'
+description: 'Import a CSV or a subscriber export from beehiiv, Substack, Mailchimp, Ghost or Kit. Xem keeps only people who are still subscribed.'
+---
+
+Xem imports contacts into a list from a CSV file or pasted rows. It recognises subscriber exports from beehiiv, Substack, Mailchimp, Ghost and Kit, leaves out anyone who is not subscribed, and shows you what it will skip before anything is saved.
+
+## Import a file
+
+<Steps>
+  <Step title="Open a list">
+    Go to **Audience → Lists** and open the list the contacts should join. Create the list first if you need a new one.
+  </Step>
+  <Step title="Choose Import Contacts">
+    Choose **Import Contacts**. Use **CSV Import** for a file, or **Paste contacts** for comma-separated rows with a header row.
+  </Step>
+  <Step title="Check the columns">
+    Xem matches common column names to contact fields. Check each match and change any that are wrong.
+  </Step>
+  <Step title="Review and import">
+    Xem shows how many rows it will import and how many it will leave out, with the reason for each. Import when the numbers look right.
+  </Step>
+</Steps>
+
+## Which rows are left out?
+
+Xem leaves out a row when:
+
+- the email address is missing or not valid;
+- a **status** column says the person is unsubscribed, inactive, cancelled, bounced, cleaned, complained, invalid, pending, unconfirmed or archived;
+- an `email_disabled` or `unsubscribed` column is true, or an `unsubscribed_at` column has a date;
+- a `subscribed_to_emails` column is false;
+- the same address already appeared earlier in the file.
+
+Duplicate addresses keep their first row. Email addresses are stored in lower case.
+
+<Warning>
+Xem refuses a file whose name says it holds unsubscribed or cleaned contacts, as Mailchimp's separate export files do. Import Mailchimp's subscribed file only.
+</Warning>
+
+## Which fields are imported?
+
+Xem maps these fields, matching common names such as `Email Address`, `First Name` or `Postal Code`:
+
+| Field | Examples of matching headers |
+| --- | --- |
+| Email | email, email address, e-mail, subscriber |
+| First name | first name, first, given name |
+| Last name | last name, surname, family name |
+| Phone | phone, phone number, mobile |
+| Company | company, organization |
+| Address, city, state, country, zip | address, city, province, country, postal code |
+| LinkedIn, Twitter | linkedin, twitter, x |
+
+If a file has a single **name** column and no first-name column, Xem splits it into first and last name.
+
+Tags and custom fields are not imported today. If you rely on tags for segments, rebuild them in Xem after the import.
+
+## Exporting from other platforms
+
+| Platform | Where to export | Notes |
+| --- | --- | --- |
+| beehiiv | Settings → Publication → Export Data | Quick or Full export both include a status column |
+| Kit | Subscribers → filter by Confirmed → select all → Export | Click **Select all**, or only one page is exported |
+| Substack | Subscribers → All subscribers → ⋮ → Export | Choose all columns; Substack exports do not include names |
+| Mailchimp | Audience → export | Import the subscribed CSV from the ZIP file |
+| Ghost | Members → export | Recognised by its `subscribed_to_emails` column |
+
+For a full walkthrough, including what to send first after a move, see [how to move your newsletter list](https://xem.email/blog/move-your-newsletter-list).
+
+## After the import
+
+- Send from a domain you have authenticated. See [Send with Amazon SES](/guides/amazon-ses).
+- Tell readers about the move in your first email, and keep the unsubscribe link easy to find.
+- Watch bounces and complaints after the first few sends.

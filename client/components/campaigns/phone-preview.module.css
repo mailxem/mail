@@ -1,0 +1,210 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.toggle {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+
+.toggle button {
+  padding: 3px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.toggle button[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--foreground);
+}
+
+.toggle button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* The phone is always light: it shows what a reader's mail app looks like. */
+.phone {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  height: 520px;
+  overflow: hidden;
+  border: 8px solid #111;
+  border-radius: 38px;
+  background: #fff;
+  color: #1f1f1f;
+  box-shadow: 0 0 0 1px #333, 0 20px 40px -20px rgb(0 0 0 / 0.5);
+}
+
+.notch {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 84px;
+  height: 22px;
+  border-radius: 12px;
+  background: #111;
+  transform: translateX(-50%);
+}
+
+.status {
+  height: 34px;
+  padding: 8px 20px 0;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.inbox {
+  margin: 0;
+  padding: 0 12px;
+  list-style: none;
+}
+
+.inboxTitle {
+  padding: 6px 0 8px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.row,
+.filler {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 1px solid #eee;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.row {
+  cursor: pointer;
+}
+
+.row:focus-visible,
+.back:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.filler {
+  opacity: 0.55;
+}
+
+.avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: #e9e3ff;
+  color: #4b2fb8;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.rowText {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.rowTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rowTop time {
+  color: #6b6b6b;
+  font-size: 11px;
+}
+
+.rowSubject,
+.rowSnippet {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowSnippet {
+  color: #6b6b6b;
+}
+
+.screen {
+  display: flex;
+  height: calc(100% - 34px);
+  flex-direction: column;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 2px;
+  padding: 0 10px 6px;
+  border: 0;
+  background: transparent;
+  color: #4b2fb8;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.openSubject {
+  margin: 0;
+  padding: 0 14px 6px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.openFrom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0 14px 8px;
+  border-bottom: 1px solid #eee;
+  font-size: 12px;
+}
+
+/* Render at a real phone width (375px or wider) and scale into the 264px screen. */
+.frameBox {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+.frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  background: #fff;
+  transform-origin: 0 0;
+}
+
+.note {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  text-align: center;
+}

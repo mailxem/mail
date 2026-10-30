@@ -1,6 +1,7 @@
 import { Home } from "@/components/home";
 import { getPosts } from "@/lib/blog";
-import { siteUrl } from "@/lib/site";
+import { githubUrl, siteUrl } from "@/lib/site";
+import { faqs } from "@/lib/content";
 export const metadata = { alternates: { canonical: "/" } };
 export default function Page() {
   const posts = getPosts();
@@ -27,6 +28,36 @@ export default function Page() {
                 url: siteUrl,
                 publisher: { "@id": `${siteUrl}/#organization` },
                 inLanguage: "en",
+              },
+              {
+                "@type": "SoftwareApplication",
+                "@id": `${siteUrl}/#software`,
+                name: "Xem",
+                url: siteUrl,
+                description:
+                  "Open-source email marketing suite: campaigns, newsletters, automations, forms, CRM, a shared inbox and analytics. Sends through Amazon SES or your own SMTP.",
+                applicationCategory: "BusinessApplication",
+                applicationSubCategory: "Email marketing",
+                operatingSystem: "Web, Linux (self-hosted)",
+                isAccessibleForFree: true,
+                license: "https://www.gnu.org/licenses/gpl-3.0.html",
+                sameAs: [githubUrl],
+                offers: {
+                  "@type": "Offer",
+                  price: "0",
+                  priceCurrency: "USD",
+                  description: "Free to self-host. Sending costs are paid to your email provider.",
+                },
+                publisher: { "@id": `${siteUrl}/#organization` },
+              },
+              {
+                "@type": "FAQPage",
+                "@id": `${siteUrl}/#faq`,
+                mainEntity: faqs.map((f) => ({
+                  "@type": "Question",
+                  name: f.q,
+                  acceptedAnswer: { "@type": "Answer", text: f.a },
+                })),
               },
             ],
           }).replace(/</g, "\\u003c"),

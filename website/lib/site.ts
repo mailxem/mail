@@ -15,5 +15,6 @@ export const appUrl = origin(
 export const appLink = (path: string) => `${appUrl}${path}`;
 
 export const githubUrl = "https://github.com/mailxem/mail";
+export const docsUrl = "https://docs.xem.email";
 export const selfHostUrl = `${githubUrl}/blob/undefined/devops/swarm/README.md`;
 export const contributeUrl = `${githubUrl}#contribute`;

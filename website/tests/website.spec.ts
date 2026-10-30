@@ -183,7 +183,7 @@ test("public metadata, headers, links, and every image resolve", async ({
   const response = await page.goto("/");
   expect(response?.headers()["x-content-type-options"]).toBe("nosniff");
   expect(response?.headers()["x-frame-options"]).toBe("DENY");
-  await expect(page).toHaveTitle("Xem — Every email, a little more human.");
+  await expect(page).toHaveTitle("Xem — All your email marketing, at the price of email.");
   const hrefs = await page
     .locator("a")
     .evaluateAll((es) => es.map((e) => e.getAttribute("href") || ""));

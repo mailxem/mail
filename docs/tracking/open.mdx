@@ -5,7 +5,7 @@ description: 'Handle email open tracking'
 
 # Open Tracking
 
-Handle email open tracking when recipients open emails. This endpoint is used internally by the Posthoot system to track email opens.
+Handle email open tracking when recipients open emails. This endpoint is used internally by the Xem system to track email opens.
 
 ## 📝 Endpoint
 
@@ -22,7 +22,7 @@ The tracking token for the email. This token is embedded in the email HTML as a 
 ## 📤 Request Example
 
 ```bash
-curl -X GET "https://api.posthoot.com/api/v1/t/open?token=tracking_token_123"
+curl -X GET "https://api.xem.email/t/open?token=tracking_token_123"
 ```
 
 ## 📥 Response
@@ -75,7 +75,7 @@ curl -X GET "https://api.posthoot.com/api/v1/t/open?token=tracking_token_123"
 When an email is sent, a tracking pixel is automatically embedded:
 
 ```html
-<img src="https://api.posthoot.com/api/v1/t/open?token=abc123" 
+<img src="https://api.xem.email/t/open?token=abc123" 
      width="1" height="1" style="display:none;" alt="" />
 ```
 
@@ -83,7 +83,7 @@ When an email is sent, a tracking pixel is automatically embedded:
 When the recipient opens the email:
 - Email client loads the tracking pixel
 - Browser makes a GET request to the tracking URL
-- Posthoot records the open event
+- Xem records the open event
 
 ### 3. Data Collection
 The system automatically collects:
@@ -213,7 +213,7 @@ function processAnalytics(analytics) {
 
 ## 📚 Related Endpoints
 
-- [Click Tracking](/tracking/click) - Handle email click tracking
-- [Email Analytics](/analytics/email) - Get email analytics
+- [Click Tracking](/api-reference/handle-click-tracking) - Handle email click tracking
+- [Email Analytics](/api-reference/get-email-analytics) - Get email analytics
 - [Campaign Analytics](/analytics/campaign) - Get campaign analytics
-- [Webhooks](/guides/webhooks) - Set up real-time notifications
+- Webhooks - Set up real-time notifications

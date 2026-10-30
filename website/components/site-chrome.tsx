@@ -1,7 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { appLink, githubUrl, selfHostUrl, contributeUrl } from "@/lib/site";
+import {
+  appLink,
+  githubUrl,
+  selfHostUrl,
+  contributeUrl,
+  docsUrl,
+} from "@/lib/site";
 import { primaryButton } from "@/lib/brand";
 
 export function Brand({ light = false }: { light?: boolean }) {
@@ -45,6 +51,9 @@ export function SiteHeader() {
           <Link href="/blog" className="font-medium text-iris">
             Journal
           </Link>
+          <a href={docsUrl} className="hidden hover:text-iris sm:block">
+            Docs
+          </a>
         </nav>
         <a
           href={appLink("/auth/register")}
@@ -79,7 +88,7 @@ export function SiteFooter() {
             <Link href="/#templates">Email templates</Link>
             <Link href="/mcp">MCP server</Link>
             <Link href="/blog/editorial">Editorial approach</Link>
-            <a href="https://docs.xem.email">Documentation</a>
+            <a href={docsUrl}>Documentation</a>
             <a href="/feed.xml">RSS feed</a>
             <a href={githubUrl}>Open source on GitHub ↗</a>
             <a href={selfHostUrl}>Self-host Xem ↗</a>

@@ -41,6 +41,8 @@ import { resourceEntity } from "@/lib/resource-response";
 import { workspaceClassName } from "@/lib/workspace-styles";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/page-header";
+import { PhonePreview } from "@/components/campaigns/phone-preview";
+import { BestTimeHint } from "@/components/campaigns/best-time-hint";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -985,6 +987,15 @@ function NewCampaignForm() {
                 </div>
                 {isScheduled && (
                   <div className="space-y-5 border-t border-border pt-5">
+                    <BestTimeHint
+                      timezone={deviceTimezone}
+                      onPick={(date) =>
+                        form.setValue("scheduledFor", date, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        })
+                      }
+                    />
                     <FormField
                       control={form.control}
                       name="scheduledFor"
@@ -1226,57 +1237,20 @@ function NewCampaignForm() {
             </section>
 
             <section
-              className="overflow-hidden rounded-[20px] border border-border bg-white shadow-sm"
+              className="overflow-hidden rounded-[20px] border border-border bg-card shadow-sm"
               aria-labelledby="inbox-preview-heading"
             >
               <div className="flex items-center justify-between border-b border-border bg-muted/30 px-5 py-4">
                 <h2 id="inbox-preview-heading" className="text-sm font-medium">
-                  Inbox preview
+                  Phone preview
                 </h2>
                 <Mail size={16} className="text-muted-foreground" />
               </div>
-              <div className="p-5">
-                <div className="mb-4 flex items-center gap-3">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <Mail size={18} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-medium">
-                      {selectedSender?.fromEmail || "Your sender address"}
-                    </p>
-                    <p className="mt-1 text-[11px] text-muted-foreground">
-                      to {selectedList?.name || "your audience"}
-                    </p>
-                  </div>
-                </div>
-                <p
-                  className={cn(
-                    "break-words text-base font-semibold leading-relaxed tracking-tight",
-                    !draft.subject && "text-muted-foreground",
-                  )}
-                >
-                  {draft.subject || "Your subject line goes here"}
-                </p>
-                <div className="mt-5 flex items-center gap-3 rounded-xl border border-dashed border-border bg-muted/20 p-3">
-                  <LayoutTemplate
-                    size={20}
-                    className="shrink-0 text-muted-foreground"
-                  />
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-medium">
-                      {selectedTemplate?.name || "No template selected"}
-                    </p>
-                    <p className="mt-1 text-[11px] text-muted-foreground">
-                      {selectedTemplate
-                        ? "Your saved email design"
-                        : "Choose a design from your library"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="border-t border-border px-5 py-3 text-[11px] text-muted-foreground">
-                A preview of your sender and subject line.
-              </div>
+              <PhonePreview
+                templateId={selectedTemplate?.id}
+                subject={draft.subject}
+                sender={selectedSender?.fromEmail}
+              />
             </section>
             <div className="flex items-center gap-2 px-1 text-xs text-muted-foreground">
               <Clock3 size={14} />

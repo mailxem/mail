@@ -60,8 +60,9 @@ func SetupImportRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 		}
 
 		// we need to get the file from the database
+		// Only files uploaded by this team can be imported into it.
 		var file models.File
-		if err := db.Where("id = ?", fileId).First(&file).Error; err != nil {
+		if err := db.Where("id = ? AND team_id = ?", fileId, c.Get("teamID")).First(&file).Error; err != nil {
 			return c.String(http.StatusNotFound, "file not found")
 		}
 

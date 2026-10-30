@@ -224,6 +224,7 @@ export function AppShell({
 
   if (
     pathname.startsWith("/f/") ||
+    pathname.startsWith("/n/") ||
     pathname.startsWith("/auth/") ||
     (pathname === "/preview" && !previewPage)
   ) {
