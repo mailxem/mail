@@ -69,5 +69,34 @@ func (c *Campaign) BeforeCreate(tx *gorm.DB) error {
 	if err := c.Base.BeforeCreate(tx); err != nil {
 		return err
 	}
+	if err := c.checkArchiveNewsletter(tx, true); err != nil {
+		return err
+	}
 	return rejectCloudflareMarketing(tx, c.TeamID, c.SMTPConfigID, true, "")
+}
+
+// BeforeUpdate keeps the archive in the campaign's workspace. A newsletter
+// deleted later still passes, so status updates on old campaigns don't fail.
+func (c *Campaign) BeforeUpdate(tx *gorm.DB) error {
+	return c.checkArchiveNewsletter(tx, false)
+}
+
+// checkArchiveNewsletter keeps a campaign's archive inside its own workspace.
+func (c *Campaign) checkArchiveNewsletter(tx *gorm.DB, mustExist bool) error {
+	if c.ArchiveNewsletterID == nil || *c.ArchiveNewsletterID == "" {
+		c.ArchiveNewsletterID = nil
+		return nil
+	}
+	var n int64
+	q := tx.Session(&gorm.Session{NewDB: true}).Model(&Newsletter{}).Where("id = ? AND team_id = ?", *c.ArchiveNewsletterID, c.TeamID)
+	if mustExist {
+		q = q.Where("is_deleted = ?", false)
+	}
+	if err := q.Count(&n).Error; err != nil {
+		return err
+	}
+	if n == 0 {
+		return errors.New("archive newsletter not found")
+	}
+	return nil
 }

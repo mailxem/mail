@@ -36,6 +36,8 @@ import {
 } from "@/app/providers/mailinglist-provider";
 import { SMTPProvider, useSMTP } from "@/app/providers/smtp-provider";
 import { useTeam } from "@/app/providers/team-provider";
+import { useMarketingQuery } from "@/lib/marketing/api";
+import type { Newsletter } from "@/lib/marketing/types";
 import { useApi } from "@/hooks/use-api";
 import { resourceEntity } from "@/lib/resource-response";
 import { workspaceClassName } from "@/lib/workspace-styles";
@@ -89,6 +91,7 @@ const campaignSchema = z.object({
   timezone: z.string().default("UTC"),
   subject: z.string().trim().min(1, "Add a subject line"),
   smtpConfigId: z.string().uuid("Choose a sender"),
+  archiveNewsletterId: z.string().optional(),
 });
 type CampaignFormValues = z.infer<typeof campaignSchema>;
 type ContactPreview = {
@@ -258,8 +261,12 @@ function NewCampaignForm() {
       batchSize: 100,
       processed: 0,
       timezone: "UTC",
+      archiveNewsletterId: "",
     },
   });
+  const archives = (
+    useMarketingQuery<Newsletter[]>("marketing/newsletters").data ?? []
+  ).filter((n) => n.publicSlug);
   useEffect(() => {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     setDeviceTimezone(timezone);
@@ -372,6 +379,7 @@ function NewCampaignForm() {
         method: "POST",
         body: JSON.stringify({
           ...values,
+          archiveNewsletterId: values.archiveNewsletterId || undefined,
           teamId: team?.id,
           status: "DRAFT",
           scheduledFor: isScheduled ? values.scheduledFor : undefined,
@@ -1146,6 +1154,43 @@ function NewCampaignForm() {
                         />
                       )}
                   </div>
+                )}
+                {archives.length > 0 && (
+                  <FormField
+                    control={form.control}
+                    name="archiveNewsletterId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Publish on the web (optional)</FormLabel>
+                        <Select
+                          value={field.value || "none"}
+                          onValueChange={(value) =>
+                            field.onChange(value === "none" ? "" : value)
+                          }
+                        >
+                          <FormControl>
+                            <SelectTrigger className="h-11">
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="none">Don’t publish</SelectItem>
+                            {archives.map((n) => (
+                              <SelectItem key={n.id} value={n.id}>
+                                {n.name} · /n/{n.publicSlug}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          Once sent, this campaign appears in that newsletter’s
+                          public archive and RSS feed, with personal fields
+                          removed.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 )}
                 <p className="flex items-start gap-2 rounded-xl bg-muted/50 p-3 text-xs leading-relaxed text-muted-foreground">
                   <Clock3 className="mt-0.5 size-3.5 shrink-0" />
