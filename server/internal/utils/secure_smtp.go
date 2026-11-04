@@ -13,6 +13,7 @@ import (
 	"net/mail"
 	"net/netip"
 	"net/smtp"
+	"net/textproto"
 	"os"
 	"syscall"
 	"time"
@@ -140,6 +141,11 @@ func sendSMTPMessage(client *smtp.Client, message *gomail.Message, from string) 
 		return fmt.Errorf("%w: %w", ErrSMTPDeliveryUnknown, err)
 	}
 	if err := writer.Close(); err != nil {
+		// A reply code is the server's answer: the message was refused, not lost.
+		var reply *textproto.Error
+		if errors.As(err, &reply) {
+			return err
+		}
 		return fmt.Errorf("%w: %w", ErrSMTPDeliveryUnknown, err)
 	}
 	// DATA was acknowledged; a QUIT failure must not cause a duplicate delivery.

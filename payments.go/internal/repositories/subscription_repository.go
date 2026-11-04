@@ -51,7 +51,16 @@ func (r *subscriptionRepository) GetByID(ctx context.Context, id string) (*model
 
 func (r *subscriptionRepository) GetByTeamID(ctx context.Context, teamID string) (*models.Subscription, error) {
 	var subscription models.Subscription
-	err := r.db.WithContext(ctx).Where("team_id = ? AND (status != ? OR status != ?)", teamID, dodopayments.SubscriptionStatusCancelled, dodopayments.SubscriptionStatusPaused).Preload("Plan").Order("updated_at DESC").First(&subscription).Error
+	// A team can hold several rows (Free, an abandoned checkout, a paid plan).
+	// An active row wins, then the dearer plan, so an unpaid checkout never
+	// replaces Free and Free never hides a paid plan.
+	err := r.db.WithContext(ctx).
+		Where("team_id = ? AND status NOT IN ?", teamID, []dodopayments.SubscriptionStatus{dodopayments.SubscriptionStatusCancelled, dodopayments.SubscriptionStatusPaused}).
+		Preload("Plan").
+		Order("CASE WHEN status = 'active' THEN 0 ELSE 1 END").
+		Order("(SELECT price FROM plans WHERE plans.id = subscriptions.plan_id) DESC").
+		Order("updated_at DESC").
+		First(&subscription).Error
 	if err != nil {
 		return nil, err
 	}
