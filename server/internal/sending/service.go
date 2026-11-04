@@ -418,7 +418,7 @@ func (s *Service) Submit(ctx context.Context, in Submission) (Message, error) {
 	key := in.TeamID + ":" + in.Key
 	// The plan sets the limits of accounts still on the automatic allowance;
 	// limits an operator set stay as they are. Looked up outside the lock.
-	planEmails, planKnown := billing.ManagedMonthlyEmails(ctx, in.TeamID)
+	planDaily, planMonthly, planKnown := billing.ManagedLimits(ctx, in.TeamID)
 	if !in.IsTest {
 		if e = billing.AllowSend(ctx, in.TeamID, len(to)); e != nil {
 			return msg, fmt.Errorf("%w: %v", ErrLimit, e)
@@ -469,8 +469,8 @@ func (s *Service) Submit(ctx context.Context, in Submission) (Message, error) {
 		}
 		daily, monthly, budget, queue := a.DailyLimit, a.MonthlyLimit, a.MonthlyBudgetMicros, s.Config.QueueLimit
 		if planKnown && a.DailyLimit == autoApprovalDailyLimit && a.MonthlyLimit == autoApprovalMonthlyLimit && a.MonthlyBudgetMicros == autoApprovalBudgetMicros {
-			daily, monthly, budget = planEmails, planEmails, planEmails*s.Config.CostMicros
-			queue = max(queue, planEmails) // a plan's whole send may wait in the queue
+			daily, monthly, budget = planDaily, planMonthly, planMonthly*s.Config.CostMicros
+			queue = max(queue, planDaily) // a day's whole send may wait in the queue
 		}
 		var n int64
 		if err = tx.Model(&Message{}).Where("team_id = ? AND status IN ?", in.TeamID, []string{"QUEUED", "SENDING"}).Count(&n).Error; err != nil {

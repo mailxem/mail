@@ -66,9 +66,10 @@ func TestUnpaidCheckoutsKeepTheFreeCapAndOutagesKeepTheLastPlan(t *testing.T) {
 	now := time.Date(2026, 11, 5, 12, 0, 0, 0, time.UTC)
 	plansByTeam := map[string]string{
 		"checkout": `{"plan_id":"xem-growth","status":"pending"}`,
-		"growth":   `{"plan_id":"xem-growth","status":"active"}`,
-		"yearly":   `{"plan_id":"xem-scale-yearly","status":"active"}`,
-		"legacy":   `{"plan_id":"pro-monthly-001","status":"active"}`,
+		"growth":   `{"plan_id":"xem-growth","status":"active","has_paid":true}`,
+		"trial":    `{"plan_id":"xem-growth","status":"active"}`,
+		"yearly":   `{"plan_id":"xem-scale-yearly","status":"active","has_paid":true}`,
+		"legacy":   `{"plan_id":"pro-monthly-001","status":"active","has_paid":true}`,
 		"free":     `{"plan_id":"xem-free","status":"active"}`,
 	}
 	down := false
@@ -89,19 +90,26 @@ func TestUnpaidCheckoutsKeepTheFreeCapAndOutagesKeepTheLastPlan(t *testing.T) {
 	require.NoError(t, db.Create(&EmailUsage{TeamID: "checkout", Minute: now.Add(-time.Hour), Emails: FreeEmails}).Error)
 	require.ErrorIs(t, AllowSend(ctx, "checkout", 1), ErrFreeLimit)
 
-	for team, want := range map[string]int64{"free": FreeEmails, "growth": 1_000_000, "yearly": 5_000_000, "legacy": 200_000, "checkout": FreeEmails} {
-		got, ok := ManagedMonthlyEmails(ctx, team)
+	for team, want := range map[string][2]int64{
+		"free":     {FreeDailyEmails, FreeEmails},
+		"checkout": {FreeDailyEmails, FreeEmails},
+		"trial":    {100_000, 100_000}, // not yet charged: included emails only
+		"growth":   {200_000, 200_000},
+		"yearly":   {1_000_000, 1_000_000},
+		"legacy":   {40_000, 40_000},
+	} {
+		daily, monthly, ok := ManagedLimits(ctx, team)
 		require.True(t, ok, team)
-		require.Equal(t, want, got, team)
+		require.Equal(t, want, [2]int64{daily, monthly}, team)
 	}
 
 	// Past the cache's life, an outage keeps the plan last seen.
 	down = true
 	clock = now.Add(time.Hour)
 	require.ErrorIs(t, AllowSend(ctx, "checkout", 1), ErrFreeLimit)
-	got, ok := ManagedMonthlyEmails(ctx, "growth")
+	_, monthly, ok := ManagedLimits(ctx, "growth")
 	require.True(t, ok)
-	require.EqualValues(t, 1_000_000, got)
-	_, ok = ManagedMonthlyEmails(ctx, "never-seen")
+	require.EqualValues(t, 200_000, monthly)
+	_, _, ok = ManagedLimits(ctx, "never-seen")
 	require.False(t, ok)
 }

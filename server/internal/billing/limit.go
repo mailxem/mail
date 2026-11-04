@@ -27,40 +27,53 @@ var (
 )
 
 type cachedPlan struct {
-	id   string
-	free bool
-	at   time.Time
+	id      string
+	free    bool
+	hasPaid bool
+	at      time.Time
 }
 
 // includedEmails is each paid plan's monthly allowance, matching the payments
 // seed. A yearly plan's pool is twelve of these.
 var includedEmails = map[string]int64{"xem-starter": 20000, "xem-growth": 100000, "xem-scale": 500000}
 
-// PaidCeiling bounds a paid workspace's managed sending at this many times its
-// monthly allowance. Usage past the allowance is billed; the ceiling only stops
-// a runaway or compromised account from sending without end.
-const PaidCeiling = 10
+// FreeDailyEmails spreads the Free cap over at least three days, so a new
+// account cannot send its whole month in one burst.
+const FreeDailyEmails = 1000
 
-// ManagedMonthlyEmails is the monthly managed-sending limit for a workspace's
-// plan: the Free cap, or a paid plan's ceiling. ok is false when billing is off
-// or the plan is unknown, and the account's own limits then apply.
-func ManagedMonthlyEmails(ctx context.Context, team string) (emails int64, ok bool) {
+// PaidCeiling bounds a paid workspace's managed sending at this many times its
+// monthly allowance once it has paid. Usage past the allowance is billed; the
+// ceiling only limits what an account that stops paying can cost in SES.
+const PaidCeiling = 2
+
+// ManagedLimits is a workspace's managed-sending limits for its plan:
+//   - Free: 3,000 a month, at most 1,000 a day.
+//   - Paid, before its first payment (a trial, or a checkout not yet charged):
+//     the plan's included emails, since overage cannot be billed yet.
+//   - Paid: twice the plan's monthly emails.
+//
+// ok is false when billing is off or the plan is unknown, and the account's
+// own limits then apply.
+func ManagedLimits(ctx context.Context, team string) (daily, monthly int64, ok bool) {
 	r := active
 	if !Enabled || r == nil || team == "" {
-		return 0, false
+		return 0, 0, false
 	}
 	plan, err := r.plan(ctx, team)
 	if err != nil {
-		return 0, false
+		return 0, 0, false
 	}
 	if plan.free {
-		return FreeEmails, true
+		return FreeDailyEmails, FreeEmails, true
 	}
 	included := includedEmails[strings.TrimSuffix(plan.id, "-yearly")]
 	if included == 0 {
 		included = includedEmails["xem-starter"] // plans sold before per-email pricing
 	}
-	return included * PaidCeiling, true
+	if plan.hasPaid {
+		included *= PaidCeiling
+	}
+	return included, included, true
 }
 
 // Use makes r the reporter that AllowSend asks about plans.
@@ -122,8 +135,9 @@ func (r *Reporter) lookupPlan(ctx context.Context, team string) (cachedPlan, err
 		return cachedPlan{}, errors.New(res.Status)
 	}
 	var sub struct {
-		PlanID string `json:"plan_id"`
-		Status string `json:"status"`
+		PlanID  string `json:"plan_id"`
+		Status  string `json:"status"`
+		HasPaid bool   `json:"has_paid"`
 	}
 	if err := json.NewDecoder(res.Body).Decode(&sub); err != nil {
 		return cachedPlan{}, err
@@ -131,5 +145,5 @@ func (r *Reporter) lookupPlan(ctx context.Context, team string) (cachedPlan, err
 	// A paid plan counts only once paid and while in good standing; an
 	// unfinished checkout stays pending and keeps the Free cap.
 	paid := sub.PlanID != "" && sub.PlanID != FreePlanID && sub.Status == "active"
-	return cachedPlan{id: sub.PlanID, free: !paid}, nil
+	return cachedPlan{id: sub.PlanID, free: !paid, hasPaid: sub.HasPaid}, nil
 }

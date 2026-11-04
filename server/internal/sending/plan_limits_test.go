@@ -17,7 +17,9 @@ import (
 func planServer(t *testing.T, s *Service, plans map[string]string) {
 	t.Helper()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, `{"plan_id":%q,"status":"active"}`, plans[strings.TrimPrefix(r.URL.Path, "/subscriptions/team/")])
+		plan := plans[strings.TrimPrefix(r.URL.Path, "/subscriptions/team/")]
+		paid := !strings.HasSuffix(plan, "+trial")
+		fmt.Fprintf(w, `{"plan_id":%q,"status":"active","has_paid":%t}`, strings.TrimSuffix(plan, "+trial"), paid)
 	}))
 	t.Cleanup(server.Close)
 	require.NoError(t, s.DB.AutoMigrate(&billing.EmailUsage{}))
@@ -30,7 +32,7 @@ func useAutomaticAllowance(t *testing.T, s *Service, team string, used int64) {
 	t.Helper()
 	require.NoError(t, s.DB.Model(&Account{}).Where("team_id = ?", team).Updates(map[string]any{
 		"daily_limit": autoApprovalDailyLimit, "monthly_limit": autoApprovalMonthlyLimit, "monthly_budget_micros": autoApprovalBudgetMicros,
-		"day": time.Now().Format("2006-01-02"), "month": time.Now().Format("2006-01"),
+		"day": s.Now().Format("2006-01-02"), "month": s.Now().Format("2006-01"),
 		"daily_used": used, "monthly_used": used, "budget_used_micros": used * s.Config.CostMicros,
 	}).Error)
 }
@@ -49,10 +51,28 @@ func TestManagedLimitsFollowThePlan(t *testing.T) {
 	t.Run("a yearly plan gets its monthly plan's limit", func(t *testing.T) {
 		s, team, d, _ := setup(t)
 		planServer(t, s, map[string]string{team: "xem-starter-yearly"})
-		useAutomaticAllowance(t, s, team, 200000-1) // Starter ceiling: 20,000 × 10
+		useAutomaticAllowance(t, s, team, 40000-1) // Starter ceiling: 20,000 × 2
 		_, err := s.Submit(ctx, input(team, d))
 		require.NoError(t, err)
 		_, err = s.Submit(ctx, input(team, d))
+		require.ErrorIs(t, err, ErrLimit)
+	})
+
+	t.Run("a trial sends only its included emails", func(t *testing.T) {
+		s, team, d, _ := setup(t)
+		planServer(t, s, map[string]string{team: "xem-starter+trial"})
+		useAutomaticAllowance(t, s, team, 20000-1)
+		_, err := s.Submit(ctx, input(team, d))
+		require.NoError(t, err)
+		_, err = s.Submit(ctx, input(team, d))
+		require.ErrorIs(t, err, ErrLimit)
+	})
+
+	t.Run("Free sends at most 1,000 a day", func(t *testing.T) {
+		s, team, d, _ := setup(t)
+		planServer(t, s, map[string]string{team: billing.FreePlanID})
+		useAutomaticAllowance(t, s, team, billing.FreeDailyEmails)
+		_, err := s.Submit(ctx, input(team, d))
 		require.ErrorIs(t, err, ErrLimit)
 	})
 
@@ -61,7 +81,7 @@ func TestManagedLimitsFollowThePlan(t *testing.T) {
 		planServer(t, s, map[string]string{team: "xem-scale"})
 		require.NoError(t, s.DB.Model(&Account{}).Where("team_id = ?", team).Updates(map[string]any{
 			"daily_limit": 5, "monthly_limit": 5, "monthly_budget_micros": 5000,
-			"day": time.Now().Format("2006-01-02"), "month": time.Now().Format("2006-01"), "daily_used": 5, "monthly_used": 5,
+			"day": s.Now().Format("2006-01-02"), "month": s.Now().Format("2006-01"), "daily_used": 5, "monthly_used": 5,
 		}).Error)
 		_, err := s.Submit(ctx, input(team, d))
 		require.ErrorIs(t, err, ErrLimit)
