@@ -93,10 +93,10 @@ func TestUnpaidCheckoutsKeepTheFreeCapAndOutagesKeepTheLastPlan(t *testing.T) {
 	for team, want := range map[string][2]int64{
 		"free":     {FreeDailyEmails, FreeEmails},
 		"checkout": {FreeDailyEmails, FreeEmails},
-		"trial":    {30_000, 100_000}, // not yet charged: included emails only
-		"growth":   {30_000, 200_000},
-		"yearly":   {150_000, 1_000_000},
-		"legacy":   {6_000, 40_000},
+		"trial":    {100_000, 100_000}, // not yet charged: included emails only
+		"growth":   {200_000, 200_000},
+		"yearly":   {1_000_000, 1_000_000},
+		"legacy":   {40_000, 40_000},
 	} {
 		daily, monthly, ok := ManagedLimits(ctx, team)
 		require.True(t, ok, team)

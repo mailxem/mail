@@ -48,10 +48,10 @@ func TestManagedLimitsFollowThePlan(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("a yearly plan gets its monthly plan's daily limit", func(t *testing.T) {
+	t.Run("a paid plan has no daily limit below its month", func(t *testing.T) {
 		s, team, d, _ := setup(t)
 		planServer(t, s, map[string]string{team: "xem-starter-yearly"})
-		useAutomaticAllowance(t, s, team, 6000-1) // Starter: 6,000 a day
+		useAutomaticAllowance(t, s, team, 40000-1) // all of Starter's month in one day
 		_, err := s.Submit(ctx, input(team, d))
 		require.NoError(t, err)
 		_, err = s.Submit(ctx, input(team, d))

@@ -29,15 +29,15 @@ const plans = [
     name: "Starter",
     price: 9,
     included: 20000,
-    daily: 6000,
-    overage: 0.4,
+    daily: null,
+    overage: 0.5,
     note: "For a weekly newsletter to a few thousand readers.",
   },
   {
     name: "Growth",
     price: 29,
     included: 100000,
-    daily: 30000,
+    daily: null,
     overage: 0.3,
     note: "For growing lists and regular campaigns.",
     popular: true,
@@ -46,7 +46,7 @@ const plans = [
     name: "Scale",
     price: 99,
     included: 500000,
-    daily: 150000,
+    daily: null,
     overage: 0.2,
     note: "For large audiences sending often.",
   },
@@ -68,8 +68,8 @@ const everyPlan = [
 const comparison = [
   {
     name: "Xem Starter",
-    price: 17,
-    how: "$9 + 20,000 emails at $0.40 per 1,000",
+    price: 19,
+    how: "$9 + 20,000 emails at $0.50 per 1,000",
   },
   { name: "MailerLite Comfort", price: 89, how: "per subscriber" },
   { name: "Mailchimp Standard", price: 135, how: "per contact" },
@@ -88,7 +88,7 @@ const faqs = [
   },
   {
     q: "Is there a daily sending limit?",
-    a: "Yes. Free sends up to 100 emails a day. Paid plans send up to 30% of their monthly emails a day: 6,000 on Starter, 30,000 on Growth and 150,000 on Scale. During a free trial, a paid plan sends up to its included emails for the month. Need more in a day? Move up a plan.",
+    a: "Only on Free, which sends up to 100 emails a day. Starter, Growth and Scale have no daily limit, so you can send your whole newsletter at once. During a paid plan's free trial, you can send up to that plan's included emails.",
   },
   {
     q: "Do I pay for contacts or subscribers?",
@@ -198,7 +198,7 @@ export default function PricingPage() {
                   : "hard cap"}
               </p>
               <p className="mt-1 text-sm text-muted">
-                up to {count(p.daily)} a day
+                {p.daily ? `up to ${count(p.daily)} a day` : "no daily limit"}
               </p>
               <p className="mt-5 flex-1 text-sm leading-relaxed text-muted">
                 {p.note}

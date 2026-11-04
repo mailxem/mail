@@ -36,7 +36,7 @@ number of emails; emails past that are billed through Dodo's usage meter.
 | Plan | Monthly fee | Included emails | After that |
 | --- | --- | --- | --- |
 | Free (`xem-free`) | $0 | 3,000 (hard cap) | not available |
-| Starter (`xem-starter`) | $9 | 20,000 | $0.40 per 1,000 |
+| Starter (`xem-starter`) | $9 | 20,000 | $0.50 per 1,000 |
 | Growth (`xem-growth`) | $29 | 100,000 | $0.30 per 1,000 |
 | Scale (`xem-scale`) | $99 | 500,000 | $0.20 per 1,000 |
 

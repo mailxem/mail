@@ -37,8 +37,8 @@ type cachedPlan struct {
 // seed. A yearly plan's pool is twelve of these.
 var includedEmails = map[string]int64{"xem-starter": 20000, "xem-growth": 100000, "xem-scale": 500000}
 
-// FreeDailyEmails is the Free plan's daily cap, as on the pricing page. A
-// paid plan may send 30% of its monthly emails in a day.
+// FreeDailyEmails is the Free plan's daily cap, as on the pricing page. Paid
+// plans have no daily cap, only their monthly ceiling.
 const FreeDailyEmails = 100
 
 // PaidCeiling bounds a paid workspace's managed sending at this many times its
@@ -48,9 +48,9 @@ const PaidCeiling = 2
 
 // ManagedLimits is a workspace's managed-sending limits for its plan:
 //   - Free: 3,000 a month, at most 100 a day.
-//   - Paid: 30% of the plan's monthly emails a day. A month allows the plan's
-//     included emails before its first payment (a trial, or a checkout not
-//     yet charged), since overage cannot be billed yet, and twice them after.
+//   - Paid: no daily cap. A month allows the plan's included emails before
+//     its first payment (a trial, or a checkout not yet charged), since
+//     overage cannot be billed yet, and twice them after.
 //
 // ok is false when billing is off or the plan is unknown, and the account's
 // own limits then apply.
@@ -74,7 +74,7 @@ func ManagedLimits(ctx context.Context, team string) (daily, monthly int64, ok b
 	if plan.hasPaid {
 		monthly *= PaidCeiling
 	}
-	return included * 3 / 10, monthly, true
+	return monthly, monthly, true
 }
 
 // Use makes r the reporter that AllowSend asks about plans.
