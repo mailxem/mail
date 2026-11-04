@@ -48,10 +48,21 @@ func TestManagedLimitsFollowThePlan(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("a yearly plan gets its monthly plan's limit", func(t *testing.T) {
+	t.Run("a yearly plan gets its monthly plan's daily limit", func(t *testing.T) {
 		s, team, d, _ := setup(t)
 		planServer(t, s, map[string]string{team: "xem-starter-yearly"})
-		useAutomaticAllowance(t, s, team, 40000-1) // Starter ceiling: 20,000 × 2
+		useAutomaticAllowance(t, s, team, 6000-1) // Starter: 6,000 a day
+		_, err := s.Submit(ctx, input(team, d))
+		require.NoError(t, err)
+		_, err = s.Submit(ctx, input(team, d))
+		require.ErrorIs(t, err, ErrLimit)
+	})
+
+	t.Run("a paid plan's month allows twice its emails", func(t *testing.T) {
+		s, team, d, _ := setup(t)
+		planServer(t, s, map[string]string{team: "xem-starter"})
+		useAutomaticAllowance(t, s, team, 0)
+		require.NoError(t, s.DB.Model(&Account{}).Where("team_id = ?", team).Update("monthly_used", 40000-1).Error)
 		_, err := s.Submit(ctx, input(team, d))
 		require.NoError(t, err)
 		_, err = s.Submit(ctx, input(team, d))
@@ -61,14 +72,15 @@ func TestManagedLimitsFollowThePlan(t *testing.T) {
 	t.Run("a trial sends only its included emails", func(t *testing.T) {
 		s, team, d, _ := setup(t)
 		planServer(t, s, map[string]string{team: "xem-starter+trial"})
-		useAutomaticAllowance(t, s, team, 20000-1)
+		useAutomaticAllowance(t, s, team, 0)
+		require.NoError(t, s.DB.Model(&Account{}).Where("team_id = ?", team).Update("monthly_used", 20000-1).Error)
 		_, err := s.Submit(ctx, input(team, d))
 		require.NoError(t, err)
 		_, err = s.Submit(ctx, input(team, d))
 		require.ErrorIs(t, err, ErrLimit)
 	})
 
-	t.Run("Free sends at most 1,000 a day", func(t *testing.T) {
+	t.Run("Free sends at most 100 a day", func(t *testing.T) {
 		s, team, d, _ := setup(t)
 		planServer(t, s, map[string]string{team: billing.FreePlanID})
 		useAutomaticAllowance(t, s, team, billing.FreeDailyEmails)

@@ -21,6 +21,7 @@ const plans = [
     name: "Free",
     price: 0,
     included: 3000,
+    daily: 100,
     overage: null,
     note: "No card needed. Sending pauses at 3,000 until next month.",
   },
@@ -28,6 +29,7 @@ const plans = [
     name: "Starter",
     price: 9,
     included: 20000,
+    daily: 6000,
     overage: 0.4,
     note: "For a weekly newsletter to a few thousand readers.",
   },
@@ -35,6 +37,7 @@ const plans = [
     name: "Growth",
     price: 29,
     included: 100000,
+    daily: 30000,
     overage: 0.3,
     note: "For growing lists and regular campaigns.",
     popular: true,
@@ -43,6 +46,7 @@ const plans = [
     name: "Scale",
     price: 99,
     included: 500000,
+    daily: 150000,
     overage: 0.2,
     note: "For large audiences sending often.",
   },
@@ -81,6 +85,10 @@ const faqs = [
   {
     q: "What happens when I go past my plan?",
     a: "On Starter, Growth and Scale, sending never stops: emails past your included amount are billed at your plan's rate per 1,000 on your next invoice. On Free, sending pauses at 3,000 emails until the next month or until you upgrade.",
+  },
+  {
+    q: "Is there a daily sending limit?",
+    a: "Yes. Free sends up to 100 emails a day. Paid plans send up to 30% of their monthly emails a day: 6,000 on Starter, 30,000 on Growth and 150,000 on Scale. During a free trial, a paid plan sends up to its included emails for the month. Need more in a day? Move up a plan.",
   },
   {
     q: "Do I pay for contacts or subscribers?",
@@ -188,6 +196,9 @@ export default function PricingPage() {
                 {p.overage
                   ? `then $${p.overage.toFixed(2)} per 1,000`
                   : "hard cap"}
+              </p>
+              <p className="mt-1 text-sm text-muted">
+                up to {count(p.daily)} a day
               </p>
               <p className="mt-5 flex-1 text-sm leading-relaxed text-muted">
                 {p.note}
