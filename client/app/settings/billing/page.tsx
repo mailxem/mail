@@ -28,8 +28,16 @@ import {
   useCancelSubscription,
   useCustomerPortalSession,
   isCheckoutRequired,
+  useCreateBillingDetails,
+  useUpdateBillingDetails,
+  billingKeys,
 } from "@/app/lib/store/billing";
-import { Plan } from "@/app/lib/payments-client";
+import { BillingDetails, Plan } from "@/app/lib/payments-client";
+import {
+  BillingDetailsDialog,
+  hasCompleteBillingDetails,
+} from "@/components/billing/billing-details-dialog";
+import { useQueryClient } from "@tanstack/react-query";
 import { useTeam } from "@/app/providers/team-provider";
 import { useSession } from "next-auth/react";
 import {
@@ -55,10 +63,14 @@ export default function BillingPage() {
   const createCheckout = useCreateCheckoutSession();
   const cancelSubscription = useCancelSubscription();
   const customerPortal = useCustomerPortalSession();
+  const createBillingDetails = useCreateBillingDetails();
+  const updateBillingDetails = useUpdateBillingDetails();
+  const queryClient = useQueryClient();
 
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showBillingDialog, setShowBillingDialog] = useState(false);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
     "monthly",
   );
@@ -71,29 +83,33 @@ export default function BillingPage() {
     setShowConfirmDialog(true);
   };
 
-  const handleConfirmPlanChange = async () => {
+  const startCheckout = (seats: number, details: BillingDetails) =>
+    createCheckout.mutateAsync({
+      team_id: teamId,
+      plan_id: selectedPlan!.id,
+      seats,
+      success_url: `${window.location.origin}/settings/billing?success=true`,
+      cancel_url: `${window.location.origin}/settings/billing?canceled=true`,
+      customer_name: session?.user?.name || "",
+      customer_email: session?.user?.email || "",
+      billing_details: details,
+    });
+
+  const handleConfirmPlanChange = async (details = billingDetails.data) => {
     if (!selectedPlan || !teamId) return;
+
+    // Checkout needs a full address; ask for it before changing anything.
+    const mayNeedCheckout = !subscription.data || selectedPlan.price !== "0";
+    if (mayNeedCheckout && !hasCompleteBillingDetails(details)) {
+      setShowConfirmDialog(false);
+      setShowBillingDialog(true);
+      return;
+    }
 
     try {
       // If user has no subscription, create checkout session
       if (!subscription.data) {
-        await createCheckout.mutateAsync({
-          team_id: teamId,
-          plan_id: selectedPlan.id,
-          seats: 1,
-          success_url: `${window.location.origin}/settings/billing?success=true`,
-          cancel_url: `${window.location.origin}/settings/billing?canceled=true`,
-          customer_name: session?.user?.name || "",
-          customer_email: session?.user?.email || "",
-          billing_details: billingDetails.data || {
-            team_id: teamId,
-            street: "",
-            city: "",
-            state: "",
-            zip: "",
-            country: "",
-          },
-        });
+        await startCheckout(1, details!);
         return;
       }
 
@@ -106,23 +122,7 @@ export default function BillingPage() {
 
       // Check if checkout is required (switching to paid from free)
       if (isCheckoutRequired(result)) {
-        await createCheckout.mutateAsync({
-          team_id: teamId,
-          plan_id: selectedPlan.id,
-          seats: subscription.data.total_seats || 1,
-          success_url: `${window.location.origin}/settings/billing?success=true`,
-          cancel_url: `${window.location.origin}/settings/billing?canceled=true`,
-          customer_name: session?.user?.name || "",
-          customer_email: session?.user?.email || "",
-          billing_details: billingDetails.data || {
-            team_id: teamId,
-            street: "",
-            city: "",
-            state: "",
-            zip: "",
-            country: "",
-          },
-        });
+        await startCheckout(subscription.data.total_seats || 1, details!);
       }
 
       setShowConfirmDialog(false);
@@ -130,6 +130,19 @@ export default function BillingPage() {
     } catch (error: any) {
       console.error("Failed to change plan:", error);
       toast.error(error.message || "Failed to change plan");
+    }
+  };
+
+  const handleSaveBillingDetails = async (details: BillingDetails) => {
+    try {
+      const existingId = billingDetails.data?.id;
+      if (existingId) await updateBillingDetails.mutateAsync({ ...details, id: existingId });
+      else await createBillingDetails.mutateAsync(details);
+      await queryClient.invalidateQueries({ queryKey: billingKeys.billingDetails(teamId) });
+      setShowBillingDialog(false);
+      await handleConfirmPlanChange(details);
+    } catch {
+      // The mutation hooks already show the error.
     }
   };
 
@@ -382,7 +395,7 @@ export default function BillingPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmPlanChange}>
+            <AlertDialogAction onClick={() => handleConfirmPlanChange()}>
               {updateSubscription.isPending || createCheckout.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -395,6 +408,20 @@ export default function BillingPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <BillingDetailsDialog
+        open={showBillingDialog}
+        onOpenChange={setShowBillingDialog}
+        teamId={teamId}
+        initial={billingDetails.data}
+        saving={
+          createBillingDetails.isPending ||
+          updateBillingDetails.isPending ||
+          createCheckout.isPending ||
+          updateSubscription.isPending
+        }
+        onSubmit={handleSaveBillingDetails}
+      />
 
       {/* Cancel Subscription Dialog */}
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
