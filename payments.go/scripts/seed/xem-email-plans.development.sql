@@ -23,5 +23,6 @@ ON CONFLICT (id) DO UPDATE SET dodo_plan_id = EXCLUDED.dodo_plan_id, name = EXCL
 INSERT INTO plan_features (id, plan_id, quota, feature, created_at, updated_at, trail)
 VALUES ('xem-scale-emails', 'xem-scale', -1, 'emails_per_month', NOW(), NOW(), false)
 ON CONFLICT (id) DO UPDATE SET quota = EXCLUDED.quota, updated_at = NOW();
+UPDATE subscriptions SET plan_id = 'xem-free', updated_at = NOW() WHERE plan_id = 'solo-plan-001';
 UPDATE plans SET status = 'inactive', updated_at = NOW() WHERE id NOT IN ('xem-free', 'xem-starter', 'xem-growth', 'xem-scale') AND status = 'active';
 COMMIT;
