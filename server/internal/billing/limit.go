@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 )
@@ -26,23 +27,70 @@ var (
 )
 
 type cachedPlan struct {
-	free bool
-	at   time.Time
+	id      string
+	free    bool
+	hasPaid bool
+	at      time.Time
+}
+
+// includedEmails is each paid plan's monthly allowance, matching the payments
+// seed. A yearly plan's pool is twelve of these.
+var includedEmails = map[string]int64{"xem-starter": 20000, "xem-growth": 100000, "xem-scale": 500000}
+
+// FreeDailyEmails is the Free plan's daily cap, as on the pricing page. Paid
+// plans have no daily cap, only their monthly ceiling.
+const FreeDailyEmails = 100
+
+// PaidCeiling bounds a paid workspace's managed sending at this many times its
+// monthly allowance once it has paid. Usage past the allowance is billed; the
+// ceiling only limits what an account that stops paying can cost in SES.
+const PaidCeiling = 2
+
+// ManagedLimits is a workspace's managed-sending limits for its plan:
+//   - Free: 3,000 a month, at most 100 a day.
+//   - Paid: no daily cap. A month allows the plan's included emails before
+//     its first payment (a trial, or a checkout not yet charged), since
+//     overage cannot be billed yet, and twice them after.
+//
+// ok is false when billing is off or the plan is unknown, and the account's
+// own limits then apply.
+func ManagedLimits(ctx context.Context, team string) (daily, monthly int64, ok bool) {
+	r := active
+	if !Enabled || r == nil || team == "" {
+		return 0, 0, false
+	}
+	plan, err := r.plan(ctx, team)
+	if err != nil {
+		return 0, 0, false
+	}
+	if plan.free {
+		return FreeDailyEmails, FreeEmails, true
+	}
+	included := includedEmails[strings.TrimSuffix(plan.id, "-yearly")]
+	if included == 0 {
+		included = includedEmails["xem-starter"] // plans sold before per-email pricing
+	}
+	monthly = included
+	if plan.hasPaid {
+		monthly *= PaidCeiling
+	}
+	return monthly, monthly, true
 }
 
 // Use makes r the reporter that AllowSend asks about plans.
 func Use(r *Reporter) { active = r }
 
 // AllowSend refuses a send that would take a Free workspace past its monthly
-// cap. Paid plans are never capped: Dodo bills emails past the allowance. A
-// payments outage never blocks sending; the emails are still counted.
+// cap. Paid plans are never capped: Dodo bills emails past the allowance.
+// During a payments outage the last known plan applies; a workspace never
+// seen before may send, and its emails are still counted.
 func AllowSend(ctx context.Context, team string, n int) error {
 	r := active
 	if !Enabled || r == nil || team == "" || n <= 0 {
 		return nil
 	}
-	free, err := r.onFreePlan(ctx, team)
-	if err != nil || !free {
+	plan, err := r.plan(ctx, team)
+	if err != nil || !plan.free {
 		return nil
 	}
 	now := r.Now().UTC()
@@ -57,31 +105,46 @@ func AllowSend(ctx context.Context, team string, n int) error {
 	return nil
 }
 
-func (r *Reporter) onFreePlan(ctx context.Context, team string) (bool, error) {
-	if v, ok := plans.Load(team); ok && r.Now().Sub(v.(cachedPlan).at) < planTTL {
-		return v.(cachedPlan).free, nil
+func (r *Reporter) plan(ctx context.Context, team string) (cachedPlan, error) {
+	cached, known := plans.Load(team)
+	if known && r.Now().Sub(cached.(cachedPlan).at) < planTTL {
+		return cached.(cachedPlan), nil
 	}
+	plan, err := r.lookupPlan(ctx, team)
+	if err != nil {
+		if known {
+			return cached.(cachedPlan), nil
+		}
+		return cachedPlan{}, err
+	}
+	plan.at = r.Now()
+	plans.Store(team, plan)
+	return plan, nil
+}
+
+func (r *Reporter) lookupPlan(ctx context.Context, team string) (cachedPlan, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, r.URL+"/subscriptions/team/"+url.PathEscape(team), nil)
 	if err != nil {
-		return false, err
+		return cachedPlan{}, err
 	}
 	res, err := r.HTTP.Do(req)
 	if err != nil {
-		return false, err
+		return cachedPlan{}, err
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return false, errors.New(res.Status)
+		return cachedPlan{}, errors.New(res.Status)
 	}
 	var sub struct {
-		PlanID string `json:"plan_id"`
-		Status string `json:"status"`
+		PlanID  string `json:"plan_id"`
+		Status  string `json:"status"`
+		HasPaid bool   `json:"has_paid"`
 	}
 	if err := json.NewDecoder(res.Body).Decode(&sub); err != nil {
-		return false, err
+		return cachedPlan{}, err
 	}
-	// A paid plan counts only while it is in good standing.
-	paid := sub.PlanID != "" && sub.PlanID != FreePlanID && (sub.Status == "active" || sub.Status == "pending" || sub.Status == "TRIAL")
-	plans.Store(team, cachedPlan{free: !paid, at: r.Now()})
-	return !paid, nil
+	// A paid plan counts only once paid and while in good standing; an
+	// unfinished checkout stays pending and keeps the Free cap.
+	paid := sub.PlanID != "" && sub.PlanID != FreePlanID && sub.Status == "active"
+	return cachedPlan{id: sub.PlanID, free: !paid, hasPaid: sub.HasPaid}, nil
 }

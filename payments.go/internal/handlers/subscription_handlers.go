@@ -89,8 +89,22 @@ func (h *SubscriptionHandlers) GetSubscription(c echo.Context) error {
 			}
 			return c.JSON(http.StatusOK, subscription)
 		}
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": err.Error(),
+		})
 	}
 
+	payments, err := h.paymentService.GetPaymentHistory(c.Request().Context(), subscription.ID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": err.Error(),
+		})
+	}
+	for _, p := range payments {
+		if p.Status == models.PaymentCompleted && p.Amount.IsPositive() {
+			subscription.HasPaid = true
+		}
+	}
 	return c.JSON(http.StatusOK, subscription)
 }
 

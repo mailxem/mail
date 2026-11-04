@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"kori/internal/billing"
 	"net"
 	"net/mail"
 	"net/url"
@@ -415,6 +416,14 @@ func (s *Service) Submit(ctx context.Context, in Submission) (Message, error) {
 	digest := sha256.Sum256(append(append([]byte(strings.Join(to, ",")+"\x00"+in.DomainID+"\x00"+in.CredentialID+"\x00"+in.EmailID+fmt.Sprint(in.IsTest)+"\x00"), raw...), byte(0)))
 	hash := hex.EncodeToString(digest[:])
 	key := in.TeamID + ":" + in.Key
+	// The plan sets the limits of accounts still on the automatic allowance;
+	// limits an operator set stay as they are. Looked up outside the lock.
+	planDaily, planMonthly, planKnown := billing.ManagedLimits(ctx, in.TeamID)
+	if !in.IsTest {
+		if e = billing.AllowSend(ctx, in.TeamID, len(to)); e != nil {
+			return msg, fmt.Errorf("%w: %v", ErrLimit, e)
+		}
+	}
 	e = s.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var a Account
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&a, "team_id = ?", in.TeamID).Error; err != nil {
@@ -458,11 +467,16 @@ func (s *Service) Submit(ctx context.Context, in Submission) (Message, error) {
 				return ErrSuppressed
 			}
 		}
+		daily, monthly, budget, queue := a.DailyLimit, a.MonthlyLimit, a.MonthlyBudgetMicros, s.Config.QueueLimit
+		if planKnown && a.DailyLimit == autoApprovalDailyLimit && a.MonthlyLimit == autoApprovalMonthlyLimit && a.MonthlyBudgetMicros == autoApprovalBudgetMicros {
+			daily, monthly, budget = planDaily, planMonthly, planMonthly*s.Config.CostMicros
+			queue = max(queue, planDaily) // a day's whole send may wait in the queue
+		}
 		var n int64
 		if err = tx.Model(&Message{}).Where("team_id = ? AND status IN ?", in.TeamID, []string{"QUEUED", "SENDING"}).Count(&n).Error; err != nil {
 			return err
 		}
-		if n >= s.Config.QueueLimit {
+		if n >= queue {
 			return ErrLimit
 		}
 		day, month := s.Now().Format("2006-01-02"), s.Now().Format("2006-01")
@@ -477,7 +491,7 @@ func (s *Service) Submit(ctx context.Context, in Submission) (Message, error) {
 		}
 		count := int64(len(to))
 		cost := count * s.Config.CostMicros
-		if count > a.DailyLimit-a.DailyUsed || count > a.MonthlyLimit-a.MonthlyUsed || cost > a.MonthlyBudgetMicros-a.BudgetUsedMicros {
+		if count > daily-a.DailyUsed || count > monthly-a.MonthlyUsed || cost > budget-a.BudgetUsedMicros {
 			return ErrLimit
 		}
 		a.DailyUsed += count

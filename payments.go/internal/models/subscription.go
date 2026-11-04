@@ -60,6 +60,10 @@ type Subscription struct {
 
 	Plan   Plan   `json:"plan,omitempty" gorm:"foreignKey:PlanID"`
 	PlanID string `json:"plan_id,omitempty" gorm:"not null;index"`
+
+	// HasPaid is set on team lookups: a non-zero payment for this subscription
+	// has completed, so it is past any free trial.
+	HasPaid bool `json:"has_paid" gorm:"-"`
 }
 
 func (s *Subscription) IsTrial() bool {
@@ -141,6 +145,6 @@ func (u *UsageRecord) BeforeCreate(tx *gorm.DB) error {
 
 // UsageEvent remembers processed usage reports so retries are not counted twice.
 type UsageEvent struct {
-	EventID   string    `gorm:"primaryKey"`
+	EventID   string `gorm:"primaryKey"`
 	CreatedAt time.Time
 }

@@ -31,7 +31,7 @@ type plan struct {
 
 // Prices are in US cents; overage is cents per email (Dodo allows fractions).
 var monthly = []plan{
-	{"xem-starter", "Xem Starter", 900, 20000, "0.04", false},
+	{"xem-starter", "Xem Starter", 900, 20000, "0.05", false},
 	{"xem-growth", "Xem Growth", 2900, 100000, "0.03", false},
 	{"xem-scale", "Xem Scale", 9900, 500000, "0.02", false},
 }
@@ -183,14 +183,15 @@ func main() {
 					FixedPrice int    `json:"fixed_price"`
 					Interval   string `json:"payment_frequency_interval"`
 					Meters     []struct {
-						MeterID       string `json:"meter_id"`
-						FreeThreshold int64  `json:"free_threshold"`
+						MeterID       string  `json:"meter_id"`
+						FreeThreshold int64   `json:"free_threshold"`
+						PricePerUnit  float64 `json:"price_per_unit"`
 					} `json:"meters"`
 				} `json:"price"`
 			}
 			call("GET", "/products/"+existing.ProductID, nil, &full)
 			pr := full.Price
-			if pr.Type == "usage_based_price" && pr.FixedPrice == p.cents() && pr.Interval == interval && len(pr.Meters) == 1 && pr.Meters[0].MeterID == meterID && pr.Meters[0].FreeThreshold == p.included() {
+			if pr.Type == "usage_based_price" && pr.FixedPrice == p.cents() && pr.Interval == interval && len(pr.Meters) == 1 && pr.Meters[0].MeterID == meterID && pr.Meters[0].FreeThreshold == p.included() && pr.Meters[0].PricePerUnit == mustFloat(p.OverageCents) {
 				id = existing.ProductID
 			}
 		}
