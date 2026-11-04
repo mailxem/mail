@@ -159,8 +159,9 @@ ON CONFLICT (id) DO UPDATE SET quota = EXCLUDED.quota, updated_at = NOW();
 		// -1 = no hard cap: usage past the included emails is billed by Dodo.
 		row(p.ID, ids[p.ID], p.Name, fmt.Sprintf("%d emails a month included, then $%.2f per 1,000.", p.IncludedEmails, mustFloat(p.OverageCents)*10), p.MonthlyCents, i+2, p.ID == "xem-growth", -1)
 	}
-	// Teams on the retired free plan move to Free, so its 3,000-email cap applies to them.
-	sql += "UPDATE subscriptions SET plan_id = 'xem-free', updated_at = NOW() WHERE plan_id = 'solo-plan-001';\n"
+	// Teams on the retired free plan move to Free, so its 3,000-email cap applies.
+	// updated_at stays: lookups pick a team's latest row, and a paid one must win.
+	sql += "UPDATE subscriptions SET plan_id = 'xem-free' WHERE plan_id = 'solo-plan-001';\n"
 	sql += "UPDATE plans SET status = 'inactive', updated_at = NOW() WHERE id NOT IN ('xem-free', 'xem-starter', 'xem-growth', 'xem-scale') AND status = 'active';\nCOMMIT;\n"
 	return sql
 }
