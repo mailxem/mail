@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"time"
 
 	"github.com/dodopayments/dodopayments-go"
@@ -541,11 +542,6 @@ func (s *paymentService) CreateCheckoutSession(ctx context.Context, req Checkout
 		return nil, fmt.Errorf("plan %s not found", req.PlanID)
 	}
 
-	// check billing details
-	if req.BillingDetails.Street == "" || req.BillingDetails.City == "" || req.BillingDetails.State == "" || req.BillingDetails.Zip == "" || req.BillingDetails.Country == "" {
-		return nil, fmt.Errorf("billing details are required")
-	}
-
 	// Create or retrieve existing customer in Dodo Payments using team ID as identifier
 	customer, err := s.dodoClient.CreateCustomer(ctx, req.TeamID, req.CustomerName, req.CustomerEmail)
 	if err != nil {
@@ -613,46 +609,46 @@ func (s *paymentService) CreateCheckoutSession(ctx context.Context, req Checkout
 		}, nil
 	}
 
-	// Handle paid plan scenario - create checkout session through Dodo Payments
-	dodoSubscription, err := s.dodoClient.CreateCheckoutSession(ctx, dodo.CheckoutRequest{
+	// Paid plan: Dodo's hosted checkout collects the address and card. A saved
+	// address only prefills it. The row is saved after Dodo accepts the session,
+	// and webhooks link Dodo's subscription to it through the metadata ID.
+	billing := req.BillingDetails
+	if billing.Country == "" {
+		if saved, err := s.subscriptionRepo.GetBillingDetails(ctx, req.TeamID); err == nil && saved != nil {
+			billing = *saved
+		}
+	}
+	subscription.ID = uuid.New().String()
+	session, err := s.dodoClient.CreateCheckoutSession(ctx, dodo.CheckoutRequest{
 		TeamID:       req.TeamID,
 		PlanID:       plan.DodoPlanID, // Use Dodo-specific plan ID
 		Seats:        req.Seats,
 		CustomerName: req.CustomerName,
 		CustomerID:   customer.ID,
-		// Map billing details from request to Dodo format
 		BillingDetails: dodo.BillingDetails{
-			Street:  req.BillingDetails.Street,
-			City:    req.BillingDetails.City,
-			State:   req.BillingDetails.State,
-			Zip:     req.BillingDetails.Zip,
-			Country: req.BillingDetails.Country,
+			Street:  billing.Street,
+			City:    billing.City,
+			State:   billing.State,
+			Zip:     billing.Zip,
+			Country: billing.Country,
 		},
-		SuccessURL:    req.SuccessURL,
-		CustomerEmail: req.CustomerEmail,
+		SuccessURL:        req.SuccessURL,
+		CustomerEmail:     req.CustomerEmail,
+		XemSubscriptionID: subscription.ID,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to create dodo subscription: %w", err)
+		return nil, fmt.Errorf("failed to create dodo checkout: %w", err)
 	}
 
-	// Set subscription as inactive until payment is confirmed via webhook
+	// Pending until a webhook confirms payment and links Dodo's subscription.
 	subscription.Status = dodopayments.SubscriptionStatusPending
-	subscription.DodoSubscriptionID = &dodoSubscription.ID
-
-	// Save subscription to database with inactive status
 	if err = s.subscriptionRepo.Create(ctx, subscription); err != nil {
 		return nil, fmt.Errorf("failed to create subscription: %w", err)
 	}
 
-	go func() {
-		time.Sleep(1 * time.Second)
-		s.emailService.ScheduleFreeTrialEmails(context.Background(), subscription, *subscription.TrialEndsAt)
-	}()
-
-	// Return checkout URL from Dodo Payments for user to complete payment
 	return &CheckoutSessionResponse{
-		CheckoutURL: dodoSubscription.URL,
-		SessionID:   dodoSubscription.ID,
+		CheckoutURL: session.URL,
+		SessionID:   session.ID,
 	}, nil
 }
 

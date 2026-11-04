@@ -8,6 +8,7 @@ import (
 
 	"github.com/dodopayments/dodopayments-go"
 	"github.com/dodopayments/dodopayments-go/option"
+	"github.com/dodopayments/dodopayments-go/shared"
 	"github.com/mailxem/payments.go/internal/config"
 )
 
@@ -35,15 +36,20 @@ type UpdateSubscriptionRequest struct {
 }
 
 type CheckoutRequest struct {
-	TeamID         string         `json:"team_id"`
-	PlanID         string         `json:"plan_id"`
-	CustomerID     string         `json:"customer_id"`
-	Seats          int            `json:"seats"`
-	SuccessURL     string         `json:"success_url"`
-	CustomerName   string         `json:"customer_name"`
-	CustomerEmail  string         `json:"customer_email"`
-	BillingDetails BillingDetails `json:"billing_details" required:"true"`
+	TeamID        string `json:"team_id"`
+	PlanID        string `json:"plan_id"`
+	CustomerID    string `json:"customer_id"`
+	Seats         int    `json:"seats"`
+	SuccessURL    string `json:"success_url"`
+	CustomerName  string `json:"customer_name"`
+	CustomerEmail string `json:"customer_email"`
+	// Optional: prefills the address on Dodo's checkout page.
+	BillingDetails    BillingDetails `json:"billing_details"`
+	XemSubscriptionID string         `json:"xem_subscription_id"`
 }
+
+// XemSubscriptionIDKey is the checkout metadata key that names our subscription.
+const XemSubscriptionIDKey = "xem_subscription_id"
 
 type CheckoutSession struct {
 	ID         string `json:"id"`
@@ -93,7 +99,7 @@ type WebhookEvent struct {
 }
 
 func (c *Client) GetPaymentInvoicePDF(ctx context.Context, paymentID string) ([]byte, error) {
-	payment, err := c.client.Invoices.Payments.Get(ctx, paymentID, option.WithHeader("Accept", "application/pdf"))
+	payment, err := c.client.Invoices.Payments.Get(ctx, paymentID, dodopayments.InvoicePaymentGetParams{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get payment: %w", err)
 	}
@@ -173,35 +179,43 @@ func (c *Client) GetCustomerPortalSession(ctx context.Context, customerID string
 	return session.Link, nil
 }
 
+// CreateCheckoutSession opens a Dodo hosted checkout, which collects the
+// billing address and card. Dodo creates the subscription only after payment,
+// so XemSubscriptionID rides along as metadata for the webhooks to link it.
 func (c *Client) CreateCheckoutSession(ctx context.Context, req CheckoutRequest) (*CheckoutSession, error) {
-	// Create subscription directly
-	subscription, err := c.client.Subscriptions.New(ctx, dodopayments.SubscriptionNewParams{
+	params := dodopayments.CheckoutSessionRequestParam{
+		ProductCart: dodopayments.F([]dodopayments.ProductItemReqParam{{
+			ProductID: dodopayments.F(req.PlanID),
+			Quantity:  dodopayments.F(int64(req.Seats)),
+		}}),
 		Customer: dodopayments.F[dodopayments.CustomerRequestUnionParam](dodopayments.AttachExistingCustomerParam{
 			CustomerID: dodopayments.F(req.CustomerID),
 		}),
-		ProductID:   dodopayments.F(req.PlanID),
-		Quantity:    dodopayments.F(int64(req.Seats)),
-		ReturnURL:   dodopayments.F(req.SuccessURL),
-		PaymentLink: dodopayments.F(true),
-		Billing: dodopayments.F(dodopayments.BillingAddressParam{
+		ReturnURL:        dodopayments.F(req.SuccessURL),
+		SubscriptionData: dodopayments.F(dodopayments.SubscriptionDataParam{TrialPeriodDays: dodopayments.F(int64(7))}),
+		Metadata: dodopayments.F(dodopayments.MetadataParam{
+			XemSubscriptionIDKey: shared.UnionString(req.XemSubscriptionID),
+			"team_id":            shared.UnionString(req.TeamID),
+		}),
+	}
+	if req.BillingDetails.Country != "" {
+		params.BillingAddress = dodopayments.F(dodopayments.CheckoutSessionBillingAddressParam{
+			Country: dodopayments.F(dodopayments.CountryCode(req.BillingDetails.Country)),
 			Street:  dodopayments.F(req.BillingDetails.Street),
 			City:    dodopayments.F(req.BillingDetails.City),
 			State:   dodopayments.F(req.BillingDetails.State),
 			Zipcode: dodopayments.F(req.BillingDetails.Zip),
-			Country: dodopayments.F(dodopayments.CountryCode(req.BillingDetails.Country)),
-		}),
-		TrialPeriodDays: dodopayments.F(int64(7)),
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to create subscription: %w", err)
+		})
 	}
 
-	// Get the payment link from the subscription
-	paymentLink := subscription.PaymentLink
+	session, err := c.client.CheckoutSessions.New(ctx, dodopayments.CheckoutSessionNewParams{CheckoutSessionRequest: params})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create checkout session: %w", err)
+	}
 
 	return &CheckoutSession{
-		ID:         subscription.SubscriptionID,
-		URL:        paymentLink,
+		ID:         session.SessionID,
+		URL:        session.CheckoutURL,
 		CustomerID: req.CustomerID,
 	}, nil
 }
@@ -218,7 +232,7 @@ func (c *Client) CancelSubscription(ctx context.Context, subscriptionID string) 
 }
 
 func (c *Client) GetSubscription(ctx context.Context, subscriptionID string) (*Subscription, error) {
-	subscription, err := c.client.Subscriptions.Get(ctx, subscriptionID)
+	subscription, err := c.client.Subscriptions.Get(ctx, subscriptionID, dodopayments.SubscriptionGetParams{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get subscription: %w", err)
 	}
@@ -232,10 +246,12 @@ func (c *Client) GetSubscription(ctx context.Context, subscriptionID string) (*S
 }
 
 func (c *Client) UpdateSubscription(ctx context.Context, subscriptionID string, req UpdateSubscriptionRequest) error {
-	err := c.client.Subscriptions.ChangePlan(ctx, subscriptionID, dodopayments.SubscriptionChangePlanParams{
-		ProductID:            dodopayments.F(req.PlanID),
-		ProrationBillingMode: dodopayments.F(dodopayments.SubscriptionChangePlanParamsProrationBillingModeProratedImmediately),
-		Quantity:             dodopayments.F(int64(req.Quantity)),
+	_, err := c.client.Subscriptions.ChangePlan(ctx, subscriptionID, dodopayments.SubscriptionChangePlanParams{
+		UpdateSubscriptionPlanReq: dodopayments.UpdateSubscriptionPlanReqParam{
+			ProductID:            dodopayments.F(req.PlanID),
+			ProrationBillingMode: dodopayments.F(dodopayments.UpdateSubscriptionPlanReqProrationBillingModeProratedImmediately),
+			Quantity:             dodopayments.F(int64(req.Quantity)),
+		},
 	})
 	if err != nil {
 		return fmt.Errorf("failed to update subscription: %w", err)

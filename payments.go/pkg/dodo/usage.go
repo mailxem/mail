@@ -9,6 +9,9 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/dodopayments/dodopayments-go"
+	"github.com/dodopayments/dodopayments-go/option"
 )
 
 // EmailMeterEvent is the event name of the "Emails sent" meter that
@@ -48,5 +51,6 @@ func (c *Client) IngestEmails(ctx context.Context, eventID, customerID string, e
 // WithBaseURL points the client at another Dodo host, for tests.
 func (c *Client) WithBaseURL(u string) *Client {
 	c.baseURL = u
+	c.client = dodopayments.NewClient(option.WithBaseURL(u), option.WithBearerToken("test"))
 	return c
 }
