@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mailxem/payments.go/internal/models"
 	"github.com/mailxem/payments.go/internal/repositories"
+	"github.com/mailxem/payments.go/pkg/dodo"
 	"github.com/shopspring/decimal"
 	standardwebhooks "github.com/standard-webhooks/standard-webhooks/libraries/go"
 )
@@ -205,7 +206,7 @@ func (s *webhookService) handleSubscriptionEvent(ctx context.Context, event *mod
 		"event_type":      event.Type,
 	})
 
-	subscription, err := s.findSubscriptionByDodoID(ctx, subscriptionData.SubscriptionID)
+	subscription, err := s.linkSubscription(ctx, subscriptionData.SubscriptionID, subscriptionData.Metadata)
 	if err != nil {
 		return fmt.Errorf("failed to find subscription: %w", err)
 	}
@@ -363,7 +364,10 @@ func (s *webhookService) handlePaymentCancelled(ctx context.Context, eventID str
 // Helper method to update payment status (DRY pattern)
 func (s *webhookService) updatePaymentStatus(ctx context.Context, dodoPaymentID string, data *models.PaymentWebhookData, status models.PaymentStatus) error {
 
-	subscription, err := s.subscriptionRepo.GetByDodoSubscriptionID(ctx, *data.SubscriptionID)
+	if data.SubscriptionID == nil {
+		return fmt.Errorf("payment %s has no subscription", dodoPaymentID)
+	}
+	subscription, err := s.linkSubscription(ctx, *data.SubscriptionID, data.Metadata)
 
 	if err != nil {
 		return fmt.Errorf("failed to get subscription: %w", err)
@@ -618,6 +622,30 @@ func (s *webhookService) handleRefundFailed(ctx context.Context, eventID string,
 // Helper methods
 func (s *webhookService) findSubscriptionByDodoID(ctx context.Context, dodoSubscriptionID string) (*models.Subscription, error) {
 	return s.subscriptionRepo.GetByDodoSubscriptionID(ctx, dodoSubscriptionID)
+}
+
+// linkSubscription finds our subscription for a Dodo one. Hosted checkout
+// creates Dodo's subscription only after payment, so the first event finds it
+// through the checkout metadata and records Dodo's ID. A subscription already
+// linked to another Dodo ID is never relinked.
+func (s *webhookService) linkSubscription(ctx context.Context, dodoSubscriptionID string, metadata map[string]interface{}) (*models.Subscription, error) {
+	subscription, err := s.subscriptionRepo.GetByDodoSubscriptionID(ctx, dodoSubscriptionID)
+	if err == nil {
+		return subscription, nil
+	}
+	id, _ := metadata[dodo.XemSubscriptionIDKey].(string)
+	if id == "" || dodoSubscriptionID == "" {
+		return nil, err
+	}
+	subscription, lookupErr := s.subscriptionRepo.GetByID(ctx, id)
+	if lookupErr != nil || (subscription.DodoSubscriptionID != nil && *subscription.DodoSubscriptionID != "") {
+		return nil, err
+	}
+	subscription.DodoSubscriptionID = &dodoSubscriptionID
+	if err := s.subscriptionRepo.Update(ctx, subscription); err != nil {
+		return nil, fmt.Errorf("failed to link subscription: %w", err)
+	}
+	return subscription, nil
 }
 
 func (s *webhookService) logWebhookEvent(ctx context.Context, eventID string, level models.LogLevel, message string, data map[string]interface{}) {
