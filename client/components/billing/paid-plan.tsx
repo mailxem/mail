@@ -5,6 +5,7 @@ import { useTeam } from "@/app/providers/team-provider";
 import { useSubscription } from "@/app/lib/store/billing";
 import { FREE_PLAN_ID } from "@/app/lib/constants";
 import { Button } from "@/components/ui/button";
+import { GridIllustration } from "@/components/onboarding/grid-illustration";
 import { Check, Sparkles } from "lucide-react";
 import {
   Sheet,
@@ -61,13 +62,14 @@ export function UpgradeSheet() {
       <SheetTrigger asChild>
         <button
           type="button"
-          className="w-full rounded-xl border border-border bg-background p-3 text-left transition-colors hover:bg-muted"
+          className="relative w-full overflow-hidden rounded-xl border border-border bg-background p-3 pt-[76px] text-left transition-colors hover:bg-muted"
         >
-          <span className="flex items-center gap-2 text-sm font-medium">
+          <GridIllustration className="absolute inset-x-0 top-0 h-[72px] w-full" />
+          <span className="relative flex items-center gap-2 text-sm font-medium">
             <Sparkles className="size-4" />
             Upgrade to Pro
           </span>
-          <span className="mt-1 block text-xs text-muted-foreground">
+          <span className="relative mt-1 block text-xs text-muted-foreground">
             No daily cap, the Xem inbox and more. Free for 7 days.
           </span>
         </button>

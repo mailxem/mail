@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { Mail, Monitor, Moon, Sparkles, Sun, Workflow } from "lucide-react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import styles from "./auth.module.css";
 
 export function AuthShell({ children }: { children: ReactNode }) {
@@ -44,34 +44,12 @@ export function AuthShell({ children }: { children: ReactNode }) {
           {children}
         </section>
         <aside className={styles.featurePanel} aria-label="About Xem">
-          <div className={styles.features}>
-            <div className={styles.feature}>
-              <Workflow className={styles.green} size={17} />
-              <div>
-                <h2>Powerful automations</h2>
-                <p>
-                  Build email journeys that respond to your customers, one step
-                  at a time.
-                </p>
-              </div>
-            </div>
-            <div className={styles.feature}>
-              <Sparkles className={styles.purple} size={17} />
-              <div>
-                <h2>Your AI assistant</h2>
-                <p>Work through ideas and everyday email tasks with Ask Xem.</p>
-              </div>
-            </div>
-            <div className={styles.feature}>
-              <Mail className={styles.sand} size={17} />
-              <div>
-                <h2>Email, together</h2>
-                <p>
-                  Keep contacts, campaigns, and conversations in one workspace.
-                </p>
-              </div>
-            </div>
-          </div>
+          {/* Licensed artwork, cropped and upscaled 3× (nearest-neighbour) from the original. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/illustrations/auth.webp" alt="" className={styles.artwork} />
+          <p className={styles.tagline}>
+            Email built for <em>better</em> conversations
+          </p>
         </aside>
       </main>
     </div>
