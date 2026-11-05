@@ -8,6 +8,7 @@
     "check": "tsc --noEmit",
     "test": "vitest run",
     "types": "wrangler types",
+    "deploy": "wrangler deploy && wrangler d1 migrations apply MAILBOX_DB --remote",
     "deploy:check": "wrangler deploy --dry-run --outdir /tmp/xem-cloudflare-mailbox-dry-run"
   },
   "pnpm": {

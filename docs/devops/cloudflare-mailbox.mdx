@@ -8,17 +8,24 @@ The implementation has a 10 MiB raw-message limit and accepts at most 32 attachm
 
 ## Account setup
 
-Install Node.js 24 and pnpm 10.7.1, then run `cd devops/cloudflare-mailbox && pnpm install --frozen-lockfile` and authenticate Wrangler with `pnpm wrangler login` before creating resources.
+The step-by-step guide, including what is free on Cloudflare and what is not, is [Receive mail on your domain with Cloudflare](https://docs.xem.email/guides/cloudflare-inbox). In short:
 
-1. Create a private R2 bucket: `npx wrangler r2 bucket create xem-cloudflare-mailbox`.
-2. Create D1: `npx wrangler d1 create xem-cloudflare-mailbox`, then replace the placeholder `database_id` in `wrangler.jsonc`.
-3. Apply the migration before connecting Xem: `npx wrangler d1 migrations apply xem-cloudflare-mailbox --remote`.
-4. Replace the example `MAILBOX_ADDRESS` with the complete mailbox address. It must match the Email Routing destination exactly, ignoring case.
-5. Generate a unique random secret of 32–4096 characters and store it with `npx wrangler secret put MAILBOX_API_SECRET`.
-6. Deploy the Worker with `npx wrangler deploy`, then create a Cloudflare Email Routing rule for that exact address whose action sends to this Worker.
-7. In **Settings → SMTP → Cloudflare mailbox**, enter the Worker URL, exact mailbox address, and the same shared secret. Confirm the signed `/v1/mailbox/identity` response before switching existing mailbox routes or UI. It returns protocol `version: 1` only after the D1 migration is available.
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/mailxem/mail/tree/undefined/devops/cloudflare-mailbox)
 
-Do not make the R2 bucket public. Xem does not need an R2 or D1 API token; all content access stays behind the signed Worker API. Migrate the backend and verify its mailbox proxy before switching any UI or routes.
+The button creates the D1 database and R2 bucket, asks for `MAILBOX_ADDRESS` and `MAILBOX_API_SECRET` (declared in `.dev.vars.example`), and runs `pnpm run deploy`, which deploys and then applies the D1 migration.
+
+Without the button, install Node.js 24 and pnpm 10.7.1, then from this directory:
+
+1. `pnpm install --frozen-lockfile` and `pnpm wrangler login`.
+2. `cp .dev.vars.example .dev.vars`, then set `MAILBOX_ADDRESS` to the complete mailbox address and `MAILBOX_API_SECRET` to a unique random value of 32–4096 characters (`openssl rand -hex 32`).
+3. `pnpm wrangler deploy --secrets-file .dev.vars`. Wrangler creates the `xem-cloudflare-mailbox` D1 database and R2 bucket if they don't exist and writes the database ID back to `wrangler.jsonc`.
+4. `pnpm wrangler d1 migrations apply MAILBOX_DB --remote`.
+5. Create a Cloudflare Email Routing rule for that exact address whose action sends to this Worker. `MAILBOX_ADDRESS` must match it exactly, ignoring case.
+6. In **Settings → SMTP senders → Connect Cloudflare inbox**, enter the Worker URL, exact mailbox address, and the same shared secret. Xem confirms the signed `/v1/mailbox/identity` response before saving. It returns protocol `version: 1` only after the D1 migration is available.
+
+Do not make the R2 bucket public. Xem does not need an R2 or D1 API token; all content access stays behind the signed Worker API.
+
+For local development, `.dev.vars` also feeds `pnpm wrangler dev`. Apply the migration locally with `pnpm wrangler d1 migrations apply MAILBOX_DB --local`, then deliver a test message with `curl -X POST "http://localhost:8787/cdn-cgi/handler/email?from=a@example.net&to=<MAILBOX_ADDRESS>" --data-binary @message.eml`.
 
 ## Storage and recovery
 

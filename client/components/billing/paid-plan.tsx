@@ -17,11 +17,15 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+/** Self-hosted builds have no billing service (no paywall URL), so nothing is paid-only there. */
+export const billingEnabled = () => !!process.env.NEXT_PUBLIC_PAYWALL_URL?.trim();
+
 /** False only once the workspace is known to be on Free; the API enforces it either way. */
 export function usePaidPlan() {
   const { team } = useTeam();
-  const { data, isLoading } = useSubscription(team?.id || "");
-  if (isLoading) return true;
+  const billing = billingEnabled();
+  const { data, isLoading } = useSubscription(billing ? team?.id || "" : "");
+  if (!billing || isLoading) return true;
   return isPaidSubscription(data);
 }
 
