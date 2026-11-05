@@ -2,10 +2,10 @@
 
 import { Plan } from "@/app/lib/payments-client";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Check, Zap } from "lucide-react";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { workspaceClassName } from "@/lib/workspace-styles";
+import { FREE_PLAN_ID } from "@/app/lib/constants";
 
 interface PricingCardProps {
   plan: Plan;
@@ -15,6 +15,15 @@ interface PricingCardProps {
   isPending?: boolean;
 }
 
+export const isFreePlan = (plan: Plan) => parseFloat(plan.price) === 0;
+export const isYearlyPlan = (plan: Plan) => /year|annual/i.test(plan.billing_cycle || "");
+
+// ponytail: the allowance lives in the plan description ("20000 emails a month included, ...");
+// read it from a plan field once payments exposes one.
+export const includedEmails = (plan: Plan) => Number(plan.description?.match(/\d+/)?.[0] ?? 0);
+
+const withCommas = (text: string) => text.replace(/\d{4,}/g, (n) => Number(n).toLocaleString("en-US"));
+
 export function PricingCard({
   plan,
   currentPlanId,
@@ -23,105 +32,60 @@ export function PricingCard({
   isPending = false,
 }: PricingCardProps) {
   const isCurrentPlan = currentPlanId === plan.id;
-  const isFree = plan.price === "0" || plan.price === "0.00";
-  const isEnterprise = plan.is_enterprise;
-
-  const getIcon = () => {
-    if (isEnterprise) return "🏢";
-    if (plan.is_popular) return "🔥";
-    if (isFree) return "⚡";
-    return "🚀";
-  };
-
-  const formatPrice = (price: string) => {
-    const numPrice = parseFloat(price);
-    if (numPrice === -1) return "Contact us";
-    return numPrice === 0 ? "0" : "$" + numPrice.toFixed(2);
-  };
+  const isFree = isFreePlan(plan);
+  const price = parseFloat(plan.price);
+  const included = (plan.description || "").split(/[,.]/)[0];
+  const overage = plan.description?.match(/then (.+?)\.?$/i)?.[1];
+  const points = [
+    withCommas(included),
+    overage ? `${overage} after that` : "Stops at the limit, no overage",
+    isFree ? "Up to 100 emails a day" : "No daily limit",
+    isFree ? "No card needed" : "7-day free trial",
+  ];
 
   return (
-    <Card
+    <article
       className={cn(
-        "relative p-6 flex flex-col h-full border-2 transition-all hover:shadow-lg",
-        plan.is_popular && "border-primary shadow-lg scale-105",
-        isCurrentPlan && "border-green-500 bg-green-50/5",
+        workspaceClassName("form-card"),
+        "flex h-full flex-col",
+        isCurrentPlan && "border-foreground/40 hover:border-foreground/40",
       )}
     >
-      {plan.is_popular && (
-        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary">
-          Most popular
-        </Badge>
-      )}
-
-      <div className="flex items-start gap-3 mb-4">
-        <div className="text-3xl">{getIcon()}</div>
-        <div className="flex-1">
-          <h3 className="text-xl font-semibold">{plan.name}</h3>
-          {plan.description && (
-            <p className="text-sm text-muted-foreground mt-1">
-              {plan.description}
-            </p>
-          )}
-        </div>
+      <div className={workspaceClassName("form-card-top")}>
+        <h3 className="!mb-0">{plan.name.replace(/\s*\(yearly\)/i, "")}</h3>
+        {isCurrentPlan ? (
+          <span className={workspaceClassName("status-pill status-active")}><i />Current</span>
+        ) : plan.is_popular ? (
+          <span className={workspaceClassName("status-pill")}>Most popular</span>
+        ) : null}
       </div>
 
-      <div className="mb-6">
-        <div className="flex items-baseline gap-1">
-          <span className="text-4xl font-bold">{formatPrice(plan.price)}</span>
-          {!isEnterprise && (
-            <span className="text-muted-foreground">
-              /{plan.billing_cycle === "monthly" ? "month" : "year"}
-            </span>
-          )}
-        </div>
-        {isEnterprise && (
-          <p className="text-sm text-muted-foreground mt-1">Custom Pricing</p>
+      <div className="flex items-baseline gap-1">
+        <span className="text-[28px] font-medium tracking-tight tabular-nums">
+          {price < 0 ? "Custom" : `$${price.toLocaleString("en-US")}`}
+        </span>
+        {price >= 0 && (
+          <span className="text-xs text-muted-foreground">/{isYearlyPlan(plan) ? "year" : "month"}</span>
         )}
       </div>
 
-      <div className="flex-1 space-y-3 mb-6">
-        {plan.features && plan.features.length > 0 ? (
-          plan.features.map((feature, index) => (
-            <div key={index} className="flex items-start gap-2">
-              <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-              <span className="text-sm">
-                {feature.quota === -1
-                  ? "Unlimited"
-                  : feature.quota === 1
-                    ? ""
-                    : feature.quota}{" "}
-                {feature.feature.replace(/_/g, " ")}
-              </span>
-            </div>
-          ))
-        ) : (
-          <div className="flex items-start gap-2">
-            <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-            <span className="text-sm">All features included</span>
-          </div>
-        )}
-      </div>
+      <ul className="mt-5 flex-1 space-y-2.5 text-[13px]">
+        {points.map((point) => (
+          <li key={point} className="flex items-start gap-2">
+            <Check className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" strokeWidth={1.75} />
+            <span>{point}</span>
+          </li>
+        ))}
+      </ul>
 
       <Button
         onClick={() => onSelectPlan(plan)}
         disabled={isLoading || isCurrentPlan || isPending}
-        variant={plan.is_popular ? "default" : "outline"}
-        className="w-full"
+        variant={plan.is_popular && !isCurrentPlan ? "default" : "outline"}
+        className="mt-6 w-full"
       >
-        {isCurrentPlan
-          ? "Current Plan"
-          : isFree
-            ? "Try for free"
-            : isEnterprise
-              ? "Get Started"
-              : "Try for free"}
+        {isCurrentPlan ? "Current plan" : isFree ? "Switch to Free" : currentPlanId && currentPlanId !== FREE_PLAN_ID ? "Switch plan" : "Start free trial"}
       </Button>
-
-      {isCurrentPlan && (
-        <p className="text-xs text-center text-muted-foreground mt-2">
-          You're currently on this plan
-        </p>
-      )}
-    </Card>
+    </article>
   );
 }
