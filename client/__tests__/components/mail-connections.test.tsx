@@ -32,6 +32,15 @@ jest.mock("@/lib/marketing/api", () => ({
 jest.mock("@/components/settings/cloudflare-relay", () => ({
   CloudflareRelays: () => null,
 }));
+jest.mock("@/components/billing/paid-plan", () => ({
+  usePaidPlan: () => true,
+  PaidPlanNotice: () => null,
+}));
+jest.mock("@/components/settings/cloudflare-setup", () => ({
+  CloudflareButton: () => null,
+  CloudflareLogo: () => null,
+  CloudflareSetupSheet: () => null,
+}));
 jest.mock("sonner", () => ({
   toast: { success: jest.fn(), error: jest.fn() },
 }));

@@ -20,6 +20,10 @@ jest.mock("@/lib/marketing/api", () => ({
   useMarketing: () => ({ request: mockRequest, refresh: mockRefresh }),
   useMarketingQuery: () => result,
 }));
+jest.mock("@/components/billing/paid-plan", () => ({
+  usePaidPlan: () => true,
+  PaidPlanNotice: () => null,
+}));
 jest.mock("sonner", () => ({
   toast: { success: jest.fn(), error: jest.fn(), warning: jest.fn() },
 }));
