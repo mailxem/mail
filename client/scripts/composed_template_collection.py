@@ -2247,3 +2247,141 @@ studio('our-story', 'Our Story', 'Welcome', 'A founder-story welcome for a small
   T(f'Questions? Reply to this email. We’re here to help.<br><br>Thanks so much,<br>Jo &amp; Sam<br>Co-founders, <span style="color:{green81}">Little Crew</span>', '#111111', 16, HELV, 'left', '8px 24px 24px'), bg='#FFFFFF', pad='0px'),
  row(T('f &nbsp;&nbsp; ◎ &nbsp;&nbsp; ♪ &nbsp;&nbsp; in &nbsp;&nbsp; ✉', '#FFFFFF', 14, HELV, pad='14px 24px'), bg='#4A3AD8', pad='0px'),
 ], foot('#FBC8A8', '#555555', '© 2026 Little Crew · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F7F7F7', ['welcome', 'founder', 'story'])
+
+# --- Batch fourteen: account and transactional ---
+def plain_footer(bg, ink, *lines): return foot(bg, ink, *lines)
+studio('blog-welcome-survey', 'Blog Welcome', 'Welcome', 'A blog subscription welcome: a black header bar, a bright product-swirl hero, a short letter with a one-click survey list, a grey trial panel and a black footer.',
+ 'Welcome to the Shopfront blog', 'Tell us where you are, and we’ll send the right advice.', [
+ weighted([[H('🛍 shopfront', '#FFFFFF', 22, HELV, 'left', '24px 8px 24px 40px')], [T('<strong><u>' + lk('Start free trial', '#FFFFFF') + '</u></strong>', '#FFFFFF', 14, HELV, 'right', '28px 40px 24px 8px')]], [1, 1], '#000000', '0px'),
+ row(ill('parcel-swirl', 'Parcels and a pair of headphones floating in a soft colourful swirl'), H('Shopfront Blog', '#111111', 34, HELV, 'left', '32px 40px 12px'),
+  T('Hello and welcome! Your journey towards building your own business starts here.<br><br>As a subscriber, you’ll get regular, practical advice, tactics and success stories to help you reach your goals.<br><br>We’d like to send you the advice you actually need. Please answer one quick question:', '#1A1A1A', 15, HELV, 'left', '4px 40px 8px'),
+  T(ul(['<strong><u>' + lk('I’m just curious about starting a business', '#111111') + '</u></strong>', '<strong><u>' + lk('I’m looking for a product or business idea', '#111111') + '</u></strong>', '<strong><u>' + lk('I have a product and I’m working on my first sale', '#111111') + '</u></strong>', '<strong><u>' + lk('I’ve made a few sales and want to grow', '#111111') + '</u></strong>', '<strong><u>' + lk('I run an established business', '#111111') + '</u></strong>']), '#111111', 14, HELV, 'left', '8px 56px 32px'), bg='#FFFFFF', pad='0px'),
+ row(H('Shopfront helps independent business owners everywhere', '#111111', 30, HELV, pad='48px 40px 8px'), T('Try Shopfront free, and explore the tools you need to start, run and grow your business.', '#1A1A1A', 16, HELV, pad='4px 56px 8px'), pill('Start free trial', '#000000', pad='16px 40px 48px', size='15px'), bg='#D8D8DC', pad='0px'),
+], plain_footer('#000000', '#FFFFFF', 'Shopfront · 12 Example Street, Your City', '<strong><u>' + lk('Unsubscribe', '#FFFFFF') + '</u> &nbsp; <u>' + lk('Manage your preferences', '#FFFFFF') + '</u></strong>'), '#EEEEF2', ['welcome', 'survey', 'segmentation'])
+
+studio('tldr-welcome', 'TL;DR Welcome', 'Welcome', 'A developer-platform welcome on warm paper: a dark glowing banner, a short TL;DR bullet list with links and a plain sign-off.',
+ 'Welcome to Keyward', 'The short version: where to start building.', [
+ row(H('◈ keyward', '#1A1A1A', 22, HELV, 'left', '40px 40px 24px'), ill('glow-banner', 'A dark banner with a purple glow reading Welcome to Keyward'), bg='#FFFDF8', pad='0px'),
+ row(T('We’re so glad you’re here. You’re probably busy, so here’s the TL;DR:<br><br>' + ul(['Explore the product and start building ' + lk('here', '#3A5AD8') + '.', 'Sign-in for AI agents is now available to everyone. Learn more ' + lk('here', '#3A5AD8') + '.', 'Get going quickly with our ' + lk('quickstarts', '#3A5AD8') + ' and ' + lk('SDKs', '#3A5AD8') + '.']) + '<br><br>…or tell us if you have any questions. Reply to this email to ask something or book a call with one of our engineers.<br><br>Happy building,<br>Keyward', '#555555', 15, HELV, 'left', '32px 40px 40px'), bg='#FFFDF8', pad='0px'),
+], plain_footer('#F4EFE6', '#777777', '<u>' + lk('View as a web page', '#777777') + '</u>', 'Keyward · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#DCDAD2', ['welcome', 'developer', 'minimal'])
+
+studio('new-sign-in', 'New Sign-in', 'Transactional', 'A security alert: an illustration of someone checking their phone, a bold headline, sign-in details as a list, and clear “if this was you / wasn’t you” sections.',
+ 'New sign-in to your account', 'We noticed a sign-in from a new device.', [
+ row(H('〃 tally', '#1A2A6A', 30, HELV, pad='24px 40px 16px'), bg='#E8EEFA', pad='0px'),
+ row(ill('phone-gaze', 'A person looking at their phone', '240px', '32px 40px 8px'), H('New sign-in detected', '#1A1A1A', 24, HELV, pad='8px 40px 16px'),
+  T('We noticed a sign-in to your Tally account from a device we don’t recognise:<br><br>' + ul(['{{sign_in_time}}', '{{approximate_location}} (approximate, can vary with a VPN)', 'IP address: {{ip_address}}', '{{device_and_browser}}']) + '<br><br><strong>If this was you</strong><br>You’re all set. You can ignore this email.<br><br><strong>If this wasn’t you</strong><br>Please <strong>' + lk('change your password', '#1A3AB8') + '</strong> straight away and <strong>' + lk('turn on two-step sign-in', '#1A3AB8') + '</strong> to protect your account.', '#1A1A1A', 15, HELV, 'left', '4px 40px 40px'), bg='#FFFFFF', pad='0px'),
+], plain_footer('#E8EEFA', '#1A2A6A', 'Need help? Visit our <strong>' + lk('help centre', '#1A2A6A') + '</strong>. You received this because you have a Tally account.', 'Tally · 12 Example Street, Your City'), '#E8EEFA', ['security', 'alert', 'sign-in'], marketing=False)
+
+studio('shared-data', 'Shared Data', 'Transactional', 'A data-sharing notice: a centred headline and account chip, an illustration, a blue info box, a card listing what was shared, a pill button and a reassurance card.',
+ 'You signed in to Pinboard with your Keyring account', 'Here’s what you shared.', [
+ row(H('◍ Keyring', '#3A3A3A', 28, HELV, pad='32px 40px 8px'), H('Keep track of your account data', '#1A1A1A', 22, HELV, pad='8px 40px 8px'), T('<span style="background:#F2F2F2;border-radius:999px;padding:6px 14px">🙂 {{email}}</span>', '#1A1A1A', 13, HELV, pad='4px 40px 16px'), divider('#DDDDDD'), ill('account-shared', 'A phone with a profile icon, an envelope and a toggle', '260px', '16px 40px'),
+  T('<span style="display:block;background:#DCE8FC;border-radius:14px;padding:18px 20px">ℹ️ You’re getting this email because you used your Keyring account to sign in to <strong><u>Pinboard</u></strong> on {{date}}.<br><br>This email lists what you shared. You don’t need to do anything.</span>', '#1A1A1A', 13, HELV, 'left', '8px 40px 16px'),
+  T('<span style="display:block;background:#F7F8FC;border-radius:14px;padding:20px"><strong>Pinboard received this profile info</strong><br><br>👤 &nbsp;{{full_name}}<br><span style="font-size:11px;color:#777">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name and profile picture</span><br><br>✉ &nbsp;{{email}}<br><span style="font-size:11px;color:#777">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email address</span></span>', '#1A1A1A', 13, HELV, 'left', '8px 40px 16px'),
+  T('If you want to stop using Keyring sign-in with Pinboard, go to your Keyring account.', '#1A1A1A', 14, HELV, 'left', '8px 40px'), pill('Go to your Keyring account', '#1A5AD8', pad='16px 40px 16px', size='15px'),
+  T('If you want to delete the data you shared with Pinboard, visit Pinboard.', '#1A1A1A', 14, HELV, 'left', '8px 40px 16px'), T('<span style="display:block;border:1px solid #DDDDDD;border-radius:10px;padding:14px 18px">🛡 <strong>Safer with Keyring</strong><br><span style="font-size:12px">Your account protects your privacy with built-in security.</span></span>', '#1A1A1A', 13, HELV, 'left', '8px 40px 32px'), bg='#FFFFFF', pad='0px'),
+], plain_footer('#FFFFFF', '#777777', 'You got this email to let you know about important changes to your account.', 'Keyring · 12 Example Street, Your City'), '#FFFFFF', ['account', 'privacy', 'notice'], marketing=False)
+
+studio('login-changed', 'Login Changed', 'Transactional', 'An account change confirmation: a dotted lilac hero with a badge, a small app tile, a bold headline, an account card and a perspective grid footer.',
+ 'You’ve changed how you sign in', 'From now on, use your Soundbox account to sign in.', [
+ row(H('◐ for Creators', '#1A1A1A', 20, HELV, 'left', '24px 40px'), bg='#7A74F5', pad='0px'),
+ row(ill('disc-check', 'A black headphones badge with a tick, on a dotted lilac background'), bg='#8A84F5', pad='0px'),
+ row(ill('heart-envelope', 'A small envelope with a heart', '100px', '24px 40px 8px'), H('Weekly Feedback by Good Mail Club', '#111111', 18, HELV, pad='4px 40px 16px'), H('You’ve changed your sign-in to Soundbox', '#111111', 32, HELV, 'left', '8px 72px 12px'),
+  T('You can no longer use your old sign-in for “Weekly Feedback by Good Mail Club”. From now on, you’ll sign in to Soundbox for Creators with this account:', '#111111', 14, HELV, 'left', '4px 72px 12px'),
+  T('<span style="display:block;background:#FFFFFF;border:1px solid #CCCCCC;border-radius:10px;padding:16px 20px"><strong>{{full_name}}</strong><br><span style="color:#777">{{email}}</span></span>', '#111111', 14, HELV, 'left', '8px 72px 16px'), T('<u>' + lk('Need help signing in?', '#111111') + '</u>', '#111111', 14, HELV, 'left', '8px 72px 32px'), bg='#F0EFEC', pad='0px'),
+ row(ill('grid-floor', 'A lilac perspective grid'), bg='#8A84F5', pad='0px'),
+], plain_footer('#F8F8F8', '#777777', '<u>' + lk('Terms', '#777777') + '</u> | <u>' + lk('Contact us', '#777777') + '</u>', 'Soundbox · 12 Example Street, Your City'), '#F8F8F8', ['account', 'sign-in', 'change'], marketing=False)
+
+studio('confirm-code', 'Confirm Code', 'Transactional', 'A minimal email-confirmation code: a logo, a bold headline, one line of explanation, the code in a soft grey box and a short reassurance.',
+ 'Confirm your email to join', 'Your code is inside.', [
+ row(H('<span style="color:#E8473C">■</span><span style="color:#2AB8E8">■</span><span style="color:#3AC46A">■</span><span style="color:#F2B233">■</span> chatterbox', '#1A1A1A', 24, HELV, 'left', '40px 40px 16px'), H('Confirm your email to join', '#1A1A1A', 30, HELV, 'left', '8px 40px 12px'),
+  T('Hello! Once you’ve confirmed your email address with the code below, you’ll be the newest member of {{workspace_name}}.', '#3A3A3A', 18, HELV, 'left', '4px 40px 16px'),
+  T('<span style="display:block;background:#F4F4F4;box-shadow:0 4px 10px rgba(0,0,0,.06);padding:36px 0;font-size:30px;letter-spacing:4px">{{code}}</span>', '#3A3A3A', 30, HELV, pad='8px 40px 24px'),
+  T('If you didn’t ask for this email, there’s nothing to worry about. You can safely ignore it.', '#3A3A3A', 18, HELV, 'left', '16px 40px 40px'), bg='#FFFFFF', pad='0px'),
+], plain_footer('#FFFFFF', '#999999', '<u>' + lk('Our blog', '#999999') + '</u> | <u>' + lk('Help centre', '#999999') + '</u>', '© 2026 Chatterbox · 12 Example Street, Your City'), '#FFFFFF', ['verification', 'code', 'minimal'], marketing=False)
+
+def id_panel(img, alt, title, body, link): return row(ill(img, alt, pad='24px 24px 0px'), H(title, '#111111', 24, HELV, pad='16px 32px 8px'), T(body, '#333333', 12, HELV, pad='4px 48px 8px'), *( [T(lk(link + ' ›', '#2A6AD8'), '#2A6AD8', 12, HELV, pad='4px 32px 16px')] if link else [text('', 4, '#FFFFFF', pad='8px 0px')] ), bg='#FFFFFF', pad='0px')
+studio('id-on-phone', 'ID on Your Phone', 'Transactional', 'A feature confirmation for a digital ID: a hand holding a phone on a sky gradient, a headline, then three coloured icon panels each with a headline and short text.',
+ 'Show your ID with a tap', 'You’ve added your ID to your wallet. Here’s how it works.', [
+ row(H('◍ Wallet', '#111111', 18, HELV, 'left', '16px 24px'), ill('phone-id', 'A hand holding a phone with an ID card on screen'), T('<strong>DIGITAL ID PILOT</strong>', '#111111', 12, HELV, pad='20px 32px 0px'), H('Show your ID.<br>With a tap.', '#111111', 30, HELV, pad='4px 32px 8px'),
+  T('Now that you’ve added your ID to your wallet as part of the pilot, you can show it at selected checkpoints and businesses where proof of age is needed, with a tap of your phone or watch. You never need to hand your device over.', '#333333', 12, HELV, pad='4px 48px 8px'), T(lk('Learn how to show your ID ›', '#2A6AD8'), '#2A6AD8', 12, HELV, pad='4px 32px 16px'), bg='#FFFFFF', pad='0px'),
+ id_panel('face-scan', 'A face scan icon', 'Your details. Private and secure.', 'Your ID is encrypted and protected against tampering and theft. No record of where you show it is kept, and your face or fingerprint keeps it safe.', None),
+ id_panel('id-card', 'An ID card icon', 'Digital ID is spreading.', 'You can show your ID at selected checkpoints, shops and for age-restricted deliveries. Keep carrying your physical ID for now, but expect more places to accept it soon.', 'Learn more about digital ID'),
+ id_panel('phone-watch', 'A phone and a watch', 'Manage your ID from your device.', 'Renew, update your address and more on the issuing office’s website. Changes appear on your digital ID automatically.', 'Visit the issuing office'),
+], plain_footer('#F4F4F4', '#777777', 'Digital ID is available in selected regions. Check local rules before relying on it.', 'Wallet · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Privacy</a>'), '#FFFFFF', ['feature', 'security', 'identity'], marketing=False)
+
+red82 = '#D8202A'
+studio('email-changed', 'Email Changed', 'Transactional', 'A plain account-change confirmation: a red monogram, a bold headline, a short note, a sign-off, a rule and a red outlined button.',
+ 'Your email address has been changed', 'If you didn’t ask for this, contact us.', [
+ row(H(f'<span style="color:{red82};font-size:44px">S</span>', red82, 44, BLACK, 'left', '24px 40px 4px'), H('Email changed', '#1A1A1A', 34, HELV, 'left', '8px 40px 12px'),
+  T('Hi {{first_name}},<br><br>We’ve changed your account email address, as you asked. You can no longer use {{old_email}} to sign in. Please use your new email address.<br><br>If you didn’t ask to change your email address, we’re here to help secure your account. Just ' + lk('contact us', '#1A1A1A') + '.', '#1A1A1A', 16, HELV, 'left', '4px 40px 12px'), T('<strong>The Streamly team</strong>', '#1A1A1A', 13, HELV, 'left', '8px 40px 16px'), divider('#1A1A1A'),
+  T(f'<a href="https://example.com" style="display:block;border:2px solid {red82};border-radius:4px;padding:14px;color:{red82};text-decoration:none;font-weight:bold">Browse shows and films</a>', red82, 14, HELV, pad='16px 40px 24px'), bg='#FFFFFF', pad='0px'),
+], plain_footer('#FFFFFF', '#AAAAAA', 'Questions? Visit our ' + lk('help centre', '#AAAAAA') + '.', 'Streamly · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Settings</a>'), '#E8E8E8', ['account', 'change', 'security'], marketing=False)
+
+studio('privacy-update', 'Privacy Update', 'Transactional', 'A policy-update notice: a black logo bar, a yellow hero with a bell in concentric circles, two short paragraphs, a grey sign-off and a black footer.',
+ 'We’ve updated our privacy notice', 'The changes take effect on 1 September.', [
+ row(H('Ridewell', '#FFFFFF', 26, HELV, 'left', '24px 40px'), bg='#000000', pad='0px'),
+ row(ill('bell-circles', 'A yellow banner reading Privacy Notice Update with a bell in rings'), bg='#F7C83A', pad='0px'),
+ row(T('We’ve updated our privacy notice to explain how we collect and use your personal data when you use our apps and websites. This includes more about our services and features, how we use data for marketing, and new settings that put you in charge of your data.<br><br>You can read the updated notice ' + lk('here', '#2A2AE8') + '. The changes take effect on 1 September.', '#1A1A1A', 16, HELV, 'left', '40px 40px'), bg='#FFFFFF', pad='0px'),
+ row(T('Thank you,<br>The Ridewell team', '#1A1A1A', 16, HELV, 'left', '32px 40px'), bg='#F4F4F4', pad='0px'),
+], row(T(lk('Help centre', '#FFFFFF') + ' &nbsp;&nbsp;&nbsp;&nbsp; ' + lk('Privacy', '#FFFFFF') + '<br>' + lk('Terms', '#FFFFFF') + ' &nbsp;&nbsp;&nbsp;&nbsp; ' + lk('Email preferences', '#FFFFFF') + '<br>' + lk('Unsubscribe', '#FFFFFF'), '#FFFFFF', 13, HELV, 'left', '32px 40px 16px'), T('Ridewell · 12 Example Street, Your City<br><a href="https://xem.email" style="color:#FFFFFF">Built with Xem</a>', '#FFFFFF', 11, HELV, 'left', '8px 40px 32px'), bg='#000000', pad='0px'),
+ '#FFFFFF', ['policy', 'notice', 'privacy'], marketing=False)
+
+blue83 = '#3A2AF0'
+studio('almost-there-code', 'Almost There', 'Transactional', 'A centred confirmation card on pale blue: a chunky logo, a bold headline, a wide button, then a fallback code in mono below a dashed rule.',
+ 'Almost there! Confirm your email', 'Tap the button, or use the code inside.', [
+ row(H(f'<span style="background:{blue83};color:#FFFFFF;padding:4px 12px;border-radius:8px">PENNY</span>', '#FFFFFF', 28, BLACK, pad='32px 40px 24px'), bg='#EEF2FF', pad='0px'),
+ row(H('Almost there!', '#111111', 32, HELV, pad='40px 40px 8px'), T('Confirm your email address to finish signing up. Just tap the button below.', '#6A7080', 16, HELV, pad='4px 56px 16px'),
+  T(f'<a href="https://example.com" style="display:block;background:{blue83};color:#FFFFFF;padding:16px;border-radius:4px;text-decoration:none;font-weight:bold">Confirm now</a>', '#FFFFFF', 16, HELV, pad='8px 80px 16px'), T('<span style="display:block;border-top:1px dashed #DDDDDD"></span>', '#DDDDDD', 1, HELV, pad='8px 40px 0px'),
+  H('Link not working?', '#3A3A3A', 16, HELV, pad='16px 40px 4px'), T(f'<span style="font-family:courier new;font-size:22px;color:{blue83}">{{{{code}}}}</span>', blue83, 22, MONO, pad='4px 40px 8px'), T('Enter the code above in the app when asked.<br>(Make sure your app is up to date.)', '#777777', 12, HELV, pad='4px 40px 32px'), bg='#FFFFFF', pad='0px 40px'),
+], plain_footer('#EEF2FF', '#333333', '<strong>PENNY</strong>', 'Penny · 12 Example Street, Your City'), '#EEF2FF', ['verification', 'code', 'confirm'], marketing=False)
+
+green84 = '#3A8A3A'
+studio('reset-camper', 'Reset Your Password', 'Transactional', 'A friendly password reset: a grey header panel with a line-drawn camper, a reassuring line, a green button, and a help box with a headset icon.',
+ 'Reset your Roamly password', 'It happens to everyone. Here’s your link.', [
+ weighted([[H('Roamly', '#1A1A1A', 24, SERIF, 'left', '28px 8px 16px 40px')], [T('Need help? ' + lk('Contact us', green84), '#555555', 12, HELV, 'right', '32px 40px 16px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ weighted([[H('We got a request to reset your Roamly password', '#3A3A3A', 22, HELV, 'left', '24px 8px 24px 32px')], [ill('camper', 'A line drawing of a camper van', '100%', '20px 32px 20px 8px')]], [3, 2], '#F2F2F2', '0px 0px'),
+ row(T('Forgot your password? No problem, it happens to everyone!', '#3A3A3A', 16, HELV, 'left', '32px 40px 16px'), button('Reset your password', green84), T('If you ignore this message, your password won’t be changed.', '#3A3A3A', 16, HELV, 'left', '16px 40px 16px'), divider('#DDDDDD'), ill('cricket', 'A small line drawing of a cricket', '80px', '24px 40px 0px', 'right'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('headset', 'A headset with a heart', '64px', '24px 4px 24px 40px')], [T('<strong>Real people. Here to help.</strong><br>Got a question? Call {{support_phone}} to talk to our support team.', '#3A3A3A', 14, HELV, 'left', '26px 40px 24px 8px')]], [1, 4], '#F2F2F2', '0px'),
+ row(T('For your safety, please only make payments through Roamly. ' + lk('Learn more', green84) + '.', '#3A3A3A', 13, HELV, 'left', '24px 40px 24px'), bg='#FFFFFF', pad='0px'),
+], plain_footer('#F4F4F4', '#777777', 'Sent with love by Roamly · 12 Example Street, Your City'), '#F4F4F4', ['password', 'reset', 'account'], marketing=False)
+
+blue85 = '#2A8AF8'
+studio('confirm-personal', 'Confirm, Personally', 'Transactional', 'A double opt-in with personality: a centred hand-drawn logo, a bold line, a chatty letter with the subscriber’s address, a wide blue button and a signature.',
+ 'We’re almost there! Please confirm', 'One little blue button away from the newsletter.', [
+ row(T('Thank you for your interest in our newsletter!', '#999999', 11, HELV, 'left', '12px 0px'), bg='#F8F8F8', pad='0px'),
+ row(ill('heart-envelope', 'An envelope with a heart', '110px', '40px 40px 0px'), H('inbox fixers', '#111111', 34, HELV, pad='0px 40px 0px'), T('<strong style="color:#E8506A;letter-spacing:2px">BY NADIA KHAN</strong>', '#E8506A', 12, HELV, pad='0px 40px 24px'), H('We’re almost there!', '#111111', 22, HELV, pad='8px 40px 16px'),
+  T('You’re one little blue button away from your pass to email marketing done right (and the occasional email done wrong).<br><br>I love, love, LOVE that you’re as excited (curious? keen?) about email as I am.<br><br>And I can’t wait to send you all the tips I’ve been saving up for months.<br><br>But first, I need you to confirm your details.<br><br>Please press the button below to confirm that {{email}} is where you’d like to get the newsletter.', '#1A1A1A', 17, HELV, 'left', '4px 48px 16px'),
+  T(f'<a href="https://example.com" style="display:block;background:{blue85};color:#FFFFFF;padding:16px;border-radius:2px;text-decoration:none;font-weight:bold;border-bottom:3px solid #1A5AB8">Confirm your email</a>', '#FFFFFF', 15, HELV, pad='16px 48px 16px'),
+  T('Thanks! You’re a star :D<br><br>---<br><br><strong>Nadia Khan</strong><br>Chief Inbox Fixer<br>Inbox Fixers', '#1A1A1A', 17, HELV, 'left', '8px 48px 16px'), divider('#DDDDDD'),
+  T('Didn’t subscribe? Just delete this email or report it ' + lk('here', '#777777') + '. You’re not subscribed until you press the button above.', '#777777', 12, HELV, pad='8px 48px 32px'), bg='#FFFFFF', pad='0px'),
+], plain_footer('#F8F8F8', '#999999', '<strong>Inbox Fixers</strong> · 12 Example Street, Your City'), '#F8F8F8', ['double opt-in', 'personal', 'confirm'], marketing=False)
+
+purple86, teal86 = '#7A1A7A', '#0E6E7A'
+studio('magic-link', 'Magic Link', 'Transactional', 'A one-time sign-in link for a shop: a purple announcement bar, a centred logo and nav, a teal button, a warning note, two promo cards and a brands strip.',
+ 'Your sign-in link', 'This link works once and expires in 15 minutes.', [
+ row(T('<strong>FREE DELIVERY OVER $49*</strong>', '#FFFFFF', 14, HELV, pad='10px 24px'), bg=purple86, pad='0px'),
+ row(H('<span style="color:#7AB83A">✿</span> <span style="color:#7A1A7A">homeward</span>', purple86, 40, HELV, pad='16px 24px 4px'), T('Furniture | Decor | Rugs | Lighting | <span style="color:#C8202A">Sale</span>', '#1A1A1A', 15, HELV, pad='4px 24px 16px'), divider('#E2E2E2'), bg='#FFFFFF', pad='0px'),
+ row(T('Hi {{first_name}},<br><br>We got a request for a sign-in link for your Homeward account. Use the button below to sign in and carry on shopping.', '#1A1A1A', 16, HELV, 'left', '16px 40px 8px'), button('Sign in to your account', teal86),
+  T('Please note: this link works once and expires in 15 minutes. Because it signs you straight in, please don’t forward this email to anyone.<br><br>Thanks,<br>The Homeward team', '#1A1A1A', 16, HELV, 'left', '8px 40px 16px'), divider('#E2E2E2'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('card-icon', 'A card', '70px', '20px 8px 0px 24px'), T('Buy now, pay over 12 months<br>Get the Homeward card »', '#1A1A1A', 14, HELV, pad='4px 8px 20px 24px')], [ill('gift-icon', 'A gift card', '70px', '20px 24px 0px 8px'), T('Give the gift of choice<br>Buy a gift card »', '#1A1A1A', 14, HELV, pad='4px 24px 20px 8px')]], [1, 1], '#F4F2EC', '0px'),
+ row(H('Share your style with #HomewardAtHome', '#1A1A1A', 16, HELV, pad='24px 24px 8px'), divider('#E2E2E2'), H('Our other shops', '#1A1A1A', 16, HELV, pad='16px 24px 4px'), T('<span style="font-family:georgia;font-size:18px">Hearth &amp; Oak</span> &nbsp;&nbsp; <span style="letter-spacing:3px;color:#999">MODERNO</span> &nbsp;&nbsp; <span style="font-family:georgia;letter-spacing:2px">WILLOW LANE</span>', '#555555', 15, HELV, pad='8px 24px 24px'), bg='#FFFFFF', pad='0px'),
+], plain_footer('#FFFFFF', '#555555', '*Free delivery: some exclusions apply.', 'Homeward · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Privacy</a>'), '#FFFFFF', ['sign-in', 'link', 'commerce'], marketing=False)
+
+yellow87 = '#FFF200'
+studio('just-signed-in', 'Just Signed In', 'Transactional', 'A playful sign-in alert: an original cartoon cloud character holding a phone, rounded yellow bands top and bottom, a big headline, and clear details with what to do.',
+ 'Someone just signed in to your account', 'If it was you, there’s nothing to do.', [
+ row(text('', 4, '#1A1A1A', pad='24px 0px'), bg=yellow87, pad='0px'),
+ row(ill('cloud-buddy', 'A cheerful cartoon cloud winking and holding a phone, with sparkles', '320px', '0px 40px 0px'), H('Just signed in!', '#1A1A1A', 36, HELV, pad='16px 40px 16px'),
+  T('Hi {{first_name}},<br><br>Someone signed in to your account from <strong>{{device}}</strong> on <strong>{{date}}</strong> at <strong>{{time}}</strong>, somewhere near <strong>{{approximate_location}}</strong>.<br><br>If this was you, you can ignore this email. There’s nothing else to do.<br><br>If this wasn’t you, please change your password in the app or on our ' + lk('help site', '#1A3AD8') + '.<br><br>Read more about ' + lk('keeping your account safe', '#1A3AD8') + '.<br><br>Thanks,<br>Team Cloudcam', '#1A1A1A', 17, HELV, 'left', '4px 40px 24px'), bg='#FFFFFF', pad='0px'),
+ row(text('', 4, '#1A1A1A', pad='28px 0px'), bg=yellow87, pad='0px'),
+], plain_footer('#F4F4F4', '#555555', '© Cloudcam 2026 | ' + lk('Terms', '#2A8AE8'), 'Cloudcam · 12 Example Street, Your City'), '#F4F4F4', ['security', 'sign-in', 'mascot'], marketing=False)
+
+purple88, teal88 = '#6A2AE8', '#2AC8C8'
+studio('reset-geometric', 'Changing Your Password', 'Transactional', 'A password reset with a bold geometric band top and bottom: a chunky wordmark, a lock icon, a light purple headline, a wide teal button and a grey perks footer.',
+ 'Reset your password', 'Need a new password? Start here.', [
+ row(ill('geo-band', 'A band of geometric purple, teal and coral shapes'), H('zest', purple88, 54, BLACK, 'left', '32px 40px 0px'), ill('lock-dots', 'A padlock icon', '64px', '8px 40px', 'left'),
+  H('Changing your<br>Zest password', purple88, 40, HELV, 'left', '24px 40px 8px'), T('Need to reset your password? No problem. Click below to get started.', '#555555', 18, HELV, 'left', '4px 40px 16px'),
+  T(f'<a href="https://example.com" style="display:inline-block;background:{teal88};color:#FFFFFF;padding:18px 70px;text-decoration:none;font-size:18px">Reset my password</a>', '#FFFFFF', 18, HELV, 'left', '8px 40px 16px'),
+  T('If you didn’t ask to change your Zest password, you don’t need to do anything. Easy.', '#555555', 18, HELV, 'left', '8px 40px 56px'), bg='#FFFFFF', pad='0px'),
+ row(T(f'<strong style="color:{purple88}">Free delivery over $35 &nbsp;•&nbsp; Free returns for 30 days &nbsp;•&nbsp; Help any time</strong>', purple88, 11, HELV, pad='24px 24px 8px'), T('<strong>help@zest.example</strong>', '#333333', 11, HELV, 'right', '8px 40px 16px'), ill('geo-band', 'A band of geometric shapes'), bg='#F4F4F4', pad='0px'),
+], plain_footer('#FFFFFF', '#777777', 'Zest · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Privacy policy</a>'), '#F4F4F4', ['password', 'reset', 'geometric'], marketing=False)

@@ -630,7 +630,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               </div>
               <div className="max-w-[315px]">
                 <p className="text-sm leading-relaxed text-ink/75">
-                  170+ editable email templates.
+                  200+ editable email templates.
                   <br />
                   Different moods, different stories. All yours to make your
                   own.
