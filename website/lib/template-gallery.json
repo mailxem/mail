@@ -2383,5 +2383,230 @@
     ],
     "collection": "Studio collection",
     "height": 1033
+  },
+  {
+    "key": "studio-blog-welcome-survey",
+    "name": "Blog Welcome",
+    "category": "Welcome",
+    "description": "A blog subscription welcome: a black header bar, a bright product-swirl hero, a short letter with a one-click survey list, a grey trial panel and a black footer.",
+    "subject": "Welcome to the Shopfront blog",
+    "preheader": "Tell us where you are, and we’ll send the right advice.",
+    "tags": [
+      "welcome",
+      "survey",
+      "segmentation"
+    ],
+    "collection": "Studio collection",
+    "height": 1252
+  },
+  {
+    "key": "studio-tldr-welcome",
+    "name": "TL;DR Welcome",
+    "category": "Welcome",
+    "description": "A developer-platform welcome on warm paper: a dark glowing banner, a short TL;DR bullet list with links and a plain sign-off.",
+    "subject": "Welcome to Keyward",
+    "preheader": "The short version: where to start building.",
+    "tags": [
+      "welcome",
+      "developer",
+      "minimal"
+    ],
+    "collection": "Studio collection",
+    "height": 860
+  },
+  {
+    "key": "studio-new-sign-in",
+    "name": "New Sign-in",
+    "category": "Transactional",
+    "description": "A security alert: an illustration of someone checking their phone, a bold headline, sign-in details as a list, and clear “if this was you / wasn’t you” sections.",
+    "subject": "New sign-in to your account",
+    "preheader": "We noticed a sign-in from a new device.",
+    "tags": [
+      "security",
+      "alert",
+      "sign-in"
+    ],
+    "collection": "Studio collection",
+    "height": 860
+  },
+  {
+    "key": "studio-shared-data",
+    "name": "Shared Data",
+    "category": "Transactional",
+    "description": "A data-sharing notice: a centred headline and account chip, an illustration, a blue info box, a card listing what was shared, a pill button and a reassurance card.",
+    "subject": "You signed in to Pinboard with your Keyring account",
+    "preheader": "Here’s what you shared.",
+    "tags": [
+      "account",
+      "privacy",
+      "notice"
+    ],
+    "collection": "Studio collection",
+    "height": 1162
+  },
+  {
+    "key": "studio-login-changed",
+    "name": "Login Changed",
+    "category": "Transactional",
+    "description": "An account change confirmation: a dotted lilac hero with a badge, a small app tile, a bold headline, an account card and a perspective grid footer.",
+    "subject": "You’ve changed how you sign in",
+    "preheader": "From now on, use your Soundbox account to sign in.",
+    "tags": [
+      "account",
+      "sign-in",
+      "change"
+    ],
+    "collection": "Studio collection",
+    "height": 1081
+  },
+  {
+    "key": "studio-confirm-code",
+    "name": "Confirm Code",
+    "category": "Transactional",
+    "description": "A minimal email-confirmation code: a logo, a bold headline, one line of explanation, the code in a soft grey box and a short reassurance.",
+    "subject": "Confirm your email to join",
+    "preheader": "Your code is inside.",
+    "tags": [
+      "verification",
+      "code",
+      "minimal"
+    ],
+    "collection": "Studio collection",
+    "height": 860
+  },
+  {
+    "key": "studio-id-on-phone",
+    "name": "ID on Your Phone",
+    "category": "Transactional",
+    "description": "A feature confirmation for a digital ID: a hand holding a phone on a sky gradient, a headline, then three coloured icon panels each with a headline and short text.",
+    "subject": "Show your ID with a tap",
+    "preheader": "You’ve added your ID to your wallet. Here’s how it works.",
+    "tags": [
+      "feature",
+      "security",
+      "identity"
+    ],
+    "collection": "Studio collection",
+    "height": 1937
+  },
+  {
+    "key": "studio-email-changed",
+    "name": "Email Changed",
+    "category": "Transactional",
+    "description": "A plain account-change confirmation: a red monogram, a bold headline, a short note, a sign-off, a rule and a red outlined button.",
+    "subject": "Your email address has been changed",
+    "preheader": "If you didn’t ask for this, contact us.",
+    "tags": [
+      "account",
+      "change",
+      "security"
+    ],
+    "collection": "Studio collection",
+    "height": 860
+  },
+  {
+    "key": "studio-privacy-update",
+    "name": "Privacy Update",
+    "category": "Transactional",
+    "description": "A policy-update notice: a black logo bar, a yellow hero with a bell in concentric circles, two short paragraphs, a grey sign-off and a black footer.",
+    "subject": "We’ve updated our privacy notice",
+    "preheader": "The changes take effect on 1 September.",
+    "tags": [
+      "policy",
+      "notice",
+      "privacy"
+    ],
+    "collection": "Studio collection",
+    "height": 897
+  },
+  {
+    "key": "studio-almost-there-code",
+    "name": "Almost There",
+    "category": "Transactional",
+    "description": "A centred confirmation card on pale blue: a chunky logo, a bold headline, a wide button, then a fallback code in mono below a dashed rule.",
+    "subject": "Almost there! Confirm your email",
+    "preheader": "Tap the button, or use the code inside.",
+    "tags": [
+      "verification",
+      "code",
+      "confirm"
+    ],
+    "collection": "Studio collection",
+    "height": 860
+  },
+  {
+    "key": "studio-reset-camper",
+    "name": "Reset Your Password",
+    "category": "Transactional",
+    "description": "A friendly password reset: a grey header panel with a line-drawn camper, a reassuring line, a green button, and a help box with a headset icon.",
+    "subject": "Reset your Roamly password",
+    "preheader": "It happens to everyone. Here’s your link.",
+    "tags": [
+      "password",
+      "reset",
+      "account"
+    ],
+    "collection": "Studio collection",
+    "height": 860
+  },
+  {
+    "key": "studio-confirm-personal",
+    "name": "Confirm, Personally",
+    "category": "Transactional",
+    "description": "A double opt-in with personality: a centred hand-drawn logo, a bold line, a chatty letter with the subscriber’s address, a wide blue button and a signature.",
+    "subject": "We’re almost there! Please confirm",
+    "preheader": "One little blue button away from the newsletter.",
+    "tags": [
+      "double opt-in",
+      "personal",
+      "confirm"
+    ],
+    "collection": "Studio collection",
+    "height": 1206
+  },
+  {
+    "key": "studio-magic-link",
+    "name": "Magic Link",
+    "category": "Transactional",
+    "description": "A one-time sign-in link for a shop: a purple announcement bar, a centred logo and nav, a teal button, a warning note, two promo cards and a brands strip.",
+    "subject": "Your sign-in link",
+    "preheader": "This link works once and expires in 15 minutes.",
+    "tags": [
+      "sign-in",
+      "link",
+      "commerce"
+    ],
+    "collection": "Studio collection",
+    "height": 1063
+  },
+  {
+    "key": "studio-just-signed-in",
+    "name": "Just Signed In",
+    "category": "Transactional",
+    "description": "A playful sign-in alert: an original cartoon cloud character holding a phone, rounded yellow bands top and bottom, a big headline, and clear details with what to do.",
+    "subject": "Someone just signed in to your account",
+    "preheader": "If it was you, there’s nothing to do.",
+    "tags": [
+      "security",
+      "sign-in",
+      "mascot"
+    ],
+    "collection": "Studio collection",
+    "height": 886
+  },
+  {
+    "key": "studio-reset-geometric",
+    "name": "Changing Your Password",
+    "category": "Transactional",
+    "description": "A password reset with a bold geometric band top and bottom: a chunky wordmark, a lock icon, a light purple headline, a wide teal button and a grey perks footer.",
+    "subject": "Reset your password",
+    "preheader": "Need a new password? Start here.",
+    "tags": [
+      "password",
+      "reset",
+      "geometric"
+    ],
+    "collection": "Studio collection",
+    "height": 872
   }
 ]
