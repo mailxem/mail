@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { PaidPlanNotice, usePaidPlan } from "@/components/billing/paid-plan";
 import { useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -153,6 +154,7 @@ function parseReceiving(value: unknown): Receiving | null {
 export function ManagedInboxes() {
   const query = useMarketingQuery<unknown>("mail-connections/receiving");
   const { request, refresh } = useMarketing();
+  const paid = usePaidPlan();
   const data = useMemo(() => parseReceiving(query.data), [query.data]);
   const [domainId, setDomainId] = useState("");
   const [localPart, setLocalPart] = useState("");
@@ -289,6 +291,8 @@ export function ManagedInboxes() {
             Retry
           </Button>
         </div>
+      ) : !paid ? (
+        <PaidPlanNotice feature="The Xem inbox" />
       ) : !data.enabled ? (
         <div className="rounded-lg border border-dashed p-4">
           <p className="text-sm font-medium">

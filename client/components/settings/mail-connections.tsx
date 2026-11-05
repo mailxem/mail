@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { CloudflareRelays } from "./cloudflare-relay";
+import { PaidPlanNotice, usePaidPlan } from "@/components/billing/paid-plan";
 
 type Connection = {
   id: string;
@@ -34,6 +35,7 @@ export function MailConnections({
   const [token, setToken] = useState("");
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
   const google = provider === "google";
+  const paid = usePaidPlan();
   const connections =
     result.data?.connections.filter(
       (c) => c.provider === (google ? "GOOGLE_OAUTH" : "CLOUDFLARE"),
@@ -204,6 +206,8 @@ export function MailConnections({
                 </p>
               </details>
             </div>
+          ) : !paid ? (
+            <PaidPlanNotice feature="Cloudflare email" />
           ) : (
             <div className="space-y-5">
               <CloudflareRelays />
