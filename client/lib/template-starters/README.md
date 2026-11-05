@@ -1,12 +1,12 @@
 # Xem email template library
 
-218 editable templates: 20 reference-inspired designs, 18 Xem originals, and 180 editorial compositions. The old 180 industry reskins have been removed. Each current template has a different native block structure; editorial designs also have individual briefs, palettes, image choices, proportions, and reading order. Components are shared by the generator, but complete designs are not palette-only copies.
+62 editable templates from the generator: 20 reference-inspired designs, 18 Xem originals, and 24 editorial newsletters. The 20 `xem-*` account emails are added to the manifest by `server/cmd/onboarding-templates`. Each editorial newsletter is written and laid out by hand, with its own sample copy, palette, photos and reading order; the generator's helpers only build blocks. They replace 180 generated subject × recipe compositions that repeated the same copy and colour bands.
 
 ## Source and generation
 
 - `scripts/generate_template_starters.py`: native Unlayer schema 18 and static gallery previews.
 - `scripts/reference_templates.py`: layouts based on the supplied screenshots and linked emails.
-- `scripts/composed_template_collection.py`: 180 editorial briefs and composition recipes.
+- `scripts/composed_template_collection.py`: the 24 hand-written editorial newsletters.
 - `scripts/crop-template-references.ts`: image crops from retained source screenshots. Temporary clipboard paths are optional once a source screenshot has been saved.
 - `public/assets/template-starters/<key>/design.json`: editable rows, columns, headings, paragraphs, images, buttons, and dividers.
 - `public/assets/template-starters/<key>/preview.html`: a lightweight visual preview generated from the same blocks.

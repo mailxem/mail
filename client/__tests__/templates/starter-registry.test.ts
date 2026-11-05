@@ -11,7 +11,7 @@ const asset = (url: string) => path.join(process.cwd(), "public", url);
 
 describe("native starter library", () => {
   it("ships distinct editable compositions with consistent IDs, assets and a footer", () => {
-    expect(templateStarters.length).toBeGreaterThanOrEqual(200);
+    expect(templateStarters.length).toBeGreaterThanOrEqual(80);
     const keys = new Set<string>();
     const structures = new Set<string>();
     for (const starter of templateStarters) {
@@ -75,7 +75,7 @@ describe("native starter library", () => {
   it("filters by category, content and collection together", () => {
     const found = filterTemplateStarters(
       "Newsletters",
-      "coffee",
+      "recipe",
       "Editorial collection",
     );
     expect(found.length).toBeGreaterThan(0);

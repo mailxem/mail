@@ -58,7 +58,7 @@ const everyPlan = [
   "Signup forms, lists and contact CRM",
   "Shared inbox",
   "Analytics and send-time suggestions",
-  "200+ editable templates and AI drafting",
+  "80+ editable templates and AI drafting",
   "API, webhooks and MCP server",
   "Public newsletter archive and RSS",
 ];
