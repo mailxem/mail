@@ -1,0 +1,877 @@
+{
+  "schemaVersion": 18,
+  "counters": {
+    "u_row": 3,
+    "u_column": 3,
+    "u_content_heading": 6,
+    "u_content_text": 12,
+    "u_content_image": 2
+  },
+  "body": {
+    "id": "studio-your-key-body",
+    "rows": [
+      {
+        "id": "studio-your-key-1",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-your-key-2",
+            "contents": [
+              {
+                "id": "studio-your-key-3",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_1",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "🎩",
+                  "fontSize": "30px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "12px 32px",
+                  "headingType": "h2"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_1",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F7C83A",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_1",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-your-key-4",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-your-key-5",
+            "contents": [
+              {
+                "id": "studio-your-key-6",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_1",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "in partnership with",
+                  "fontSize": "10px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#555555",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "16px 32px 0px"
+                }
+              },
+              {
+                "id": "studio-your-key-7",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_2",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "◐ Lantern Games",
+                  "fontSize": "16px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#C8A030",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "4px 32px 8px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-your-key-8",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_3",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "The Castle<br>Welcomes You!",
+                  "fontSize": "32px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "8px 32px 4px",
+                  "headingType": "h1"
+                }
+              },
+              {
+                "id": "studio-your-key-9",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Your early key for the <strong>Glass Castle</strong> demo is here.",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 32px 16px"
+                }
+              },
+              {
+                "id": "studio-your-key-10",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "/assets/template-starters/illustrations/pixel-sign.png",
+                    "width": 1200,
+                    "height": 600,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "A pixel-art sign reading Glass Castle beside a pixel character, in a gold frame",
+                  "textAlign": "center",
+                  "containerPadding": "0px 24px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-your-key-11",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_3",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Oh yes, hello {{first_name}},<br><br>Today you’re getting your key for the Glass Castle demo. It’s more exclusive than you might think: the game isn’t out yet, and won’t be for a little while.<br><br>You’re in the first group of players to try it, so feel free to brag. (And if your friends want a key, tell them to subscribe. We have plenty.)",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "16px 40px 8px"
+                }
+              },
+              {
+                "id": "studio-your-key-12",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_4",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://example.com\" style=\"display:inline-block;background:#F7C83A;border:2px solid #1A1A1A;padding:12px 60px;color:#1A1A1A;text-decoration:none;font-family:georgia;font-weight:bold\">claim your key!</a>",
+                  "fontSize": "13px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "16px 32px 24px"
+                }
+              },
+              {
+                "id": "studio-your-key-13",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_4",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "An interview with the developer",
+                  "fontSize": "24px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "16px 40px 8px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-your-key-14",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_5",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "We asked the game’s creator a few questions this month. One answer stood out:",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px 8px"
+                }
+              },
+              {
+                "id": "studio-your-key-15",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_6",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<em>“You can inspect almost anything in the game and read a little description of it. On the battlefield they’re practical. Everywhere else they’re mostly jokes. The throne and the mop bucket have the same description. Almost nobody notices.”</em>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px 16px"
+                }
+              },
+              {
+                "id": "studio-your-key-16",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_2",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "/assets/template-starters/illustrations/pixel-creature.png",
+                    "width": 1200,
+                    "height": 600,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "A pixel-art pink creature lying across a dark scene, in a gold frame",
+                  "textAlign": "center",
+                  "containerPadding": "0px 24px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-your-key-17",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_7",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://example.com\" style=\"display:inline-block;background:#F7C83A;border:2px solid #1A1A1A;padding:12px 40px;color:#1A1A1A;text-decoration:none;font-family:georgia;font-weight:bold\">Read the full interview</a>",
+                  "fontSize": "13px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "16px 32px 24px"
+                }
+              },
+              {
+                "id": "studio-your-key-18",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_5",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "That’s a wrap.",
+                  "fontSize": "24px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "8px 40px 8px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-your-key-19",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_8",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "That’s the end of this month’s partnership. Enjoy Glass Castle. Next month we’re teaming up with another small studio, so keep an eye out.<br><br>Until next time.<br><br><span style=\"color:#C8A030\">lantern.</span>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_2",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F2F2F2",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_2",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-your-key-20",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-your-key-21",
+            "contents": [
+              {
+                "id": "studio-your-key-22",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_6",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "🎩 lantern",
+                  "fontSize": "32px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#F7C83A",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "32px 32px 16px",
+                  "headingType": "h1"
+                }
+              },
+              {
+                "id": "studio-your-key-23",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_9",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"display:block;background:#F7C83A;padding:10px;color:#1A1A1A;font-family:georgia;font-weight:bold\">go premium</span>",
+                  "fontSize": "13px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "6px 96px"
+                }
+              },
+              {
+                "id": "studio-your-key-24",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_10",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"display:block;background:#F7C83A;padding:10px;color:#1A1A1A;font-family:georgia;font-weight:bold\">get our catalogue</span>",
+                  "fontSize": "13px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "6px 96px"
+                }
+              },
+              {
+                "id": "studio-your-key-25",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_11",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"display:block;background:#F7C83A;padding:10px;color:#1A1A1A;font-family:georgia;font-weight:bold\">join the chat</span>",
+                  "fontSize": "13px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "6px 96px"
+                }
+              },
+              {
+                "id": "studio-your-key-26",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_12",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Lantern is an indie game label · 12 Example Street, Your City<br><a href=\"https://example.com\" style=\"color:#FFFFFF;\">View in browser</a> | <a href=\"https://example.com\" style=\"color:#FFFFFF;\">Unsubscribe</a><br><a href=\"https://xem.email\" style=\"color:#FFFFFF\">Built with Xem</a>",
+                  "fontSize": "10px",
+                  "fontFamily": {
+                    "label": "Courier New",
+                    "value": "courier new,courier,monospace"
+                  },
+                  "color": "#FFFFFF",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "16px 32px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_3",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#1C1C1C",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_3",
+            "htmlClassNames": "u_row"
+          }
+        }
+      }
+    ],
+    "headers": [],
+    "footers": [],
+    "values": {
+      "backgroundColor": "#F2F2F2",
+      "contentWidth": "600px",
+      "contentAlign": "center",
+      "fontFamily": {
+        "label": "Arial",
+        "value": "arial,helvetica,sans-serif"
+      },
+      "textColor": "#30332F",
+      "preheaderText": "You’re one of the first to play. Here’s your key.",
+      "language": {
+        "htmlLang": "en"
+      },
+      "linkStyle": {
+        "body": true,
+        "linkColor": "#514293",
+        "linkHoverColor": "#514293",
+        "linkUnderline": true,
+        "linkHoverUnderline": true
+      },
+      "_meta": {
+        "htmlID": "u_body",
+        "htmlClassNames": "u_body"
+      }
+    }
+  }
+}

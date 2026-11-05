@@ -1,0 +1,1389 @@
+{
+  "schemaVersion": 18,
+  "counters": {
+    "u_row": 6,
+    "u_column": 8,
+    "u_content_text": 17,
+    "u_content_image": 3,
+    "u_content_divider": 5,
+    "u_content_heading": 2,
+    "u_content_button": 2
+  },
+  "body": {
+    "id": "studio-the-scroll-body",
+    "rows": [
+      {
+        "id": "studio-the-scroll-1",
+        "cells": [
+          1,
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-the-scroll-2",
+            "contents": [
+              {
+                "id": "studio-the-scroll-3",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_1",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "February 6, 2026",
+                  "fontSize": "11px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 8px 4px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_1",
+                "htmlClassNames": "u_column"
+              }
+            }
+          },
+          {
+            "id": "studio-the-scroll-4",
+            "contents": [
+              {
+                "id": "studio-the-scroll-5",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://example.com\" style=\"color:#1A1A1A;\">Log in</a> | <a href=\"https://example.com\" style=\"color:#1A1A1A;\">View online</a>",
+                  "fontSize": "11px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "right",
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 32px 4px 8px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_2",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_1",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-the-scroll-6",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-the-scroll-7",
+            "contents": [
+              {
+                "id": "studio-the-scroll-8",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "/assets/template-starters/illustrations/scroll-masthead.png",
+                    "width": 1200,
+                    "height": 600,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "A green grid-paper masthead reading The Weekly Scroll by Queueline",
+                  "textAlign": "center",
+                  "containerPadding": "8px 32px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-the-scroll-9",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_3",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>IN THIS ISSUE</strong> <span style=\"float:right\">6-min read</span>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "16px 32px 8px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-10",
+                "type": "divider",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_divider_1",
+                    "htmlClassNames": "u_content_divider"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "width": "100%",
+                  "border": {
+                    "borderTopWidth": "1px",
+                    "borderTopStyle": "solid",
+                    "borderTopColor": "#1A1A1A"
+                  },
+                  "textAlign": "center",
+                  "containerPadding": "18px 36px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-11",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_4",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "🎵 &nbsp;Trending sounds for February<br>📸 &nbsp;A photo app tests reordering posts<br>🤖 &nbsp;How I use AI as a creator<br>💼 &nbsp;Growing on a professional network",
+                  "fontSize": "13px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 32px 16px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-12",
+                "type": "divider",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_divider_2",
+                    "htmlClassNames": "u_content_divider"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "width": "100%",
+                  "border": {
+                    "borderTopWidth": "1px",
+                    "borderTopStyle": "solid",
+                    "borderTopColor": "#1A1A1A"
+                  },
+                  "textAlign": "center",
+                  "containerPadding": "18px 36px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-13",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_5",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>A NOTE FROM SAM</strong>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "16px 32px 4px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-14",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_6",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Hey folks,<br><br>Have you ever explained something to someone and realised halfway through that you didn’t fully understand it yourself?<br><br>That happened to me this week. I was writing up how I use AI tools, and had to map out my whole workflow, step by step. It sounds simple. It wasn’t.<br><br>Writing it down showed me patterns I hadn’t noticed. AI wasn’t helping with the writing so much as with collecting ideas and editing. The writing is still me, for better or worse.<br><br>Have a lovely weekend, and I’ll see you next Friday!",
+                  "fontSize": "13px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 32px 16px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_3",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_2",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-the-scroll-15",
+        "cells": [
+          1,
+          3
+        ],
+        "columns": [
+          {
+            "id": "studio-the-scroll-16",
+            "contents": [
+              {
+                "id": "studio-the-scroll-17",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_2",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "/assets/template-starters/illustrations/avatar-4.png",
+                    "width": 1200,
+                    "height": 600,
+                    "autoWidth": false,
+                    "maxWidth": "80px"
+                  },
+                  "altText": "Portrait of Sam",
+                  "textAlign": "center",
+                  "containerPadding": "8px 8px 16px 48px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_4",
+                "htmlClassNames": "u_column"
+              }
+            }
+          },
+          {
+            "id": "studio-the-scroll-18",
+            "contents": [
+              {
+                "id": "studio-the-scroll-19",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_7",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>Sam</strong><br><em style=\"color:#777\">Senior content creator</em>",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "24px 32px 16px 8px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_5",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_3",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-the-scroll-20",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-the-scroll-21",
+            "contents": [
+              {
+                "id": "studio-the-scroll-22",
+                "type": "divider",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_divider_3",
+                    "htmlClassNames": "u_content_divider"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "width": "100%",
+                  "border": {
+                    "borderTopWidth": "1px",
+                    "borderTopStyle": "solid",
+                    "borderTopColor": "#1A1A1A"
+                  },
+                  "textAlign": "center",
+                  "containerPadding": "18px 36px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-23",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_8",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>THE LATEST FROM THE BLOG</strong>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "16px 32px 4px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-24",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_9",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "•&nbsp; <a href=\"https://example.com\" style=\"color:#1E7A4A;\">Discover</a> the best time to post this month<br>•&nbsp; <a href=\"https://example.com\" style=\"color:#1E7A4A;\">Learn</a> how I grew my following on a professional network<br>•&nbsp; <a href=\"https://example.com\" style=\"color:#1E7A4A;\">Check out</a> this month’s trending sounds",
+                  "fontSize": "13px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 32px 16px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-25",
+                "type": "divider",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_divider_4",
+                    "htmlClassNames": "u_content_divider"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "width": "100%",
+                  "border": {
+                    "borderTopWidth": "1px",
+                    "borderTopStyle": "solid",
+                    "borderTopColor": "#1A1A1A"
+                  },
+                  "textAlign": "center",
+                  "containerPadding": "18px 36px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-26",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_10",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>THE DEEP DIVE</strong>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "16px 32px 4px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-27",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_1",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "I use AI every day, but not the way you’d expect",
+                  "fontSize": "18px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "4px 32px 8px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-the-scroll-28",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_11",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Most people’s AI workflow looks like this: open a chatbot, ask it to write something, get something generic back, rewrite it all, and wonder what the point was. That was me a year ago.<br><br>What changed was working out where each tool fits in my process:<br><br>•&nbsp; <strong>Better inputs beat better prompts.</strong> What you feed the tool matters more than how you ask.<br>•&nbsp; <strong>It’s a thinking partner, not a ghostwriter.</strong> I use it to find holes in my ideas.<br>•&nbsp; <strong>Your voice is the thing it can’t copy.</strong> I write drafts myself and use AI to edit.<br>•&nbsp; <strong>Automate the busywork, not the creative part.</strong><br><br><strong>Bottom line:</strong> AI won’t fix weak content, but it will speed you up once you know what you’re making.",
+                  "fontSize": "13px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 32px 8px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-29",
+                "type": "button",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_button_1",
+                    "htmlClassNames": "u_content_button"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Dive deeper",
+                  "href": {
+                    "name": "web",
+                    "attrs": {
+                      "href": "{{href}}",
+                      "target": "{{target}}"
+                    },
+                    "values": {
+                      "href": "https://example.com",
+                      "target": "_blank"
+                    }
+                  },
+                  "buttonColors": {
+                    "color": "#1E4A3A",
+                    "backgroundColor": "#A8E6A1",
+                    "hoverColor": "#1E4A3A",
+                    "hoverBackgroundColor": "#A8E6A1"
+                  },
+                  "size": {
+                    "autoWidth": true,
+                    "width": "100%"
+                  },
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "fontSize": "13px",
+                  "lineHeight": "140%",
+                  "textAlign": "center",
+                  "padding": "14px 32px",
+                  "border": {},
+                  "borderRadius": "999px",
+                  "containerPadding": "8px 32px 24px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-30",
+                "type": "divider",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_divider_5",
+                    "htmlClassNames": "u_content_divider"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "width": "100%",
+                  "border": {
+                    "borderTopWidth": "1px",
+                    "borderTopStyle": "solid",
+                    "borderTopColor": "#1A1A1A"
+                  },
+                  "textAlign": "center",
+                  "containerPadding": "18px 36px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-31",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_12",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>QUEUELINE ON VIDEO</strong>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "16px 32px 8px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-32",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_3",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "/assets/template-starters/illustrations/video-thumb.png",
+                    "width": 1200,
+                    "height": 600,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "A video thumbnail of a presenter beside the words Let’s tune up your profile",
+                  "textAlign": "center",
+                  "containerPadding": "0px 32px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-the-scroll-33",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_2",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Profile tips that grew my audience",
+                  "fontSize": "16px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "12px 32px 4px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-the-scroll-34",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_13",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "A short, practical walk-through of the profile changes that made the biggest difference.",
+                  "fontSize": "13px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 32px 8px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-35",
+                "type": "button",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_button_2",
+                    "htmlClassNames": "u_content_button"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Watch video",
+                  "href": {
+                    "name": "web",
+                    "attrs": {
+                      "href": "{{href}}",
+                      "target": "{{target}}"
+                    },
+                    "values": {
+                      "href": "https://example.com",
+                      "target": "_blank"
+                    }
+                  },
+                  "buttonColors": {
+                    "color": "#1E4A3A",
+                    "backgroundColor": "#A8E6A1",
+                    "hoverColor": "#1E4A3A",
+                    "hoverBackgroundColor": "#A8E6A1"
+                  },
+                  "size": {
+                    "autoWidth": true,
+                    "width": "100%"
+                  },
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "fontSize": "13px",
+                  "lineHeight": "140%",
+                  "textAlign": "center",
+                  "padding": "14px 32px",
+                  "border": {},
+                  "borderRadius": "999px",
+                  "containerPadding": "8px 32px 24px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_6",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_4",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-the-scroll-36",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-the-scroll-37",
+            "contents": [
+              {
+                "id": "studio-the-scroll-38",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_14",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"display:block;background:#E8F7E8;border:1px solid #A8E6A1;padding:20px\"><strong>One last thing before you go</strong><br><br>What would you like more (or less) of in this newsletter? Reply and tell us.<br><br><u><a href=\"https://example.com\" style=\"color:#1E4A3A;\">Take the survey →</a></u></span>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 32px 24px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_7",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_5",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-the-scroll-39",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-the-scroll-40",
+            "contents": [
+              {
+                "id": "studio-the-scroll-41",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_15",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Sent by the team at Queueline · 12 Example Street, Your City",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#777777",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-42",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_16",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://example.com\" style=\"color:inherit\">Unsubscribe</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#777777",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-the-scroll-43",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_17",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://xem.email\" style=\"color:inherit\">Built with Xem</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#777777",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 48px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_8",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "24px 0px 0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_6",
+            "htmlClassNames": "u_row"
+          }
+        }
+      }
+    ],
+    "headers": [],
+    "footers": [],
+    "values": {
+      "backgroundColor": "#F4F4F0",
+      "contentWidth": "600px",
+      "contentAlign": "center",
+      "fontFamily": {
+        "label": "Arial",
+        "value": "arial,helvetica,sans-serif"
+      },
+      "textColor": "#30332F",
+      "preheaderText": "This week’s trends, a note from me, and a deep dive.",
+      "language": {
+        "htmlLang": "en"
+      },
+      "linkStyle": {
+        "body": true,
+        "linkColor": "#514293",
+        "linkHoverColor": "#514293",
+        "linkUnderline": true,
+        "linkHoverUnderline": true
+      },
+      "_meta": {
+        "htmlID": "u_body",
+        "htmlClassNames": "u_body"
+      }
+    }
+  }
+}
