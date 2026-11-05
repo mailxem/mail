@@ -191,6 +191,27 @@ const recipes: Record<string, string> = {
   "status-paused": String.raw`
     bg-muted text-muted-foreground
   `,
+  "status-delivered": String.raw`
+    [background:var(--success)] [color:var(--success-foreground)]
+  `,
+  "status-opened": String.raw`
+    [background:var(--info)] [color:var(--info-foreground)]
+  `,
+  "status-clicked": String.raw`
+    [background:var(--info)] [color:var(--info-foreground)]
+  `,
+  "status-bounced": String.raw`
+    [background:#feecec] [color:#c2302b]
+  `,
+  "status-failed": String.raw`
+    [background:#feecec] [color:#c2302b]
+  `,
+  "status-suppressed": String.raw`
+    [background:var(--warning)] [color:var(--warning-foreground)]
+  `,
+  "status-sending": String.raw`
+    [background:var(--info)] [color:var(--info-foreground)]
+  `,
   "status-scheduled": String.raw`
     [background:var(--info)] [color:var(--info-foreground)]
   `,
@@ -503,63 +524,71 @@ const recipes: Record<string, string> = {
   "react-flow__controls-button": String.raw`
     ![border-bottom:1px_solid_var(--border)] ![background:var(--card)] ![fill:var(--muted-foreground)]
   `,
+  "mail-topbar": String.raw`
+    flex items-center [gap:12px] [height:64px] shrink-0 [padding:0_24px] [border-bottom:1px_solid_var(--border)] [color:var(--muted-foreground)]
+    [&_>_svg]:[color:var(--muted-foreground)] [&_>_svg]:[stroke-width:1.5]
+    [&_h1]:[font-size:17px] [&_h1]:[font-weight:500] [&_h1]:[color:var(--foreground)] [&_h1]:[letter-spacing:-0.01em]
+    [&_>_span]:[font-size:10px] [&_>_span]:[color:var(--border-strong)]
+    [&_p]:[font-size:17px] [&_p]:[color:var(--foreground)] [&_p]:tabular-nums
+    max-[780px]:[padding:0_16px] max-[780px]:[height:56px]
+  `,
+  "mail-topbar-actions": String.raw`
+    flex items-center [gap:8px] [margin-left:auto]
+  `,
+  "mail-toolbar": String.raw`
+    flex items-center [gap:12px] shrink-0 [padding:12px_24px] [border-bottom:1px_solid_var(--border)] min-w-0
+    max-[780px]:[padding:10px_16px]
+  `,
+  "mail-toolbar-divider": String.raw`
+    [width:1px] [height:24px] [background:var(--border)] shrink-0
+  `,
+  "mail-notice": String.raw`
+    [margin:12px_24px_0] [padding:10px_12px] [border:1px_solid_var(--border)] [border-radius:10px] [background:var(--muted)] [font-size:13px] [color:var(--text-secondary)]
+    [&_a]:[color:var(--foreground)] [&_a]:font-medium
+  `,
+  "mail-panes": String.raw`
+    flex [flex:1] min-h-0 [gap:16px] [padding:16px_24px_24px]
+    max-[780px]:[padding:12px]
+  `,
   "mail-workspace": String.raw`
-    flex h-full w-full min-h-0 min-w-0 overflow-hidden bg-background
-  `,
-  "mail-folders": String.raw`
-    [width:256px] shrink-0 min-h-0 overflow-y-auto [background:var(--card)] [padding:24px_18px] [border-right:1px_solid_var(--border)] flex flex-col
-    max-[1300px]:[width:240px] max-[1300px]:[padding:20px_14px]
-    max-[1100px]:[width:220px]
-    max-[780px]:[width:132px] max-[780px]:[padding:16px_9px]
-  `,
-  "mail-workspace-title": String.raw`
-    [padding:0_5px_20px]
-    [&_strong]:block [&_strong]:[font-size:14px] [&_strong]:[font-weight:550] [&_strong]:[margin:12px_0_5px]
-    [&_small]:[font-size:10px] [&_small]:[color:var(--muted-foreground)]
-    max-[1100px]:[&_small]:hidden
-  `,
-  "mail-account-mark": String.raw`
-    [width:30px] [height:30px] [border-radius:50%] [background:var(--muted)] [color:var(--foreground)] grid [place-items:center]
+    flex flex-col h-full w-full min-h-0 min-w-0 overflow-hidden bg-background
   `,
   "compose-button": String.raw`
-    ![width:100%] ![background:var(--primary)] ![color:var(--primary-foreground)] ![border-radius:8px] ![border:1px_solid_transparent] ![box-shadow:none] ![height:32px] ![min-height:32px] ![padding:0_12px]
+    ![background:var(--primary)] ![color:var(--primary-foreground)] ![border-radius:10px] ![border:1px_solid_transparent] ![box-shadow:none] ![height:36px] ![min-height:36px] ![padding:0_14px] ![gap:8px] ![font-size:14px] ![font-weight:500] shrink-0 [&_svg]:![width:16px] [&_svg]:![height:16px]
   `,
   "mail-folder-list": String.raw`
-    [margin-top:18px] [border-top:1px_solid_var(--border)] [padding-top:14px]
-    [&_button]:flex [&_button]:items-center [&_button]:[gap:9px] [&_button]:[width:100%] [&_button]:[padding:6px_10px] [&_button]:[border-radius:8px] [&_button]:[font-size:12px] [&_button]:[color:var(--muted-foreground)] [&_button]:[border:1px_solid_transparent]
-    [&_button.active]:[background:var(--card)] [&_button.active]:[border-color:var(--border)] [&_button.active]:[box-shadow:none] [&_button.active]:[color:var(--foreground)] [&_button.active]:[font-weight:550]
-    [&_small]:[margin-left:auto]
-    max-[780px]:overflow-y-auto
-  `,
-  "mail-folder-note": String.raw`
-    [font-size:10px] [line-height:1.9] [color:var(--muted-foreground)] [margin-top:auto] [padding:16px_5px]
-    [&_a]:[color:var(--muted-foreground)]
+    flex items-center [gap:4px] min-w-0 overflow-x-auto [scrollbar-width:none] [padding-right:40px] [mask-image:linear-gradient(to_right,black_calc(100%_-_40px),transparent)]
+    [&_button]:flex [&_button]:items-center [&_button]:[gap:8px] [&_button]:[height:36px] [&_button]:[padding:0_12px] [&_button]:[border-radius:10px] [&_button]:[font-size:14px] [&_button]:[color:var(--text-secondary)] [&_button]:whitespace-nowrap [&_button]:[transition:background_.12s]
+    [&_button:hover]:[background:var(--muted)]
+    [&_button_svg]:[color:var(--muted-foreground)] [&_button_svg]:[stroke-width:1.5]
+    [&_button.active]:[background:var(--secondary)] [&_button.active]:[color:var(--foreground)] [&_button.active]:font-medium [&_button.active_svg]:[color:var(--foreground)]
+    [&_small]:[font-size:13px] [&_small]:[color:var(--text-secondary)] [&_small]:tabular-nums [&_small]:font-normal
   `,
   "mail-list-pane": String.raw`
-    [width:370px] shrink-0 [border-right:1px_solid_var(--border)] flex flex-col [min-width:0] [transition:width_.18s_ease,opacity_.18s_ease]
-    max-[1300px]:[width:330px]
-    max-[1100px]:[width:285px]
+    [width:420px] shrink-0 flex flex-col [min-width:0] [border:1px_solid_var(--border)] [border-radius:16px] overflow-hidden [background:var(--card)] [transition:width_.18s_ease,opacity_.18s_ease]
+    max-[1300px]:[width:360px]
+    max-[1100px]:[width:300px]
     max-[780px]:[flex:1] max-[780px]:[width:auto]
   `,
   "mail-list-collapsed": String.raw`
-    min-[1101px]:[width:0] min-[1101px]:[opacity:0] min-[1101px]:[overflow:hidden] min-[1101px]:[border-right:0]
+    max-[1100px]:[width:0] max-[1100px]:[opacity:0] max-[1100px]:[overflow:hidden] max-[1100px]:[border:0]
   `,
   "mail-list-heading": String.raw`
-    [padding:24px_20px_17px] flex items-center justify-between
-    [&_h1]:flex [&_h1]:items-center [&_h1]:[gap:8px] [&_h1]:[font-size:18px] [&_h1]:[font-weight:550] [&_h1]:[letter-spacing:-0.4px]
-    [&_p]:[font-size:11px] [&_p]:[color:var(--muted-foreground)] [&_p]:[margin-top:7px]
+    flex items-center [gap:8px] [height:52px] shrink-0 [padding:0_16px] [border-bottom:1px_solid_var(--border)] [font-size:15px] [color:var(--text-secondary)]
+    [&_small]:[margin-left:auto] [&_small]:[font-size:13px] [&_small]:[color:var(--muted-foreground)] [&_small]:tabular-nums
   `,
   "mail-search": String.raw`
-    focus-within:[outline:2px_solid_var(--ring)] focus-within:[outline-offset:2px] flex items-center [gap:10px] [border:1px_solid_var(--border)] [border-radius:9px] [margin:0_18px_17px] [padding:11px] [color:var(--muted-foreground)]
-    [&_input]:[outline:0] [&_input]:bg-transparent [&_input]:text-foreground [&_input]:border-0 [&_input]:[width:100%] [&_input]:[font-size:12px] [&_input]:[min-width:0]
-    [&_kbd]:[font-size:10px]
+    focus-within:[outline:2px_solid_var(--ring)] focus-within:[outline-offset:-2px] flex items-center [gap:8px] [height:40px] shrink-0 [border-bottom:1px_solid_var(--border)] [padding:0_16px] [color:var(--muted-foreground)]
+    [&_svg]:[width:16px] [&_svg]:[height:16px]
+    [&_input]:[outline:0] [&_input]:bg-transparent [&_input]:text-foreground [&_input]:border-0 [&_input]:[width:100%] [&_input]:[font-size:13px] [&_input]:[min-width:0]
+    [&_kbd]:[font-size:11px]
   `,
   "mail-mobile-folder": String.raw`
-    hidden [margin:0_18px_12px] [height:38px] [border:1px_solid_var(--border)] [border-radius:9px] [background:var(--card)] [padding:0_10px] [font-size:12px]
+    hidden [margin:8px_16px] [height:36px] [border:1px_solid_var(--border-strong)] [border-radius:8px] [background:var(--card)] [padding:0_10px] [font-size:13px]
     max-[780px]:block
   `,
   "mail-mobile-actions": String.raw`
-    hidden [margin:0_18px_10px] [&_>_*]:[min-width:0]
+    hidden [margin:8px_16px_0] [&_>_*]:[min-width:0]
     max-[780px]:block
   `,
   "mail-compose-fab": String.raw`
@@ -573,67 +602,67 @@ const recipes: Record<string, string> = {
     sticky top-0 z-[1] [width:100%] [margin-bottom:6px] [padding:8px_12px] [border:1px_solid_var(--border)] [border-radius:8px] [background:var(--primary)] [color:var(--primary-foreground)] [font-size:11px] font-medium
   `,
   "mail-list-scroll": String.raw`
-    overflow-auto [flex:1] [padding:0_14px]
+    overflow-auto [flex:1]
     max-[780px]:[padding-bottom:calc(140px_+_env(safe-area-inset-bottom))]
   `,
   "mail-group-label": String.raw`
-    flex [gap:8px] items-center [color:var(--muted-foreground)] [font-size:10px] [padding:8px_6px_15px]
+    flex [gap:8px] items-center [color:var(--muted-foreground)] [font-size:12px] [padding:12px_16px_4px]
   `,
   "mail-list-item": String.raw`
-    [width:100%] flex items-start [gap:9px] [padding:12px_7px] text-left [border-bottom:1px_solid_var(--border)] [border-left:2px_solid_transparent] [border-radius:3px]
-    [&.selected]:[background:var(--muted)] [&.selected]:[border-left-color:var(--ring)] [&.selected]:[padding-left:9px]
+    [width:100%] flex items-start [gap:12px] [padding:16px] text-left [border-bottom:1px_solid_var(--border)] [transition:background_.12s]
+    hover:[background:var(--muted)]
+    [&.selected]:[background:var(--muted)]
     [&_>_div]:[min-width:0] [&_>_div]:[flex:1]
-    [&_p]:[font-size:10px] [&_p]:[margin-top:6px] [&_p]:whitespace-nowrap [&_p]:text-ellipsis [&_p]:overflow-hidden [&_p]:[color:var(--muted-foreground)]
-    [&.unread]:[background:color-mix(in_srgb,var(--primary)_5%,transparent)] [&.unread_.mail-item-line_strong]:[color:var(--foreground)] [&.unread_.mail-item-line_strong]:[font-weight:650] [&.unread_.mail-subject]:[color:var(--foreground)] [&.unread_.mail-subject]:[font-weight:550]
+    [&_p]:[font-size:13px] [&_p]:[line-height:20px] [&_p]:[margin-top:6px] [&_p]:[color:var(--text-secondary)] [&_p]:[display:-webkit-box] [&_p]:[-webkit-line-clamp:2] [&_p]:[-webkit-box-orient:vertical] [&_p]:overflow-hidden [&_p_b]:[font-weight:500] [&_p_b]:[color:var(--foreground)]
+    [&.unread_.mail-item-line_strong]:[font-weight:600]
   `,
   "mail-avatar": String.raw`
-    [height:31px] [width:31px] grid [place-items:center] [border-radius:50%] shrink-0 [background:var(--muted)] [color:var(--muted-foreground)] [font-size:12px]
+    [height:36px] [width:36px] grid [place-items:center] [border-radius:50%] shrink-0 [background:var(--muted)] [color:var(--foreground)] [font-size:14px] [font-weight:500]
   `,
   "mail-item-line": String.raw`
-    flex items-center [gap:6px]
-    [&_strong]:[font-size:12px] [&_strong]:[font-weight:550] [&_strong]:[color:var(--muted-foreground)] [&_strong]:overflow-hidden [&_strong]:text-ellipsis [&_strong]:whitespace-nowrap
-    [&_time]:[margin-left:auto] [&_time]:whitespace-nowrap [&_time]:[font-size:9px] [&_time]:[color:var(--muted-foreground)]
+    flex items-baseline [gap:8px]
+    [&_strong]:[font-size:15px] [&_strong]:[font-weight:500] [&_strong]:[color:var(--foreground)] [&_strong]:overflow-hidden [&_strong]:text-ellipsis [&_strong]:whitespace-nowrap
+    [&_time]:[margin-left:auto] [&_time]:whitespace-nowrap [&_time]:[font-size:13px] [&_time]:[color:var(--foreground)] [&_time]:tabular-nums
   `,
   "mail-subject": String.raw`
-    [font-size:11px] [color:var(--muted-foreground)] [margin-top:7px] block overflow-hidden text-ellipsis whitespace-nowrap
+    [font-size:13px] [color:var(--text-secondary)] [margin-top:2px] block overflow-hidden text-ellipsis whitespace-nowrap
   `,
   "mail-detail-pane": String.raw`
-    [flex:1] [min-width:0] overflow-auto [background:var(--card)]
+    [flex:1] [min-width:0] overflow-auto [background:var(--card)] [border:1px_solid_var(--border)] [border-radius:16px]
     max-[780px]:hidden
   `,
   "mail-detail-toolbar": String.raw`
-    [height:70px] flex items-center [gap:9px] [padding:0_28px] [border-bottom:1px_solid_var(--border)] sticky top-0 z-[2] [background:var(--card)]
-    [&_.icon-button]:[border:1px_solid_var(--border)] [&_.icon-button]:[box-shadow:none] [&_.icon-button]:[color:var(--muted-foreground)]
-    max-[1100px]:[gap:7px]
-    max-[600px]:[height:58px] max-[600px]:[padding:0_8px] max-[600px]:[gap:4px] max-[600px]:[&_>_span]:whitespace-nowrap max-[600px]:[&_>_span]:[font-size:10px]
+    [height:64px] flex items-center [gap:8px] [padding:0_24px] sticky top-0 z-[2] [background:var(--card)]
+    [&_.icon-button]:[width:36px] [&_.icon-button]:[height:36px] [&_.icon-button]:[border:1px_solid_var(--border-strong)] [&_.icon-button]:[border-radius:10px] [&_.icon-button]:[box-shadow:0_1px_2px_rgb(0_0_0_/_0.04)] [&_.icon-button]:[color:var(--text-secondary)]
+    max-[600px]:[height:56px] max-[600px]:[padding:0_8px] max-[600px]:[gap:4px] max-[600px]:[&_>_span]:whitespace-nowrap max-[600px]:[&_>_span]:[font-size:11px]
   `,
   "mail-subject-heading": String.raw`
-    [padding:32px_36px_25px] [border-bottom:1px_solid_var(--border)]
-    [&_p]:[font-size:11px] [&_p]:[color:var(--muted-foreground)] [&_p]:[margin-bottom:11px]
-    [&_h2]:[font-size:28px] [&_h2]:font-medium [&_h2]:[letter-spacing:-0.8px] [&_h2]:[color:var(--foreground)] [&_h2]:[line-height:1.25] [&_h2]:[overflow-wrap:anywhere]
-    max-[1300px]:[padding:20px]
-    max-[1300px]:[&_h2]:[font-size:20px]
+    [padding:20px_32px_0]
+    [&_p]:[font-size:12px] [&_p]:[color:var(--muted-foreground)] [&_p]:[margin-bottom:8px]
+    [&_h2]:[font-size:24px] [&_h2]:[font-weight:600] [&_h2]:[letter-spacing:-0.02em] [&_h2]:[color:var(--foreground)] [&_h2]:[line-height:1.25] [&_h2]:[overflow-wrap:anywhere]
+    max-[1300px]:[padding:16px_20px_0] max-[1300px]:[&_h2]:[font-size:20px]
   `,
   "mail-message": String.raw`
-    [padding:28px_36px_42px] [max-width:1120px]
-    max-[1300px]:[padding:20px]
+    [padding:8px_32px_40px] [max-width:1120px]
+    max-[1300px]:[padding:16px_20px]
   `,
   "mail-sender": String.raw`
     flex items-center [gap:12px]
-    [&_>_div]:[min-width:0] [&_strong]:block [&_strong]:[font-size:14px] [&_strong]:font-medium [&_strong]:[color:var(--foreground)] [&_strong]:[overflow-wrap:anywhere]
-    [&_p]:[font-size:11px] [&_p]:[color:var(--muted-foreground)] [&_p]:[margin-top:4px] [&_p]:[overflow-wrap:anywhere]
-    [&_time]:[margin-left:auto] [&_time]:shrink-0 [&_time]:whitespace-nowrap [&_time]:[font-size:10px] [&_time]:[color:var(--muted-foreground)]
+    [&_.mail-avatar]:[width:44px] [&_.mail-avatar]:[height:44px] [&_.mail-avatar]:[font-size:16px]
+    [&_>_div]:[min-width:0] [&_strong]:block [&_strong]:[font-size:17px] [&_strong]:[font-weight:500] [&_strong]:[color:var(--foreground)] [&_strong]:[overflow-wrap:anywhere]
+    [&_p]:[font-size:14px] [&_p]:[color:var(--muted-foreground)] [&_p]:[margin-top:2px] [&_p]:[overflow-wrap:anywhere]
+    [&_time]:[margin-left:auto] [&_time]:shrink-0 [&_time]:whitespace-nowrap [&_time]:[font-size:13px] [&_time]:[color:var(--muted-foreground)]
   `,
   "mail-recipients": String.raw`
-    [font-size:11px] [color:var(--muted-foreground)] [margin-top:16px] [line-height:2] [overflow-wrap:anywhere]
-    [&_span]:[border:1px_solid_var(--border)] [&_span]:[border-radius:6px] [&_span]:[padding:4px_7px] [&_span]:[color:var(--muted-foreground)]
+    [font-size:12px] [color:var(--muted-foreground)] [margin-top:12px] [line-height:2] [overflow-wrap:anywhere]
+    [&_span]:[border:1px_solid_var(--border)] [&_span]:[border-radius:999px] [&_span]:[padding:3px_8px] [&_span]:[color:var(--text-secondary)]
   `,
   "remote-images-note": String.raw`
     [font-size:10px] [padding:13px] [background:var(--muted)] [border:1px_solid_var(--border)] [border-radius:8px] [color:var(--muted-foreground)] [margin:25px_0]
     [&_button]:underline [&_button]:[margin-left:8px] [&_button]:[color:var(--muted-foreground)]
   `,
   "mail-body": String.raw`
-    [width:100%] [border:1px_solid_var(--border)] [border-radius:11px] [min-height:430px] [margin-top:22px] [background:#fff]
+    [width:100%] [border:0] [min-height:430px] [margin-top:16px] [background:#fff] dark:[border-radius:12px]
   `,
   "mail-attachments": String.raw`
     flex flex-wrap [gap:10px] [margin-top:11px]
@@ -663,19 +692,18 @@ const recipes: Record<string, string> = {
     [&_header]:flex [&_header]:items-center [&_header]:justify-between [&_header]:[margin-bottom:12px] [&_header_span]:flex [&_header_span]:items-center [&_header_span]:[gap:8px] [&_header_span]:font-medium [&_header_svg]:[width:16px] [&_header_button]:[color:var(--muted-foreground)] [&_>_p]:[color:var(--foreground)] [&_>_div]:[margin-top:14px] [&_>_div_>_strong]:flex [&_>_div_>_strong]:items-center [&_>_div_>_strong]:[gap:7px] [&_>_div_>_strong_svg]:[width:14px] [&_ul]:[margin:7px_0_0_20px] [&_li]:[list-style:disc] [&_li]:[color:var(--muted-foreground)] [&_>_small]:block [&_>_small]:[margin-top:14px] [&_>_small]:[color:var(--muted-foreground)]
   `,
   "mail-empty": String.raw`
-    [height:100%] flex items-center justify-center flex-col [gap:14px] [color:var(--muted-foreground)] [background:var(--card)]
-    [&_h2]:[font-size:20px] [&_h2]:[font-weight:450] [&_h2]:[letter-spacing:-0.4px] [&_h2]:[color:var(--muted-foreground)]
-    [&_p]:[font-size:12px]
+    [height:100%] flex items-center justify-center flex-col [gap:8px] [color:var(--muted-foreground)] [background:var(--card)]
+    [&_svg]:[width:28px] [&_svg]:[height:28px]
+    [&_h2]:[font-size:15px] [&_h2]:[font-weight:600] [&_h2]:[color:var(--foreground)]
+    [&_p]:[font-size:13px]
   `,
   "mail-idle": String.raw`
-    min-[1101px]:[&_.mail-list-pane]:[width:auto] min-[1101px]:[&_.mail-list-pane]:[flex:1] min-[1101px]:[&_.mail-detail-pane]:hidden
-    max-[780px]:[&_.mail-folders]:hidden
+    min-[1101px]:[&_.mail-list-pane]:[width:420px] max-[780px]:[&_.mail-detail-pane]:hidden
   `,
   "mail-back": String.raw`
-    !inline-flex
+    !inline-flex min-[1101px]:!hidden
   `,
   "mail-open": String.raw`
-    max-[780px]:[&_.mail-folders]:hidden
     max-[780px]:[&_.mail-list-pane]:hidden
     max-[780px]:[&_.mail-detail-pane]:block
   `,

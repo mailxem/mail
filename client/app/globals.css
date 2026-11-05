@@ -64,6 +64,8 @@
     --shadow-xl: 0 20px 60px #00000024;
   }
   .dark {
+    --text-secondary: #c4c4cc;
+    --border-strong: #323238;
     --primary-foreground: #18181b;
     --primary: #f4f4f5;
     color-scheme: dark;
@@ -74,7 +76,7 @@
     --secondary: #26262a;
     --secondary-foreground: #d4d4d8;
     --muted: #202024;
-    --muted-foreground: #8a8a93;
+    --muted-foreground: #a1a1aa;
     --accent: #26262a;
     --accent-foreground: #f4f4f5;
     --success: #183626;
