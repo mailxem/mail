@@ -174,46 +174,46 @@ const recipes: Record<string, string> = {
     [&_i]:[height:6px] [&_i]:[width:6px] [&_i]:[border-radius:50%] [&_i]:[background:currentColor]
   `,
   "status-published": String.raw`
-    [background:var(--success)] [color:var(--success-foreground)]
+    ![background:var(--success)] ![color:var(--success-foreground)]
   `,
   "status-active": String.raw`
-    [background:var(--success)] [color:var(--success-foreground)]
+    ![background:var(--success)] ![color:var(--success-foreground)]
   `,
   "status-completed": String.raw`
-    [background:var(--success)] [color:var(--success-foreground)]
+    ![background:var(--success)] ![color:var(--success-foreground)]
   `,
   "status-draft": String.raw`
-    bg-muted text-muted-foreground
+    !bg-muted !text-muted-foreground
   `,
   "status-archived": String.raw`
-    bg-muted text-muted-foreground
+    !bg-muted !text-muted-foreground
   `,
   "status-paused": String.raw`
-    bg-muted text-muted-foreground
+    !bg-muted !text-muted-foreground
   `,
   "status-delivered": String.raw`
-    [background:var(--success)] [color:var(--success-foreground)]
+    ![background:var(--success)] ![color:var(--success-foreground)]
   `,
   "status-opened": String.raw`
-    [background:var(--info)] [color:var(--info-foreground)]
+    ![background:var(--info)] ![color:var(--info-foreground)]
   `,
   "status-clicked": String.raw`
-    [background:var(--info)] [color:var(--info-foreground)]
+    ![background:var(--info)] ![color:var(--info-foreground)]
   `,
   "status-bounced": String.raw`
-    [background:#feecec] [color:#c2302b]
+    ![background:#feecec] ![color:#c2302b]
   `,
   "status-failed": String.raw`
-    [background:#feecec] [color:#c2302b]
+    ![background:#feecec] ![color:#c2302b]
   `,
   "status-suppressed": String.raw`
-    [background:var(--warning)] [color:var(--warning-foreground)]
+    ![background:var(--warning)] ![color:var(--warning-foreground)]
   `,
   "status-sending": String.raw`
-    [background:var(--info)] [color:var(--info-foreground)]
+    ![background:var(--info)] ![color:var(--info-foreground)]
   `,
   "status-scheduled": String.raw`
-    [background:var(--info)] [color:var(--info-foreground)]
+    ![background:var(--info)] ![color:var(--info-foreground)]
   `,
   "product-empty": String.raw`
     [padding:48px_20px] flex items-center flex-col text-center [gap:8px] [color:var(--muted-foreground)]

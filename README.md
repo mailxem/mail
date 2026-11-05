@@ -1,11 +1,19 @@
 <p align="center">
-  <img src="website/app/opengraph-image.png" alt="Xem — Every email, a little more human. Design. Connect. Grow." width="100%" />
+  <img src="client/public/android-chrome-192x192.png" alt="Xem" width="80" />
+</p>
+
+<h1 align="center">Xem</h1>
+
+<p align="center">
+  <b>A self-hosted alternative to Mailchimp.</b><br />
+  Campaigns, newsletters, visual automations, signup forms, a contact CRM and a shared inbox, sending through your own Amazon SES or SMTP.
 </p>
 
 <p align="center">
-  <a href="https://xem.email">Website</a> ·
-  <a href="devops/swarm/README.md">Self-host</a> ·
-  <a href="docs">Documentation</a> ·
+  <a href="https://app.xem.email/auth/register">Try Xem Cloud free</a> ·
+  <a href="#deploy">Self-host</a> ·
+  <a href="https://xem.email/compare">Compare</a> ·
+  <a href="https://docs.xem.email">Docs</a> ·
   <a href="https://github.com/mailxem/mail/issues">Issues</a>
 </p>
 
@@ -17,25 +25,103 @@
   <a href="https://hakopod.com"><picture><source media="(prefers-color-scheme: dark)" srcset=".github/assets/hakopod-horizontal-paper.svg"><img src=".github/assets/hakopod-horizontal-ink.svg" alt="Hosted on Hakopod" width="138" /></picture></a>
 </p>
 
-**Xem** is open-source email marketing that sends through your own Amazon SES or SMTP server: campaigns, recurring newsletters, visual automations, signup forms, a contact CRM and a shared inbox, in one app. Self-host it for free, or use [Xem Cloud](https://xem.email/pricing), which charges per email sent rather than per contact (3,000 a month free, then from $9).
+## Screenshots
 
-<p align="center">
-  <img src=".github/assets/xem-inbox.png" alt="The Xem inbox: a message list with sender avatars on the left and an open email on the right." width="100%" />
-</p>
+<table>
+  <tr>
+    <td align="center"><img src=".github/assets/xem-inbox.webp" alt="Inbox with sender avatars and an open email" width="320"><br>Inbox</td>
+    <td align="center"><img src=".github/assets/automations.webp" alt="Visual automation builder with a send, wait and send journey" width="320"><br>Automations</td>
+    <td align="center"><img src=".github/assets/templates.webp" alt="Library of 238 editable email templates" width="320"><br>Templates</td>
+  </tr>
+  <tr>
+    <td align="center"><img src=".github/assets/outbox.webp" alt="Outbox with delivered, opened and clicked statuses" width="320"><br>Outbox</td>
+    <td align="center"><img src=".github/assets/overview.webp" alt="Overview with a getting-started checklist" width="320"><br>Overview</td>
+    <td align="center"><img src=".github/assets/ask-xem.webp" alt="Ask Xem, the in-app assistant" width="320"><br>Ask Xem</td>
+  </tr>
+</table>
 
-**[Try Xem Cloud free](https://app.xem.email/auth/register)** · **[Self-host in one command](#start-your-own-xem)** · **[Compare with Mailchimp, beehiiv, Substack…](https://xem.email/compare)** · **[Xem vs listmonk](https://xem.email/compare/xem-vs-listmonk)**
+## Features
 
-- **Deliverability basics built in:** one-click unsubscribe headers (RFC 8058), bounce and complaint processing into a suppression list, and guided DKIM setup for your domain. Xem doesn't own sending IPs; your reputation stays with your provider.
-- **Bring your list:** reads Mailchimp, Substack, beehiiv, Kit and Ghost exports, and keeps unsubscribed people unsubscribed.
-- **API, webhooks and an MCP server** with 44 tools, if you want scripts or an AI agent to run campaigns.
+### Apps
 
-Xem was previously called Posthoot.
+- **Campaigns and newsletters**: send once or on a schedule, with a public archive and RSS for each newsletter.
+- **Automations**: a visual builder with emails, waits, splits, percentage tests, tags, list moves, contact updates and webhooks.
+- **Templates**: 238 editable starting points built from native editor blocks, plus AI drafting if you turn it on.
+- **Audience**: lists, tags, segments, signup forms and a small CRM with lead stages.
+- **Inbox**: read and reply to mail from IMAP, Gmail or Cloudflare mailboxes alongside your campaigns.
+- **Analytics**: delivery, opens, clicks and audience growth, with honest notes on what open rates can and can't tell you.
+- **Ask Xem and MCP**: an in-app assistant that shows each change for approval, and an MCP server with 44 tools for Claude and other agents.
 
-## Hosted on Hakopod
+### Technical
 
-The Xem hosted service runs on [Hakopod](https://hakopod.com). Operators who want to deploy Xem on their own Hakopod installation can use the repository's [Hakopod configuration and deployment guide](devops/hakopod/README.md).
+- **Sending**: Amazon SES or any SMTP server. One-click unsubscribe headers (RFC 8058), bounce and complaint processing into a suppression list, and guided DKIM setup. Xem doesn't own sending IPs; your reputation stays with your provider.
+- **Moving in**: reads Mailchimp, Substack, beehiiv, Kit and Ghost exports directly and keeps unsubscribed people unsubscribed. Any CSV with an email column works too.
+- **Stack**: Go API and workers, Next.js app, PostgreSQL, Redis and S3-compatible storage (RustFS by default).
+- **APIs**: REST API, webhooks, and SDKs for [TypeScript](sdk) and [Go](sdk-go).
+- **Hosting**: Docker Swarm on any Linux server, or [Xem Cloud](https://xem.email/pricing).
 
-## Choose where to deploy
+## Cost
+
+Running Xem yourself is free; you pay your server and your email provider.
+
+- **Sending through Amazon SES** costs about $0.10 per 1,000 emails. A weekly newsletter to 10,000 people is roughly $4 a month in sending. New SES accounts start in a sandbox, so ask AWS for production access first.
+- **Any other SMTP provider** works at whatever it charges.
+- **Xem Cloud** is priced per email sent, not per contact: 3,000 a month free, then from $9 for 20,000. Every plan has every feature. See [pricing](https://xem.email/pricing) and [how that compares](https://xem.email/compare).
+
+Prices change, so check [Amazon SES pricing](https://aws.amazon.com/ses/pricing/) before you plan around it.
+
+## Deploy
+
+### One command
+
+On a Linux host with **Docker Engine, Git, Python 3 and OpenSSL**, run:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mailxem/mail/undefined/scripts/install.sh | bash
+```
+
+The wizard asks for the app, API and storage addresses. It builds the app and backend from the same repository revision, generates credentials, initializes Swarm when needed, and starts **Next.js + Go + PostgreSQL + Redis + RustFS**. No cloud storage account is required.
+
+**Basic runtime target: 2 CPU cores, 2 GB RAM and 20 GB free disk** for a small installation. Source builds can need more memory or swap while building the Next.js app. See the [requirements](devops/swarm/README.md#requirements) before installing.
+
+Use a host IP or DNS name reachable from both browsers and containers. The default ports are **3000** (app), **9001** (API) and **9000** (object storage). HTTP is intended for a trusted local network; configure HTTPS before exposing the installation publicly.
+
+Open the printed `/auth/register` URL, create your account, and connect your own SMTP provider. Managed SES sending, hosted billing, Google OAuth and the AI assistant need extra configuration and aren't provisioned by this starter.
+
+Prefer to read the script first?
+
+```bash
+curl -fsSLo install-xem.sh https://raw.githubusercontent.com/mailxem/mail/undefined/scripts/install.sh
+less install-xem.sh
+bash install-xem.sh
+```
+
+See the **[Swarm guide](devops/swarm/README.md)** for unattended setup, HTTPS, updates, backups, troubleshooting and removal. This is a single-node starter, not a high-availability deployment.
+
+### Deploy with an AI agent
+
+Paste this into an AI agent that has terminal access to your server (Claude Code, Codex, Cursor and similar):
+
+```text
+Install Xem for me on this Linux server from https://github.com/mailxem/mail.
+
+1. Read README.md and devops/swarm/README.md first.
+2. Check that Docker Engine, Git, Python 3 and OpenSSL are installed, and that the
+   server has at least 2 CPU cores, 2 GB RAM and 20 GB free disk. Tell me what's
+   missing instead of installing system packages without asking.
+3. Ask me for the address people will use to reach the app (an IP or DNS name).
+4. Download scripts/install.sh to install-xem.sh and show me a short summary of
+   what it does before running it.
+5. Copy devops/swarm/config.example.json to config.json, replace its example IP
+   with my address (keep ports 3000, 9001 and 9000 unless I say otherwise), then run:
+   bash install-xem.sh --config ./config.json --state "$HOME/.local/share/xem"
+6. Never print, commit or paste the generated credentials. They stay in the state
+   directory; never delete that directory.
+7. When it finishes, give me the /auth/register URL and remind me to connect an
+   SMTP provider and set up SPF, DKIM and DMARC before sending.
+```
+
+### Choose a host
 
 <p>
   <a href="devops/hosting/README.md#vultr"><img src="https://img.shields.io/badge/Deploy_on-Vultr-5b3cc4?style=for-the-badge&amp;labelColor=22251f" alt="Deploy Xem on Vultr — setup guide" /></a>
@@ -44,48 +130,13 @@ The Xem hosted service runs on [Hakopod](https://hakopod.com). Operators who wan
   <a href="devops/swarm/README.md"><img src="https://img.shields.io/badge/Use_your_own-Docker_host-e7d8fa?style=for-the-badge&amp;labelColor=22251f" alt="Deploy Xem on your own Docker host" /></a>
 </p>
 
-Choose a provider, create a Linux VPS, and follow its setup guide to run the installer below. Hosting is billed by your provider. These buttons open guided setup instructions; they do not provision a server automatically.
+These open setup guides; they don't provision a server for you. **Check email ports before choosing a host:** DigitalOcean blocks outbound SMTP ports 25, 465 and 587 by default, and Hetzner allows 587 but blocks 25 and 465. See the [provider comparison](devops/hosting/README.md).
 
-**Check email connectivity before choosing a host.** DigitalOcean blocks outbound SMTP ports 25, 465 and 587 by default, so its Droplets cannot send through this starter's standard SMTP setup. Hetzner allows port 587 but blocks 25 and 465 by default. See the [provider comparison and sending requirements](devops/hosting/README.md) before paying for a server.
+### Hakopod
 
-## Start your own Xem
+The Xem hosted service runs on [Hakopod](https://hakopod.com). To deploy Xem on your own Hakopod installation, use the [Hakopod configuration and deployment guide](devops/hakopod/README.md).
 
-On a Linux host with **Docker Engine, Git, Python 3, and OpenSSL**, run:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/mailxem/mail/undefined/scripts/install.sh | bash
-```
-
-The wizard asks for the app, API, and storage addresses. It builds the app and backend from the same repository revision, generates credentials, initializes Swarm when needed, and starts **Next.js + Go + PostgreSQL + Redis + RustFS**. No cloud storage account is required.
-
-**Basic runtime target: 2 CPU cores, 2 GB RAM, and 20 GB free disk** for a small installation. Source builds can need additional memory or swap, especially while building the Next.js app. Allow room for build caches and growing data; scale with your workload. See the [requirements](devops/swarm/README.md#requirements) before installing.
-
-Use a host IP or DNS name reachable from both browsers and containers. The default ports are **3000** (app), **9001** (API), and **9000** (object storage). HTTP is intended for a trusted local network; configure HTTPS before exposing the installation publicly.
-
-Open the printed `/auth/register` URL, create your account, and connect your own SMTP provider. Managed SES sending, hosted billing, Google OAuth, and the AI assistant require additional configuration and are not provisioned by this starter.
-
-An opt-in custom-domain Xem inbox implementation is under development for operators using managed Amazon SES sending. It receives only explicitly created addresses through private AWS infrastructure and does not expose IMAP or import an external mailbox. See the [managed receiving operations guide](server/docs/managed-receiving.md); repository support and local validation do not mean the hosted service or an AWS deployment is available.
-
-
-Prefer to inspect the script first?
-
-```bash
-curl -fsSLo install-xem.sh https://raw.githubusercontent.com/mailxem/mail/undefined/scripts/install.sh
-less install-xem.sh
-bash install-xem.sh
-```
-
-See the **[Swarm guide](devops/swarm/README.md)** for unattended setup, HTTPS, updates, backups, troubleshooting, and removal. This is a single-node starter, not a high-availability deployment.
-
-## What you can build
-
-| Capability | Use it for |
-| --- | --- |
-| Campaigns and templates | Compose email, reuse designs, and send through your chosen provider. |
-| Audiences | Organize contacts with lists, tags, segments, and custom data. |
-| Automations | Combine email, conditions, waits, splits, webhooks, and subscriber updates. |
-| Delivery APIs | Integrate email into your product using REST, Go, or TypeScript. |
-| Reporting | Inspect campaign activity and delivery outcomes. |
+An opt-in custom-domain Xem inbox for operators using managed Amazon SES sending is under development; see the [managed receiving operations guide](server/docs/managed-receiving.md). Repository support and local validation don't mean the hosted service or an AWS deployment is available.
 
 ## How the pieces fit
 
@@ -145,4 +196,4 @@ Working on inboxes or provider integrations? See the [connected-mail setup and i
 
 Report bugs with reproduction steps, open a focused PR, or improve the docs. Keep credentials and local `.env` files out of commits. Make component changes directly in this repository and include related frontend/backend updates in the same PR.
 
-Xem's code is [GPL-3.0 licensed](LICENSE). Bundled third-party services retain their own licenses, including RustFS's Apache-2.0 license.
+Xem was previously called Posthoot. Its code is [GPL-3.0 licensed](LICENSE). Bundled third-party services retain their own licenses, including RustFS's Apache-2.0 license.

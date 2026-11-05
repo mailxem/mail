@@ -1095,7 +1095,7 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
               <h2>{current.subject}</h2>
               {outbox && (
                 <p>
-                  Delivery: {current.status?.replaceAll("_", " ")} · Message ID:{" "}
+                  Delivery: {current.status ? current.status.charAt(0) + current.status.slice(1).toLowerCase().replaceAll("_", " ") : ""} · Message ID:{" "}
                   {current.messageId}
                 </p>
               )}
