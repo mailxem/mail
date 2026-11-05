@@ -1,6 +1,6 @@
 # Xem email template library
 
-64 editable templates from the generator: 20 reference-inspired designs, 18 Xem originals, and 26 in the Studio collection. The 20 `xem-*` account emails are added to the manifest by `server/cmd/onboarding-templates`. Each Studio template follows the structure of a well-made real-world email (section order, spacing, colour blocking, type scale) with a fictional brand, our own copy, and original illustrations drawn by `scripts/template_illustrations.mjs`.
+106 editable templates from the generator: 20 reference-inspired designs, 18 Xem originals, and 68 in the Studio collection. The 20 `xem-*` account emails are added to the manifest by `server/cmd/onboarding-templates`. Each Studio template follows the structure of a well-made real-world email (section order, spacing, colour blocking, type scale) with a fictional brand, our own copy, and original illustrations drawn by `scripts/template_illustrations.mjs`.
 
 ## Source and generation
 
