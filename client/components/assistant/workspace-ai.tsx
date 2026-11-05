@@ -30,6 +30,7 @@ import {
   applySlots,
   extractSlots,
   rankReferences,
+  designImages,
   rowsOf,
 } from "@/lib/assistant/reference-design";
 import { loadStarterDesign } from "@/lib/template-starters/registry";
@@ -295,6 +296,8 @@ function DesignConversation({
       ) as Parameters<typeof applySlots>[0];
       if (controller.signal.aborted) return;
       const slots = extractSlots(base);
+      const images = await designImages(text, starter, controller.signal);
+      if (controller.signal.aborted) return;
       const response = await fetch("/api/assistant/design", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -308,6 +311,7 @@ function DesignConversation({
             : `${starter!.name}: ${starter!.description}`,
           slots,
           rows: rowsOf(base),
+          ...(images.length ? { images } : {}),
         }),
       });
       const answer = await response.json();

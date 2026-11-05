@@ -16,6 +16,53 @@ type CopySlot struct {
 	Text string `json:"text"`
 }
 
+// DesignImage is a small screenshot sent to the model as a data URL.
+type DesignImage struct {
+	Role string `json:"role"` // "reference" or "example"
+	Data string `json:"data"`
+	// Source names where the screenshot comes from, e.g. its page in the
+	// public template gallery, so the model can cite it. Optional.
+	Source string `json:"source,omitempty"`
+}
+
+const (
+	maxDesignImages     = 4
+	maxDesignImageBytes = 300 * 1024
+	maxDesignImageTotal = 1024 * 1024
+)
+
+// designImageParts validates the screenshots and turns them into vision
+// content parts, labelled so the model knows which image is which.
+func designImageParts(images []DesignImage) ([]map[string]any, error) {
+	if len(images) > maxDesignImages {
+		return nil, errors.New("Send at most four reference images")
+	}
+	total := 0
+	var parts []map[string]any
+	for i, im := range images {
+		ok := strings.HasPrefix(im.Data, "data:image/webp;base64,") || strings.HasPrefix(im.Data, "data:image/png;base64,") || strings.HasPrefix(im.Data, "data:image/jpeg;base64,")
+		if !ok || len(im.Data) > maxDesignImageBytes || len(im.Source) > 200 || strings.ContainsAny(im.Source, "\r\n") || (im.Role != "reference" && im.Role != "example") || (im.Role == "reference" && i != 0) {
+			return nil, errors.New("A reference image is invalid. Try again")
+		}
+		total += len(im.Data)
+		if total > maxDesignImageTotal {
+			return nil, errors.New("The reference images are too large. Try again")
+		}
+		label := "Image: the template you are adapting. Write copy that fits each slot's space and weight as shown."
+		if im.Role == "example" {
+			label = "Image: an example of the house style, for tone and structure only. Do not copy its words."
+		}
+		if im.Source != "" {
+			label += " Source: " + im.Source + "."
+		}
+		parts = append(parts,
+			map[string]any{"type": "text", "text": label},
+			map[string]any{"type": "image_url", "image_url": map[string]string{"url": im.Data, "detail": "low"}},
+		)
+	}
+	return parts, nil
+}
+
 // SlotRow lists the slot ids in one row of the design, so a whole section can be dropped.
 type SlotRow struct {
 	ID    string   `json:"id"`
@@ -58,10 +105,18 @@ func (w *EmailWriter) draftSlots(ctx context.Context, input EmailDraftRequest) (
 	for _, r := range input.Rows {
 		rows[r.ID] = true
 	}
+	images, err := designImageParts(input.Images)
+	if err != nil {
+		return nil, err
+	}
 	request, _ := json.Marshal(map[string]any{"instruction": input.Instruction, "reference": input.Reference, "slots": input.Slots, "rows": input.Rows})
+	var user any = string(request)
+	if len(images) > 0 {
+		user = append([]map[string]any{{"type": "text", "text": string(request)}}, images...)
+	}
 	content, err := w.complete(ctx, map[string]any{
 		"model": w.Model, "max_tokens": 6000, "response_format": map[string]string{"type": "json_object"},
-		"messages": []Message{{Role: "system", Content: slotsPrompt}, {Role: "user", Content: string(request)}},
+		"messages": []map[string]any{{"role": "system", "content": slotsPrompt}, {"role": "user", "content": user}},
 	})
 	if err != nil {
 		switch {
