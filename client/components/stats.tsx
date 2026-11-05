@@ -33,7 +33,7 @@ export function Stats() {
         <Card key={title} className="shadow-none">
           <CardContent className="p-5">
             <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="mt-3 text-3xl font-semibold tabular-nums">
+            <p className="mt-2 text-xl font-medium tabular-nums">
               {value ?? "—"}
             </p>
             <p className="mt-2 text-xs text-muted-foreground">

@@ -164,6 +164,18 @@ export function CRMPage() {
                 ? "Try a different search or lifecycle stage."
                 : "Add a contact or publish a lead form to start growing your audience."
             }
+            action={
+              !summary?.total && (
+                <div className="flex flex-wrap justify-center gap-2">
+                  <Button asChild>
+                    <Link href="/audience/lists">Import contacts</Link>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link href="/forms/new">Create a lead form</Link>
+                  </Button>
+                </div>
+              )
+            }
           />
         )}{" "}
         {!loading &&

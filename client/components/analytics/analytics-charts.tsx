@@ -217,7 +217,7 @@ export function AnalyticsCharts({
               <>
                 <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <span className="text-3xl font-semibold tracking-tight tabular-nums">
+                    <span className="text-xl font-medium tracking-tight tabular-nums">
                       {number(
                         metric === "accepted"
                           ? report.summary.accepted

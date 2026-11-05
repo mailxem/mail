@@ -5,49 +5,42 @@
   overflow: hidden;
   color: var(--foreground);
   background: var(--sidebar);
-  padding: 12px;
-  gap: 12px;
+  padding: 8px;
+  gap: 8px;
 }
 .sidebar {
   display: flex;
-  flex: 0 0 236px;
+  flex: 0 0 232px;
   flex-direction: column;
-  width: 236px;
+  width: 232px;
   min-height: 0;
-  padding: 4px 0 8px;
+  padding: 6px 4px 8px 8px;
   overflow-y: auto;
-  border-right: 0;
   background: transparent;
   scrollbar-width: thin;
 }
 .brandRow {
   display: flex;
   align-items: center;
-  gap: 4px;
-  min-height: 54px;
-  padding: 5px;
-  margin-bottom: 16px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--workspace-canvas);
-  box-shadow: var(--shadow-sm);
+  gap: 2px;
+  min-height: 44px;
+  padding: 2px;
+  margin-bottom: 12px;
 }
 .workspaceIdentity {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
   flex: 1;
   min-height: 40px;
-  padding: 0 5px;
-  border-radius: 6px;
+  padding: 0 6px;
+  border-radius: 10px;
   text-align: left;
-  font-size: 13px;
-  font-weight: 550;
   color: var(--foreground);
 }
 .workspaceIdentity:hover {
-  background: var(--muted);
+  background: var(--sidebar-accent);
 }
 .workspaceIdentity > span {
   overflow: hidden;
@@ -65,19 +58,21 @@
   gap: 2px;
 }
 .workspaceIdentityText strong {
-  font-size: 12px;
-  font-weight: 550;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 18px;
 }
 .workspaceIdentityText small {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 400;
+  line-height: 16px;
   color: var(--muted-foreground);
 }
 .brandMark {
   width: 28px;
   height: 28px;
   flex-shrink: 0;
-  border-radius: 5px;
+  border-radius: 8px;
   object-fit: contain;
 }
 .iconButton {
@@ -93,12 +88,12 @@
 }
 .iconButton:hover {
   color: var(--foreground);
-  background: var(--muted);
+  background: var(--sidebar-accent);
 }
 .navigation {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
 }
 .navGroup {
   display: flex;
@@ -106,24 +101,25 @@
   gap: 2px;
 }
 .groupLabel {
-  padding: 0 9px;
-  margin: 0 0 7px;
-  color: var(--muted-foreground);
-  font-size: 10px;
+  padding: 0 4px;
+  margin: 0 0 3px;
+  color: var(--foreground);
+  font-size: 13px;
   font-weight: 500;
-  line-height: 15px;
+  line-height: 18px;
 }
 .navItem {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   width: 100%;
   min-height: 30px;
-  padding: 4px 9px;
-  border: 1px solid transparent;
+  padding: 5px 8px;
+  border: 0;
   border-radius: 8px;
-  color: var(--muted-foreground);
-  font-size: 12px;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 13px;
   line-height: 20px;
   text-align: left;
   transition:
@@ -132,6 +128,10 @@
 }
 .navItem > svg {
   flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--muted-foreground);
+  stroke-width: 1.5;
 }
 .navItem > span {
   min-width: 0;
@@ -140,13 +140,12 @@
   white-space: nowrap;
 }
 .navItem:hover {
-  background: var(--sidebar-accent, var(--muted));
+  background: rgb(0 0 0 / 0.07);
   color: var(--foreground);
 }
 .navItem.active {
   background: var(--workspace-canvas);
-  border-color: var(--border);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 0 0 1px rgb(0 0 0 / 0.03);
   color: var(--foreground);
   font-weight: 500;
 }
@@ -158,8 +157,7 @@
   padding-top: 28px;
 }
 .onboarding {
-  border: 1px solid var(--border);
-  font-size: 12px;
+  font-size: 14px;
 }
 .trailingIcon {
   margin-left: auto;
@@ -203,23 +201,22 @@
   height: 100%;
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 20px;
   background: var(--workspace-canvas);
-  box-shadow: var(--shadow-sm);
 }
 .sidebarSearch {
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  gap: 9px;
-  min-height: 36px;
-  margin-bottom: 24px;
-  padding: 7px 10px;
-  border: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+  gap: 8px;
+  min-height: 30px;
+  margin-bottom: 20px;
+  padding: 5px 9px;
+  border: 0;
   border-radius: 8px;
-  background: color-mix(in srgb, var(--foreground) 4%, transparent);
+  background: rgb(0 0 0 / 0.04);
   color: var(--muted-foreground);
-  font-size: 12px;
+  font-size: 13px;
   text-align: left;
 }
 .sidebarSearch:hover {
@@ -229,7 +226,7 @@
 .sidebarSearch kbd {
   margin-left: auto;
   font: inherit;
-  font-size: 10px;
+  font-size: 12px;
 }
 .compactSearch {
   justify-content: center;
@@ -240,16 +237,16 @@
   flex-shrink: 0;
   align-items: center;
   gap: 14px;
-  height: 56px;
-  padding: 0 32px;
+  height: 52px;
+  padding: 0 24px;
   border-bottom: 1px solid var(--border);
 }
 .breadcrumb {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
   min-width: 0;
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
 }
 .breadcrumb > [aria-current] {
@@ -273,11 +270,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 30px;
-  padding: 0 7px;
-  border-radius: 6px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 8px;
   color: var(--muted-foreground);
-  font-size: 12px;
+  font-size: 13px;
 }
 .searchTrigger:hover {
   background: var(--muted);
@@ -302,31 +299,31 @@
 }
 .avatar {
   display: grid;
-  width: 27px;
-  height: 27px;
+  width: 28px;
+  height: 28px;
   place-items: center;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 999px;
   background: var(--secondary);
   color: var(--foreground);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
 }
 .workspaceMenu {
-  min-width: 218px;
+  min-width: 220px;
   max-width: calc(100vw - 32px);
-  padding: 5px;
+  padding: 4px;
   border-color: var(--border);
-  border-radius: 9px;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.08);
 }
 .workspaceMenu [role="menuitem"] {
   display: flex;
   align-items: center;
   gap: 9px;
-  min-height: 34px;
-  padding: 7px 9px;
-  border-radius: 5px;
-  font-size: 12px;
+  min-height: 32px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 14px;
 }
 .workspaceMenu [role="menuitem"] > svg {
   flex-shrink: 0;
@@ -474,7 +471,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 .pageHeading > div:first-child {
   min-width: 0;
@@ -482,18 +479,18 @@
 .pageHeading h1 {
   margin: 0;
   color: var(--foreground);
-  font-size: 26px;
+  font-size: 17px;
   font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: -0.65px;
+  line-height: 24px;
+  letter-spacing: -0.01em;
   overflow-wrap: anywhere;
 }
 .pageHeading p {
   max-width: 66ch;
-  margin: 6px 0 0;
+  margin: 2px 0 0;
   color: var(--muted-foreground);
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 20px;
 }
 .headingActions {
   display: flex;
@@ -604,4 +601,26 @@
   .content:has(:global(.automation-editor)) {
     overflow-y: auto;
   }
+}
+
+.navItem:hover > svg,
+.navItem.active > svg {
+  color: var(--foreground);
+}
+
+:global(.dark) .sidebarSearch {
+  background: rgb(255 255 255 / 0.05);
+}
+:global(.dark) .navItem:hover {
+  background: rgb(255 255 255 / 0.08);
+}
+:global(.dark) .navItem.active {
+  background: var(--workspace-canvas);
+}
+.collapsed .navItem {
+  width: 100%;
+}
+.onboarding,
+.settingsButton {
+  width: 100%;
 }

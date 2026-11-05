@@ -26,6 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useMarketing, useMarketingQuery } from "@/lib/marketing/api";
+import { PaidPlanNotice } from "@/components/billing/paid-plan";
 import type { SendingState, SendingCredential } from "@/lib/sending/types";
 import { CopyButton, DomainDNS, DomainForm, SenderSetup } from "./controls";
 
@@ -254,6 +255,9 @@ function DashboardContent() {
             not an invoice. Failed or suppressed queued messages keep their
             reservation.
           </p>
+          {state.account.dailyLimit < state.account.monthlyLimit && (
+            <PaidPlanNotice feature={`Sending more than ${state.account.dailyLimit.toLocaleString()} emails a day`} />
+          )}
           <section className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-medium">Sending domains</h2>

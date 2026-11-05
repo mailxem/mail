@@ -80,18 +80,18 @@ const recipes: Record<string, string> = {
     max-[1100px]:hidden
   `,
   "product-content": String.raw`
-    [padding:27px_28px_22px] [flex:1] [min-width:0] [min-height:0] overflow-y-auto overflow-x-hidden [overscroll-behavior:contain] [max-height:calc(100dvh_-_83px)]
-    min-[1500px]:[padding:30px]
+    [padding:24px_32px_28px] [flex:1] [min-width:0] [min-height:0] overflow-y-auto overflow-x-hidden [overscroll-behavior:contain] [max-height:calc(100dvh_-_83px)]
+    min-[1500px]:[padding:28px_40px]
     max-[1100px]:[padding:23px_20px]
     max-[780px]:[padding:22px_16px] max-[780px]:[max-height:calc(100dvh_-_65px)]
     [&_[data-slot="card"]]:[border-radius:12px] [&_[data-slot="card"]]:[border-color:var(--border)] [&_[data-slot="card"]]:[background-color:var(--card)] [&_[data-slot="card"]]:[box-shadow:none]
-    [&_[data-slot="card"]_h3]:[font-size:17px] [&_[data-slot="card"]_h3]:[font-weight:550] [&_[data-slot="card"]_h3]:[color:var(--foreground)] [&_[data-slot="card"]_h3]:[letter-spacing:-.35px]
+    [&_[data-slot="card"]_h3]:[font-size:15px] [&_[data-slot="card"]_h3]:[font-weight:500] [&_[data-slot="card"]_h3]:[color:var(--foreground)] [&_[data-slot="card"]_h3]:[letter-spacing:-.35px]
     [&_textarea]:[border-radius:10px] [&_textarea]:[border-color:var(--border)]
-    [&_[role="combobox"]]:[border-radius:9px] [&_[role="combobox"]]:[border-color:var(--border)] [&_[role="combobox"]]:[background-color:var(--card)] [&_[role="combobox"]]:[font-size:12px]
-    [&_[data-slot="tabs-list"]]:[height:auto] [&_[data-slot="tabs-list"]]:[padding:4px] [&_[data-slot="tabs-list"]]:[border:1px_solid_var(--border)] [&_[data-slot="tabs-list"]]:[border-radius:11px] [&_[data-slot="tabs-list"]]:[gap:3px] [&_[data-slot="tabs-list"]]:[background:var(--muted)] [&_[data-slot="tabs-list"]]:[width:fit-content] [&_[data-slot="tabs-list"]]:[max-width:100%] [&_[data-slot="tabs-list"]]:justify-start [&_[data-slot="tabs-list"]]:overflow-x-auto [&_[data-slot="tabs-list"]]:[margin-bottom:18px]
-    [&_[data-slot="tabs-trigger"]]:[height:33px] [&_[data-slot="tabs-trigger"]]:[padding:6px_13px] [&_[data-slot="tabs-trigger"]]:[border:0] [&_[data-slot="tabs-trigger"]]:[border-radius:8px] [&_[data-slot="tabs-trigger"]]:[font-size:12px] [&_[data-slot="tabs-trigger"]]:[font-weight:450] [&_[data-slot="tabs-trigger"]]:[color:var(--muted-foreground)]
+    [&_[role="combobox"]]:[border-radius:8px] [&_[role="combobox"]]:[border-color:var(--border-strong)] [&_[role="combobox"]]:[background-color:var(--card)] [&_[role="combobox"]]:[font-size:13px]
+    [&_[data-slot="tabs-list"]]:[height:auto] [&_[data-slot="tabs-list"]]:[padding:0] [&_[data-slot="tabs-list"]]:[border:0] [&_[data-slot="tabs-list"]]:[border-radius:0] [&_[data-slot="tabs-list"]]:[gap:4px] [&_[data-slot="tabs-list"]]:[background:transparent] [&_[data-slot="tabs-list"]]:[width:fit-content] [&_[data-slot="tabs-list"]]:[max-width:100%] [&_[data-slot="tabs-list"]]:justify-start [&_[data-slot="tabs-list"]]:overflow-x-auto [&_[data-slot="tabs-list"]]:[margin-bottom:18px]
+    [&_[data-slot="tabs-trigger"]]:[height:30px] [&_[data-slot="tabs-trigger"]]:[padding:5px_10px] [&_[data-slot="tabs-trigger"]]:[border:1px_solid_transparent] [&_[data-slot="tabs-trigger"]]:[border-radius:8px] [&_[data-slot="tabs-trigger"]]:[font-size:13px] [&_[data-slot="tabs-trigger"]]:[font-weight:500] [&_[data-slot="tabs-trigger"]]:[color:var(--muted-foreground)]
     [&_[data-slot="tabs-trigger"]::after]:hidden
-    [&_[data-slot="tabs-trigger"][data-state="active"]]:[color:var(--foreground)] [&_[data-slot="tabs-trigger"][data-state="active"]]:[background:var(--card)] [&_[data-slot="tabs-trigger"][data-state="active"]]:[box-shadow:none]
+    [&_[data-slot="tabs-trigger"][data-state="active"]]:[color:var(--foreground)] [&_[data-slot="tabs-trigger"][data-state="active"]]:[background:var(--card)] [&_[data-slot="tabs-trigger"][data-state="active"]]:[border-color:var(--border-strong)] [&_[data-slot="tabs-trigger"][data-state="active"]]:[box-shadow:0_1px_2px_rgb(0_0_0_/_0.04)]
     [&_>_.workspace-page_>_.workspace-page-body_>_.grid_>_[class*="border-muted"]]:[background:var(--card)] [&_>_.workspace-page_>_.workspace-page-body_>_.grid_>_[class*="border-muted"]]:[border-color:var(--border)] [&_>_.workspace-page_>_.workspace-page-body_>_.grid_>_[class*="border-muted"]]:[border-radius:12px]
     [&_>_div_>_[role="tabpanel"]_>_[class*="border-muted"]]:[background:var(--card)] [&_>_div_>_[role="tabpanel"]_>_[class*="border-muted"]]:[border-color:var(--border)] [&_>_div_>_[role="tabpanel"]_>_[class*="border-muted"]]:[border-radius:12px]
     [&_[role="tabpanel"]_>_.grid_>_[class*="border-muted"]]:[background:var(--card)] [&_[role="tabpanel"]_>_.grid_>_[class*="border-muted"]]:[border-color:var(--border)] [&_[role="tabpanel"]_>_.grid_>_[class*="border-muted"]]:[border-radius:12px]
@@ -105,19 +105,19 @@ const recipes: Record<string, string> = {
     max-[780px]:[&_[role="tabpanel"]_>_.grid_>_[class*="col-span-"]]:[grid-column:1_/_-1]
   `,
   "product-heading": String.raw`
-    flex items-center justify-between gap-4 mb-7
-    [&_h1]:text-[26px] [&_h1]:leading-tight [&_h1]:font-medium [&_h1]:tracking-[-0.8px] [&_h1]:text-foreground
-    [&_p]:text-sm [&_p]:text-muted-foreground [&_p]:mt-2 [&_p]:leading-6
-    max-[780px]:items-start max-[780px]:flex-wrap max-[780px]:mb-6 max-[780px]:[&_h1]:text-2xl
+    flex items-center justify-between gap-4 mb-6
+    [&_h1]:text-[17px] [&_h1]:leading-6 [&_h1]:font-semibold [&_h1]:tracking-[-0.01em] [&_h1]:text-foreground
+    [&_p]:text-[13px] [&_p]:text-muted-foreground [&_p]:mt-0.5 [&_p]:leading-5
+    max-[780px]:items-start max-[780px]:flex-wrap max-[780px]:mb-5
   `,
   "product-primary": String.raw`
-    !bg-primary !text-primary-foreground !border-transparent !rounded-lg !h-9 !px-3.5 !font-medium !shadow-none
+    !bg-primary !text-primary-foreground !border-transparent !rounded-lg !h-8 !px-3 !font-medium !shadow-none
   `,
   "metrics-grid": String.raw`
-    grid grid-cols-4 gap-0 mb-8 rounded-xl border border-border overflow-hidden max-[780px]:grid-cols-2
+    grid grid-cols-4 gap-0 mb-6 rounded-xl border border-border overflow-hidden max-[780px]:grid-cols-2
   `,
   "metric-card": String.raw`
-    bg-transparent min-w-0 p-5 border-r border-border last:border-r-0 max-[780px]:p-4 max-[780px]:border-b max-[780px]:[&:nth-child(2n)]:border-r-0 max-[780px]:[&:nth-last-child(-n+2)]:border-b-0
+    bg-transparent min-w-0 p-4 border-r border-border last:border-r-0 max-[780px]:p-4 max-[780px]:border-b max-[780px]:[&:nth-child(2n)]:border-r-0 max-[780px]:[&:nth-last-child(-n+2)]:border-b-0
   `,
   "metric-label": String.raw`
     flex items-center gap-2 text-muted-foreground text-xs
@@ -126,20 +126,20 @@ const recipes: Record<string, string> = {
     inline-flex items-center justify-center text-muted-foreground [&_svg]:size-3.5 [&_svg]:stroke-[1.5]
   `,
   "metric-value": String.raw`
-    flex items-baseline flex-wrap gap-2 mt-4 [&_strong]:text-[28px] [&_strong]:font-medium [&_strong]:tracking-tight [&_strong]:tabular-nums [&_>_span]:text-[11px] [&_>_span]:text-muted-foreground
+    flex items-baseline flex-wrap gap-2 mt-2 [&_strong]:text-[20px] [&_strong]:font-medium [&_strong]:tracking-tight [&_strong]:tabular-nums [&_>_span]:text-[11px] [&_>_span]:text-muted-foreground
   `,
   "product-panel": String.raw`
-    bg-card border border-border rounded-xl p-5 shadow-none max-[780px]:p-4
+    bg-card border border-border rounded-xl p-4 shadow-none
   `,
   "panel-toolbar": String.raw`
-    flex items-center justify-between [gap:12px] [margin-bottom:22px]
-    [&_h2]:[font-size:19px] [&_h2]:[font-weight:550] [&_h2]:[letter-spacing:-0.4px]
+    flex items-center justify-between [gap:12px] [margin-bottom:16px]
+    [&_h2]:[font-size:15px] [&_h2]:[font-weight:600] [&_h2]:[letter-spacing:-0.01em]
     [&_p]:[color:var(--muted-foreground)] [&_p]:[font-size:12px] [&_p]:[margin-top:3px]
     max-[780px]:flex-wrap
   `,
   "filter-tabs": String.raw`
     flex min-w-0 max-w-full overflow-x-auto [background:var(--muted)] [border-radius:9px] [padding:3px] [gap:2px]
-    [&_button]:[padding:6px_11px] [&_button]:[border-radius:7px] [&_button]:[font-size:12px] [&_button]:[color:var(--muted-foreground)] [&_button]:whitespace-nowrap
+    [&_button]:[padding:4px_10px] [&_button]:[border-radius:7px] [&_button]:[font-size:13px] [&_button]:[color:var(--muted-foreground)] [&_button]:whitespace-nowrap
     [&_button[aria-selected="true"]]:[background:var(--card)] [&_button[aria-selected="true"]]:[box-shadow:none] [&_button[aria-selected="true"]]:[color:var(--foreground)]
   `,
   "forms-grid": String.raw`
@@ -170,8 +170,8 @@ const recipes: Record<string, string> = {
     grid grid-cols-2 gap-0 mt-5 border-t border-border [&_>_div]:pt-4 [&_>_div:last-child]:pl-4 [&_>_div:last-child]:border-l [&_>_div:last-child]:border-border [&_span]:block [&_span]:text-xs [&_span]:text-muted-foreground [&_span]:mb-1 [&_strong]:text-2xl [&_strong]:font-medium [&_strong]:tracking-tight
   `,
   "status-pill": String.raw`
-    inline-flex items-center [gap:5px] [font-size:11px] [padding:4px_8px] whitespace-nowrap [border-radius:5px] [background:var(--muted)] [color:var(--muted-foreground)]
-    [&_i]:[height:5px] [&_i]:[width:5px] [&_i]:[border-radius:50%] [&_i]:[background:currentColor]
+    inline-flex items-center [gap:6px] [font-size:12px] [font-weight:500] [height:22px] [padding:0_8px] whitespace-nowrap [border-radius:999px] [background:var(--muted)] [color:var(--muted-foreground)]
+    [&_i]:[height:6px] [&_i]:[width:6px] [&_i]:[border-radius:50%] [&_i]:[background:currentColor]
   `,
   "status-published": String.raw`
     [background:var(--success)] [color:var(--success-foreground)]
@@ -195,12 +195,12 @@ const recipes: Record<string, string> = {
     [background:var(--info)] [color:var(--info-foreground)]
   `,
   "product-empty": String.raw`
-    [padding:65px_20px] flex items-center flex-col text-center [gap:13px] [color:var(--muted-foreground)]
-    [&_h3]:[font-size:19px] [&_h3]:[color:var(--foreground)] [&_h3]:font-medium
-    [&_p]:[max-width:380px] [&_p]:[font-size:13px] [&_p]:[line-height:1.7]
+    [padding:48px_20px] flex items-center flex-col text-center [gap:8px] [color:var(--muted-foreground)]
+    [&_h3]:[font-size:15px] [&_h3]:[color:var(--foreground)] [&_h3]:[font-weight:600] [&_h3]:[margin-top:4px]
+    [&_p]:[max-width:420px] [&_p]:[font-size:13px] [&_p]:[line-height:1.6] [&_p]:[margin-bottom:8px]
   `,
   "empty-icon": String.raw`
-    [background:var(--muted)] [padding:17px] [border-radius:12px] [color:var(--muted-foreground)] [margin-bottom:4px]
+    [background:var(--muted)] [border:1px_solid_var(--border)] [padding:10px] [border-radius:10px] [color:var(--muted-foreground)] [&_svg]:[width:20px] [&_svg]:[height:20px]
   `,
   "product-modal": String.raw`
     bg-popover rounded-2xl overflow-y-auto font-sans [&_h2]:tracking-tight [&_h2]:text-xl [&_h2]:font-medium
@@ -209,15 +209,15 @@ const recipes: Record<string, string> = {
     flex flex-col [gap:7px] [font-size:12px] [color:var(--muted-foreground)]
     [&_>_span]:[font-weight:550]
     [&_small]:font-normal [&_small]:[color:var(--muted-foreground)] [&_small]:[font-size:11px] [&_small]:[line-height:1.5]
-    [&_input]:[width:100%] [&_input]:[border:1px_solid_var(--border)] [&_input]:[border-radius:9px] [&_input]:[min-height:41px] [&_input]:[padding:9px_12px] [&_input]:[background:var(--card)] [&_input]:[color:var(--foreground)] [&_input]:[outline:none] [&_input]:[font-size:13px]
-    [&_select]:[width:100%] [&_select]:[border:1px_solid_var(--border)] [&_select]:[border-radius:9px] [&_select]:[min-height:41px] [&_select]:[padding:9px_12px] [&_select]:[background:var(--card)] [&_select]:[color:var(--foreground)] [&_select]:[outline:none] [&_select]:[font-size:13px]
-    [&_textarea]:[width:100%] [&_textarea]:[border:1px_solid_var(--border)] [&_textarea]:[border-radius:9px] [&_textarea]:[min-height:41px] [&_textarea]:[padding:9px_12px] [&_textarea]:[background:var(--card)] [&_textarea]:[color:var(--foreground)] [&_textarea]:[outline:none] [&_textarea]:[font-size:13px] [&_textarea]:resize-y
+    [&_input]:[width:100%] [&_input]:[border:1px_solid_var(--border-strong)] [&_input]:[border-radius:8px] [&_input]:[min-height:36px] [&_input]:[padding:7px_11px] [&_input]:[background:var(--card)] [&_input]:[color:var(--foreground)] [&_input]:[outline:none] [&_input]:[font-size:13px]
+    [&_select]:[width:100%] [&_select]:[border:1px_solid_var(--border-strong)] [&_select]:[border-radius:8px] [&_select]:[min-height:36px] [&_select]:[padding:7px_11px] [&_select]:[background:var(--card)] [&_select]:[color:var(--foreground)] [&_select]:[outline:none] [&_select]:[font-size:13px]
+    [&_textarea]:[width:100%] [&_textarea]:[border:1px_solid_var(--border-strong)] [&_textarea]:[border-radius:8px] [&_textarea]:[min-height:36px] [&_textarea]:[padding:7px_11px] [&_textarea]:[background:var(--card)] [&_textarea]:[color:var(--foreground)] [&_textarea]:[outline:none] [&_textarea]:[font-size:13px] [&_textarea]:resize-y
     [&_input:focus]:[border-color:var(--ring)] [&_input:focus-visible]:[outline:2px_solid_var(--ring)] [&_input:focus-visible]:[outline-offset:2px]
     [&_select:focus]:[border-color:var(--ring)] [&_select:focus-visible]:[outline:2px_solid_var(--ring)] [&_select:focus-visible]:[outline-offset:2px]
     [&_textarea:focus]:[border-color:var(--ring)] [&_textarea:focus-visible]:[outline:2px_solid_var(--ring)] [&_textarea:focus-visible]:[outline-offset:2px]
   `,
   "product-input": String.raw`
-    [width:100%] [border:1px_solid_var(--border)] [border-radius:9px] [min-height:41px] [padding:9px_12px] [background:var(--card)] [color:var(--foreground)] [outline:none] [font-size:13px]
+    [width:100%] [border:1px_solid_var(--border-strong)] [border-radius:8px] [min-height:36px] [padding:7px_11px] [background:var(--card)] [color:var(--foreground)] [outline:none] [font-size:13px]
     [&:focus]:[border-color:var(--ring)] [&:focus-visible]:[outline:2px_solid_var(--ring)] [&:focus-visible]:[outline-offset:2px]
   `,
   "product-form": String.raw`
@@ -242,7 +242,7 @@ const recipes: Record<string, string> = {
     max-[780px]:[min-height:300px]
   `,
   "editor-preview-label": String.raw`
-    [padding:12px_18px] [font-size:10px] uppercase [letter-spacing:1.5px] [color:var(--muted-foreground)] [border-bottom:1px_solid_var(--border)]
+    [padding:10px_16px] [font-size:12px] [color:var(--muted-foreground)] [border-bottom:1px_solid_var(--border)]
   `,
   "email-preview": String.raw`
     [width:100%] [height:480px] [border:0] [background:#fff]
@@ -277,7 +277,7 @@ const recipes: Record<string, string> = {
     max-[780px]:inline-flex
   `,
   eyebrow: String.raw`
-    [color:var(--muted-foreground)] [font-size:10px] [letter-spacing:1.5px] uppercase block [margin-bottom:10px]
+    [color:var(--muted-foreground)] [font-size:12px] block [margin-bottom:6px]
   `,
   "table-wrap": String.raw`
     overflow-auto
@@ -285,7 +285,7 @@ const recipes: Record<string, string> = {
   "product-table": String.raw`
     w-full border-collapse text-left text-[13px]
     [&_th]:text-muted-foreground [&_th]:font-normal [&_th]:px-4 [&_th]:py-3 [&_th]:text-xs [&_th]:border-b [&_th]:border-border
-    [&_td]:px-4 [&_td]:py-4 [&_td]:border-b [&_td]:border-border [&_td]:text-muted-foreground
+    [&_td]:px-4 [&_td]:py-3 [&_td]:border-b [&_td]:border-border [&_td]:text-[color:var(--text-secondary)]
     [&_tr:last-child_td]:border-b-0 [&_td_strong]:text-foreground [&_td_strong]:font-medium [&_td_strong]:block [&_td_strong]:text-[13px]
     [&_td_small]:block [&_td_small]:mt-1 [&_td_small]:text-muted-foreground [&_td_small]:text-xs [&_tbody_tr:hover]:bg-muted
     max-[780px]:[&_td]:px-3 max-[780px]:[&_th]:px-3

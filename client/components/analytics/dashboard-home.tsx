@@ -1,5 +1,5 @@
 "use client";
-import { OnboardingBanner } from "@/components/sending/onboarding";
+import { GetStarted } from "@/components/onboarding/get-started";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -93,7 +93,7 @@ export function DashboardHome() {
   const [days, setDays] = useState("30");
   return (
     <div className={styles.workspace}>
-      <OnboardingBanner />
+      <GetStarted />
       {tab !== "overview" && (
         <PageHeading
           title="Dashboard"
