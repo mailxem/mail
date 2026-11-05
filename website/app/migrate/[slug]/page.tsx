@@ -63,7 +63,7 @@ export default async function MigratePage({
     },
     {
       title: "Connect your sending domain",
-      body: "Verify your domain with Xem's managed sending, or connect your own SMTP or Amazon SES. Your first campaign can use one of 120+ editable templates.",
+      body: "Verify your domain with Xem's managed sending, or connect your own SMTP or Amazon SES. Your first campaign can use one of 170+ editable templates.",
       link: {
         href: `${docsUrl}/guides/amazon-ses`,
         label: "Send with Amazon SES",
