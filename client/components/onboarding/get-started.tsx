@@ -33,7 +33,7 @@ export function GetStarted() {
   const steps: Step[] = [
     { done: !!senders.data?.length, title: "Connect a sender", body: "Use Xem’s managed sending or your own SMTP so email can leave your workspace.", href: "/settings/smtp", cta: "Connect sender", icon: Send, tint: ["#e6f0ff", "#1d5fd6", "rgb(59 111 216 / 0.22)"] },
     { done: !!contacts.data?.total, title: "Add your contacts", body: "Create a list, then import a CSV or an export from Mailchimp, Substack or beehiiv.", href: "/audience/lists", cta: "Add contacts", icon: Users, tint: ["#e5f6ec", "#1f7a45", "rgb(47 158 91 / 0.22)"] },
-    { done: !!campaigns.data?.total, title: "Send your first campaign", body: "Pick one of 80+ editable templates, choose a list and send now or schedule it.", href: "/campaigns/new", cta: "Create campaign", icon: Megaphone, tint: ["#ffece3", "#c2410c", "rgb(240 100 74 / 0.22)"] },
+    { done: !!campaigns.data?.total, title: "Send your first campaign", body: "Pick one of 120+ editable templates, choose a list and send now or schedule it.", href: "/campaigns/new", cta: "Create campaign", icon: Megaphone, tint: ["#ffece3", "#c2410c", "rgb(240 100 74 / 0.22)"] },
     { done: !!forms.data?.length, title: "Grow with a signup form", body: "Publish a form so new subscribers land in your lists on their own.", href: "/forms/new", cta: "Create form", icon: FileText, tint: ["#efe7ff", "#6b3fd4", "rgb(139 92 246 / 0.24)"] },
   ];
   const done = steps.filter((s) => s.done).length;

@@ -72,7 +72,7 @@ export const faqs = [
   },
   {
     q: "Are the templates actually editable?",
-    a: "Yes. The library contains over 80 templates made from native editor blocks. Change the copy, images, colors, and structure, then reuse your saved design in campaigns, newsletters, and automations.",
+    a: "Yes. The library contains over 120 templates made from native editor blocks. Change the copy, images, colors, and structure, then reuse your saved design in campaigns, newsletters, and automations.",
   },
   {
     q: "What does the AI writing tool create?",
