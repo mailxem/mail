@@ -45,7 +45,7 @@ test("blocks cross-origin and oversized requests before touching credentials", a
     (await editorProxy(request({}, "https://evil.example"), "draft")).status,
   ).toBe(403);
   expect(
-    (await editorProxy(request({ body: "x".repeat(100_001) }), "draft")).status,
+    (await editorProxy(request({ body: "x".repeat(1_500_001) }), "draft")).status,
   ).toBe(413);
   expect(auth).not.toHaveBeenCalled();
   expect(fetchMock).not.toHaveBeenCalled();

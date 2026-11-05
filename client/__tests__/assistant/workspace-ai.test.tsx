@@ -129,7 +129,10 @@ test("uses current editor context and reports saved only after persistence resol
   );
   fetchMock.mockResolvedValue({ ok: true, json: async () => draft });
   await generate();
-  const request = JSON.parse(fetchMock.mock.calls[0][1].body);
+  const call = fetchMock.mock.calls.find(([url]) => url === "/api/assistant/design")!;
+  const request = JSON.parse(call[1].body);
+  // Preview screenshots that fail to load are left out, not sent broken.
+  expect(request.images).toBeUndefined();
   expect(request).toMatchObject({
     teamId: "team",
     format: "slots",

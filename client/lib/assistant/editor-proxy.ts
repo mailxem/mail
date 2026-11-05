@@ -21,7 +21,8 @@ export async function editorProxy(
   try {
     const input = await readJSON(
       request,
-      operation === "draft" ? 100_000 : 2_000_000,
+      // Drafts can carry up to four small reference screenshots.
+      operation === "draft" ? 1_500_000 : 2_000_000,
     );
     const scope = await authenticate();
     if (input.teamId !== scope.teamId)

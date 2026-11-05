@@ -2,7 +2,7 @@
 // jsdom predates structuredClone; designs are plain JSON, so a JSON copy is equivalent here.
 globalThis.structuredClone ??= ((v: unknown) => JSON.parse(JSON.stringify(v))) as typeof structuredClone;
 
-import { applySlots, extractSlots, rankReferences, rowsOf } from "@/lib/assistant/reference-design";
+import { applySlots, designImages, GALLERY, extractSlots, rankReferences, rowsOf } from "@/lib/assistant/reference-design";
 
 const design = {
   body: {
@@ -50,4 +50,24 @@ test("applies new copy inside the original styling and drops removed rows", () =
 test("ranks library designs against the brief", () => {
   const [best] = rankReferences("weekly design newsletter editorial essay", 3);
   expect(best).toBeDefined();
+});
+
+test("sends the reference screenshot first, then examples, skipping missing ones", async () => {
+  const [reference] = rankReferences("weekly newsletter", 6);
+  const missing = rankReferences("weekly newsletter", Infinity).find((t) => GALLERY.has(t.key) && t.key !== reference.key)!.key;
+  global.fetch = jest.fn(async (url: string) =>
+    url.includes(missing)
+      ? ({ ok: false } as Response)
+      : ({ ok: true, blob: async () => new Blob(["x"], { type: "image/webp" }) } as Response),
+  ) as never;
+  const images = await designImages("weekly newsletter", reference);
+  expect(images[0]).toMatchObject({ role: "reference", data: expect.stringMatching(/^data:image\/webp;base64,/) });
+  // Examples are gallery templates and cite their public gallery page.
+  for (const example of images.slice(1)) {
+    expect(example.role).toBe("example");
+    expect(example.source).toMatch(/, https:\/\/xem\.email\/templates\/[a-z-]+$/);
+  }
+  expect(images.length).toBeGreaterThan(1);
+  expect(images.length).toBeLessThanOrEqual(4);
+  expect((global.fetch as jest.Mock).mock.calls.some(([u]) => u.includes(`/${reference.key}/`))).toBe(true);
 });

@@ -24,7 +24,9 @@ type EmailDraftRequest struct {
 	// Reference mode ("slots"): the library design being adapted.
 	Reference string     `json:"reference,omitempty"`
 	Slots     []CopySlot `json:"slots,omitempty"`
-	Rows      []SlotRow  `json:"rows,omitempty"`
+	// Optional screenshots: the reference first, then house-style examples.
+	Images []DesignImage `json:"images,omitempty"`
+	Rows   []SlotRow     `json:"rows,omitempty"`
 }
 type EmailDraft struct {
 	Subject     string         `json:"subject"`
