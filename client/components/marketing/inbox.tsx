@@ -15,7 +15,6 @@ import {
   Paperclip,
   RefreshCw,
   X,
-  ChevronDown,
   Pin,
   Archive,
   FileText,
@@ -26,6 +25,7 @@ import { useMarketing, useMarketingQuery } from "@/lib/marketing/api";
 import { IMAPEmail, IMAPEmailResponse } from "@/types/imap";
 import { Button } from "@/components/ui/button";
 import { QueryState, Empty } from "./shared";
+import { mailFixtures } from "@/lib/marketing/mail-fixtures";
 import { MailCompose } from "./mail-compose";
 import { MailSummary } from "./mail-summary";
 import { MailboxSelect } from "./mailbox-select";
@@ -47,6 +47,58 @@ export function senderName(value: string) {
     address[0].slice(1, -1).trim()
   );
 }
+const AVATAR_TINTS = [
+  ["#e6f0ff", "#1d5fd6"],
+  ["#efe7ff", "#6b3fd4"],
+  ["#ffece3", "#c2410c"],
+  ["#e5f6ec", "#1f7a45"],
+  ["#fff3d6", "#a35a00"],
+  ["#fde8ef", "#be185d"],
+];
+function avatarTint(name: string) {
+  let h = 0;
+  for (const c of name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  const [background, color] = AVATAR_TINTS[h % AVATAR_TINTS.length];
+  return { background, color };
+}
+/** DiceBear seed is a hash of the address, so no contact data leaves the app. */
+function avatarUrl(value: string) {
+  let h = 0;
+  for (const c of address(value).toLowerCase()) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  const bg = ["c0dbff", "d9c9ff", "ffd5c2", "c6ecd4", "ffe6a8", "fbcfe0"][h % 6];
+  return `https://api.dicebear.com/9.x/notionists/svg?seed=${h.toString(36)}&backgroundColor=${bg}`;
+}
+function MailAvatar({ from }: { from: string }) {
+  const [failed, setFailed] = useState(false);
+  const name = senderName(from);
+  return (
+    <span className={workspaceClassName("mail-avatar")} style={avatarTint(name)}>
+      {failed ? (
+        name.slice(0, 1).toUpperCase()
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={avatarUrl(from)}
+          alt=""
+          className="size-full rounded-full"
+          onError={() => setFailed(true)}
+        />
+      )}
+    </span>
+  );
+}
+function address(value: string) {
+  return value.match(/<([^>]+)>/)?.[1] || value;
+}
+/** Today shows the time ("05.16"); older mail shows the day ("June 29"). */
+function listTime(date: string) {
+  if (!date) return "";
+  const d = new Date(date);
+  if (d.toDateString() === new Date().toDateString())
+    return `${String(d.getHours()).padStart(2, "0")}.${String(d.getMinutes()).padStart(2, "0")}`;
+  return d.toLocaleDateString(undefined, { month: "long", day: "numeric" });
+}
+
 function text(body: string) {
   return (
     body
@@ -304,8 +356,16 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
     historyBaselineIdentityRef.current = identity;
     historyRef.current = firstPageHistory;
   }, [epochVersion, firstPageHistory, generation, mailbox?.provider]);
-  const rows =
-    outbox && query
+  const [fixtures, setFixtures] = useState(false);
+  useEffect(() => {
+    setFixtures(
+      process.env.NODE_ENV === "development" &&
+        /[?&]fixtures?=/.test(window.location.search),
+    );
+  }, []);
+  const rows = fixtures
+    ? mailFixtures(outbox)
+    : outbox && query
       ? allRows.filter((m) =>
           `${m.to} ${m.subject} ${text(m.body)}`
             .toLowerCase()
@@ -430,7 +490,7 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
     emails.isFetchNextPageError,
     emails.fetchNextPage,
   ]);
-  const total = emails.data?.pages[0]?.total_emails || 0;
+  const total = fixtures ? 14171 : emails.data?.pages[0]?.total_emails || 0;
   const displayedFolders: {
     Name: string;
     DisplayName?: string;
@@ -654,18 +714,39 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
         `mail-workspace ${current ? "mail-open" : "mail-idle"}`,
       )}
     >
-      <aside className={workspaceClassName("mail-folders")}>
-        <div className={workspaceClassName("mail-workspace-title")}>
-          <span className={workspaceClassName("mail-account-mark")}>
-            <Mail size={17} />
-          </span>
-          <strong>{outbox ? "Outgoing mail" : "Team mailbox"}</strong>
-          <small>
-            {outbox
-              ? "Delivery and message history."
-              : "Your conversations, together."}
-          </small>
+      <header className={workspaceClassName("mail-topbar")}>
+        {outbox ? <Send size={18} /> : <Inbox size={18} />}
+        <h1>{outbox ? "Outbox" : "Inbox"}</h1>
+        <span aria-hidden="true">•</span>
+        <p>
+          {emails.data?.pages[0]?.total_is_estimate ? "About " : ""}
+          {total.toLocaleString()} {outbox ? "messages" : "emails"}
+        </p>
+        <div className={workspaceClassName("mail-topbar-actions")}>
+          {!outbox && !!mailboxes.data?.length && (
+            <div className="w-56 max-[780px]:hidden">
+              <MailboxSelect
+                value={configId}
+                mailboxes={mailboxes.data ?? []}
+                disabled={mailboxes.isLoading}
+                onChange={(value) => {
+                  setChosenMailbox(value);
+                  setFolder("INBOX");
+                  setSelected(null);
+                }}
+              />
+            </div>
+          )}
+          <button
+            className={workspaceClassName("icon-button")}
+            aria-label={`Refresh ${title.toLowerCase()}`}
+            onClick={() => emails.refetch()}
+          >
+            <RefreshCw />
+          </button>
         </div>
+      </header>
+      <div className={workspaceClassName("mail-toolbar")}>
         <Button
           className={workspaceClassName("compose-button")}
           onClick={() =>
@@ -679,35 +760,7 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
           <PencilLine />
           Compose
         </Button>
-        {!outbox && (
-          <div className="pb-3 pt-3">
-            <MailboxSelect
-              value={configId}
-              mailboxes={mailboxes.data ?? []}
-              disabled={mailboxes.isLoading}
-              onChange={(value) => {
-                setChosenMailbox(value);
-                setFolder("INBOX");
-                setSelected(null);
-              }}
-            />
-            {mailboxes.error && (
-              <p role="alert" className="mt-2 text-xs text-destructive">
-                {mailboxes.error.message}
-              </p>
-            )}
-            {!mailboxes.isLoading && !configId && !mailboxes.error && (
-              <p className="mt-2 text-xs text-muted-foreground">
-                Connect a mailbox in settings to read your mail.
-              </p>
-            )}
-            {folders.error && (
-              <p role="alert" className="mt-2 text-xs text-destructive">
-                {folders.error.message}
-              </p>
-            )}
-          </div>
-        )}
+        <span className={workspaceClassName("mail-toolbar-divider")} aria-hidden="true" />
         <div className={workspaceClassName("mail-folder-list")}>
           {displayedFolders.map((f) => (
             <button
@@ -719,13 +772,13 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
               }}
             >
               {f.Name.toLowerCase().includes("sent") ? (
-                <Send size={15} />
+                <Send size={16} />
               ) : f.Name.toLowerCase().includes("draft") ? (
-                <FileText size={15} />
+                <FileText size={16} />
               ) : f.Name.toLowerCase().includes("archive") ? (
-                <Archive size={15} />
+                <Archive size={16} />
               ) : (
-                <Inbox size={15} />
+                <Inbox size={16} />
               )}
               <span>
                 {f.Name === "INBOX"
@@ -735,49 +788,43 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
                     : f.DisplayName ||
                       f.Name.charAt(0) + f.Name.slice(1).toLowerCase()}
               </span>
-              <small>{f.Total || ""}</small>
+              {!!f.Total && <small>{f.Total.toLocaleString()}</small>}
             </button>
           ))}
         </div>
-        <div className={workspaceClassName("mail-folder-note")}>
-          {outbox ? (
-            <>
-              Manage your senders in{" "}
-              <a href="/settings/smtp">SMTP settings ↗</a>
-            </>
-          ) : (
-            <>
-              Connect your mailbox in{" "}
-              <a href="/settings/imap">IMAP settings ↗</a>
-            </>
-          )}
-        </div>
-      </aside>
+      </div>
+      {!outbox &&
+        !fixtures &&
+        (mailboxes.error ||
+          folders.error ||
+          (!mailboxes.isLoading && !configId)) && (
+          <p
+            role={mailboxes.error || folders.error ? "alert" : undefined}
+            className={workspaceClassName("mail-notice")}
+          >
+            {mailboxes.error?.message ||
+              folders.error?.message ||
+              "Connect a mailbox in settings to read your mail."}{" "}
+            <Link href="/settings/imap">Mailbox settings ↗</Link>
+          </p>
+        )}
+      <div className={workspaceClassName("mail-panes")}>
       <section
         className={workspaceClassName(
           `mail-list-pane ${current ? "mail-list-collapsed" : ""}`,
         )}
       >
         <div className={workspaceClassName("mail-list-heading")}>
-          <div>
-            <h1>
-              {outbox
-                ? "Outbox"
-                : folderDisplayName || (folder === "INBOX" ? "Inbox" : folder)}
-              <ChevronDown size={16} />
-            </h1>
-            <p>
-              {emails.data?.pages[0]?.total_is_estimate ? "About " : ""}
-              {total.toLocaleString()} messages
-            </p>
-          </div>
-          <button
-            className={workspaceClassName("icon-button")}
-            aria-label={`Refresh ${title.toLowerCase()}`}
-            onClick={() => emails.refetch()}
-          >
-            <RefreshCw />
-          </button>
+          <span>
+            {outbox
+              ? "All messages"
+              : folderDisplayName || (folder === "INBOX" ? "Inbox" : folder)}
+          </span>
+          <small>
+            {displayedRows.length < total
+              ? `${displayedRows.length.toLocaleString()} of ${total.toLocaleString()}`
+              : total.toLocaleString()}
+          </small>
         </div>
         {!outbox && (
           <div className={workspaceClassName("mail-mobile-actions")}>
@@ -847,17 +894,17 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
                 : "New messages available · Show"}
             </button>
           )}
-          <QueryState
+          {!fixtures && <QueryState
             loading={emails.isLoading}
             error={emails.data ? null : emails.error}
             retry={() => emails.refetch()}
-          />
+          />}
           {emails.isFetchNextPageError && (
             <p role="alert" className="px-3 py-2 text-xs text-muted-foreground">
               Older messages could not be loaded. Use the button below to retry.
             </p>
           )}
-          {!emails.isLoading && !emails.error && !rows.length && (
+          {!fixtures && !emails.isLoading && !emails.error && !rows.length && (
             <Empty
               title="A little peace and quiet"
               description={
@@ -888,39 +935,26 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
               )}
               onClick={() => choose(m)}
             >
-              <span
-                className={workspaceClassName("mail-avatar")}
-                style={{
-                  background: [
-                    "var(--muted)",
-                    "var(--secondary)",
-                    "var(--muted)",
-                    "var(--secondary)",
-                  ][i % 4],
-                }}
-              >
-                {senderName(outbox ? m.to : m.from)
-                  .slice(0, 1)
-                  .toUpperCase()}
-              </span>
+              <MailAvatar from={outbox ? m.to : m.from} />
               <div>
                 <div className={workspaceClassName("mail-item-line")}>
                   <strong>{senderName(outbox ? m.to : m.from)}</strong>
-                  <time>
-                    {m.date
-                      ? new Date(m.date).toLocaleDateString(undefined, {
-                          month: "short",
-                          day: "numeric",
-                        })
-                      : ""}
-                  </time>
+                  <time>{listTime(m.date)}</time>
                 </div>
                 <span className={workspaceClassName("mail-subject")}>
-                  {m.subject || "(No subject)"}
+                  {address(outbox ? m.to : m.from)}
                 </span>
                 <p>
-                  {outbox && m.status ? `${m.status} · ` : ""}
-                  {text(m.body)}
+                  {outbox && m.status && (
+                    <span
+                      className={workspaceClassName(
+                        `status-pill status-${m.status.toLowerCase()} mr-1.5 align-[1px]`,
+                      )}
+                    >
+                      {m.status.charAt(0) + m.status.slice(1).toLowerCase().replaceAll("_", " ")}
+                    </span>
+                  )}
+                  <b>{m.subject || "(No subject)"}</b> {text(m.body)}
                 </p>
               </div>
             </button>
@@ -1008,7 +1042,7 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
                 </>
               )}
               <span className="ml-auto text-xs text-muted-foreground">
-                {index + 1} of {total}
+                {(index + 1).toLocaleString()} of {total.toLocaleString()}
               </span>
               <button
                 className={workspaceClassName("icon-button")}
@@ -1034,13 +1068,30 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
                 <X />
               </button>
             </div>
+            <div className="px-8 pt-2 max-[1300px]:px-5">
+                <div className={workspaceClassName("mail-sender")}>
+                  <MailAvatar from={outbox ? current.to : current.from} />
+                  <div>
+                    <strong>{senderName(outbox ? current.to : current.from)}</strong>
+                    <p>
+                      {outbox ? "To: " : "From: "}
+                      {(outbox ? current.to : current.from).match(
+                        /<([^>]+)>/,
+                      )?.[1] || (outbox ? current.to : current.from)}
+                    </p>
+                  </div>
+                  <time
+                    dateTime={current.date}
+                    title={new Date(current.date).toLocaleString(undefined, {
+                      dateStyle: "long",
+                      timeStyle: "short",
+                    })}
+                  >
+                    {listTime(current.date)}
+                  </time>
+                </div>
+            </div>
             <div className={workspaceClassName("mail-subject-heading")}>
-              <p>
-                {new Date(current.date).toLocaleString(undefined, {
-                  dateStyle: "long",
-                  timeStyle: "short",
-                })}
-              </p>
               <h2>{current.subject}</h2>
               {outbox && (
                 <p>
@@ -1051,25 +1102,6 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
               {outbox && current.error && <p role="alert">{current.error}</p>}
             </div>
             <div className={workspaceClassName("mail-message")}>
-              <div className={workspaceClassName("mail-sender")}>
-                <span className={workspaceClassName("mail-avatar")}>
-                  {senderName(current.from).slice(0, 1)}
-                </span>
-                <div>
-                  <strong>{senderName(current.from)}</strong>
-                  <p>
-                    {(outbox ? current.to : current.from).match(
-                      /<([^>]+)>/,
-                    )?.[1] || (outbox ? current.to : current.from)}
-                  </p>
-                </div>
-                <time>
-                  {new Date(current.date).toLocaleTimeString(undefined, {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </time>
-              </div>
               <p className={workspaceClassName("mail-recipients")}>
                 To <span>{current.to}</span>
                 {current.cc && (
@@ -1220,6 +1252,7 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
           </div>
         )}
       </section>
+      </div>
       {!current && !compose && (
         <Button
           aria-label="Compose message"

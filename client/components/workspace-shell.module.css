@@ -167,26 +167,34 @@
   min-height: 30px;
 }
 .collapsed .sidebar {
-  flex-basis: 48px;
-  width: 48px;
-  padding-right: 0;
-  padding-left: 0;
+  flex-basis: 56px;
+  width: 56px;
+  padding: 6px 0 8px;
+  align-items: center;
 }
 .collapsed .brandRow {
   justify-content: center;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 .collapsed .workspaceIdentity {
   flex: 0 0 auto;
-  padding: 4px;
+  padding: 0;
+  min-height: 40px;
+  width: 40px;
+  justify-content: center;
 }
 .collapsed .navItem {
   justify-content: center;
-  padding-right: 0;
-  padding-left: 0;
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 10px;
 }
 .collapsed .navigation {
   gap: 20px;
+  align-items: center;
 }
 .expandButton {
   align-self: center;
@@ -617,10 +625,52 @@
 :global(.dark) .navItem.active {
   background: var(--workspace-canvas);
 }
-.collapsed .navItem {
-  width: 100%;
-}
 .onboarding,
 .settingsButton {
   width: 100%;
+}
+
+.collapsed .navGroup {
+  align-items: center;
+  gap: 6px;
+}
+.collapsed .navItem > svg {
+  width: 20px;
+  height: 20px;
+}
+.collapsed .navItem {
+  width: 40px;
+}
+.collapsed .navItem.active {
+  background: var(--workspace-canvas);
+  border-color: var(--border);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 2px 6px rgb(0 0 0 / 0.04);
+}
+.collapsed .brandMark {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+.collapsed .expandButton {
+  width: 40px;
+  height: 32px;
+  margin-bottom: 12px;
+}
+.collapsed .compactSearch {
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  margin-bottom: 20px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 10px;
+  background: transparent;
+}
+.collapsed .compactSearch:hover {
+  background: rgb(0 0 0 / 0.05);
+}
+.collapsed .sidebarBottom {
+  align-items: center;
 }

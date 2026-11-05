@@ -32,13 +32,13 @@ import {
   Search,
   Send,
   Settings,
-  Sparkles,
   Sun,
   Users,
   Workflow,
 } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { UpgradeSheet } from "@/components/billing/paid-plan";
+import { XemMark } from "@/components/assistant/xem-mark";
 import { Modal } from "@/components/marketing/shared";
 import {
   DropdownMenu,
@@ -67,7 +67,7 @@ const navigationGroups = [
     name: "Workspace",
     items: [
       { name: "Overview", href: "/dashboard", icon: LayoutGrid },
-      { name: "Ask Xem", href: "/", icon: Sparkles },
+      { name: "Ask Xem", href: "/", icon: XemMark },
       { name: "Inbox", href: "/inbox", icon: Mail },
       { name: "Outbox", href: "/developer/logs/emails", icon: Send },
     ],
@@ -127,7 +127,9 @@ const sharedHeadingPages = [
 ];
 
 const isInboxPath = (path: string) =>
-  path === "/inbox" || path.startsWith("/inbox/");
+  path === "/inbox" ||
+  path.startsWith("/inbox/") ||
+  path === "/developer/logs/emails";
 
 export function useInboxSidebarCollapse(active: string) {
   const [collapsed, setCollapsed] = useState(() => isInboxPath(active));
