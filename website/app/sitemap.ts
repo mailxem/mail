@@ -3,6 +3,7 @@ import type { MetadataRoute } from "next";
 import { siteUrl } from "@/lib/site";
 import { getPosts } from "@/lib/blog";
 import { competitors } from "@/lib/compare";
+import { galleryTemplates } from "@/lib/template-gallery";
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: siteUrl, changeFrequency: "monthly", priority: 1 },
@@ -26,6 +27,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.6,
       },
     ]),
+    { url: `${siteUrl}/templates`, changeFrequency: "monthly", priority: 0.8 },
+    ...galleryTemplates.map((t) => ({
+      url: `${siteUrl}/templates/${t.key}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
+    })),
     { url: `${siteUrl}/blog`, changeFrequency: "weekly", priority: 0.8 },
     {
       url: `${siteUrl}/blog/editorial`,

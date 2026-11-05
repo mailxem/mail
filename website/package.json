@@ -10,6 +10,7 @@
     "test:e2e": "playwright test",
     "format": "prettier --write app components lib scripts tests *.ts *.mjs",
     "capture:templates": "node scripts/capture-templates.mjs",
+    "capture:gallery": "node scripts/capture-gallery.mjs",
     "preview": "wrangler dev --port 3002",
     "deploy": "bun run build && wrangler deploy",
     "deploy:check": "bun run build && wrangler deploy --dry-run",

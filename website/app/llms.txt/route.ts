@@ -1,6 +1,7 @@
 import { getPosts } from "@/lib/blog";
 import { faqs } from "@/lib/content";
 import { competitors } from "@/lib/compare";
+import { galleryTemplates } from "@/lib/template-gallery";
 import { docsUrl, githubUrl, siteUrl } from "@/lib/site";
 export const dynamic = "force-static";
 // Plain-text map of the site for AI assistants (llmstxt.org).
@@ -22,6 +23,11 @@ export function GET() {
 
 - [Compare Xem](${siteUrl}/compare): cost calculator and a weekly-newsletter price table across tools
 ${competitors.map((c) => `- [Xem vs ${c.name}](${siteUrl}/compare/xem-vs-${c.id}): ${c.name} ${c.modelShort}; Xem charges per email sent. [Move from ${c.name}](${siteUrl}/migrate/${c.id})`).join("\n")}
+
+## Email templates
+
+- [Template gallery](${siteUrl}/templates): ${galleryTemplates.length} editable email templates by category, each opens in the Xem editor
+${galleryTemplates.map((t) => `- [${t.name}](${siteUrl}/templates/${t.key}): ${t.category}. ${t.description}`).join("\n")}
 
 ## Docs
 
