@@ -109,7 +109,10 @@ Dark mode keeps the same structure: canvas `#111113`, sheet `#18181b`, hairlines
   key/value rows 12px.
 - Page title **17px / 600**, letter spacing −0.01em, with a 13px muted one-line
   description. Card title 15px / 500. Big stat numbers 20px / 500 tabular.
-  Large display headings ("Good afternoon") are not used.
+  Large display headings are not used on work screens.
+- One exception: the Ask Xem home heading uses EB Garamond (`--font-editorial`,
+  the website's editorial serif) at 400 weight, 34–46px, −0.03em, with one
+  italic word. It is the only place the app greets you rather than shows data.
 - Weights: 400, 500, 600 only. No bold 700, no all-caps labels except tiny
   status badges.
 - Numbers are tabular (`font-variant-numeric: tabular-nums`).

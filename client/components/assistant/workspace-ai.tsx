@@ -18,11 +18,11 @@ import {
   FilePenLine,
   Loader2,
   Minus,
-  Sparkles,
   Square,
 } from "lucide-react";
 import { AssistantHome } from "./assistant-home";
 import type { EmailDraft } from "@/components/ai/email-writer";
+import { XemMark, XemMarkTile } from "./xem-mark";
 import styles from "./workspace-ai.module.css";
 import { designContext } from "@/lib/assistant/design-context";
 
@@ -112,9 +112,7 @@ function WorkspaceAI({
             }}
           >
             <header className={styles.header}>
-              <span className={styles.mark}>
-                <Sparkles size={19} />
-              </span>
+              <XemMarkTile size={32} />
               <div>
                 <strong>Xem AI</strong>
                 <small>A little help, right where you work</small>
@@ -150,7 +148,7 @@ function WorkspaceAI({
                 />
               ) : (
                 <div className={styles.welcome}>
-                  <Sparkles size={28} />
+                  <XemMarkTile size={44} />
                   <h2>Let’s make something worth opening.</h2>
                   <p>
                     Open a template and tell Xem what you have in mind. Your
@@ -168,6 +166,7 @@ function WorkspaceAI({
           </div>
           <button
             ref={launcher}
+            hidden={pathname === "/" && !open}
             className={styles.launcher}
             aria-expanded={open}
             aria-label={open ? "Minimize Xem AI" : "Open Xem AI"}
@@ -177,7 +176,7 @@ function WorkspaceAI({
                 : (setMode(editor ? "design" : "workspace"), setOpen(true))
             }
           >
-            <Sparkles size={18} />
+            <XemMark size={18} />
             <span>Xem AI</span>
           </button>
         </div>
@@ -292,9 +291,7 @@ function DesignConversation({
       <div className={styles.transcript} ref={transcript}>
         {!messages.length && (
           <div className={styles.welcome}>
-            <span className={styles.mark}>
-              <Sparkles size={24} />
-            </span>
+            <XemMarkTile size={44} />
             <h2>Your next great email starts here.</h2>
             <p>
               Describe the look, the audience, and what you want to say. Then

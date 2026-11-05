@@ -135,9 +135,13 @@
   padding: 0 24px;
 }
 .welcome {
-  max-width: 740px;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  margin: clamp(20px, 8vh, 100px) auto 30px;
+  margin: auto auto 28px;
+  padding-top: 24px;
 }
 .motif {
   width: 53px;
@@ -158,40 +162,46 @@
   margin: 0 0 12px !important;
 }
 .welcome h1 {
-  font-size: clamp(30px, 3.3vw, 43px);
-  line-height: 1.2;
-  font-weight: 450;
-  letter-spacing: -1.6px;
-  margin: 0 0 15px;
+  font-family: var(--font-editorial), Georgia, serif;
+  font-size: clamp(34px, 3.6vw, 46px);
+  line-height: 1.08;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  margin: 4px 0 14px;
   color: var(--foreground);
 }
+.welcome h1 em {
+  font-style: italic;
+}
 .subtitle {
-  font-size: 13px;
-  line-height: 1.8;
-  color: var(--muted-foreground);
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--text-secondary);
 }
 .emptyComposer {
-  max-width: 740px;
-  margin: 0 auto 25px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto auto;
+  padding: 0 16px 24px;
 }
 .composer {
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   background: var(--card);
   border-radius: 20px;
-  padding: 16px 17px 12px;
-  box-shadow: none;
+  padding: 14px 16px 10px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.03), 0 8px 24px rgb(0 0 0 / 0.05);
   transition:
     border-color 0.2s,
     box-shadow 0.2s;
 }
 .composer:focus-within {
-  border-color: var(--border);
-  box-shadow: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 18%, transparent);
 }
 .composer textarea {
   display: block;
   resize: none;
-  min-height: 57px;
+  min-height: 44px;
   max-height: 180px;
   width: 100%;
   background: transparent;
@@ -212,13 +222,13 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 10px;
+  margin-top: 4px;
 }
 .composerBottom > span:first-child {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted-foreground);
 }
 .statusDot {
@@ -231,80 +241,51 @@
 .shortcut {
   margin-left: auto;
   color: var(--muted-foreground);
-  font-size: 9px;
+  font-size: 12px;
 }
 .send {
   display: grid;
   place-items: center;
-  width: 33px;
-  height: 33px;
-  border-radius: 10px;
-  background: var(--muted);
-  color: var(--muted-foreground);
-  border: 1px solid var(--border);
-  transition:
-    background 0.15s,
-    transform 0.15s;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: 0;
+  transition: opacity 0.15s;
   flex-shrink: 0;
 }
 .send:hover {
-  background: var(--muted);
-  transform: translateY(-1px);
+  opacity: 0.85;
 }
 .send:disabled {
   background: var(--muted);
   color: var(--muted-foreground);
-  border-color: var(--border);
   opacity: 1;
-  transform: none;
 }
 .starters {
-  margin: 28px 5px 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 26px;
+  margin: 16px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
 }
 .starters button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  text-align: left;
-  gap: 12px;
-  min-height: 73px;
-  padding: 12px 8px;
-  border-radius: 10px;
-  color: var(--muted-foreground);
-  transition: background 0.15s;
+  gap: 8px;
+  height: 38px;
+  padding: 0 14px 0 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--foreground);
+  font-size: 13px;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
 }
 .starters button:hover {
   background: var(--muted);
-  color: var(--muted-foreground);
-}
-.starters button > span {
-  flex: 1;
-  min-width: 0;
-}
-.starters strong {
-  display: block;
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1.5;
-  color: var(--muted-foreground);
-}
-.starters small {
-  display: block;
-  font-size: 10px;
-  color: var(--muted-foreground);
-  line-height: 1.5;
-  margin-top: 3px;
-}
-.starters button > svg:last-child {
-  opacity: 0;
-  transform: translate(-3px, 3px);
-  transition: all 0.15s;
-}
-.starters button:hover > svg:last-child {
-  opacity: 1;
-  transform: translate(0, 0);
 }
 .emptyFooter {
   padding: 12px 24px 20px;
@@ -316,8 +297,8 @@
   justify-content: center;
   gap: 4px 10px;
   text-align: center;
-  font-size: 9px;
-  line-height: 1.7;
+  font-size: 12px;
+  line-height: 1.6;
   color: var(--muted-foreground);
   margin: 12px 0 0;
 }
@@ -989,3 +970,114 @@
 .embedded .messages { padding:16px; }
 .embedded .footnote { font-size:10px; }
 .embedded .dataNote { font-size:10px; }
+
+.chipBlue,
+.chipAmber,
+.chipPurple {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 7px;
+  font-weight: 500;
+  line-height: 1.6;
+  transition: filter 0.15s;
+}
+.chipBlue:hover,
+.chipAmber:hover,
+.chipPurple:hover {
+  filter: brightness(0.96);
+}
+.chipBlue {
+  background: #e6f0ff;
+  color: #1d4fb8;
+}
+.chipAmber {
+  background: #fff3d6;
+  color: #8a4b00;
+}
+.chipPurple {
+  background: #f1e8ff;
+  color: #6b34c9;
+}
+:global(.dark) .chipBlue {
+  background: rgb(59 111 216 / 0.2);
+  color: #a9c6ff;
+}
+:global(.dark) .chipAmber {
+  background: rgb(208 138 18 / 0.2);
+  color: #f5cf86;
+}
+:global(.dark) .chipPurple {
+  background: rgb(139 92 246 / 0.22);
+  color: #d4bfff;
+}
+
+/* Empty home only: a soft wash of blue, lilac and peach behind the heading that
+   fades into the page. Kept faint so text contrast is unaffected. */
+.screen:not(.transcript):not(.embedded) {
+  background:
+    radial-gradient(60% 45% at 30% 18%, rgb(120 160 255 / 0.16), transparent 70%),
+    radial-gradient(50% 40% at 72% 14%, rgb(196 150 255 / 0.14), transparent 70%),
+    radial-gradient(55% 40% at 55% 42%, rgb(255 190 150 / 0.12), transparent 70%),
+    var(--background);
+}
+:global(.dark) .screen:not(.transcript):not(.embedded) {
+  background:
+    radial-gradient(60% 45% at 30% 18%, rgb(90 130 255 / 0.14), transparent 70%),
+    radial-gradient(50% 40% at 72% 14%, rgb(170 110 255 / 0.12), transparent 70%),
+    radial-gradient(55% 40% at 55% 42%, rgb(255 150 100 / 0.07), transparent 70%),
+    var(--background);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .screen:not(.transcript):not(.embedded) {
+    background: var(--background);
+  }
+}
+
+.screen:not(.transcript):not(.embedded) .viewport {
+  display: flex;
+  flex-direction: column;
+}
+.welcome > span:first-child {
+  margin-bottom: 18px;
+  box-shadow: 0 6px 20px rgb(24 24 27 / 0.18);
+}
+.greeting {
+  display: block;
+  color: var(--muted-foreground);
+}
+.logoStack {
+  display: inline-flex;
+  margin-left: -4px;
+}
+.logoStack > span {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 2px solid var(--card);
+  margin-left: -7px;
+}
+.logoStack > span:first-child {
+  margin-left: 0;
+}
+.logoStack img {
+  width: 11px;
+  height: 11px;
+}
+.emptyFooter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 8px 24px 16px;
+}
+.emptyFooter .footnote,
+.emptyFooter .unavailable {
+  margin: 0;
+}
+.emptyFooter .dataNote {
+  margin: 0;
+  font-size: 12px;
+}

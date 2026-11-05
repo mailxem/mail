@@ -296,3 +296,7 @@
   border-radius: 8px;
   background: white;
 }
+
+.launcher[hidden] {
+  display: none;
+}

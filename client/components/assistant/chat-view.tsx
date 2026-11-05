@@ -4,7 +4,6 @@ import type { UIMessage } from "ai";
 import {
   ArrowDown,
   ArrowUp,
-  ArrowUpRight,
   Check,
   ChevronDown,
   Copy,
@@ -12,7 +11,6 @@ import {
   Mail,
   MessageSquare,
   Plus,
-  Sparkles,
   Square,
   Users,
   X,
@@ -25,33 +23,43 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { ActionOutput, ConversationSummary } from "@/lib/assistant/types";
 import styles from "./chat.module.css";
+import { GlanceLine } from "./workspace-glance";
+import { useSession } from "next-auth/react";
+import { XemMarkTile } from "./xem-mark";
 
 const starters = [
   {
     icon: Mail,
-    title: "Make something worth opening",
+    title: "Draft a newsletter",
+    color: "#d6457c",
     text: "Help me draft a newsletter. First ask me about the audience and what I want to share.",
     detail: "Find the words for your next newsletter",
   },
   {
     icon: ChartNoAxesCombined,
-    title: "Find the story in my numbers",
+    title: "Review results",
+    color: "#d08a12",
     text: "How are my recent campaigns performing? Use my workspace data and suggest one useful next step.",
     detail: "Understand what’s working",
   },
   {
     icon: Users,
-    title: "Get to know my audience",
+    title: "Know my audience",
+    color: "#2f9e5b",
     text: "Give me an overview of my audience using aggregate metrics. What should I pay attention to?",
     detail: "Turn audience insights into a next step",
   },
-  {
-    icon: Sparkles,
-    title: "Help me find my way",
-    text: "I'm getting started with Xem. Explain how to connect my sender, build an audience, and send my first newsletter.",
-    detail: "A little guidance, whenever you need it",
-  },
 ];
+const sources = [
+  { name: "Mailchimp", logo: "mailchimp", tile: "#FFE01B" },
+  { name: "Substack", logo: "substack", tile: "#FF6719" },
+  { name: "Kit", logo: "kit", tile: "#111111" },
+  { name: "Ghost", logo: "ghost", tile: "#15171A" },
+];
+function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+}
 export const messageText = (message: UIMessage) =>
   message.parts.flatMap((p) => (p.type === "text" ? [p.text] : [])).join("\n");
 function label(name: string) {
@@ -267,6 +275,8 @@ export function ChatView({
   onRecover,
 }: ChatViewProps) {
   const empty = messages.length === 0;
+  const { data: session } = useSession();
+  const firstName = session?.user?.name?.split(" ")[0] ?? "";
   const viewport = useRef<HTMLDivElement>(null);
   const follow = useRef(true);
   const field = useRef<HTMLTextAreaElement>(null);
@@ -298,6 +308,7 @@ export function ChatView({
     >
       <header className={styles.header}>
         <div className={styles.identity}>
+          {empty && <XemMarkTile size={24} />}
           <span
             className={styles.wordmark}
             title={empty ? "Ask Xem" : messageText(messages[0])}
@@ -376,14 +387,21 @@ export function ChatView({
       >
         {empty ? (
           <div className={styles.welcome}>
-            <div className={styles.motif} aria-hidden>
-              <Sparkles size={25} strokeWidth={1.25} />
-            </div>
-            <p className={styles.eyebrow}>YOUR WORKSPACE, IN A CONVERSATION</p>
-            <h1>What’s on your mind?</h1>
-            <p className={styles.subtitle}>
-              A better email. A clearer picture. A little help getting there.
-            </p>
+            <XemMarkTile size={48} />
+            <h1>
+              <span className={styles.greeting}>
+                {greeting()}
+                {firstName ? `, ${firstName}` : ""}.
+              </span>{" "}
+              What will you get done <em>today</em>?
+            </h1>
+            {compact || demo ? (
+              <p className={styles.subtitle}>
+                Ask about your campaigns, audience or inbox.
+              </p>
+            ) : (
+              <GlanceLine />
+            )}
           </div>
         ) : (
           <div
@@ -485,14 +503,30 @@ export function ChatView({
                   disabled={busy || loading || !enabled}
                   onClick={() => send(s.text)}
                 >
-                  <s.icon size={17} strokeWidth={1.5} />
-                  <span>
-                    <strong>{s.title}</strong>
-                    <small>{s.detail}</small>
-                  </span>
-                  <ArrowUpRight size={14} />
+                  <s.icon size={18} strokeWidth={1.75} style={{ color: s.color }} />
+                  {s.title}
                 </button>
               ))}
+              {!compact && !demo && (
+                <button
+                  disabled={busy || loading || !enabled}
+                  onClick={() =>
+                    send(
+                      "I’m moving to Xem from another newsletter tool. Walk me through exporting my subscribers and importing them here.",
+                    )
+                  }
+                >
+                  <span className={styles.logoStack} aria-hidden>
+                    {sources.map((source) => (
+                      <span key={source.name} style={{ background: source.tile }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={`/logos/${source.logo}.svg`} alt="" />
+                      </span>
+                    ))}
+                  </span>
+                  Import your list
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -626,11 +660,9 @@ function Composer({
       <div className={styles.composerBottom}>
         {!compact && (
           <>
-            <span>
-              <span className={styles.statusDot} />
-              {loading ? "Connecting" : "Xem assistant"}
+            <span className={styles.shortcut}>
+              {loading ? "Connecting…" : "Shift ↵ for a new line"}
             </span>
-            <span className={styles.shortcut}>Shift ↵ for a new line</span>
           </>
         )}
         {busy ? (
