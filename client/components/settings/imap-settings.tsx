@@ -1,6 +1,7 @@
 "use client";
 import { useConfirmSheet } from "@/components/ui/confirm-sheet";
 
+import * as React from "react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,16 +35,19 @@ import { IMAPProviders } from "./imap-providers";
 import { CloudflareButton, CloudflareLogo } from "./cloudflare-setup";
 import { useApi } from "@/hooks/use-api";
 import { CollectionCard } from "@/components/ui/collection-card";
-import { QueryState, Empty, Metric } from "@/components/marketing/shared";
+import { QueryState } from "@/components/marketing/shared";
 import { useMarketingQuery } from "@/lib/marketing/api";
 import { workspaceClassName } from "@/lib/workspace-styles";
 
 export function IMAPSettings({
   isDialogOpen,
   setIsDialogOpen,
+  leading,
 }: {
   isDialogOpen: boolean;
   setIsDialogOpen: (open: boolean) => void;
+  /** Provider tiles shown before Cloudflare and IMAP, e.g. Gmail. */
+  leading?: React.ReactNode;
 }) {
   const confirm = useConfirmSheet();
   const linkedMailboxes = useMarketingQuery<
@@ -164,37 +168,40 @@ export function IMAPSettings({
   };
   return (
     <div id="other-imap" className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Metric
-          label="Other IMAP mailboxes"
-          value={isLoading ? "—" : imapConfigs.length}
-          icon={<Mail size={18} />}
-        />
-        <Metric
-          label="Configured servers"
-          value={isLoading ? "—" : new Set(imapConfigs.map((c) => c.host)).size}
-          icon={<Server size={18} />}
-        />
+      <div>
+        <h2 className="text-sm font-medium">Connect another provider</h2>
+        <div className="mt-3 grid gap-4 md:grid-cols-3">
+          {leading}
+          <ProviderTile
+            icon={<CloudflareLogo className="h-3.5" />}
+            iconClassName="bg-[#F38020]/10"
+            title="Cloudflare"
+            description="Keep incoming mail in your own Cloudflare account."
+            action={<CloudflareButton mode="receive">Connect Cloudflare</CloudflareButton>}
+          />
+          <ProviderTile
+            icon={<Server size={16} />}
+            title="Other IMAP"
+            description="Fastmail, Zoho, Outlook or any IMAP server."
+            action={
+              <Button variant="outline" onClick={() => setIsDialogOpen(true)}>
+                Connect IMAP
+              </Button>
+            }
+            meta={imapConfigs.length ? `${imapConfigs.length} connected` : undefined}
+          />
+        </div>
       </div>
+      {(isLoading || error || imapConfigs.length > 0) && (
       <section className={workspaceClassName("product-panel")}>
         <div className={workspaceClassName("panel-toolbar")}>
-          <h2>Other IMAP mailboxes</h2>
+          <h2>IMAP mailboxes</h2>
           <span className="text-xs text-muted-foreground">
             {imapConfigs.length} connections
           </span>
         </div>
         {isLoading || error ? (
           <QueryState loading={isLoading} error={error} retry={refresh} />
-        ) : imapConfigs.length === 0 ? (
-          <Empty
-            title="Connect your first mailbox"
-            description="Use your existing email provider to read and reply from your inbox."
-            action={
-              <Button onClick={() => setIsDialogOpen(true)}>
-                Add IMAP connection
-              </Button>
-            }
-          />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {imapConfigs.map((config) =>
@@ -285,24 +292,7 @@ export function IMAPSettings({
           </div>
         )}
       </section>
-
-      <section className={workspaceClassName("product-panel")}>
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex min-w-0 items-start gap-3">
-            <span className="grid size-9 shrink-0 place-items-center rounded-lg border bg-[#F38020]/10">
-              <CloudflareLogo className="h-3.5" />
-            </span>
-            <div>
-              <h2 className="font-medium">Cloudflare inbox</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Receive mail through Cloudflare Email Routing without running an
-                IMAP server.
-              </p>
-            </div>
-          </div>
-          <CloudflareButton mode="receive">Connect Cloudflare inbox</CloudflareButton>
-        </div>
-      </section>
+      )}
 
       <IMAPProviders
         onTestConnection={testConfiguration}
@@ -311,6 +301,39 @@ export function IMAPSettings({
         form={form}
         setIsDialogOpen={closeDialog}
       />
+    </div>
+  );
+}
+
+export function ProviderTile({
+  icon,
+  iconClassName = "bg-muted",
+  title,
+  description,
+  action,
+  meta,
+  children,
+}: {
+  icon: React.ReactNode;
+  iconClassName?: string;
+  title: string;
+  description: string;
+  action: React.ReactNode;
+  meta?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="flex h-full flex-col rounded-xl border bg-card p-5">
+      <div className="flex items-center justify-between gap-2">
+        <span className={`grid size-9 place-items-center rounded-lg border ${iconClassName}`}>
+          {icon}
+        </span>
+        {meta && <span className="text-xs text-muted-foreground">{meta}</span>}
+      </div>
+      <h3 className="mt-4 text-sm font-medium">{title}</h3>
+      <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+      {children}
+      <div className="mt-auto pt-4 [&>button]:w-full">{action}</div>
     </div>
   );
 }

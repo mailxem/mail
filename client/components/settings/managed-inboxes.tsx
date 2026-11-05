@@ -5,13 +5,12 @@ import { PaidPlanNotice, usePaidPlan } from "@/components/billing/paid-plan";
 import { useMemo, useState } from "react";
 import {
   AlertTriangle,
-  Check,
   Clipboard,
   Inbox,
+  Plus,
   RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -160,6 +159,7 @@ export function ManagedInboxes() {
   const [localPart, setLocalPart] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [busy, setBusy] = useState("");
+  const [composing, setComposing] = useState(false);
   const selectedDomain =
     data?.domains.find((domain) => domain.id === domainId) ?? data?.domains[0];
   const selectedMailboxCount = selectedDomain
@@ -212,390 +212,107 @@ export function ManagedInboxes() {
       toast.error("Couldn’t copy the MX value");
     }
   }
-  return (
-    <section
-      id="managed-inboxes"
-      className="mb-6 space-y-5 rounded-xl border bg-card p-4 sm:p-5"
-    >
-      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
-        <div className="flex min-w-0 gap-3">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Inbox size={18} />
-          </span>
-          <div>
-            <h2 className="font-semibold">Xem inbox</h2>
-            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              Receive mail for your custom domain in this shared workspace.
-              Mailbox content is shared with workspace members who can use the
-              inbox. Workspace admins manage connections and lifecycle.
-            </p>
-          </div>
-        </div>
-        <nav
-          aria-label="Mailbox providers"
-          className="flex flex-wrap gap-x-3 gap-y-1 text-xs"
-        >
-          <a className="font-medium text-primary" href="#managed-inboxes">
-            Xem inbox
-          </a>
-          <a
-            className="text-muted-foreground hover:text-foreground"
-            href="#connected-mail-google"
-          >
-            Gmail
-          </a>
-          <Link
-            className="text-muted-foreground hover:text-foreground"
-            href="/settings/smtp#connected-mail-cloudflare"
-          >
-            Cloudflare
-          </Link>
-          <a
-            className="text-muted-foreground hover:text-foreground"
-            href="#other-imap"
-          >
-            Other IMAP
-          </a>
-        </nav>
-      </div>
-      {query.isLoading ? (
-        <p className="text-sm text-muted-foreground">
-          Loading receiving setup…
+  const needsDNS = data?.domains.filter((domain) =>
+    ["pending_mx", "mx_conflict", "provisioning", "error"].includes(
+      domain.receivingStatus,
+    ) && data.mailboxes.some((mailbox) => mailbox.domainId === domain.id),
+  ) ?? [];
+  const showForm = composing || (!!data && data.mailboxes.length === 0);
+  const body = query.isLoading ? (
+    <p className="text-sm text-muted-foreground">Loading…</p>
+  ) : query.error instanceof MarketingRequestError &&
+    query.error.status === 403 ? (
+    <p className="text-sm text-muted-foreground">
+      A workspace admin can manage receiving mailboxes.
+    </p>
+  ) : query.error || !data ? (
+    <div role="alert" className="flex items-center justify-between gap-3">
+      <p className="text-sm text-muted-foreground">
+        Couldn’t load receiving setup.
+        {query.error ? ` ${query.error.message}` : ""}
+      </p>
+      <Button size="sm" variant="outline" onClick={() => query.refetch()}>
+        Retry
+      </Button>
+    </div>
+  ) : !paid ? (
+    <PaidPlanNotice feature="The Xem inbox" />
+  ) : !data.enabled ? (
+    <p className="text-sm text-muted-foreground">
+      Managed receiving is unavailable on this installation.
+    </p>
+  ) : data.domains.length === 0 ? (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed p-4">
+      <div>
+        <p className="text-sm font-medium">Add a domain first</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          Addresses are created on a domain you’ve verified for sending.
         </p>
-      ) : query.error instanceof MarketingRequestError &&
-        query.error.status === 403 ? (
-        <div className="rounded-lg border border-dashed p-4">
-          <p className="text-sm font-medium">
-            A workspace admin can manage receiving mailboxes.
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            You can still use mailboxes already shared with your workspace from
-            the inbox.
-          </p>
-        </div>
-      ) : query.error ? (
-        <div role="alert" className="space-y-2">
-          <p className="text-sm text-muted-foreground">
-            Couldn’t load receiving setup. {query.error.message}
-          </p>
-          <Button size="sm" variant="outline" onClick={() => query.refetch()}>
-            Retry
-          </Button>
-        </div>
-      ) : !data ? (
-        <div role="alert" className="space-y-2">
-          <p className="text-sm text-muted-foreground">
-            Receiving setup returned an unexpected response.
-          </p>
-          <Button size="sm" variant="outline" onClick={() => query.refetch()}>
-            Retry
-          </Button>
-        </div>
-      ) : !paid ? (
-        <PaidPlanNotice feature="The Xem inbox" />
-      ) : !data.enabled ? (
-        <div className="rounded-lg border border-dashed p-4">
-          <p className="text-sm font-medium">
-            Managed receiving is unavailable on this installation.
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Your administrator can enable it. Gmail, Cloudflare, and other IMAP
-            connections remain available.
-          </p>
-        </div>
-      ) : data.domains.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-4">
-          <p className="text-sm font-medium">Add and verify a domain first</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Domain ownership and sending readiness are checked separately from
-            receiving.
-          </p>
-          <Button asChild size="sm" variant="outline" className="mt-3">
-            <Link href="/settings/sending">Set up a domain</Link>
-          </Button>
-        </div>
-      ) : (
-        <>
-          <div className="grid gap-3 lg:grid-cols-2">
-            {data.domains.map((domain) => {
-              const selected = selectedDomain?.id === domain.id;
-              return (
-                <button
-                  key={domain.id}
-                  type="button"
-                  onClick={() => setDomainId(domain.id)}
-                  className={`rounded-lg border p-3 text-left transition-colors ${selected ? "border-primary bg-primary/5" : "hover:bg-muted/50"}`}
-                >
-                  <span className="flex items-start justify-between gap-3">
-                    <span className="min-w-0">
-                      <strong className="block truncate text-sm">
-                        {domain.name}
-                      </strong>
-                      <span className="mt-1 block text-xs text-muted-foreground">
-                        {statusText[domain.receivingStatus]}
-                      </span>
-                    </span>
-                    {selected && <Check className="size-4 text-primary" />}
-                  </span>
-                  <span className="mt-3 flex flex-wrap gap-2">
-                    <Badge
-                      variant={
-                        domain.receivingStatus === "ready"
-                          ? "success"
-                          : "outline"
-                      }
-                    >
-                      Receiving:{" "}
-                      {domain.receivingStatus === "ready"
-                        ? "ready"
-                        : "setup needed"}
-                    </Badge>
-                    <Badge
-                      variant={domain.sendingReady ? "success" : "outline"}
-                    >
-                      Sending: {domain.sendingReady ? "ready" : "not ready"}
-                    </Badge>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          {selectedDomain && (
-            <div className="space-y-4 rounded-lg bg-muted/45 p-3 sm:p-4">
-              {selectedDomain.receivingStatus === "mx_conflict" && (
-                <div className="flex gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
-                  <AlertTriangle className="size-4 shrink-0 text-amber-600" />
-                  <div>
-                    <p>
-                      Your current provider’s MX records still receive mail.
-                      Replacing them moves new inbound mail to Xem; MX records
-                      cannot split or mirror delivery between providers. Test
-                      safely on a subdomain before migrating.
-                    </p>
-                    {selectedDomain.existingMX.length > 0 && (
-                      <p className="mt-1 text-muted-foreground">
-                        Current MX:{" "}
-                        {selectedDomain.existingMX
-                          .map((record) => `${record.priority} ${record.host}`)
-                          .join(", ")}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-              {selectedDomain.mx.value &&
-                !["pending_mx", "mx_conflict", "provisioning", "ready"].includes(
-                  selectedDomain.receivingStatus,
-                ) && (
-                  <p className="rounded-md border bg-background p-3 text-xs text-muted-foreground">
-                    Create a mailbox first. Xem shows the MX record here once
-                    the mailbox can accept mail. Publishing it earlier sends
-                    this domain’s mail to Xem before anything can receive it.
-                    If this domain already receives mail elsewhere, use a
-                    subdomain such as inbox.{selectedDomain.name}.
-                  </p>
-                )}
-              {selectedDomain.mx.value &&
-                ["pending_mx", "mx_conflict", "provisioning", "ready"].includes(
-                  selectedDomain.receivingStatus,
-                ) && (
-                <div>
-                  <div className="flex flex-wrap items-end justify-between gap-2">
-                    <div>
-                      <p className="text-sm font-medium">Receiving MX record</p>
-                      <p className="text-xs text-muted-foreground">
-                        This routes inbox mail. It is separate from sending
-                        bounce and MAIL FROM records.
-                      </p>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => void copy(selectedDomain.mx.value)}
-                    >
-                      <Clipboard />
-                      Copy value
-                    </Button>
-                  </div>
-                  <div className="mt-2 grid gap-3 rounded-md border bg-background p-3 text-xs sm:grid-cols-[1fr_auto_2fr]">
-                    <div className="min-w-0">
-                      <p className="mb-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-                        Host
-                      </p>
-                      <code className="break-all">
-                        {selectedDomain.mx.name}
-                      </code>
-                    </div>
-                    <div>
-                      <p className="mb-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-                        Priority
-                      </p>
-                      <code>{selectedDomain.mx.priority}</code>
-                    </div>
-                    <div className="min-w-0">
-                      <p className="mb-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-                        Value
-                      </p>
-                      <code className="break-all">
-                        {selectedDomain.mx.value}
-                      </code>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {selectedDomain.detail && (
-                <p className="text-xs text-muted-foreground">
-                  {selectedDomain.detail}
-                </p>
-              )}
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={!!busy}
-                onClick={() =>
-                  void mutate(
-                    `check-${selectedDomain.id}`,
-                    () =>
-                      request(
-                        `mail-connections/receiving/domains/${selectedDomain.id}/check`,
-                        "POST",
-                      ),
-                    "DNS check complete",
-                  )
-                }
-              >
-                <RefreshCw />
-                {busy === `check-${selectedDomain.id}`
-                  ? "Checking…"
-                  : "Check DNS"}
-              </Button>
-            </div>
-          )}
-          {selectedDomain && (
-            <form
-              className="grid gap-3 rounded-lg border p-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
-              onSubmit={(event) => {
-                event.preventDefault();
-                if (!localPartValid || !domainCanCreate || mailboxLimitReached)
-                  return;
-                void mutate(
-                  "create",
-                  () =>
-                    request("mail-connections/receiving/mailboxes", "POST", {
-                      domainId: selectedDomain.id,
-                      localPart: normalizedLocalPart,
-                      ...(displayName.trim()
-                        ? { displayName: displayName.trim() }
-                        : {}),
-                    }),
-                  "Mailbox created",
-                ).then((saved) => {
-                  if (saved) {
-                    setLocalPart("");
-                    setDisplayName("");
-                  }
-                });
-              }}
-            >
-              <div className="space-y-1.5">
-                <Label htmlFor="managed-local-part">Mailbox address</Label>
-                <div className="flex min-w-0 items-center rounded-md border bg-background">
-                  <Input
-                    id="managed-local-part"
-                    className="border-0 shadow-none"
-                    value={localPart}
-                    onChange={(event) => setLocalPart(event.target.value)}
-                    placeholder="alex"
-                    maxLength={64}
-                    aria-invalid={!!localPart && !localPartValid}
-                  />
-                  <span
-                    className="max-w-[55%] shrink-0 truncate pr-3 text-sm text-muted-foreground"
-                    title={`@${selectedDomain.name}`}
-                  >
-                    @{selectedDomain.name}
-                  </span>
-                </div>
-                {localPart && !localPartValid && (
-                  <p className="text-xs text-destructive">
-                    Enter a valid mailbox name without spaces.
-                  </p>
-                )}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="managed-display-name">
-                  Display name{" "}
-                  <span className="text-muted-foreground">(optional)</span>
-                </Label>
-                <Input
-                  id="managed-display-name"
-                  value={displayName}
-                  onChange={(event) => setDisplayName(event.target.value)}
-                  placeholder="Alex"
-                  maxLength={120}
-                />
-              </div>
-              <Button
-                type="submit"
-                disabled={
-                  !localPartValid ||
-                  !!busy ||
-                  !domainCanCreate ||
-                  mailboxLimitReached
-                }
-              >
-                {busy === "create" ? "Creating…" : "Create mailbox"}
-              </Button>
-              <p className="break-all text-xs text-muted-foreground sm:col-span-3">
-                Full address:{" "}
-                <strong className="font-medium text-foreground">
-                  {normalizedLocalPart || "mailbox"}@{selectedDomain.name}
-                </strong>
-              </p>
-              {(mailboxLimitReached || !domainCanCreate) && (
-                <p className="text-xs text-muted-foreground sm:col-span-3">
-                  {mailboxLimitReached
-                    ? `This domain has reached its ${data.maxMailboxesPerDomain}-mailbox limit.`
-                    : "Finish domain verification or receiving setup before creating a mailbox."}
-                </p>
-              )}
-            </form>
-          )}
-          <div className="space-y-2">
-            {data.mailboxes.map((mailbox) => (
-              <div
+      </div>
+      <Button asChild size="sm" variant="outline">
+        <Link href="/settings/sending">Set up a domain</Link>
+      </Button>
+    </div>
+  ) : (
+    <div className="space-y-4">
+      {needsDNS.map((domain) => (
+        <DNSStep
+          key={domain.id}
+          domain={domain}
+          busy={busy === `check-${domain.id}`}
+          disabled={!!busy}
+          onCopy={copy}
+          onCheck={() =>
+            void mutate(
+              `check-${domain.id}`,
+              () =>
+                request(
+                  `mail-connections/receiving/domains/${domain.id}/check`,
+                  "POST",
+                ),
+              "DNS check complete",
+            )
+          }
+        />
+      ))}
+
+      {data.mailboxes.length > 0 && (
+        <ul className="divide-y rounded-lg border">
+          {data.mailboxes.map((mailbox) => {
+            const domain = data.domains.find((d) => d.id === mailbox.domainId);
+            const pill = mailboxPill(mailbox, domain);
+            return (
+              <li
                 key={mailbox.id}
-                className="flex flex-wrap items-center justify-between gap-3 border-t pt-3"
+                className="flex flex-wrap items-center gap-3 px-4 py-3"
               >
-                <div>
-                  <p className="text-sm font-medium break-all">
+                <span className="grid size-8 shrink-0 place-items-center rounded-full bg-muted text-xs font-medium uppercase">
+                  {(mailbox.displayName || mailbox.address).charAt(0)}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">
                     {mailbox.address}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    {mailbox.active
-                      ? mailbox.status === "storage_full"
-                        ? "Storage full. New mail cannot be received until a workspace admin restores capacity."
-                        : mailbox.status === "active"
-                          ? "Receiving is active"
-                          : `Receiving status: ${mailbox.status || "setting up"}`
-                      : "Paused. Existing mail is preserved."}{" "}
-                    ·{" "}
-                    {mailbox.smtpConfigId
-                      ? "Sender linked"
-                      : "No sender linked to this address"}
+                  <p className="truncate text-xs text-muted-foreground">
+                    {[
+                      mailbox.displayName,
+                      mailbox.quotaBytes > 0
+                        ? `Storage: ${bytes(mailbox.usageBytes)} of ${bytes(mailbox.quotaBytes)} used`
+                        : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
                   </p>
-                  {mailbox.quotaBytes > 0 && (
-                    <p
-                      className={`mt-1 text-xs ${mailbox.status === "storage_full" ? "font-medium text-destructive" : "text-muted-foreground"}`}
-                    >
-                      Storage: {bytes(mailbox.usageBytes)} of{" "}
-                      {bytes(mailbox.quotaBytes)} used
-                    </p>
-                  )}
                 </div>
+                <span
+                  className={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-medium ${pill.tone}`}
+                >
+                  <i className="size-1.5 rounded-full bg-current" />
+                  {pill.label}
+                </span>
                 <Button
                   size="sm"
-                  variant="outline"
+                  variant="ghost"
                   disabled={!!busy}
                   onClick={() =>
                     void mutate(
@@ -618,16 +335,254 @@ export function ManagedInboxes() {
                       ? "Pause"
                       : "Resume"}
                 </Button>
-              </div>
-            ))}
-          </div>
-        </>
+              </li>
+            );
+          })}
+        </ul>
       )}
-      <p className="text-xs text-muted-foreground">
-        Mailbox content is visible to workspace members with inbox access. Use a
-        subdomain such as <code>inbox.example.com</code> to test without moving
-        your primary domain.
-      </p>
+
+      {showForm && selectedDomain ? (
+        <form
+          className="space-y-3 rounded-lg border bg-muted/30 p-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!localPartValid || !domainCanCreate || mailboxLimitReached)
+              return;
+            void mutate(
+              "create",
+              () =>
+                request("mail-connections/receiving/mailboxes", "POST", {
+                  domainId: selectedDomain.id,
+                  localPart: normalizedLocalPart,
+                  ...(displayName.trim()
+                    ? { displayName: displayName.trim() }
+                    : {}),
+                }),
+              "Mailbox created",
+            ).then((saved) => {
+              if (saved) {
+                setLocalPart("");
+                setDisplayName("");
+                setComposing(false);
+              }
+            });
+          }}
+        >
+          <div className="grid gap-3 sm:grid-cols-[1.4fr_1fr]">
+            <div className="space-y-1.5">
+              <Label htmlFor="managed-local-part">Address</Label>
+              <div className="flex min-w-0 items-center rounded-md border bg-background focus-within:ring-2 focus-within:ring-ring/30">
+                <Input
+                  id="managed-local-part"
+                  className="border-0 shadow-none focus-visible:ring-0"
+                  value={localPart}
+                  onChange={(event) => setLocalPart(event.target.value)}
+                  placeholder="hello"
+                  maxLength={64}
+                  autoFocus={composing}
+                  aria-invalid={!!localPart && !localPartValid}
+                />
+                {data.domains.length > 1 ? (
+                  <select
+                    aria-label="Domain"
+                    className="mr-1 max-w-[55%] shrink-0 truncate rounded bg-transparent py-1 pr-1 text-sm text-muted-foreground outline-none"
+                    value={selectedDomain.id}
+                    onChange={(event) => setDomainId(event.target.value)}
+                  >
+                    {data.domains.map((domain) => (
+                      <option key={domain.id} value={domain.id}>
+                        @{domain.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <span
+                    className="max-w-[55%] shrink-0 truncate pr-3 text-sm text-muted-foreground"
+                    title={`@${selectedDomain.name}`}
+                  >
+                    @{selectedDomain.name}
+                  </span>
+                )}
+              </div>
+              {localPart && !localPartValid && (
+                <p className="text-xs text-destructive">
+                  Enter a valid mailbox name without spaces.
+                </p>
+              )}
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="managed-display-name">
+                Display name{" "}
+                <span className="font-normal text-muted-foreground">
+                  (optional)
+                </span>
+              </Label>
+              <Input
+                id="managed-display-name"
+                value={displayName}
+                onChange={(event) => setDisplayName(event.target.value)}
+                placeholder="Support"
+                maxLength={120}
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs text-muted-foreground">
+              {mailboxLimitReached
+                ? `This domain has reached its ${data.maxMailboxesPerDomain}-mailbox limit.`
+                : !domainCanCreate
+                  ? statusText[selectedDomain.receivingStatus]
+                  : <>Full address: <strong className="font-medium text-foreground">{normalizedLocalPart || "mailbox"}@{selectedDomain.name}</strong></>}
+            </p>
+            <div className="flex gap-2">
+              {data.mailboxes.length > 0 && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setComposing(false)}
+                >
+                  Cancel
+                </Button>
+              )}
+              <Button
+                type="submit"
+                size="sm"
+                disabled={
+                  !localPartValid ||
+                  !!busy ||
+                  !domainCanCreate ||
+                  mailboxLimitReached
+                }
+              >
+                {busy === "create" ? "Creating…" : "Create mailbox"}
+              </Button>
+            </div>
+          </div>
+        </form>
+      ) : null}
+    </div>
+  );
+  const canAdd =
+    paid && !!data?.enabled && !!data?.domains.length && !showForm;
+  return (
+    <section
+      id="managed-inboxes"
+      className="mb-6 space-y-4 rounded-xl border bg-card p-5"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex min-w-0 gap-3">
+          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
+            <Inbox size={18} />
+          </span>
+          <div className="min-w-0">
+            <h2 className="font-semibold">Xem inbox</h2>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              Get mail at your own domain, stored and shared in this workspace.
+            </p>
+          </div>
+        </div>
+        {canAdd && (
+          <Button size="sm" variant="outline" onClick={() => setComposing(true)}>
+            <Plus /> New address
+          </Button>
+        )}
+      </div>
+      {body}
     </section>
+  );
+}
+
+function mailboxPill(
+  mailbox: { active: boolean; status: string },
+  domain?: { receivingStatus: ReceivingStatus },
+) {
+  if (!mailbox.active)
+    return { label: "Paused", tone: "bg-muted text-muted-foreground" };
+  if (mailbox.status === "storage_full")
+    return { label: "Storage full", tone: "bg-destructive/10 text-destructive" };
+  if (domain && domain.receivingStatus !== "ready")
+    return {
+      label: domain.receivingStatus === "error" ? "Needs attention" : "Waiting for DNS",
+      tone: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
+    };
+  return { label: "Receiving", tone: "bg-[var(--success)] text-[var(--success-foreground)]" };
+}
+
+function DNSStep({
+  domain,
+  busy,
+  disabled,
+  onCopy,
+  onCheck,
+}: {
+  domain: {
+    name: string;
+    receivingStatus: ReceivingStatus;
+    mx: { name: string; value: string; priority: number };
+    existingMX: Array<{ host: string; priority: number }>;
+    detail?: string;
+  };
+  busy: boolean;
+  disabled: boolean;
+  onCopy: (value: string) => void;
+  onCheck: () => void;
+}) {
+  const conflict = domain.receivingStatus === "mx_conflict";
+  return (
+    <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium">
+            Finish setup for {domain.name}
+          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Add this record at your DNS provider. Mail starts arriving once Xem
+            sees it, usually within minutes.
+          </p>
+        </div>
+        <Button size="sm" variant="outline" disabled={disabled} onClick={onCheck}>
+          <RefreshCw className={busy ? "animate-spin" : ""} />
+          {busy ? "Checking…" : "Check DNS"}
+        </Button>
+      </div>
+      <div className="mt-3 overflow-hidden rounded-md border bg-background text-xs">
+        <div className="grid grid-cols-[56px_1fr_64px_2fr_auto] gap-3 border-b bg-muted/40 px-3 py-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground max-sm:hidden">
+          <span>Type</span>
+          <span>Host</span>
+          <span>Priority</span>
+          <span>Value</span>
+          <span />
+        </div>
+        <div className="grid items-center gap-3 px-3 py-2.5 sm:grid-cols-[56px_1fr_64px_2fr_auto]">
+          <code>MX</code>
+          <code className="break-all">{domain.mx.name}</code>
+          <code>{domain.mx.priority}</code>
+          <code className="break-all">{domain.mx.value}</code>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 justify-self-start"
+            onClick={() => void onCopy(domain.mx.value)}
+          >
+            <Clipboard /> Copy
+          </Button>
+        </div>
+      </div>
+      {conflict && (
+        <p className="mt-3 flex gap-2 text-xs text-amber-800 dark:text-amber-300">
+          <AlertTriangle className="size-4 shrink-0" />
+          This domain still has MX records for another provider
+          {domain.existingMX.length > 0
+            ? ` (${domain.existingMX.map((r) => r.host).join(", ")})`
+            : ""}
+          . Replacing them moves all new mail to Xem; MX records cannot split
+          delivery. Use a subdomain to test first.
+        </p>
+      )}
+      {domain.detail && !conflict && (
+        <p className="mt-3 text-xs text-muted-foreground">{domain.detail}</p>
+      )}
+    </div>
   );
 }
