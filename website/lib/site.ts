@@ -12,6 +12,10 @@ export const appUrl = origin(
   process.env.NEXT_PUBLIC_APP_URL,
   "https://app.xem.email",
 );
+export const apiUrl = origin(
+  process.env.NEXT_PUBLIC_API_URL,
+  "https://api.xem.email",
+);
 export const appLink = (path: string) => `${appUrl}${path}`;
 
 export const githubUrl = "https://github.com/mailxem/mail";

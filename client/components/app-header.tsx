@@ -61,6 +61,10 @@ const pageTitles: Record<string, { title: string; description?: string }> = {
     title: "Billing",
     description: "Your plan, usage, and billing details.",
   },
+  "/settings/affiliates": {
+    title: "Affiliates",
+    description: "Earn 30% of what the people you refer pay, for as long as they pay.",
+  },
   "/settings/api-keys": {
     title: "API keys",
     description: "Manage access for your applications and integrations.",
