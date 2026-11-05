@@ -345,8 +345,8 @@ func setupRoutes(e *echo.Echo, h *handlers.SubscriptionHandlers, planHandler *ha
 	// Register plan routes using the handler's RegisterRoutes method
 	planHandler.RegisterRoutes(api)
 
-	// Webhook management routes
-	webhookGroup := api.Group("/webhooks")
+	// Webhook management routes: stored events hold customer details, so admins only.
+	webhookGroup := api.Group("/webhooks", custommiddleware.StrictRateLimiter(), custommiddleware.AdminAuth(cfg.AdminSecret), custommiddleware.AuditMiddleware())
 	webhookGroup.GET("/events", webhookHandler.GetWebhookEvents)
 	webhookGroup.GET("/events/:eventId/logs", webhookHandler.GetWebhookLogs)
 	webhookGroup.POST("/retry-failed", webhookHandler.RetryFailedWebhooks)
