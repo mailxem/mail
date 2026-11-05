@@ -23,7 +23,7 @@ const plans = [
     included: 3000,
     daily: 100,
     overage: null,
-    note: "No card needed. Sending pauses at 3,000 until next month.",
+    note: "No card needed. Sending pauses at 3,000 until next month, and emails end with a small “Sent with Xem” link.",
   },
   {
     name: "Starter",
@@ -96,7 +96,11 @@ const faqs = [
   },
   {
     q: "Is anything held back on cheaper plans?",
-    a: "No. Every plan, including Free, has the full product. Plans differ only in how many emails are included.",
+    a: "No. Every plan, including Free, has the full product. Plans differ only in how many emails are included, and in one thing: emails sent on Free end with a small “Sent with Xem” link.",
+  },
+  {
+    q: "What is the “Sent with Xem” link?",
+    a: "A one-line footer under emails sent on the Free plan. It carries your referral code, so if a reader signs up through it and later pays, you earn 30% of their payments as an affiliate. Any paid plan removes it.",
   },
   {
     q: "Can I run Xem myself instead?",

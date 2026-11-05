@@ -1,6 +1,11 @@
 package affiliates
 
 import (
+	"context"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -8,6 +13,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
+	"kori/internal/billing"
 	"kori/internal/models"
 )
 
@@ -129,4 +135,34 @@ func TestRefundBeforePayoutEarnsNothing(t *testing.T) {
 	due, err := DuePayouts(db, start.Add(Hold*2))
 	require.NoError(t, err)
 	require.Empty(t, due)
+}
+
+func TestBadgeOnlyForFreeWorkspacesAndCarriesTheOwnersCode(t *testing.T) {
+	db := setup(t)
+	now := time.Now()
+	addUser(t, db, "owner", "free-team", now)
+	addUser(t, db, "payer", "paid-team", now)
+	require.NoError(t, db.Exec("UPDATE teams SET owner_user_id = 'owner' WHERE id = 'free-team'").Error)
+
+	plans := map[string]string{"free-team": `{"plan_id":"xem-free","status":"active"}`, "paid-team": `{"plan_id":"xem-starter","status":"active"}`}
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, plans[strings.TrimPrefix(r.URL.Path, "/subscriptions/team/")])
+	}))
+	defer srv.Close()
+	billing.Enabled = true
+	billing.Use(&billing.Reporter{URL: srv.URL, HTTP: srv.Client(), Now: time.Now})
+	t.Cleanup(func() { billing.Enabled = false; billing.Use(nil) })
+
+	badge := Badge(context.Background(), db, "free-team")
+	a, err := find(db, "user_id = ?", "owner")
+	require.NoError(t, err, "the owner becomes an affiliate on first use")
+	require.Contains(t, badge, "https://xem.email/?utm_source=email-badge&amp;via="+a.Code)
+	require.Contains(t, badge, "Sent with")
+	require.Empty(t, Badge(context.Background(), db, "paid-team"))
+
+	require.Equal(t, "<p>Hi</p>"+badge+"</BODY>", WithBadge("<p>Hi</p></BODY>", badge))
+	require.Equal(t, "<p>Hi</p>", WithBadge("<p>Hi</p>", ""))
+
+	billing.Enabled = false
+	require.Empty(t, Badge(context.Background(), db, "free-team"), "self-hosted installs never get a badge")
 }

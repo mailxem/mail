@@ -635,6 +635,7 @@ func (s *paymentService) CreateCheckoutSession(ctx context.Context, req Checkout
 		SuccessURL:        req.SuccessURL,
 		CustomerEmail:     req.CustomerEmail,
 		XemSubscriptionID: subscription.ID,
+		DiscountCode:      referralDiscount(ctx, req.TeamID),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create dodo checkout: %w", err)
