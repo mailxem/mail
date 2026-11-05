@@ -96,6 +96,7 @@ export function SiteFooter() {
             <Link href="/#sending">Sending & setup</Link>
             <Link href="/pricing">Pricing</Link>
             <Link href="/compare">Compare Xem</Link>
+            <Link href="/affiliates">Affiliates · earn 30%</Link>
             <Link href="/blog">Journal</Link>
             <Link href="/#templates">Email templates</Link>
             <Link href="/mcp">MCP server</Link>

@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"kori/internal/affiliates"
 	"net/http"
 	"time"
 
@@ -152,6 +153,7 @@ func NewServer(cfg *config.Config, db *gorm.DB) *Server {
 	routes.SetupIMAPRoutes(s.echo, s.config, s.db)
 	routes.SetupMailConnectionRoutes(s.echo, s.config, s.db)
 	routes.RegisterTrackingRoutes(s.echo, trackingHandler, s.config, s.db)
+	affiliates.Register(s.echo, s.db, s.config.JWT.Secret)
 	return s
 }
 

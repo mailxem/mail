@@ -156,6 +156,7 @@ const navItems: NavItem[] = [
       { name: "Account", href: "/settings" },
       { name: "Team", href: "/team" },
       { name: "Billing", href: "/settings/billing" },
+      { name: "Affiliates", href: "/settings/affiliates" },
     ],
   },
 ];

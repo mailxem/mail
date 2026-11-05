@@ -4,9 +4,11 @@ import { ReactNode, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
+import { ReferralAttribution } from "@/components/affiliates/referral-attribution";
 import { useTheme } from "next-themes";
 import {
   ArrowUpRight,
+  BadgeDollarSign,
   CreditCard,
   KeyRound,
   Mailbox,
@@ -109,6 +111,7 @@ const settingsNavigation = [
   { name: "Tags", href: "/audience/tags", icon: Tags },
   { name: "Team", href: "/team", icon: Users },
   { name: "Billing", href: "/settings/billing", icon: CreditCard },
+  { name: "Affiliates", href: "/settings/affiliates", icon: BadgeDollarSign },
   { name: "Account", href: "/settings", icon: UserRound },
 ];
 const searchNavigation = [
@@ -120,6 +123,7 @@ const sharedHeadingPages = [
   "/campaigns",
   "/settings",
   "/settings/billing",
+  "/settings/affiliates",
   "/settings/api-keys",
   "/settings/smtp",
   "/settings/imap",
@@ -437,7 +441,7 @@ export function AppShell({
   };
 
   return (
-    <WorkspaceAIProvider><div
+    <WorkspaceAIProvider><ReferralAttribution /><div
       className={cn(
         "product-frame",
         styles.frame,
