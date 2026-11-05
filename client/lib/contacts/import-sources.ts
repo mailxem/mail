@@ -64,7 +64,7 @@ const YES = new Set(["true", "yes", "1", "y"]);
 const NOT_SUBSCRIBED = new Set([
   "unsubscribed", "inactive", "cancelled", "canceled", "bounced", "cleaned",
   "complained", "spam", "invalid", "pending", "validating", "needs_attention",
-  "unconfirmed", "archived",
+  "unconfirmed", "archived", "blocklisted", "disabled",
 ]);
 
 /** Why a row is left out, or null to import it. */

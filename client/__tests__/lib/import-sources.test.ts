@@ -42,6 +42,19 @@ test("keeps only people who are still subscribed", () => {
   });
 });
 
+test("skips listmonk blocklisted and disabled subscribers", () => {
+  const { keep, skipped } = prepareImport(
+    [
+      { email: "a@example.com", name: "A", status: "enabled" },
+      { email: "b@example.com", name: "B", status: "blocklisted" },
+      { email: "c@example.com", name: "C", status: "disabled" },
+    ],
+    "email",
+  );
+  expect(keep.map((r) => r.email)).toEqual(["a@example.com"]);
+  expect(skipped).toEqual({ 'status "blocklisted"': 1, 'status "disabled"': 1 });
+});
+
 test("splits a single name column", () => {
   const { keep } = prepareImport([{ email: "a@b.co", name: "Mei Ling Chen" }], "email");
   expect(keep[0]).toMatchObject({ first_name: "Mei", last_name: "Ling Chen" });

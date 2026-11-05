@@ -247,6 +247,36 @@ export const competitors: Competitor[] = [
     recognised: true,
     sources: ["https://ghost.org/pricing/", "https://ghost.org/help/exports/"],
   },
+  {
+    id: "listmonk",
+    name: "listmonk",
+    modelShort: "is free, self-hosted software (AGPL-3.0)",
+    model:
+      "Free and open source under AGPL-3.0, run on your own server with PostgreSQL. You pay your server and your email provider; through Amazon SES that is about $0.10 per 1,000 emails. There is no hosted plan from the project.",
+    plan: "self-hosted on Amazon SES (server not included)",
+    prices: ["≈ $4 + server", "≈ $20 + server", "≈ $40 + server"],
+    priceNote:
+      "listmonk itself is free. These are Amazon SES sending costs at $0.10 per 1,000 emails, before your server. Xem self-hosted costs the same to send; the Xem column is Xem Cloud, where we run it for you.",
+    headline: "Both open source. Different amounts of app.",
+    summary:
+      "listmonk is a fast, lean newsletter and mailing-list manager in a single Go binary, and it's excellent at that. Xem does more: visual automations, signup forms with a CRM, a shared inbox and importers, and it also comes as a hosted service if you'd rather not run a server.",
+    cheaperAnswer:
+      "Self-hosted, they cost about the same: both are free and you pay your email provider. If you don't want to run a server, Xem Cloud is $19 a month for a weekly newsletter to 10,000 people; listmonk has no hosted plan.",
+    chooseThem: [
+      "You only need lists and campaigns and want the smallest, simplest thing to run.",
+      "You like a single binary and want to keep the moving parts to PostgreSQL.",
+      "You prefer AGPL-3.0, or you already run listmonk happily.",
+    ],
+    exportSteps:
+      "listmonk keeps subscribers in PostgreSQL. From psql, run \\copy (select email, name, status from subscribers) to 'subscribers.csv' csv header. Keep the status column: Xem skips anyone marked blocklisted or disabled.",
+    exportShort:
+      "Yes. Export email, name and status from listmonk's subscribers table as a CSV.",
+    recognised: false,
+    sources: [
+      "https://github.com/knadh/listmonk",
+      "https://listmonk.app/docs/",
+    ],
+  },
 ];
 
 export const getCompetitor = (id: string) =>

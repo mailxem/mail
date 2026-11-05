@@ -17,7 +17,19 @@
   <a href="https://hakopod.com"><picture><source media="(prefers-color-scheme: dark)" srcset=".github/assets/hakopod-horizontal-paper.svg"><img src=".github/assets/hakopod-horizontal-ink.svg" alt="Hosted on Hakopod" width="138" /></picture></a>
 </p>
 
-**Xem** (formerly Posthoot) is an open-source email platform for teams that want control over their delivery infrastructure. Bring your SMTP provider, create campaigns and templates, manage audiences, and build multi-step automations through a web app or API.
+**Xem** is open-source email marketing that sends through your own Amazon SES or SMTP server: campaigns, recurring newsletters, visual automations, signup forms, a contact CRM and a shared inbox, in one app. Self-host it for free, or use [Xem Cloud](https://xem.email/pricing), which charges per email sent rather than per contact (3,000 a month free, then from $9).
+
+<p align="center">
+  <img src=".github/assets/xem-inbox.png" alt="The Xem inbox: a message list with sender avatars on the left and an open email on the right." width="100%" />
+</p>
+
+**[Try Xem Cloud free](https://app.xem.email/auth/register)** · **[Self-host in one command](#start-your-own-xem)** · **[Compare with Mailchimp, beehiiv, Substack…](https://xem.email/compare)** · **[Xem vs listmonk](https://xem.email/compare/xem-vs-listmonk)**
+
+- **Deliverability basics built in:** one-click unsubscribe headers (RFC 8058), bounce and complaint processing into a suppression list, and guided DKIM setup for your domain. Xem doesn't own sending IPs; your reputation stays with your provider.
+- **Bring your list:** reads Mailchimp, Substack, beehiiv, Kit and Ghost exports, and keeps unsubscribed people unsubscribed.
+- **API, webhooks and an MCP server** with 44 tools, if you want scripts or an AI agent to run campaigns.
+
+Xem was previously called Posthoot.
 
 ## Hosted on Hakopod
 
