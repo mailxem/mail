@@ -46,7 +46,7 @@
 
 - **Campaigns and newsletters**: send once or on a schedule, with a public archive and RSS for each newsletter.
 - **Automations**: a visual builder with emails, waits, splits, percentage tests, tags, list moves, contact updates and webhooks.
-- **Templates**: 126 editable starting points built from native editor blocks, plus AI drafting if you turn it on.
+- **Templates**: 179 editable starting points built from native editor blocks, plus AI drafting if you turn it on.
 - **Audience**: lists, tags, segments, signup forms and a small CRM with lead stages.
 - **Inbox**: read and reply to mail from IMAP, Gmail or Cloudflare mailboxes alongside your campaigns.
 - **Analytics**: delivery, opens, clicks and audience growth, with honest notes on what open rates can and can't tell you.
