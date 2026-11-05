@@ -19,8 +19,12 @@ import (
 func (s *Service) ProcessOne(ctx context.Context) error {
 	var m Message
 	err := s.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if e := tx.Clauses(clause.Locking{Strength: "UPDATE", Options: "SKIP LOCKED"}).Where("status = ?", "QUEUED").Where("EXISTS (SELECT 1 FROM managed_accounts a WHERE a.team_id = managed_messages.team_id AND a.paused = false)").Where("EXISTS (SELECT 1 FROM managed_domains d WHERE d.id = managed_messages.domain_id AND d.team_id = managed_messages.team_id AND d.ready = true)").Order("created_at").First(&m).Error; e != nil {
+		if e := tx.Clauses(clause.Locking{Strength: "UPDATE", Options: "SKIP LOCKED"}).Where("status = ?", "QUEUED").Where("EXISTS (SELECT 1 FROM managed_accounts a WHERE a.team_id = managed_messages.team_id AND a.paused = false)").Where("EXISTS (SELECT 1 FROM managed_domains d WHERE d.id = managed_messages.domain_id AND d.team_id = managed_messages.team_id AND d.ready = true)").Order("created_at").Limit(1).Find(&m).Error; e != nil {
 			return e
+		}
+		// An empty queue is normal; Find avoids First's "record not found" log every poll.
+		if m.ID == "" {
+			return gorm.ErrRecordNotFound
 		}
 		r := tx.Model(&Message{}).Where("id = ? AND status = ?", m.ID, "QUEUED").Updates(map[string]any{"status": "SENDING", "updated_at": s.Now()})
 		if r.Error != nil {

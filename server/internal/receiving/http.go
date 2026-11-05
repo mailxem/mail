@@ -80,6 +80,9 @@ func (s *Service) status(c echo.Context) error {
 		} else if s.Config.Enabled && d.Ownership && !hasMailbox[d.ID] {
 			// Nothing has checked this domain yet; it is ready for a first mailbox.
 			status = "needs_mailbox"
+		} else if s.Config.Enabled && d.Ownership {
+			// A mailbox exists but no DNS check has run yet: show the MX to publish.
+			status = "pending_mx"
 		}
 		if s.Config.Enabled && !d.Ownership {
 			status = "needs_verification"
