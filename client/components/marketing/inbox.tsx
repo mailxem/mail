@@ -720,7 +720,7 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
         <span aria-hidden="true">•</span>
         <p>
           {emails.data?.pages[0]?.total_is_estimate ? "About " : ""}
-          {total.toLocaleString()} {outbox ? "messages" : "emails"}
+          {total.toLocaleString()} messages
         </p>
         <div className={workspaceClassName("mail-topbar-actions")}>
           {!outbox && !!mailboxes.data?.length && (
