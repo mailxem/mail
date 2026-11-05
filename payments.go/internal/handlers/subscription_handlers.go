@@ -81,8 +81,14 @@ func (h *SubscriptionHandlers) GetSubscription(c echo.Context) error {
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			// create a free subscription
-			subscription, err = h.subscriptionService.CreateSubscription(c.Request().Context(), teamID, h.cfg.Plans.FreePlanID, 1)
-			if err != nil {
+			if _, err = h.subscriptionService.CreateSubscription(c.Request().Context(), teamID, h.cfg.Plans.FreePlanID, 1); err != nil {
+				return c.JSON(http.StatusInternalServerError, map[string]string{
+					"error": err.Error(),
+				})
+			}
+			// Answer with the stored row: the freshly built one lacks plan_id and
+			// its plan, which made a brand-new Free workspace look paid.
+			if subscription, err = h.subscriptionService.GetSubscriptionByTeamID(c.Request().Context(), teamID); err != nil {
 				return c.JSON(http.StatusInternalServerError, map[string]string{
 					"error": err.Error(),
 				})

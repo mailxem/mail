@@ -11,7 +11,12 @@ export function usePaidPlan() {
   const { team } = useTeam();
   const { data, isLoading } = useSubscription(team?.id || "");
   if (isLoading) return true;
-  return !!data && data.plan_id !== FREE_PLAN_ID && data.status === "active";
+  return isPaidSubscription(data);
+}
+
+/** Same rule as the backend: a real, non-Free plan in good standing. */
+export function isPaidSubscription(data?: { plan_id?: string; status?: string } | null) {
+  return !!data?.plan_id && data.plan_id !== FREE_PLAN_ID && data.status === "active";
 }
 
 export function PaidPlanNotice({ feature }: { feature: string }) {
