@@ -22,8 +22,9 @@ type AffiliateReporter struct {
 	HTTP *http.Client
 }
 
-// Affiliates is nil unless XEM_API_INTERNAL_URL and PAYMENTS_INTERNAL_KEY are set.
-var Affiliates = AffiliatesFromEnv()
+// Affiliates is nil unless main sets it from AffiliatesFromEnv. It can't be
+// read at package init: Infisical loads secrets into the environment in main.
+var Affiliates *AffiliateReporter
 
 func AffiliatesFromEnv() *AffiliateReporter {
 	u, key := strings.TrimRight(os.Getenv("XEM_API_INTERNAL_URL"), "/"), os.Getenv("PAYMENTS_INTERNAL_KEY")

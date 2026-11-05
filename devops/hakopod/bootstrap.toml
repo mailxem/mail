@@ -186,6 +186,8 @@ ENVIRONMENT = "production"
 ENABLE_INFISICAL = "true"
 FRONTEND_URL = "https://app.xem.email"
 DASHBOARD_URL = "https://app.xem.email"
+# Where payments reports plan payments and refunds for affiliate commissions.
+XEM_API_INTERNAL_URL = "https://api.xem.email/api/v1"
 
 [services.payments.secrets]
 INFISICAL_API_URL = { ref = "infisical-api-url" }
