@@ -9,6 +9,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${siteUrl}/pricing`, changeFrequency: "monthly", priority: 0.9 },
     { url: `${siteUrl}/mcp`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${siteUrl}/compare`, changeFrequency: "monthly", priority: 0.8 },
+    {
+      url: `${siteUrl}/tools/email-checker`,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     ...competitors.flatMap((c) => [
       {
         url: `${siteUrl}/compare/xem-vs-${c.id}`,
