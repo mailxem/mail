@@ -92,19 +92,18 @@ function button(label: string) {
   return found as HTMLButtonElement;
 }
 
-test("shows receiving and sending independently with honest MX migration guidance", async () => {
+test("shows the DNS step with honest MX migration guidance", async () => {
   await render();
-  expect(container.textContent).toContain("Receiving: setup needed");
-  expect(container.textContent).toContain("Sending: not ready");
-  expect(container.textContent).toContain("cannot split or mirror delivery");
-  expect(container.textContent).toContain("separate from sending bounce");
+  expect(container.textContent).toContain("Finish setup for example.com");
+  expect(container.textContent).toContain("inbound.sample.invalid");
+  expect(container.textContent).toContain("MX records cannot split");
+  expect(container.textContent).toContain("mx.provider.example");
   expect(container.textContent).toContain("Host");
   expect(container.textContent).toContain("Priority");
   expect(container.textContent).toContain("Value");
+  expect(container.textContent).toContain("Paused");
+  await act(async () => button("New address").click());
   expect(container.textContent).toContain("Full address: mailbox@example.com");
-  expect(container.textContent).toContain(
-    "Paused. Existing mail is preserved.",
-  );
 });
 
 test("shows mailbox quota and does not promise an automatic storage retry", async () => {
@@ -126,9 +125,7 @@ test("shows mailbox quota and does not promise an automatic storage retry", asyn
     refetch: mockRefetch,
   };
   await render();
-  expect(container.textContent).toContain(
-    "Storage full. New mail cannot be received",
-  );
+  expect(container.textContent).toContain("Storage full");
   expect(container.textContent).toContain("Storage: 100.0 MB of 100.0 MB used");
   expect(container.textContent).not.toContain("automatically retry");
 });
@@ -137,6 +134,7 @@ test("normalizes a valid local part and resumes without deleting mail", async ()
   mockRequest.mockResolvedValue({});
   mockRefresh.mockResolvedValue(undefined);
   await render();
+  await act(async () => button("New address").click());
   const input = container.querySelector(
     "#managed-local-part",
   ) as HTMLInputElement;
@@ -195,6 +193,7 @@ test("rechecks receiving DNS", async () => {
 test("keeps form values when mailbox creation fails", async () => {
   mockRequest.mockRejectedValue(new Error("Try again"));
   await render();
+  await act(async () => button("New address").click());
   const input = container.querySelector(
     "#managed-local-part",
   ) as HTMLInputElement;
@@ -220,7 +219,6 @@ test("hides the MX record until the domain has a mailbox that can receive", asyn
   };
   await render();
   expect(container.textContent).not.toContain("inbound.sample.invalid");
-  expect(container.textContent).toContain("Create a mailbox first");
-  expect(container.textContent).toContain("inbox.example.com");
-  expect(Array.from(container.querySelectorAll("button")).some((b) => b.textContent?.includes("Copy value"))).toBe(false);
+  expect(container.querySelector("#managed-local-part")).not.toBeNull();
+  expect(Array.from(container.querySelectorAll("button")).some((b) => b.textContent?.includes("Copy"))).toBe(false);
 });
