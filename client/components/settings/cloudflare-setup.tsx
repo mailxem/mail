@@ -113,7 +113,7 @@ export function CloudflareSetupSheet({ mode, open, onOpenChange }: { mode: Cloud
               <ol className="space-y-5">
                 {mode === "receive" ? (
                   <>
-                    <Step n={1} title="Deploy the mailbox Worker" link={{ href: "https://github.com/mailxem/mail/blob/undefined/devops/cloudflare-mailbox/README.md", label: "Deployment guide" }}>
+                    <Step n={1} title="Deploy the mailbox Worker" link={{ href: "https://docs.xem.email/devops/cloudflare-mailbox", label: "Deployment guide" }}>
                       It stores mail in a private R2 bucket and D1 database in your account. Set <Code>MAILBOX_ADDRESS</Code> to the address below.
                       <Command value="npx wrangler secret put MAILBOX_API_SECRET" />
                       <Command value="npx wrangler deploy" />
