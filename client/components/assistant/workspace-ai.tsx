@@ -4,7 +4,9 @@ import {
   createContext,
   useCallback,
   useContext,
+  useDeferredValue,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -24,7 +26,13 @@ import { AssistantHome } from "./assistant-home";
 import type { EmailDraft } from "@/components/ai/email-writer";
 import { XemMark, XemMarkTile } from "./xem-mark";
 import styles from "./workspace-ai.module.css";
-import { designContext } from "@/lib/assistant/design-context";
+import {
+  applySlots,
+  extractSlots,
+  rankReferences,
+  rowsOf,
+} from "@/lib/assistant/reference-design";
+import { loadStarterDesign } from "@/lib/template-starters/registry";
 
 export type DesignSnapshot = {
   key: string;
@@ -74,6 +82,20 @@ function WorkspaceAI({
   const [mode, setMode] = useState<"design" | "workspace">("workspace");
   const launcher = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
+  // The design conversation survives a new template getting its id on first
+  // save (/templates/new -> /templates/<id>/edit); any other switch starts fresh.
+  const thread = useRef({ key: "", current: "" });
+  if (editor) {
+    // Editor keys end in ":new" until a template is first saved.
+    const current = editor.key;
+    if (current !== thread.current.current) {
+      const fromNew = thread.current.current.endsWith(":new");
+      thread.current = {
+        key: fromNew && thread.current.key ? thread.current.key : current,
+        current,
+      };
+    }
+  }
   const register = useCallback((next: DesignEditor) => {
     setEditor(next);
     return () => setEditor((current) => (current === next ? null : current));
@@ -142,7 +164,8 @@ function WorkspaceAI({
             <div hidden={mode !== "design"} className={styles.modeBody}>
               {editor ? (
                 <DesignConversation
-                  key={`${pathname}:${editor.key}`}
+                  key={thread.current.key}
+                  thread={thread.current.key}
                   editor={editor}
                   teamId={teamId}
                 />
@@ -185,21 +208,49 @@ function WorkspaceAI({
   );
 }
 
+type DesignMessage = { text: string; user?: boolean };
+// Conversations outlive the panel's remount when a new template is first saved
+// and the editor briefly unregisters while the page changes.
+const designThreads = new Map<string, DesignMessage[]>();
+
 function DesignConversation({
   editor,
   teamId,
+  thread,
 }: {
   editor: DesignEditor;
   teamId: string;
+  thread: string;
 }) {
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<{ text: string; user?: boolean }[]>(
-    [],
+  const [messages, setMessages] = useState<DesignMessage[]>(
+    () => designThreads.get(thread) ?? [],
   );
+  useEffect(() => {
+    designThreads.set(thread, messages);
+  }, [thread, messages]);
   const [phase, setPhase] = useState<"" | "designing" | "saving">("");
   const [error, setError] = useState("");
   const [undo, setUndo] = useState(false);
   const [candidate, setCandidate] = useState<EmailDraft | null>(null);
+  // Which design to build from: a library key, "current" for the open
+  // template, or null to use the best match for the brief.
+  const [reference, setReference] = useState<string | null>(null);
+  const [hasDesign, setHasDesign] = useState(false);
+  const brief = useDeferredValue(input);
+  const suggested = useMemo(
+    () => rankReferences(brief.trim() || "newsletter editorial weekly", 6),
+    [brief],
+  );
+  useEffect(() => {
+    editor
+      .snapshot()
+      .then((s) => {
+        if (active.current)
+          setHasDesign(extractSlots(s.design as never).length >= 3);
+      })
+      .catch(() => {});
+  }, [editor]);
   const active = useRef(true);
   const pending = useRef<AbortController | null>(null);
   const transcript = useRef<HTMLDivElement>(null);
@@ -226,32 +277,59 @@ function DesignConversation({
     try {
       const previous = await editor.snapshot();
       if (controller.signal.aborted) return;
+      // Build from a finished design: the chosen library template, the open
+      // template when it already has copy, or the closest match for the brief.
+      const useCurrent =
+        reference === "current" ||
+        (!reference && extractSlots(previous.design as never).length >= 3);
+      const starter = useCurrent
+        ? null
+        : reference
+          ? (suggested.find((t) => t.key === reference) ??
+            rankReferences(text, 1)[0])
+          : rankReferences(text, 1)[0];
+      const base = (
+        useCurrent
+          ? previous.design
+          : await loadStarterDesign(starter!.key, controller.signal)
+      ) as Parameters<typeof applySlots>[0];
+      if (controller.signal.aborted) return;
+      const slots = extractSlots(base);
       const response = await fetch("/api/assistant/design", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: controller.signal,
         body: JSON.stringify({
           teamId,
-          format: "design",
+          format: "slots",
           instruction: text,
-          subject: previous.subject,
-          body: designContext(previous.html),
+          reference: useCurrent
+            ? `The user's current template: ${editor.name || "untitled"}`
+            : `${starter!.name}: ${starter!.description}`,
+          slots,
+          rows: rowsOf(base),
         }),
       });
-      const draft = await response.json();
+      const answer = await response.json();
       if (!response.ok)
         throw new Error(
-          draft.error || "Couldn’t generate this revision. Try again.",
+          answer.error || "Couldn’t generate this revision. Try again.",
         );
-      if (
-        !draft.subject ||
-        !draft.previewHtml ||
-        draft.design?.schemaVersion !== 18 ||
-        !draft.design?.body?.rows?.length
-      )
+      if (!answer.subject || !answer.copy || !Object.keys(answer.copy).length)
         throw new Error(
           "Xem returned an incomplete design. Your template is unchanged.",
         );
+      const draft: EmailDraft = {
+        subject: answer.subject,
+        body: answer.body,
+        design: applySlots(base, {
+          subject: answer.subject,
+          preheader: answer.preheader,
+          slots: answer.copy,
+          remove: answer.remove,
+        }) as EmailDraft["design"],
+      };
+      const usedName = useCurrent ? "your current design" : starter!.name;
       if (!active.current || controller.signal.aborted) return;
       setCandidate(draft);
       setPhase("saving");
@@ -263,7 +341,7 @@ function DesignConversation({
         setMessages((rows) => [
           ...rows,
           {
-            text: "Your design is updated and saved. Take a look in the editor — what would you like to refine?",
+            text: `Built from ${usedName} and saved. Take a look in the editor, then tell me what to change.`,
           },
         ]);
       }
@@ -297,11 +375,55 @@ function DesignConversation({
               Describe the look, the audience, and what you want to say. Then
               keep refining it together.
             </p>
+            <div className={styles.references}>
+              <p>Start from a design</p>
+              <div role="radiogroup" aria-label="Design to start from">
+                {hasDesign && (
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={reference === "current" || !reference}
+                    className={styles.referenceCurrent}
+                    onClick={() => setReference("current")}
+                  >
+                    <FilePenLine size={18} />
+                    <span>Your current design</span>
+                  </button>
+                )}
+                {suggested.slice(0, hasDesign ? 5 : 6).map((t, i) => (
+                  <button
+                    key={t.key}
+                    type="button"
+                    role="radio"
+                    aria-checked={
+                      reference === t.key || (!reference && !hasDesign && i === 0)
+                    }
+                    title={t.description}
+                    onClick={() => setReference(t.key)}
+                  >
+                    <span className={styles.thumb}>
+                      <iframe
+                        src={t.previewUrl}
+                        title=""
+                        tabIndex={-1}
+                        loading="lazy"
+                        sandbox=""
+                        aria-hidden="true"
+                      />
+                    </span>
+                    <span>{t.name}</span>
+                  </button>
+                ))}
+              </div>
+              <small>
+                Xem keeps the layout, fonts and colours, and writes your copy
+                into it. {reference ? "" : "Picks the closest match if you don’t choose."}
+              </small>
+            </div>
             <div className={styles.suggestions}>
               {[
-                "Create a warm welcome email with a bold lime call to action",
-                "Make this email simpler, with more space and clearer headings",
-                "Design a polished sender approval email for Xem",
+                "A warm welcome email for new newsletter subscribers",
+                "Announce our new paid tier with deep-dive essays",
               ].map((text) => (
                 <button key={text} onClick={() => void send(text)}>
                   {text}
@@ -336,15 +458,17 @@ function DesignConversation({
         {candidate && !phase && (
           <div className={styles.recovery}>
             <p>Your generated revision is available to keep or review.</p>
-            <details>
-              <summary>Preview revision</summary>
-              <iframe
-                title="Unsaved AI revision"
-                sandbox=""
-                referrerPolicy="no-referrer"
-                srcDoc={candidate.previewHtml}
-              />
-            </details>
+            {candidate.previewHtml && (
+              <details>
+                <summary>Preview revision</summary>
+                <iframe
+                  title="Unsaved AI revision"
+                  sandbox=""
+                  referrerPolicy="no-referrer"
+                  srcDoc={candidate.previewHtml}
+                />
+              </details>
+            )}
             <button
               onClick={() => {
                 const url = URL.createObjectURL(
