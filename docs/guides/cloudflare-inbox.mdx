@@ -1,0 +1,146 @@
+---
+title: 'Receive mail on your domain with Cloudflare'
+description: 'Deploy the Xem mailbox Worker to your own Cloudflare account, route an address on your domain to it and read that mail in the Xem inbox.'
+---
+
+This guide gives a self-hosted Xem install an inbox for one address on your own domain, such as `hello@yourdomain.com`. Cloudflare Email Routing hands each message to a small Worker in your Cloudflare account. The Worker keeps the raw message and attachments in a private R2 bucket and the mailbox index in D1. Xem reads it through a signed API. No IMAP server, and no mail stored on Xem's side.
+
+Receiving and reading fit inside Cloudflare's free allowances. Replying needs a sender, and Cloudflare's own sending is not on the free plan. The [cost section](#what-it-costs) has the details.
+
+This guide was checked against Cloudflare's documentation on November 5, 2026.
+
+<Note>
+On a self-hosted install with no billing configured, this feature has no plan requirement. On Xem Cloud, Cloudflare email comes with a paid plan.
+</Note>
+
+## What it costs
+
+These are Cloudflare's published numbers. Cloudflare bills you directly; Xem charges nothing for this on a self-hosted install.
+
+| Piece | Free allowance | Source |
+| --- | --- | --- |
+| Email Routing (inbound) | Unlimited on Workers Free and Workers Paid | [Email Service pricing](https://developers.cloudflare.com/email-service/platform/pricing/) |
+| Workers | 100,000 requests a day, 10 ms CPU time per invocation, 5 Cron Triggers per account (this Worker uses 1) | [Workers pricing](https://developers.cloudflare.com/workers/platform/pricing/), [Workers limits](https://developers.cloudflare.com/workers/platform/limits/) |
+| R2 | 10 GB-month of storage, 1 million Class A and 10 million Class B operations a month, free egress | [R2 pricing](https://developers.cloudflare.com/r2/pricing/) |
+| D1 | 5 million rows read and 100,000 rows written a day, 500 MB per database, 5 GB per account | [D1 pricing](https://developers.cloudflare.com/d1/platform/pricing/), [D1 limits](https://developers.cloudflare.com/d1/platform/limits/) |
+| Email Sending (outbound) | Not available on Workers Free. Workers Paid is \$5 a month and includes 3,000 emails, then \$0.35 per 1,000 | [Email Service pricing](https://developers.cloudflare.com/email-service/platform/pricing/), [Workers pricing](https://developers.cloudflare.com/workers/platform/pricing/) |
+
+What that means in practice:
+
+- **Receiving and reading are free** within the limits above. R2 still asks you to add a payment method and complete an R2 subscription checkout before you can create a bucket, even if you stay on the free allowance ([R2 get started](https://developers.cloudflare.com/r2/get-started/)).
+- **Replying is not free through Cloudflare.** Cloudflare Email Sending to arbitrary recipients needs Workers Paid. You can reply through any other sender you have connected in Xem instead, such as [Amazon SES](/guides/amazon-ses).
+- **Newsletters and campaigns do not go through Cloudflare.** Xem only uses Cloudflare Email Sending for transactional mail and rejects campaigns on that sender. Send newsletters through an SMTP provider such as Amazon SES.
+- **Large messages may not fit Workers Free.** The Worker parses each message inside the 10 ms CPU limit of Workers Free. We have not measured where that limit bites; a message that exceeds it fails with `EXCEEDED_CPU` in the Worker logs. Workers Paid raises the CPU limit. Separately, the Worker rejects raw messages over 10 MiB and messages with more than 32 attachments, below Email Routing's own 25 MiB limit ([Email Service limits](https://developers.cloudflare.com/email-service/platform/limits/)).
+- **When D1 hits its daily limit**, queries fail until the limit resets ([D1 pricing](https://developers.cloudflare.com/d1/platform/pricing/)). The Worker writes each raw message to R2 before it touches D1 and retries pending messages every minute, so mail that arrives then is kept and indexed later.
+
+## Before you start
+
+You need:
+
+- a Cloudflare account;
+- a domain whose DNS is on Cloudflare, with [Email Routing](https://developers.cloudflare.com/email-service/get-started/route-emails/) enabled;
+- R2 enabled on the account (the subscription checkout mentioned above);
+- a running Xem install. See [Self-hosting](/guides/self-hosting).
+
+<Warning>
+Enabling Email Routing points the domain's MX records at Cloudflare. If the domain already receives mail somewhere else, such as Google Workspace, that mail would move to Cloudflare too. Check before you enable it on a domain that is already in use.
+</Warning>
+
+## 1. Make a secret
+
+Xem and the Worker share a secret that signs every request. Generate a long random one and keep it for steps 2 and 4:
+
+```bash
+openssl rand -hex 32
+```
+
+## 2. Deploy the Worker
+
+Pick one of the two ways.
+
+### With the Deploy to Cloudflare button
+
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/mailxem/mail/tree/undefined/devops/cloudflare-mailbox)
+
+Cloudflare copies the Worker into a new repository on your GitHub or GitLab account, creates the D1 database and R2 bucket, and asks for two values:
+
+- `MAILBOX_ADDRESS`: the full address you want to receive, such as `hello@yourdomain.com`;
+- `MAILBOX_API_SECRET`: the secret from step 1.
+
+The deploy runs the D1 migration after the Worker is uploaded. When it finishes, copy the Worker URL, which looks like `https://xem-cloudflare-mailbox.<your-subdomain>.workers.dev`.
+
+### With Wrangler
+
+You need Node.js 24 and pnpm 10.
+
+```bash
+git clone --depth 1 --branch undefined https://github.com/mailxem/mail.git
+```
+
+```bash
+cd mail/devops/cloudflare-mailbox && pnpm install --frozen-lockfile && pnpm wrangler login
+```
+
+Copy the example settings and fill in both values:
+
+```bash
+cp .dev.vars.example .dev.vars
+```
+
+Deploy. Wrangler creates the D1 database and R2 bucket if they don't exist yet, uploads both values as Worker secrets and prints the Worker URL:
+
+```bash
+pnpm wrangler deploy --secrets-file .dev.vars
+```
+
+Then create the mailbox tables:
+
+```bash
+pnpm wrangler d1 migrations apply MAILBOX_DB --remote
+```
+
+The R2 bucket stays private. Xem never gets an R2 or D1 token; all reads go through the signed Worker API.
+
+## 3. Route the address to the Worker
+
+In the Cloudflare dashboard, open your domain, then **Email → Email Routing → Routing rules**.
+
+1. Select **Create address**.
+2. Enter the same address you used for `MAILBOX_ADDRESS`.
+3. Set the action to **Send to a Worker** and choose `xem-cloudflare-mailbox`.
+4. Save.
+
+The Worker rejects mail for any other address, so the rule and `MAILBOX_ADDRESS` must match exactly (case does not matter).
+
+## 4. Connect it in Xem
+
+In Xem, go to **Settings → SMTP senders** and select **Connect Cloudflare inbox**. Enter:
+
+- **Worker URL**: the URL from step 2;
+- **Mailbox address**: the same address as `MAILBOX_ADDRESS`;
+- **Mailbox API secret**: the secret from step 1.
+
+Select **Verify and connect**. Xem calls the Worker's signed identity endpoint and only saves the connection if the address and secret match. The secret is stored encrypted.
+
+## 5. Send yourself a message
+
+From another mail account, send a message to the address. It shows up in **Inbox** under that mailbox. You can mark messages read or starred and search by subject, sender, recipients or Message-ID.
+
+To reply, pick a sender in the compose window. A Cloudflare inbox has no sender of its own. Replies keep the `In-Reply-To` header, so they thread in the recipient's mail client.
+
+## Troubleshooting
+
+| What you see | Likely cause |
+| --- | --- |
+| **Mailbox Worker identity check failed** in Xem | Wrong Worker URL or secret. The URL must be the `https://` origin with no path. |
+| `mailbox_not_ready` from the Worker | The D1 migration has not run. Run step 2's migration command. |
+| The sender gets a bounce mentioning a recipient mismatch | The routing rule address and `MAILBOX_ADDRESS` differ. |
+| Mail never arrives | Check the Email Routing activity log and the Worker logs in the dashboard. The Worker ships with logs turned on. |
+
+To change the address later, update the `MAILBOX_ADDRESS` secret on the Worker and the routing rule, then reconnect in Xem.
+
+## What has been tested
+
+The Worker's test suite, a `wrangler deploy --dry-run`, and a local `wrangler dev` run that delivered a message through the local email handler and read it back over the signed API. The Xem settings flow was checked against a local backend. The Xem team has not yet confirmed live Email Routing delivery through the Deploy to Cloudflare button; if something in these steps does not match what you see, please [open an issue](https://github.com/mailxem/mail/issues).
+
+For how the Worker stores, retries and quarantines mail, see [Cloudflare mailbox Worker](/devops/cloudflare-mailbox).

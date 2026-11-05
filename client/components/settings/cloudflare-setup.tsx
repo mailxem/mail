@@ -20,6 +20,8 @@ import { cn } from "@/lib/utils";
 
 export type CloudflareMode = "receive" | "send";
 
+const DEPLOY_URL = "https://deploy.workers.cloudflare.com/?url=https://github.com/mailxem/mail/tree/undefined/devops/cloudflare-mailbox";
+
 export function CloudflareLogo({ className }: { className?: string }) {
   return (
     <svg viewBox="0 -3 66 33" aria-hidden className={cn("h-4 w-auto", className)}>
@@ -113,10 +115,12 @@ export function CloudflareSetupSheet({ mode, open, onOpenChange }: { mode: Cloud
               <ol className="space-y-5">
                 {mode === "receive" ? (
                   <>
-                    <Step n={1} title="Deploy the mailbox Worker" link={{ href: "https://docs.xem.email/devops/cloudflare-mailbox", label: "Deployment guide" }}>
-                      It stores mail in a private R2 bucket and D1 database in your account. Set <Code>MAILBOX_ADDRESS</Code> to the address below.
-                      <Command value="npx wrangler secret put MAILBOX_API_SECRET" />
-                      <Command value="npx wrangler deploy" />
+                    <Step n={1} title="Deploy the mailbox Worker" link={{ href: "https://docs.xem.email/guides/cloudflare-inbox", label: "Setup guide" }}>
+                      It stores mail in a private R2 bucket and D1 database in your account. Set <Code>MAILBOX_ADDRESS</Code> to the address below and <Code>MAILBOX_API_SECRET</Code> to a long random value.
+                      <a href={DEPLOY_URL} target="_blank" rel="noreferrer" className="mt-2 flex w-fit items-center gap-1 text-xs font-medium text-[#C2580A] hover:underline dark:text-[#FAAE40]">
+                        Deploy to Cloudflare <ArrowUpRight className="size-3" />
+                      </a>
+                      <Command value="openssl rand -hex 32" />
                     </Step>
                     <Step n={2} title="Route the address to the Worker" link={{ href: "https://dash.cloudflare.com/?to=/:account/:zone/email/routing/routes", label: "Email Routing" }}>
                       Add a custom address rule whose action is <em>Send to a Worker</em>.
@@ -124,7 +128,7 @@ export function CloudflareSetupSheet({ mode, open, onOpenChange }: { mode: Cloud
                     <Step n={3} title="Connect it here" last>
                       <div className="mt-3 space-y-4">
                         <Field id="cf-worker-url" label="Worker URL">
-                          <Input id="cf-worker-url" required type="url" pattern="https://.*" placeholder="https://mailbox.your-account.workers.dev" value={fields.workerUrl} onChange={set("workerUrl")} autoComplete="url" />
+                          <Input id="cf-worker-url" required type="url" pattern="https://.*" placeholder="https://xem-cloudflare-mailbox.your-subdomain.workers.dev" value={fields.workerUrl} onChange={set("workerUrl")} autoComplete="url" />
                         </Field>
                         <Field id="cf-inbox-address" label="Mailbox address" hint="Must match MAILBOX_ADDRESS and the routing rule exactly.">
                           <Input id="cf-inbox-address" required type="email" placeholder="support@yourdomain.com" value={fields.address} onChange={set("address")} />
