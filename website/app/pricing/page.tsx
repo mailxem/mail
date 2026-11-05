@@ -258,7 +258,11 @@ export default function PricingPage() {
               >
                 our comparison
               </Link>{" "}
-              for sources.
+              for sources, or{" "}
+              <Link href="/compare" className="text-iris underline">
+                compare every tool
+              </Link>
+              .
             </p>
             <div className="mt-8 overflow-x-auto rounded-2xl border border-ink/10 bg-cream">
               <table className="w-full text-left text-sm">
