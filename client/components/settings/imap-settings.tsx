@@ -9,7 +9,6 @@ import { DataTable } from "@/components/ui/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import {
-  Cloud,
   MoreHorizontal,
   Pencil,
   Trash,
@@ -32,6 +31,7 @@ import { useIMAP } from "@/app/providers/imap-provider";
 import { IMAPConfig, IMAPConfigSchema } from "@/lib/validations/imap-provider";
 import { ApiError } from "@/lib";
 import { IMAPProviders } from "./imap-providers";
+import { CloudflareButton, CloudflareLogo } from "./cloudflare-setup";
 import { useApi } from "@/hooks/use-api";
 import { CollectionCard } from "@/components/ui/collection-card";
 import { QueryState, Empty, Metric } from "@/components/marketing/shared";
@@ -289,20 +289,18 @@ export function IMAPSettings({
       <section className={workspaceClassName("product-panel")}>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex min-w-0 items-start gap-3">
-            <Cloud className="mt-0.5 size-5 shrink-0" />
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg border bg-[#F38020]/10">
+              <CloudflareLogo className="h-3.5" />
+            </span>
             <div>
-              <h2 className="font-medium">Cloudflare mailbox Worker</h2>
+              <h2 className="font-medium">Cloudflare inbox</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 Receive mail through Cloudflare Email Routing without running an
                 IMAP server.
               </p>
             </div>
           </div>
-          <Button asChild variant="outline">
-            <a href="/settings/smtp#connected-mail-cloudflare">
-              Connect Cloudflare mailbox
-            </a>
-          </Button>
+          <CloudflareButton mode="receive">Connect Cloudflare inbox</CloudflareButton>
         </div>
       </section>
 
