@@ -1,0 +1,625 @@
+{
+  "schemaVersion": 18,
+  "counters": {
+    "u_row": 3,
+    "u_column": 3,
+    "u_content_heading": 2,
+    "u_content_image": 2,
+    "u_content_text": 7,
+    "u_content_button": 1
+  },
+  "body": {
+    "id": "studio-good-taste-body",
+    "rows": [
+      {
+        "id": "studio-good-taste-1",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-good-taste-2",
+            "contents": [
+              {
+                "id": "studio-good-taste-3",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_1",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Moneywise",
+                  "fontSize": "22px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#2A2A2A",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "40px 32px 0px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-good-taste-4",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_2",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "THE GIST",
+                  "fontSize": "86px",
+                  "fontFamily": {
+                    "label": "Arial Black",
+                    "value": "arial black,avant garde,arial"
+                  },
+                  "color": "#2A2A2A",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "0px 32px 0px",
+                  "headingType": "h1"
+                }
+              },
+              {
+                "id": "studio-good-taste-5",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "/assets/template-starters/illustrations/coin-mascot.png",
+                    "width": 1200,
+                    "height": 600,
+                    "autoWidth": false,
+                    "maxWidth": "110px"
+                  },
+                  "altText": "A smiling gold coin character",
+                  "textAlign": "center",
+                  "containerPadding": "0px 32px 4px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-good-taste-6",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_1",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "The country’s friendliest money newsletter",
+                  "fontSize": "15px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#2A2A2A",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 32px 24px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_1",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F7F7F7",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_1",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-good-taste-7",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-good-taste-8",
+            "contents": [
+              {
+                "id": "studio-good-taste-9",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_2",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "/assets/template-starters/illustrations/tldr-card.png",
+                    "width": 1200,
+                    "height": 600,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "A lime card reading You’ve got good taste, surrounded by small icons",
+                  "textAlign": "center",
+                  "containerPadding": "8px 32px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-good-taste-10",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Congratulations! From Monday, the latest edition of The Gist will land in your inbox. And in case you’ve forgotten what you signed up for, here’s what it’s about:",
+                  "fontSize": "15px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "24px 40px 8px"
+                }
+              },
+              {
+                "id": "studio-good-taste-11",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_3",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>Money news</strong><br>Markets, housing and the price of groceries.<br><br><strong>Business news</strong><br>Mergers, takeovers and big-business drama.<br><br><strong>Totally optional good reads</strong><br>Deep dives and culture takes to make you sound clever at lunch.",
+                  "fontSize": "15px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 40px 8px"
+                }
+              },
+              {
+                "id": "studio-good-taste-12",
+                "type": "button",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_button_1",
+                    "htmlClassNames": "u_content_button"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Read the latest edition",
+                  "href": {
+                    "name": "web",
+                    "attrs": {
+                      "href": "{{href}}",
+                      "target": "{{target}}"
+                    },
+                    "values": {
+                      "href": "https://example.com",
+                      "target": "_blank"
+                    }
+                  },
+                  "buttonColors": {
+                    "color": "#FFFFFF",
+                    "backgroundColor": "#2A2A2A",
+                    "hoverColor": "#FFFFFF",
+                    "hoverBackgroundColor": "#2A2A2A"
+                  },
+                  "size": {
+                    "autoWidth": true,
+                    "width": "100%"
+                  },
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "fontSize": "14px",
+                  "lineHeight": "140%",
+                  "textAlign": "center",
+                  "padding": "12px 40px",
+                  "border": {},
+                  "borderRadius": "999px",
+                  "containerPadding": "16px 32px 16px"
+                }
+              },
+              {
+                "id": "studio-good-taste-13",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_4",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "P.S. Add us to your contacts so we don’t end up in your junk folder. On a phone, move us to your main inbox from the menu; on a computer, drag us there.",
+                  "fontSize": "15px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "16px 40px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_2",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F7F7F7",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_2",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-good-taste-14",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-good-taste-15",
+            "contents": [
+              {
+                "id": "studio-good-taste-16",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_5",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "The Gist is for information only and isn’t financial advice.",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#777777",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-good-taste-17",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_6",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Moneywise Media · 12 Example Street, Your City · <a href=\"https://example.com\" style=\"color:inherit\">Unsubscribe</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#777777",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-good-taste-18",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_7",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://xem.email\" style=\"color:inherit\">Built with Xem</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#777777",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 48px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_3",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F7F7F7",
+          "padding": "24px 0px 0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_3",
+            "htmlClassNames": "u_row"
+          }
+        }
+      }
+    ],
+    "headers": [],
+    "footers": [],
+    "values": {
+      "backgroundColor": "#F7F7F7",
+      "contentWidth": "600px",
+      "contentAlign": "center",
+      "fontFamily": {
+        "label": "Arial",
+        "value": "arial,helvetica,sans-serif"
+      },
+      "textColor": "#30332F",
+      "preheaderText": "Your first edition of The Gist arrives on Monday.",
+      "language": {
+        "htmlLang": "en"
+      },
+      "linkStyle": {
+        "body": true,
+        "linkColor": "#514293",
+        "linkHoverColor": "#514293",
+        "linkUnderline": true,
+        "linkHoverUnderline": true
+      },
+      "_meta": {
+        "htmlID": "u_body",
+        "htmlClassNames": "u_body"
+      }
+    }
+  }
+}
