@@ -1,0 +1,745 @@
+{
+  "schemaVersion": 18,
+  "counters": {
+    "u_row": 4,
+    "u_column": 4,
+    "u_content_heading": 6,
+    "u_content_image": 1,
+    "u_content_text": 8
+  },
+  "body": {
+    "id": "studio-five-tips-body",
+    "rows": [
+      {
+        "id": "studio-five-tips-1",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-five-tips-2",
+            "contents": [
+              {
+                "id": "studio-five-tips-3",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_1",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "✚",
+                  "fontSize": "40px",
+                  "fontFamily": {
+                    "label": "Arial Black",
+                    "value": "arial black,avant garde,arial"
+                  },
+                  "color": "#D9620F",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "16px 32px",
+                  "headingType": "h1"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_1",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F4F4F4",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_1",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-five-tips-4",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-five-tips-5",
+            "contents": [
+              {
+                "id": "studio-five-tips-6",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=1200&h=560&q=85",
+                    "width": 1200,
+                    "height": 560,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "A smiling beagle",
+                  "textAlign": "center",
+                  "containerPadding": "0px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_2",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_2",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-five-tips-7",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-five-tips-8",
+            "contents": [
+              {
+                "id": "studio-five-tips-9",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_2",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"color:#D9620F\">b</span>safe <span style=\"color:#D9620F\">|</span> fireworks night is scary for pets",
+                  "fontSize": "24px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#5A5A5A",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "20px 32px 4px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-five-tips-10",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_1",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Bangs, flashes and visitors at the door can frighten dogs and cats. Here’s how to <strong><a href=\"https://example.com\" style=\"color:#D9620F;\">keep your pet calm &gt;</a></strong>",
+                  "fontSize": "15px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#5A5A5A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 32px 12px"
+                }
+              },
+              {
+                "id": "studio-five-tips-11",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_3",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"color:#D9620F\">b</span>fed <span style=\"color:#D9620F\">|</span> the truth about tummy troubles",
+                  "fontSize": "24px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#5A5A5A",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "20px 32px 4px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-five-tips-12",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Upset stomachs are one of the most common reasons pets visit the vet. Learn how to <strong><a href=\"https://example.com\" style=\"color:#D9620F;\">help your pet’s digestion &gt;</a></strong>",
+                  "fontSize": "15px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#5A5A5A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 32px 12px"
+                }
+              },
+              {
+                "id": "studio-five-tips-13",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_4",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"color:#D9620F\">b</span>ready <span style=\"color:#D9620F\">|</span> what to know before you adopt",
+                  "fontSize": "24px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#5A5A5A",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "20px 32px 4px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-five-tips-14",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_3",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "A pet is a long-term friend, not a short-term project. Here are some <strong><a href=\"https://example.com\" style=\"color:#D9620F;\">tips before you adopt &gt;</a></strong>",
+                  "fontSize": "15px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#5A5A5A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 32px 12px"
+                }
+              },
+              {
+                "id": "studio-five-tips-15",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_5",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"color:#D9620F\">b</span>calm <span style=\"color:#D9620F\">|</span> helping an anxious pet",
+                  "fontSize": "24px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#5A5A5A",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "20px 32px 4px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-five-tips-16",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_4",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Holidays and house moves can unsettle pets. Here’s how to <strong><a href=\"https://example.com\" style=\"color:#D9620F;\">help them settle &gt;</a></strong>",
+                  "fontSize": "15px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#5A5A5A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 32px 12px"
+                }
+              },
+              {
+                "id": "studio-five-tips-17",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_6",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"color:#D9620F\">b</span>well <span style=\"color:#D9620F\">|</span> managing pain as they get older",
+                  "fontSize": "24px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#5A5A5A",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "20px 32px 4px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-five-tips-18",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_5",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Stiff joints don’t have to mean a smaller life. Learn about <strong><a href=\"https://example.com\" style=\"color:#D9620F;\">easing your pet’s pain &gt;</a></strong>",
+                  "fontSize": "15px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#5A5A5A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 32px 12px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_3",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "16px 0px 24px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_3",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-five-tips-19",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-five-tips-20",
+            "contents": [
+              {
+                "id": "studio-five-tips-21",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_6",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Harbourside Vets · 12 Example Street, Your City",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#666666",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-five-tips-22",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_7",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://example.com\" style=\"color:inherit\">Terms</a> · <a href=\"https://example.com\" style=\"color:inherit\">Privacy</a> · <a href=\"https://example.com\" style=\"color:inherit\">Unsubscribe</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#666666",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-five-tips-23",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_8",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://xem.email\" style=\"color:inherit\">Built with Xem</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#666666",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 48px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_4",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F2F2F2",
+          "padding": "24px 0px 0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_4",
+            "htmlClassNames": "u_row"
+          }
+        }
+      }
+    ],
+    "headers": [],
+    "footers": [],
+    "values": {
+      "backgroundColor": "#FFFFFF",
+      "contentWidth": "600px",
+      "contentAlign": "center",
+      "fontFamily": {
+        "label": "Arial",
+        "value": "arial,helvetica,sans-serif"
+      },
+      "textColor": "#30332F",
+      "preheaderText": "Keeping pets calm, safe and well this season.",
+      "language": {
+        "htmlLang": "en"
+      },
+      "linkStyle": {
+        "body": true,
+        "linkColor": "#514293",
+        "linkHoverColor": "#514293",
+        "linkUnderline": true,
+        "linkHoverUnderline": true
+      },
+      "_meta": {
+        "htmlID": "u_body",
+        "htmlClassNames": "u_body"
+      }
+    }
+  }
+}

@@ -1,0 +1,1553 @@
+{
+  "schemaVersion": 18,
+  "counters": {
+    "u_row": 8,
+    "u_column": 12,
+    "u_content_text": 17,
+    "u_content_heading": 2,
+    "u_content_image": 8,
+    "u_content_button": 2
+  },
+  "body": {
+    "id": "studio-weekly-sequence-body",
+    "rows": [
+      {
+        "id": "studio-weekly-sequence-1",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-weekly-sequence-2",
+            "contents": [
+              {
+                "id": "studio-weekly-sequence-3",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_1",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "◎ PARLOUR",
+                  "fontSize": "11px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#999999",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "24px 32px 0px"
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-4",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_1",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "SEQUENCE<sup>52</sup>",
+                  "fontSize": "40px",
+                  "fontFamily": {
+                    "label": "Arial Black",
+                    "value": "arial black,avant garde,arial"
+                  },
+                  "color": "#111111",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "0px 32px 8px",
+                  "headingType": "h1"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_1",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F2F2F2",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_1",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-weekly-sequence-5",
+        "cells": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-weekly-sequence-6",
+            "contents": [
+              {
+                "id": "studio-weekly-sequence-7",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=700&h=700&q=85",
+                    "width": 700,
+                    "height": 700,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "Portrait of a smiling woman",
+                  "textAlign": "center",
+                  "containerPadding": "0px 3px 0px 120px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_2",
+                "htmlClassNames": "u_column"
+              }
+            }
+          },
+          {
+            "id": "studio-weekly-sequence-8",
+            "contents": [
+              {
+                "id": "studio-weekly-sequence-9",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_2",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=700&h=700&q=85",
+                    "width": 700,
+                    "height": 700,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "Colorful artist materials",
+                  "textAlign": "center",
+                  "containerPadding": "0px 3px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_3",
+                "htmlClassNames": "u_column"
+              }
+            }
+          },
+          {
+            "id": "studio-weekly-sequence-10",
+            "contents": [
+              {
+                "id": "studio-weekly-sequence-11",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_3",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=700&h=700&q=85",
+                    "width": 700,
+                    "height": 700,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "Portrait of an older man",
+                  "textAlign": "center",
+                  "containerPadding": "0px 3px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_4",
+                "htmlClassNames": "u_column"
+              }
+            }
+          },
+          {
+            "id": "studio-weekly-sequence-12",
+            "contents": [
+              {
+                "id": "studio-weekly-sequence-13",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_4",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=700&h=700&q=85",
+                    "width": 700,
+                    "height": 700,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "Fresh flowers in soft light",
+                  "textAlign": "center",
+                  "containerPadding": "0px 120px 0px 3px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_5",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F2F2F2",
+          "padding": "0px 0px 20px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_2",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-weekly-sequence-14",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-weekly-sequence-15",
+            "contents": [
+              {
+                "id": "studio-weekly-sequence-16",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>Internet Microdoses</strong>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "24px 32px 8px"
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-17",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_3",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>A three-hour concert film is selling out cinemas.</strong> It made more on its opening weekend than any music documentary in twenty years. Bring snacks. <a href=\"https://example.com\" style=\"color:#1A1A1A;\">Get tickets →</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "6px 32px 10px"
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-18",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_5",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&h=560&q=85",
+                    "width": 1200,
+                    "height": 560,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "A warm, thoughtfully arranged room",
+                  "textAlign": "center",
+                  "containerPadding": "4px 32px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-19",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_4",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>A library the size of a phone box opened on a high street.</strong> It holds 200 books and lends them on trust. So far, nothing has gone missing. <a href=\"https://example.com\" style=\"color:#1A1A1A;\">Visit it →</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "6px 32px 10px"
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-20",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_5",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>A boat that sank 4,000 years ago turned up in a field.</strong> Archaeologists found it while checking ground for a new road. <a href=\"https://example.com\" style=\"color:#1A1A1A;\">Dig in →</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "6px 32px 10px"
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-21",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_6",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>A football club named its new font after a former captain.</strong> It’s on the shirts, the tickets and the stadium signs. <a href=\"https://example.com\" style=\"color:#1A1A1A;\">See the font →</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "6px 32px 10px"
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-22",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_7",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>Students are holding drawing classes in train stations.</strong> Bring a pencil; stools are provided. <a href=\"https://example.com\" style=\"color:#1A1A1A;\">Find a class →</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "6px 32px 10px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_6",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_3",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-weekly-sequence-23",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-weekly-sequence-24",
+            "contents": [
+              {
+                "id": "studio-weekly-sequence-25",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_6",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1200&h=560&q=85",
+                    "width": 1200,
+                    "height": 560,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "Shelves filled with books",
+                  "textAlign": "center",
+                  "containerPadding": "16px 32px 8px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-26",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_8",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>Aesthetic Study · <a href=\"https://example.com\" style=\"color:#1A1A1A;\">Turning the page</a></strong><br><br>Last year it was fashionable to be seen reading on the train. This year, the book itself is the accessory: tote bags with bookshelves printed on them, cafés with reading-only tables, book-club dinners that sell out in minutes.<br><br>Whatever the reason, more people are carrying books. Some are even reading them.",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 32px"
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-27",
+                "type": "button",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_button_1",
+                    "htmlClassNames": "u_content_button"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Judge a book by its cover",
+                  "href": {
+                    "name": "web",
+                    "attrs": {
+                      "href": "{{href}}",
+                      "target": "{{target}}"
+                    },
+                    "values": {
+                      "href": "https://example.com",
+                      "target": "_blank"
+                    }
+                  },
+                  "buttonColors": {
+                    "color": "#1A1A1A",
+                    "backgroundColor": "#C8DBFA",
+                    "hoverColor": "#1A1A1A",
+                    "hoverBackgroundColor": "#C8DBFA"
+                  },
+                  "size": {
+                    "autoWidth": true,
+                    "width": "100%"
+                  },
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "fontSize": "12px",
+                  "lineHeight": "140%",
+                  "textAlign": "left",
+                  "padding": "10px 18px",
+                  "border": {},
+                  "borderRadius": "999px",
+                  "containerPadding": "12px 32px 24px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_7",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_4",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-weekly-sequence-28",
+        "cells": [
+          3,
+          2
+        ],
+        "columns": [
+          {
+            "id": "studio-weekly-sequence-29",
+            "contents": [
+              {
+                "id": "studio-weekly-sequence-30",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_9",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "A moment with",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#F4E6E6",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "24px 8px 4px 32px"
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-31",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_2",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Ines Calder",
+                  "fontSize": "30px",
+                  "fontFamily": {
+                    "label": "Arial Black",
+                    "value": "arial black,avant garde,arial"
+                  },
+                  "color": "#FFFFFF",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "4px 8px 4px 32px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-32",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_10",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Founder of Calder &amp; Co.",
+                  "fontSize": "11px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#F4E6E6",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 8px 24px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_8",
+                "htmlClassNames": "u_column"
+              }
+            }
+          },
+          {
+            "id": "studio-weekly-sequence-33",
+            "contents": [
+              {
+                "id": "studio-weekly-sequence-34",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_7",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=700&h=700&q=85",
+                    "width": 700,
+                    "height": 700,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "Portrait of a woman by a lake",
+                  "textAlign": "center",
+                  "containerPadding": "20px 32px 20px 8px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_9",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#5A1414",
+          "padding": "0px 32px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_5",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-weekly-sequence-35",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-weekly-sequence-36",
+            "contents": [
+              {
+                "id": "studio-weekly-sequence-37",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_11",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Ines Calder makes furniture from salvaged wood and wants every piece to look like it has a past. Her third collection launches this month.<br><br><strong>Where do your ideas come from?</strong><br>Old buildings, mostly. I keep a photo of every door I like.<br><br><strong>Three places that inspire you?</strong><br>1. A timber yard by the river<br>2. A library reading room<br>3. My grandmother’s kitchen<br><br><strong>Write us a fortune cookie.</strong><br>The thing you keep fixing is the thing you love.",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "16px 32px"
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-38",
+                "type": "button",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_button_2",
+                    "htmlClassNames": "u_content_button"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Read the full interview",
+                  "href": {
+                    "name": "web",
+                    "attrs": {
+                      "href": "{{href}}",
+                      "target": "{{target}}"
+                    },
+                    "values": {
+                      "href": "https://example.com",
+                      "target": "_blank"
+                    }
+                  },
+                  "buttonColors": {
+                    "color": "#1A1A1A",
+                    "backgroundColor": "#C8DBFA",
+                    "hoverColor": "#1A1A1A",
+                    "hoverBackgroundColor": "#C8DBFA"
+                  },
+                  "size": {
+                    "autoWidth": true,
+                    "width": "100%"
+                  },
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "fontSize": "12px",
+                  "lineHeight": "140%",
+                  "textAlign": "left",
+                  "padding": "10px 18px",
+                  "border": {},
+                  "borderRadius": "999px",
+                  "containerPadding": "8px 32px 24px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_10",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_6",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-weekly-sequence-39",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-weekly-sequence-40",
+            "contents": [
+              {
+                "id": "studio-weekly-sequence-41",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_8",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=1200&h=560&q=85",
+                    "width": 1200,
+                    "height": 560,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "A considered piece of furniture",
+                  "textAlign": "center",
+                  "containerPadding": "8px 32px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-42",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_12",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>Object Love · <a href=\"https://example.com\" style=\"color:#1A1A1A;\">The bent chair</a></strong><br><br>A chair bent from a single sheet of plywood, first made in the 1940s and still in production. It weighs about as much as a cat. Look closely and there isn’t a screw in it.",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 32px"
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-43",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_13",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>Quick Hits</strong><br><br>Put a photo on your keychain with a <a href=\"https://example.com\" style=\"color:#1A1A1A;\">tiny camera</a>.<br>A museum is <a href=\"https://example.com\" style=\"color:#1A1A1A;\">lit only by candles</a> for one night.<br>Discover a <a href=\"https://example.com\" style=\"color:#1A1A1A;\">dictionary of words you can’t read</a>.",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "16px 32px"
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-44",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_14",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>Reader Question</strong><br><br>Last week we asked: if you opened a tiny museum, what would be in it? Our favourite answer: <em>“Every key I’ve ever kept without knowing what it opens.”</em><br><br>This week: what’s the most useful thing you own that cost less than $5? Reply and tell us.<br><br><a href=\"https://example.com\" style=\"color:#1A1A1A;\">All booked up</a>,<br>Tom",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 32px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_11",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_7",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-weekly-sequence-45",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-weekly-sequence-46",
+            "contents": [
+              {
+                "id": "studio-weekly-sequence-47",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_15",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Sent to you as a Parlour member · 12 Example Street, Your City",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#AAAAAA",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-48",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_16",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://example.com\" style=\"color:inherit\">Unsubscribe</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#AAAAAA",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-weekly-sequence-49",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_17",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://xem.email\" style=\"color:inherit\">Built with Xem</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#AAAAAA",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 48px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_12",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "24px 0px 0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_8",
+            "htmlClassNames": "u_row"
+          }
+        }
+      }
+    ],
+    "headers": [],
+    "footers": [],
+    "values": {
+      "backgroundColor": "#FFFFFF",
+      "contentWidth": "600px",
+      "contentAlign": "center",
+      "fontFamily": {
+        "label": "Arial",
+        "value": "arial,helvetica,sans-serif"
+      },
+      "textColor": "#30332F",
+      "preheaderText": "Ten things worth knowing this week, plus an interview.",
+      "language": {
+        "htmlLang": "en"
+      },
+      "linkStyle": {
+        "body": true,
+        "linkColor": "#514293",
+        "linkHoverColor": "#514293",
+        "linkUnderline": true,
+        "linkHoverUnderline": true
+      },
+      "_meta": {
+        "htmlID": "u_body",
+        "htmlClassNames": "u_body"
+      }
+    }
+  }
+}

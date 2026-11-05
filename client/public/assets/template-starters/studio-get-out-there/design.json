@@ -1,0 +1,931 @@
+{
+  "schemaVersion": 18,
+  "counters": {
+    "u_row": 6,
+    "u_column": 7,
+    "u_content_text": 9,
+    "u_content_heading": 5,
+    "u_content_image": 3
+  },
+  "body": {
+    "id": "studio-get-out-there-body",
+    "rows": [
+      {
+        "id": "studio-get-out-there-1",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-get-out-there-2",
+            "contents": [
+              {
+                "id": "studio-get-out-there-3",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_1",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://example.com\" style=\"color:#EC5A24;\">View in browser</a>",
+                  "fontSize": "11px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#EC5A24",
+                  "textAlign": "right",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 24px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_1",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#1E1A4A",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_1",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-get-out-there-4",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-get-out-there-5",
+            "contents": [
+              {
+                "id": "studio-get-out-there-6",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_1",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "✦ VISIT<br>HIGH DESERT ✦",
+                  "fontSize": "24px",
+                  "fontFamily": {
+                    "label": "Arial Black",
+                    "value": "arial black,avant garde,arial"
+                  },
+                  "color": "#1E1A4A",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "24px 40px",
+                  "headingType": "h2"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_2",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#B4E2E2",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_2",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-get-out-there-7",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-get-out-there-8",
+            "contents": [
+              {
+                "id": "studio-get-out-there-9",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&h=560&q=85",
+                    "width": 1200,
+                    "height": 560,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "A desert road through red rock",
+                  "textAlign": "center",
+                  "containerPadding": "0px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-get-out-there-10",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_2",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "GET A LITTLE<br>LOST OUT HERE.",
+                  "fontSize": "46px",
+                  "fontFamily": {
+                    "label": "Arial Black",
+                    "value": "arial black,avant garde,arial"
+                  },
+                  "color": "#EC5A24",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "8px 40px 8px",
+                  "headingType": "h1"
+                }
+              },
+              {
+                "id": "studio-get-out-there-11",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_3",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Welcome to the High Desert.",
+                  "fontSize": "28px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#EC5A24",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "16px 40px 8px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-get-out-there-12",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Psst… you there. Fancy a wander?<br><br>The best trip ideas for the region are coming soon to your inbox:<br><br>☐ Tips from people who live here<br>☐ Local events and places you won’t find anywhere else<br>☐ Road-trip guides and two-day plans<br><br>Plus a whole lot more.",
+                  "fontSize": "15px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1A1A1A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px"
+                }
+              },
+              {
+                "id": "studio-get-out-there-13",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_3",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://example.com\" style=\"background:#EC5A24;color:#FFFFFF;padding:12px 22px;border-radius:4px;text-decoration:none;font-weight:bold\">GET FREE TRAVEL GUIDES</a>",
+                  "fontSize": "15px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#FFFFFF",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "16px 40px 36px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_3",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_3",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-get-out-there-14",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-get-out-there-15",
+            "contents": [
+              {
+                "id": "studio-get-out-there-16",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_2",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&h=560&q=85",
+                    "width": 1200,
+                    "height": 560,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "Sunlight across a green valley",
+                  "textAlign": "center",
+                  "containerPadding": "0px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-get-out-there-17",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_4",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "GO WHERE? FRESH AIR.<br>OUT THERE.",
+                  "fontSize": "30px",
+                  "fontFamily": {
+                    "label": "Arial Black",
+                    "value": "arial black,avant garde,arial"
+                  },
+                  "color": "#FFFFFF",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "16px 40px 4px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-get-out-there-18",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_4",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"background:#EC5A24;padding:8px 16px;color:#FFFFFF;font-weight:bold\">GET TRIP TIPS ▶</span>",
+                  "fontSize": "13px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#FFFFFF",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 40px 28px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_4",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#1E1A4A",
+          "padding": "16px 0px 0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_4",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-get-out-there-19",
+        "cells": [
+          1,
+          2
+        ],
+        "columns": [
+          {
+            "id": "studio-get-out-there-20",
+            "contents": [
+              {
+                "id": "studio-get-out-there-21",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_3",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "/assets/template-starters/illustrations/map-outline.png",
+                    "width": 1200,
+                    "height": 600,
+                    "autoWidth": false,
+                    "maxWidth": "120px"
+                  },
+                  "altText": "A folded map",
+                  "textAlign": "center",
+                  "containerPadding": "36px 8px 36px 40px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_5",
+                "htmlClassNames": "u_column"
+              }
+            }
+          },
+          {
+            "id": "studio-get-out-there-22",
+            "contents": [
+              {
+                "id": "studio-get-out-there-23",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_5",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "READY TO START PLANNING?",
+                  "fontSize": "30px",
+                  "fontFamily": {
+                    "label": "Arial Black",
+                    "value": "arial black,avant garde,arial"
+                  },
+                  "color": "#1E1A4A",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "36px 40px 8px 8px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-get-out-there-24",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_5",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>GET YOUR FREE GUIDE →</strong>",
+                  "fontSize": "16px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1E1A4A",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px 36px 8px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_6",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#B4E2E2",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_5",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-get-out-there-25",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-get-out-there-26",
+            "contents": [
+              {
+                "id": "studio-get-out-there-27",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_6",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Thanks for signing up for emails from Visit High Desert.",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#1E1A4A",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-get-out-there-28",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_7",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Got this from a friend? <strong><a href=\"https://example.com\" style=\"color:#1E1A4A;\">Subscribe here</a></strong>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#1E1A4A",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-get-out-there-29",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_8",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Visit High Desert · 12 Example Street, Your City · <a href=\"https://example.com\" style=\"color:inherit\">Unsubscribe</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#1E1A4A",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-get-out-there-30",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_9",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://xem.email\" style=\"color:inherit\">Built with Xem</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#1E1A4A",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 48px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_7",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#B4E2E2",
+          "padding": "24px 0px 0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_6",
+            "htmlClassNames": "u_row"
+          }
+        }
+      }
+    ],
+    "headers": [],
+    "footers": [],
+    "values": {
+      "backgroundColor": "#1E1A4A",
+      "contentWidth": "600px",
+      "contentAlign": "center",
+      "fontFamily": {
+        "label": "Arial",
+        "value": "arial,helvetica,sans-serif"
+      },
+      "textColor": "#30332F",
+      "preheaderText": "Trip ideas, local events and road-trip guides are on their way.",
+      "language": {
+        "htmlLang": "en"
+      },
+      "linkStyle": {
+        "body": true,
+        "linkColor": "#514293",
+        "linkHoverColor": "#514293",
+        "linkUnderline": true,
+        "linkHoverUnderline": true
+      },
+      "_meta": {
+        "htmlID": "u_body",
+        "htmlClassNames": "u_body"
+      }
+    }
+  }
+}

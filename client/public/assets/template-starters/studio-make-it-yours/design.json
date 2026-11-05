@@ -1,0 +1,1578 @@
+{
+  "schemaVersion": 18,
+  "counters": {
+    "u_row": 12,
+    "u_column": 17,
+    "u_content_heading": 5,
+    "u_content_image": 5,
+    "u_content_text": 14,
+    "u_content_divider": 2
+  },
+  "body": {
+    "id": "studio-make-it-yours-body",
+    "rows": [
+      {
+        "id": "studio-make-it-yours-1",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-make-it-yours-2",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-3",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_1",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"color:#7B4DFF\">◆</span> blockwise <span style=\"font-weight:normal;color:#8A8A95\">SDK</span>",
+                  "fontSize": "24px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#2B2B33",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "24px 40px",
+                  "headingType": "h2"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_1",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_1",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-make-it-yours-4",
+        "cells": [
+          1,
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-make-it-yours-5",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-6",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_2",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Make the<br><span style=\"color:#7BE0A6\">Blockwise</span><br>editor your own",
+                  "fontSize": "30px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#FFFFFF",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "36px 8px 36px 40px",
+                  "headingType": "h2"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_2",
+                "htmlClassNames": "u_column"
+              }
+            }
+          },
+          {
+            "id": "studio-make-it-yours-7",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-8",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "/assets/template-starters/illustrations/ui-editor.png",
+                    "width": 1200,
+                    "height": 600,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "An editor window with an image block and a stack of content blocks",
+                  "textAlign": "center",
+                  "containerPadding": "16px 24px 16px 0px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_3",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#3A2A8C",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_2",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-make-it-yours-9",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-make-it-yours-10",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-11",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_1",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>Hi there,</strong><br><br>Customers often tell us the best thing about Blockwise is how far they can change it. Here are a few ways to make the editor <strong>look and feel like part of your product</strong>:",
+                  "fontSize": "15px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#2B2B33",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "28px 40px 16px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_4",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_3",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-make-it-yours-12",
+        "cells": [
+          1,
+          5
+        ],
+        "columns": [
+          {
+            "id": "studio-make-it-yours-13",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-14",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_2",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "/assets/template-starters/illustrations/icon-brush.png",
+                    "width": 1200,
+                    "height": 600,
+                    "autoWidth": false,
+                    "maxWidth": "64px"
+                  },
+                  "altText": "A paintbrush",
+                  "textAlign": "center",
+                  "containerPadding": "24px 4px 8px 40px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_5",
+                "htmlClassNames": "u_column"
+              }
+            }
+          },
+          {
+            "id": "studio-make-it-yours-15",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-16",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Level: beginner",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#8A8A95",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "24px 40px 0px 8px"
+                }
+              },
+              {
+                "id": "studio-make-it-yours-17",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_3",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Match the editor to your brand",
+                  "fontSize": "20px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#2B2B33",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "4px 40px 4px 8px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-make-it-yours-18",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_3",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "People shouldn’t feel they’ve left your product to use it.<br><br>Use <a href=\"https://example.com\" style=\"color:#7B4DFF;\">themes</a> for your colours and fonts, or <a href=\"https://example.com\" style=\"color:#7B4DFF;\">custom CSS</a> for full control over the look.",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#2B2B33",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px 24px 8px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_6",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_4",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-make-it-yours-19",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-make-it-yours-20",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-21",
+                "type": "divider",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_divider_1",
+                    "htmlClassNames": "u_content_divider"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "width": "100%",
+                  "border": {
+                    "borderTopWidth": "1px",
+                    "borderTopStyle": "solid",
+                    "borderTopColor": "#E6E6EC"
+                  },
+                  "textAlign": "center",
+                  "containerPadding": "18px 36px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_7",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_5",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-make-it-yours-22",
+        "cells": [
+          1,
+          5
+        ],
+        "columns": [
+          {
+            "id": "studio-make-it-yours-23",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-24",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_3",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "/assets/template-starters/illustrations/icon-toggles.png",
+                    "width": 1200,
+                    "height": 600,
+                    "autoWidth": false,
+                    "maxWidth": "64px"
+                  },
+                  "altText": "A list of switches",
+                  "textAlign": "center",
+                  "containerPadding": "24px 4px 8px 40px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_8",
+                "htmlClassNames": "u_column"
+              }
+            }
+          },
+          {
+            "id": "studio-make-it-yours-25",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-26",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_4",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Level: intermediate",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#8A8A95",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "24px 40px 0px 8px"
+                }
+              },
+              {
+                "id": "studio-make-it-yours-27",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_4",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Choose which features to switch on (or off)",
+                  "fontSize": "20px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#2B2B33",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "4px 40px 4px 8px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-make-it-yours-28",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_5",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Want <a href=\"https://example.com\" style=\"color:#7B4DFF;\">mobile editing</a>? Don’t want people pasting raw HTML? Tick a box in the <a href=\"https://example.com\" style=\"color:#7B4DFF;\">developer console</a>.<br><br>Language, sidebar position and much more live in your <a href=\"https://example.com\" style=\"color:#7B4DFF;\">config file</a>.",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#2B2B33",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px 24px 8px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_9",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_6",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-make-it-yours-29",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-make-it-yours-30",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-31",
+                "type": "divider",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_divider_2",
+                    "htmlClassNames": "u_content_divider"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "width": "100%",
+                  "border": {
+                    "borderTopWidth": "1px",
+                    "borderTopStyle": "solid",
+                    "borderTopColor": "#E6E6EC"
+                  },
+                  "textAlign": "center",
+                  "containerPadding": "18px 36px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_10",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_7",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-make-it-yours-32",
+        "cells": [
+          1,
+          5
+        ],
+        "columns": [
+          {
+            "id": "studio-make-it-yours-33",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-34",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_4",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "/assets/template-starters/illustrations/icon-blocks.png",
+                    "width": 1200,
+                    "height": 600,
+                    "autoWidth": false,
+                    "maxWidth": "64px"
+                  },
+                  "altText": "Coloured building blocks",
+                  "textAlign": "center",
+                  "containerPadding": "24px 4px 8px 40px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_11",
+                "htmlClassNames": "u_column"
+              }
+            }
+          },
+          {
+            "id": "studio-make-it-yours-35",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-36",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_6",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Level: advanced",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#8A8A95",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "24px 40px 0px 8px"
+                }
+              },
+              {
+                "id": "studio-make-it-yours-37",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_5",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Build your own content blocks",
+                  "fontSize": "20px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#2B2B33",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "4px 40px 4px 8px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-make-it-yours-38",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_7",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Custom blocks let people pull in content from your own product: a catalogue item, an event ticket, a booking link.<br><br><a href=\"https://example.com\" style=\"color:#7B4DFF;\">More about custom blocks →</a>",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#2B2B33",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px 24px 8px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_12",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_8",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-make-it-yours-39",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-make-it-yours-40",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-41",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_8",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"display:block;border:1px solid #CFC6F2;border-left:4px solid #7B4DFF;border-radius:10px;padding:20px 24px\"><strong style=\"font-size:19px;color:#3A2A8C\">Create an app, then customise it</strong><br><br>Start in the <a href=\"https://example.com\" style=\"color:#7B4DFF;\">developer console</a> and press Activate. That one step unlocks the builders, and the <a href=\"https://example.com\" style=\"color:#7B4DFF;\">quickstart guides</a> take it from there.</span>",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#2B2B33",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_13",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_9",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-make-it-yours-42",
+        "cells": [
+          1,
+          8
+        ],
+        "columns": [
+          {
+            "id": "studio-make-it-yours-43",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-44",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_5",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "/assets/template-starters/illustrations/icon-chat.png",
+                    "width": 1200,
+                    "height": 600,
+                    "autoWidth": false,
+                    "maxWidth": "36px"
+                  },
+                  "altText": "A chat bubble",
+                  "textAlign": "center",
+                  "containerPadding": "20px 4px 8px 40px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_14",
+                "htmlClassNames": "u_column"
+              }
+            }
+          },
+          {
+            "id": "studio-make-it-yours-45",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-46",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_9",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Need help making the editor fit? Our team is here.<br><a href=\"https://example.com\" style=\"color:#7B4DFF;\">Book a call</a> or <a href=\"https://example.com\" style=\"color:#7B4DFF;\">reply to this email</a>.",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#2B2B33",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "20px 40px 8px 8px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_15",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_10",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-make-it-yours-47",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-make-it-yours-48",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-49",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_10",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Your partner in building,<br><strong>The Blockwise team</strong>",
+                  "fontSize": "15px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#2B2B33",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "24px 40px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_16",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_11",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-make-it-yours-50",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-make-it-yours-51",
+            "contents": [
+              {
+                "id": "studio-make-it-yours-52",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_11",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "The embeddable editor for software teams.",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#8A8A95",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-make-it-yours-53",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_12",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Blockwise · 12 Example Street, Your City",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#8A8A95",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-make-it-yours-54",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_13",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://example.com\" style=\"color:inherit\">Unsubscribe</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#8A8A95",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-make-it-yours-55",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_14",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://xem.email\" style=\"color:inherit\">Built with Xem</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#8A8A95",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 48px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_17",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F7F6FB",
+          "padding": "24px 0px 0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_12",
+            "htmlClassNames": "u_row"
+          }
+        }
+      }
+    ],
+    "headers": [],
+    "footers": [],
+    "values": {
+      "backgroundColor": "#F7F6FB",
+      "contentWidth": "600px",
+      "contentAlign": "center",
+      "fontFamily": {
+        "label": "Arial",
+        "value": "arial,helvetica,sans-serif"
+      },
+      "textColor": "#30332F",
+      "preheaderText": "Themes, feature switches and custom blocks.",
+      "language": {
+        "htmlLang": "en"
+      },
+      "linkStyle": {
+        "body": true,
+        "linkColor": "#514293",
+        "linkHoverColor": "#514293",
+        "linkUnderline": true,
+        "linkHoverUnderline": true
+      },
+      "_meta": {
+        "htmlID": "u_body",
+        "htmlClassNames": "u_body"
+      }
+    }
+  }
+}

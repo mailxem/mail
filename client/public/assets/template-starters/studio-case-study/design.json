@@ -1,0 +1,1148 @@
+{
+  "schemaVersion": 18,
+  "counters": {
+    "u_row": 5,
+    "u_column": 5,
+    "u_content_heading": 5,
+    "u_content_text": 8,
+    "u_content_image": 5,
+    "u_content_button": 4
+  },
+  "body": {
+    "id": "studio-case-study-body",
+    "rows": [
+      {
+        "id": "studio-case-study-1",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-case-study-2",
+            "contents": [
+              {
+                "id": "studio-case-study-3",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_1",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "The — Letterform",
+                  "fontSize": "18px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#111111",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "32px 40px",
+                  "headingType": "h2"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_1",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_1",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-case-study-4",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-case-study-5",
+            "contents": [
+              {
+                "id": "studio-case-study-6",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_1",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "CASE STUDY",
+                  "fontSize": "11px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#111111",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "36px 40px 4px"
+                }
+              },
+              {
+                "id": "studio-case-study-7",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_2",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Club badges that don’t pretend to be a hundred years old",
+                  "fontSize": "28px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#111111",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "4px 48px 16px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-case-study-8",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1200&h=560&q=85",
+                    "width": 1200,
+                    "height": 560,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "A cheering crowd",
+                  "textAlign": "center",
+                  "containerPadding": "0px 40px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-case-study-9",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "A new six-team league asked a small studio for badges that felt like real sports crests but looked like they belonged on the street, not in a museum. Each club got a monogram that locks into the others, and the same system runs across shirts, tickets and signage.",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#555555",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "16px 40px 8px"
+                }
+              },
+              {
+                "id": "studio-case-study-10",
+                "type": "button",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_button_1",
+                    "htmlClassNames": "u_content_button"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "CONTINUE READING",
+                  "href": {
+                    "name": "web",
+                    "attrs": {
+                      "href": "{{href}}",
+                      "target": "{{target}}"
+                    },
+                    "values": {
+                      "href": "https://example.com",
+                      "target": "_blank"
+                    }
+                  },
+                  "buttonColors": {
+                    "color": "#FFFFFF",
+                    "backgroundColor": "#2A2AE0",
+                    "hoverColor": "#FFFFFF",
+                    "hoverBackgroundColor": "#2A2AE0"
+                  },
+                  "size": {
+                    "autoWidth": true,
+                    "width": "100%"
+                  },
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "fontSize": "12px",
+                  "lineHeight": "140%",
+                  "textAlign": "center",
+                  "padding": "10px 22px",
+                  "border": {},
+                  "borderRadius": "999px",
+                  "containerPadding": "12px 40px 32px"
+                }
+              },
+              {
+                "id": "studio-case-study-11",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_2",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1200&h=560&q=85",
+                    "width": 1200,
+                    "height": 560,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "A group of road cyclists racing",
+                  "textAlign": "center",
+                  "containerPadding": "0px 40px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-case-study-12",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_3",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "“A badge isn’t just a logo on a shirt. It becomes part of the whole kit language.”",
+                  "fontSize": "24px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#888888",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "24px 56px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-case-study-13",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_3",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=1200&h=560&q=85",
+                    "width": 1200,
+                    "height": 560,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "An audience in a large hall",
+                  "textAlign": "center",
+                  "containerPadding": "0px 40px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-case-study-14",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_3",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Client: Northside Sevens<br>Design: Studio Kettle",
+                  "fontSize": "11px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#888888",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 40px 8px"
+                }
+              },
+              {
+                "id": "studio-case-study-15",
+                "type": "button",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_button_2",
+                    "htmlClassNames": "u_content_button"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "READ THE CASE STUDY",
+                  "href": {
+                    "name": "web",
+                    "attrs": {
+                      "href": "{{href}}",
+                      "target": "{{target}}"
+                    },
+                    "values": {
+                      "href": "https://example.com",
+                      "target": "_blank"
+                    }
+                  },
+                  "buttonColors": {
+                    "color": "#FFFFFF",
+                    "backgroundColor": "#2A2AE0",
+                    "hoverColor": "#FFFFFF",
+                    "hoverBackgroundColor": "#2A2AE0"
+                  },
+                  "size": {
+                    "autoWidth": true,
+                    "width": "100%"
+                  },
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "fontSize": "12px",
+                  "lineHeight": "140%",
+                  "textAlign": "center",
+                  "padding": "10px 22px",
+                  "border": {},
+                  "borderRadius": "999px",
+                  "containerPadding": "8px 40px 24px"
+                }
+              },
+              {
+                "id": "studio-case-study-16",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_4",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://example.com\" style=\"color:#2A2AE0;\">GET FEATURED LIKE THIS ↗</a>",
+                  "fontSize": "11px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#2A2AE0",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 40px 40px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_2",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F5F5F5",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_2",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-case-study-17",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-case-study-18",
+            "contents": [
+              {
+                "id": "studio-case-study-19",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_4",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "SEE MORE FROM<br>STUDIO KETTLE",
+                  "fontSize": "26px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#FFFFFF",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "48px 40px 24px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-case-study-20",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_4",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&w=1200&h=560&q=85",
+                    "width": 1200,
+                    "height": 560,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "A wave breaking at sunset",
+                  "textAlign": "center",
+                  "containerPadding": "0px 40px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-case-study-21",
+                "type": "button",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_button_3",
+                    "htmlClassNames": "u_content_button"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "READ THE CASE STUDY",
+                  "href": {
+                    "name": "web",
+                    "attrs": {
+                      "href": "{{href}}",
+                      "target": "{{target}}"
+                    },
+                    "values": {
+                      "href": "https://example.com",
+                      "target": "_blank"
+                    }
+                  },
+                  "buttonColors": {
+                    "color": "#FFFFFF",
+                    "backgroundColor": "#2A2AE0",
+                    "hoverColor": "#FFFFFF",
+                    "hoverBackgroundColor": "#2A2AE0"
+                  },
+                  "size": {
+                    "autoWidth": true,
+                    "width": "100%"
+                  },
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "fontSize": "12px",
+                  "lineHeight": "140%",
+                  "textAlign": "center",
+                  "padding": "10px 22px",
+                  "border": {},
+                  "borderRadius": "999px",
+                  "containerPadding": "20px 40px 24px"
+                }
+              },
+              {
+                "id": "studio-case-study-22",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_5",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&h=560&q=85",
+                    "width": 1200,
+                    "height": 560,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "A desert road through red rock",
+                  "textAlign": "center",
+                  "containerPadding": "0px 40px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-case-study-23",
+                "type": "button",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_button_4",
+                    "htmlClassNames": "u_content_button"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "READ THE CASE STUDY",
+                  "href": {
+                    "name": "web",
+                    "attrs": {
+                      "href": "{{href}}",
+                      "target": "{{target}}"
+                    },
+                    "values": {
+                      "href": "https://example.com",
+                      "target": "_blank"
+                    }
+                  },
+                  "buttonColors": {
+                    "color": "#FFFFFF",
+                    "backgroundColor": "#2A2AE0",
+                    "hoverColor": "#FFFFFF",
+                    "hoverBackgroundColor": "#2A2AE0"
+                  },
+                  "size": {
+                    "autoWidth": true,
+                    "width": "100%"
+                  },
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "fontSize": "12px",
+                  "lineHeight": "140%",
+                  "textAlign": "center",
+                  "padding": "10px 22px",
+                  "border": {},
+                  "borderRadius": "999px",
+                  "containerPadding": "20px 40px 24px"
+                }
+              },
+              {
+                "id": "studio-case-study-24",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_5",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://example.com\" style=\"color:#FFFFFF;\">GET FEATURED LIKE THIS ↗</a>",
+                  "fontSize": "11px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#FFFFFF",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 40px 48px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_3",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#000000",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_3",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-case-study-25",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-case-study-26",
+            "contents": [
+              {
+                "id": "studio-case-study-27",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_5",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "T—L",
+                  "fontSize": "120px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#111111",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "24px 40px 0px",
+                  "headingType": "h1"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_4",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_4",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-case-study-28",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-case-study-29",
+            "contents": [
+              {
+                "id": "studio-case-study-30",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_6",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "The Letterform · 12 Example Street, Your City",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#888888",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-case-study-31",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_7",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://example.com\" style=\"color:#2A2AE0\">Unsubscribe</a> · <a href=\"https://example.com\" style=\"color:#2A2AE0\">Manage preferences</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#888888",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-case-study-32",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_8",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://xem.email\" style=\"color:inherit\">Built with Xem</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#888888",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 48px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_5",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "24px 0px 0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_5",
+            "htmlClassNames": "u_row"
+          }
+        }
+      }
+    ],
+    "headers": [],
+    "footers": [],
+    "values": {
+      "backgroundColor": "#FFFFFF",
+      "contentWidth": "600px",
+      "contentAlign": "center",
+      "fontFamily": {
+        "label": "Arial",
+        "value": "arial,helvetica,sans-serif"
+      },
+      "textColor": "#30332F",
+      "preheaderText": "Six clubs, one shared system, and no fake history.",
+      "language": {
+        "htmlLang": "en"
+      },
+      "linkStyle": {
+        "body": true,
+        "linkColor": "#514293",
+        "linkHoverColor": "#514293",
+        "linkUnderline": true,
+        "linkHoverUnderline": true
+      },
+      "_meta": {
+        "htmlID": "u_body",
+        "htmlClassNames": "u_body"
+      }
+    }
+  }
+}
