@@ -7,7 +7,7 @@ import {
 
 import { workspaceClassName } from "@/lib/workspace-styles";
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import EmailEditor, { EditorRef, EmailEditorProps } from "react-email-editor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,6 +76,9 @@ export function TemplateEditor({
   }, []);
   const [isSaving, setIsSaving] = useState(false);
   const [editorReady, setEditorReady] = useState(false);
+  // Counts finished design loads, so a design built in the browser can wait for
+  // the editor before its HTML is exported.
+  const loads = useRef(0);
   const [designLoading, setDesignLoading] = useState(false);
   const [designError, setDesignError] = useState("");
   const [designAttempt, setDesignAttempt] = useState(0);
@@ -95,9 +98,12 @@ export function TemplateEditor({
     designJson: "",
   });
 
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState(
-    starterKey ? "design" : "settings",
+    starterKey || searchParams.get("tab") === "design" ? "design" : "settings",
   );
+  const activeTabRef = useRef(activeTab);
+  activeTabRef.current = activeTab;
   const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
   const [showTestEmailDialog, setShowTestEmailDialog] = useState(false);
   const categoriesQuery = useQuery({
@@ -182,6 +188,7 @@ export function TemplateEditor({
     const editor = emailEditorRef.current?.editor;
     let timeout: ReturnType<typeof setTimeout> | undefined;
     const loaded = () => {
+      loads.current++;
       if (!controller.signal.aborted) {
         setDesignLoading(false);
         setDesignError("");
@@ -330,7 +337,11 @@ export function TemplateEditor({
     setTemplate(saved);
     queryClient.setQueryData(["template", team?.id, result.id], saved);
     void queryClient.invalidateQueries({ queryKey: ["templates"] });
-    if (templateId === "new") router.replace(`/templates/${result.id}/edit`);
+    // Stay on the design canvas when a new template is first saved from it.
+    if (templateId === "new")
+      router.replace(
+        `/templates/${result.id}/edit${activeTabRef.current === "design" ? "?tab=design" : ""}`,
+      );
   };
   const handleSave = async () => {
     if (saving.current) return;
@@ -380,15 +391,30 @@ export function TemplateEditor({
     undoDesign.current = previous;
     undoRevision.current = null;
     const design = structuredClone(draft.design!);
+    const before = loads.current;
     setTemplate((current) => ({
       ...current,
       subject: draft.subject,
       design,
-      html: draft.previewHtml,
+      html: draft.previewHtml ?? current.html,
     }));
     setActiveTab("design");
     revision.current++;
     try {
+      if (!draft.previewHtml) {
+        // Designs assembled in the browser have no server HTML: let the editor
+        // render them, then export what will actually be sent.
+        const started = Date.now();
+        while (loads.current === before) {
+          if (Date.now() - started > 25000)
+            throw new Error("The editor didn’t finish loading the new design. Your previous version is still saved.");
+          await new Promise((r) => setTimeout(r, 150));
+        }
+        await new Promise((r) => setTimeout(r, 300));
+        const exported = await live.current.exportTemplate();
+        await persist(exported.html, exported.design, draft.subject, true);
+        return;
+      }
       await persist(draft.previewHtml!, design, draft.subject, true);
     } finally {
       saving.current = false;

@@ -13,6 +13,9 @@ export interface EmailDraft {
   images?: { url: string; alt: string }[];
   design?: { schemaVersion: number; body: { rows: unknown[] }; [key: string]: unknown };
   previewHtml?: string;
+  preheader?: string;
+  copy?: Record<string, string>;
+  remove?: string[];
 }
 export function EmailWriter({ subject = "", body = "", format = "text", onApply, applyLabel = "Use draft" }: {
   subject?: string; body?: string; format?: "text" | "design";
