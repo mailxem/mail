@@ -170,7 +170,7 @@ def preview_for(t,d):
    tag=v.get('headingType','div') if typ=='heading' else 'div'
    inside=f'<{tag} style="margin:0;{common}font-weight:{"700" if typ=="heading" else "400"}">{v["text"]}</{tag}>'
   elif typ=='image': inside=f'<img src="{html.escape(v["src"]["url"],quote=True)}" alt="{html.escape(v["altText"],quote=True)}" width="600" style="display:block;width:100%;max-width:{v["src"].get("maxWidth","100%")};height:auto;border:0;margin:{"0 auto" if align=="center" else "0"}">'
-  elif typ=='button': inside=f'<div style="text-align:{align}"><a href="{html.escape(v["href"]["values"]["href"],quote=True)}" style="{common}display:inline-block;padding:{v["padding"]};border-radius:{v["borderRadius"]};background:{v["buttonColors"]["backgroundColor"]};color:{v["buttonColors"]["color"]};font-weight:600;text-decoration:none">{v["text"]}</a></div>'
+  elif typ=='button': inside=f'<div style="text-align:{align}"><a href="{html.escape(v["href"]["values"]["href"],quote=True)}" style="{common}display:inline-block;padding:{v["padding"]};border-radius:{v["borderRadius"]};{"border:"+v["border"]["borderTopWidth"]+" solid "+v["border"]["borderTopColor"]+";" if v.get("border",{}).get("borderTopWidth") else ""}background:{v["buttonColors"]["backgroundColor"]};color:{v["buttonColors"]["color"]};font-weight:600;text-decoration:none">{v["text"]}</a></div>'
   elif typ=='divider': inside=f'<div style="border-top:1px solid {v["border"]["borderTopColor"]}"></div>'
   else: raise ValueError(typ)
   return f'<div style="padding:{pad}">{inside}</div>'

@@ -74,16 +74,16 @@ describe("native starter library", () => {
   });
   it("filters by category, content and collection together", () => {
     const found = filterTemplateStarters(
-      "Newsletters",
-      "recipe",
-      "Editorial collection",
+      "Events",
+      "conference",
+      "Studio collection",
     );
     expect(found.length).toBeGreaterThan(0);
     expect(
       found.every(
         (s) =>
-          s.category === "Newsletters" &&
-          s.collection === "Editorial collection",
+          s.category === "Events" &&
+          s.collection === "Studio collection",
       ),
     ).toBe(true);
     expect(
@@ -92,7 +92,7 @@ describe("native starter library", () => {
       ),
     ).toContain("greenhouse-welcome");
     expect(
-      filterTemplateStarters("Commerce", "", "Editorial collection"),
+      filterTemplateStarters("Transactional", "conference", "Studio collection"),
     ).toHaveLength(0);
   });
   it("resolves only bundled assets without mutating a cached design", () => {

@@ -37,19 +37,4 @@ const whenToUse: Record<string, string> = {
     "Use it for people who have stopped opening your emails, before you remove them from your list.",
 };
 
-// Editorial collection subjects, as they read in a sentence.
-const topics: Record<string, string> = {
-  places: "travel",
-  work: "work and product",
-  home: "home and interiors",
-};
-
-export function usage(t: GalleryTemplate) {
-  const topic =
-    t.collection === "Editorial collection"
-      ? (topics[t.tags[0]] ?? t.tags[0])
-      : undefined;
-  return topic
-    ? `${whenToUse[t.category]} The sample copy is written for a ${topic} newsletter; swap in your own stories and photos.`
-    : whenToUse[t.category];
-}
+export const usage = (t: GalleryTemplate) => whenToUse[t.category];
