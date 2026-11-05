@@ -1,19 +1,20 @@
 package tasks
 
 import (
+	"kori/internal/affiliates"
 	"bytes"
 	"context"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"os"
-	"time"
 	"github.com/google/uuid"
 	"kori/internal/config"
 	"kori/internal/models"
 	"kori/internal/utils"
 	"kori/internal/utils/base64"
 	"kori/internal/utils/logger"
+	"os"
+	"time"
 
 	"gorm.io/gorm"
 
@@ -261,6 +262,7 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 
 	// Create emails for each contact
 	emails := make([]*models.Email, len(contacts))
+	badge := affiliates.Badge(ctx, h.db, campaign.TeamID)
 	for i, contact := range contacts {
 		// default variables
 		defaultVariables := make(map[string]string)
@@ -296,7 +298,7 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		// A campaign goes to a list, so it's marketing: every email gets an
 		// unsubscribe footer and the one-click header that managed sending,
 		// Gmail and Yahoo require.
-		parsedBody := utils.ReplaceVariables(htmlFromTemplate, variables, messageID, h.cfg, true, true)
+		parsedBody := utils.ReplaceVariables(affiliates.WithBadge(htmlFromTemplate, badge), variables, messageID, h.cfg, true, true)
 		unsubscribe, err := utils.UnsubscribeLink(messageID, h.cfg)
 		if err != nil {
 			return h.logger.Error("❌ failed to sign unsubscribe link: %w", err)

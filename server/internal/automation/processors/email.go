@@ -1,6 +1,8 @@
 package processors
 
 import (
+	"kori/internal/affiliates"
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
@@ -174,6 +176,7 @@ func (p *EmailProcessor) Process(ctx *automation.ExecutionContext, node *models.
 		}
 		unsub = service.PublicURL + "/public/unsubscribe/" + ctx.TeamID + "/" + ctx.ContactID + "/" + service.Token(ctx.TeamID, ctx.ContactID)
 		htmlBody += `<footer style="padding:24px;text-align:center;font:12px Arial">` + html.EscapeString(data.PostalAddress) + `<br><a href="` + unsub + `">Unsubscribe</a></footer>`
+		htmlBody = affiliates.WithBadge(htmlBody, affiliates.Badge(context.Background(), p.db, ctx.TeamID))
 	}
 	parsedBody := utils.ReplaceVariables(htmlBody, bodyVariables, emailID, p.cfg, true, false)
 	parsedSubject := utils.ReplaceVariables(subject, variables, emailID, p.cfg, false, false)

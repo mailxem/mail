@@ -41,6 +41,7 @@ export function PricingCard({
     overage ? `${overage} after that` : "Stops at the limit, no overage",
     isFree ? "Up to 100 emails a day" : "No daily limit",
     isFree ? "No card needed" : "7-day free trial",
+    isFree ? "“Sent with Xem” link under each email" : "No Xem link in your emails",
   ];
 
   return (

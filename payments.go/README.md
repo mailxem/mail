@@ -93,6 +93,19 @@ curl -X POST -H "X-API-Key: $PAYMENTS_INTERNAL_KEY" -H "content-type: applicatio
 Recording a payout marks every unlocked commission as paid and subtracts
 commissions that were paid earlier and then refunded.
 
+#### "Sent with Xem" and the referral discount
+
+Emails sent by Free workspaces end with a "Sent with Xem" link carrying the
+workspace owner's referral code (the owner becomes an affiliate on first send).
+Like Mailchimp's badge, it rewards both sides:
+
+- the sender earns 30% of what anyone who signs up through it pays;
+- the new customer gets a discount, if `REFERRAL_DISCOUNT_CODE` names a
+  discount code created in Dodo (for example 100% off the first month). At
+  checkout this service asks the API (`GET /internal/affiliates/referrals/:team`)
+  whether the workspace was referred and applies the code if so. Without the
+  setting, or if the lookup fails, checkout goes ahead without a discount.
+
 ## API Endpoints
 
 ### Subscriptions

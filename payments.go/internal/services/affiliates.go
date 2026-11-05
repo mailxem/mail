@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -88,4 +89,42 @@ func (a *AffiliateReporter) Payment(ctx context.Context, teamID string, p *model
 // Reversal reports a refunded or disputed payment.
 func (a *AffiliateReporter) Reversal(ctx context.Context, paymentID string) error {
 	return a.post(ctx, "/internal/affiliates/reversals", map[string]string{"payment_id": paymentID})
+}
+
+// Referred reports whether a workspace signed up through an affiliate or a
+// "Sent with Xem" badge, so its checkout can carry the referral discount.
+func (a *AffiliateReporter) Referred(ctx context.Context, teamID string) (bool, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, a.URL+"/internal/affiliates/referrals/"+url.PathEscape(teamID), nil)
+	if err != nil {
+		return false, err
+	}
+	req.Header.Set("X-API-Key", a.Key)
+	res, err := a.HTTP.Do(req)
+	if err != nil {
+		return false, err
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return false, fmt.Errorf("affiliate referral lookup returned %d", res.StatusCode)
+	}
+	var body struct {
+		Referred bool `json:"referred"`
+	}
+	if err := json.NewDecoder(res.Body).Decode(&body); err != nil {
+		return false, err
+	}
+	return body.Referred, nil
+}
+
+// referralDiscount is the Dodo discount code for referred workspaces, or ""
+// when there is none to apply. Lookup failures never block a checkout.
+func referralDiscount(ctx context.Context, teamID string) string {
+	code := os.Getenv("REFERRAL_DISCOUNT_CODE")
+	if code == "" || Affiliates == nil {
+		return ""
+	}
+	if ok, err := Affiliates.Referred(ctx, teamID); err != nil || !ok {
+		return ""
+	}
+	return code
 }
