@@ -2,14 +2,10 @@
 
 import { workspaceClassName } from "@/lib/workspace-styles";
 import { useState } from "react";
-import { PricingCard } from "@/components/billing/pricing-card";
-import { SubscriptionStatus } from "@/components/billing/subscription-status";
-import { UsageDisplay } from "@/components/billing/usage-display";
+import { PricingCard, includedEmails, isFreePlan, isYearlyPlan } from "@/components/billing/pricing-card";
 import { PlanComparison } from "@/components/billing/plan-comparison";
-import { BillingCycleToggle } from "@/components/billing/billing-cycle-toggle";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Metric, FilterTabs, QueryState, Empty } from "@/components/marketing/shared";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,15 +28,10 @@ import {
 import { Plan } from "@/app/lib/payments-client";
 import { useTeam } from "@/app/providers/team-provider";
 import { useSession } from "next-auth/react";
-import {
-  Loader2,
-  CreditCard,
-  History,
-  BarChart3,
-} from "lucide-react";
+import { Loader2, CreditCard, CircleCheck, Mail, CalendarDays, ArrowUpRight } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { FREE_PLAN_ID } from "@/app/lib/constants";
+import { EMAILS_FEATURE, FREE_PLAN_ID } from "@/app/lib/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function BillingPage() {
@@ -62,6 +53,8 @@ export default function BillingPage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
     "monthly",
   );
+
+  const [view, setView] = useState("Plans");
 
   const searchParams = useSearchParams();
   const showComparison = searchParams.get("compare") === "true";
@@ -173,191 +166,108 @@ export default function BillingPage() {
     );
   }
 
-  // Debug: Log plans to console
-  console.log("All plans:", plans);
-  console.log("Current billing cycle:", billingCycle);
-
-  // Filter plans by billing cycle
-  // Show free plans in both views, and filter paid plans by cycle
-  const filteredPlans = plans.filter((plan) => {
-    const isFree = parseFloat(plan.price) === 0;
-    const planCycle = plan.billing_cycle?.toLowerCase();
-    const selectedCycle = billingCycle.toLowerCase();
-
-    // Always show free plans
-    if (isFree) return selectedCycle === "monthly";
-
-    // For paid plans, match billing cycle (handle various formats)
-    return (
-      planCycle === selectedCycle ||
-      planCycle?.includes(selectedCycle) ||
-      (selectedCycle === "monthly" && planCycle?.includes("month")) ||
-      (selectedCycle === "yearly" &&
-        (planCycle?.includes("year") || planCycle?.includes("annual")))
-    );
-  });
-
-  // Debug: Log filtered plans
-  console.log("Filtered plans:", filteredPlans);
-
-  // If no plans match the filter, show all plans (fallback)
-  const displayPlans = filteredPlans.length > 0 ? filteredPlans : plans;
-
-  // Calculate yearly discount (if applicable)
-  const calculateYearlyDiscount = () => {
-    const monthlyPlan = plans.find(
-      (p) => p.billing_cycle === "monthly" && p.price !== "0",
-    );
-    const yearlyPlan = plans.find(
-      (p) => p.billing_cycle === "yearly" && p.price !== "0",
-    );
-
-    if (monthlyPlan && yearlyPlan) {
-      const monthlyAnnual = parseFloat(monthlyPlan.price) * 12;
-      const yearly = parseFloat(yearlyPlan.price);
-      const discount = ((monthlyAnnual - yearly) / monthlyAnnual) * 100;
-      return Math.round(discount);
-    }
-    return 20; // Default discount
-  };
+  const sub = subscription.data;
+  const currentPlan = plans.find((p) => p.id === sub?.plan_id) || sub?.plan;
+  const onPaidPlan = !!sub && sub.plan_id !== FREE_PLAN_ID;
+  const displayPlans = plans.filter((plan) =>
+    isFreePlan(plan) || isYearlyPlan(plan) === (billingCycle === "yearly"),
+  );
+  const included = currentPlan ? includedEmails(currentPlan) : 0;
+  const emailsUsed = (usageStats.data?.feature_usage as Record<string, number> | undefined)?.[EMAILS_FEATURE] ?? 0;
+  const renewal = sub?.trial_ends_at
+    ? { label: "Trial ends", date: sub.trial_ends_at }
+    : sub?.next_billing_date
+      ? { label: "Renews", date: sub.next_billing_date }
+      : null;
 
   return (
-    <div className={workspaceClassName("workspace-page-body space-y-6")}>
-      <Tabs defaultValue="plans" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="plans">
-            <CreditCard className="h-4 w-4 mr-2" />
-            Plans
-          </TabsTrigger>
-          <TabsTrigger value="usage">
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Usage
-          </TabsTrigger>
-          <TabsTrigger value="history">
-            <History className="h-4 w-4 mr-2" />
-            Payment History
-          </TabsTrigger>
-        </TabsList>
+    <div className={workspaceClassName("workspace-page-body")}>
+      <div className={workspaceClassName("metrics-grid")}>
+        <Metric label="Plan" value={currentPlan?.name.replace(/^Xem /, "") || "Free"} icon={<CreditCard />} />
+        <Metric label="Status" value={sub ? sub.status.charAt(0).toUpperCase() + sub.status.slice(1) : "Free"} icon={<CircleCheck />} />
+        <Metric
+          label="Emails this month"
+          value={emailsUsed.toLocaleString("en-US")}
+          detail={included ? `of ${included.toLocaleString("en-US")}${currentPlan && isYearlyPlan(currentPlan) ? " this year" : ""}` : undefined}
+          icon={<Mail />}
+        />
+        <Metric
+          label={renewal?.label || "Renews"}
+          value={renewal ? format(new Date(renewal.date), "MMM d") : "—"}
+          detail={renewal ? format(new Date(renewal.date), "yyyy") : undefined}
+          icon={<CalendarDays />}
+        />
+      </div>
 
-        <TabsContent value="plans" className="space-y-6">
-          <SubscriptionStatus
-            subscription={subscription.data || null}
-            onManageBilling={handleManageBilling}
-            isLoading={customerPortal.isPending}
-          />
-
-          {subscription.data && subscription.data.plan.id !== FREE_PLAN_ID && (
-            <div className="flex justify-end">
-              <Button
-                variant="destructive"
-                onClick={() => setShowCancelDialog(true)}
-              >
-                Cancel Subscription
+      <section className={workspaceClassName("product-panel")}>
+        <div className={workspaceClassName("panel-toolbar")}>
+          <FilterTabs items={["Plans", "Payment history"]} value={view} onChange={setView} />
+          {onPaidPlan && (
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => setShowCancelDialog(true)}>
+                Cancel plan
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleManageBilling} disabled={customerPortal.isPending}>
+                Manage billing <ArrowUpRight className="ml-1 size-3.5" />
               </Button>
             </div>
           )}
+        </div>
 
-          {/* Billing Cycle Toggle */}
-          <BillingCycleToggle
-            cycle={billingCycle}
-            onCycleChange={setBillingCycle}
-            yearlyDiscount={calculateYearlyDiscount()}
-          />
-
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {displayPlans.length > 0 ? (
-              displayPlans.map((plan) => (
+        {view === "Plans" ? (
+          <>
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs text-muted-foreground">
+                Paid plans start with a 7-day free trial. Extra emails are billed per 1,000.
+              </p>
+              <FilterTabs
+                items={["Monthly", "Yearly · 2 months free"]}
+                value={billingCycle === "monthly" ? "Monthly" : "Yearly · 2 months free"}
+                onChange={(v) => setBillingCycle(v === "Monthly" ? "monthly" : "yearly")}
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {displayPlans.map((plan) => (
                 <PricingCard
                   key={plan.id}
                   plan={plan}
-                  currentPlanId={subscription.data?.plan_id}
+                  currentPlanId={sub?.plan_id}
                   onSelectPlan={handleSelectPlan}
-                  isLoading={
-                    updateSubscription.isPending || createCheckout.isPending
-                  }
-                  isPending={subscription.data?.status === "pending"}
+                  isLoading={updateSubscription.isPending || createCheckout.isPending}
+                  isPending={sub?.status === "pending"}
                 />
-              ))
-            ) : (
-              <div className="col-span-full text-center py-12 text-muted-foreground">
-                <p>No plans available for {billingCycle} billing.</p>
-                <p className="text-sm mt-2">
-                  Please try switching to a different billing cycle.
-                </p>
+              ))}
+            </div>
+          </>
+        ) : paymentHistory.isLoading || paymentHistory.error ? (
+          <QueryState loading={paymentHistory.isLoading} error={paymentHistory.error} retry={() => void paymentHistory.refetch()} />
+        ) : !paymentHistory.data?.length ? (
+          <Empty title="No payments yet" description="Invoices show up here after your first charge." />
+        ) : (
+          <div className="divide-y divide-border rounded-xl border border-border">
+            {paymentHistory.data.map((payment) => (
+              <div key={payment.id} className="flex items-center justify-between gap-4 px-4 py-3 text-[13px]">
+                <div>
+                  <p className="font-medium">{payment.description || "Payment"}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {payment.processed_at ? format(new Date(payment.processed_at), "MMM d, yyyy") : "Pending"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={workspaceClassName("status-pill")}>{payment.status}</span>
+                  <span className="tabular-nums font-medium">{formatCurrency(payment.amount, payment.currency)}</span>
+                </div>
               </div>
-            )}
+            ))}
           </div>
-        </TabsContent>
-
-        <TabsContent value="usage" className="space-y-6">
-          <UsageDisplay
-            usageStats={usageStats.data}
-            planFeatures={subscription.data?.plan.features}
-          />
-
-          {!usageStats.data && (
-            <Card className="p-6">
-              <div className="text-center text-muted-foreground">
-                <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No usage data available yet</p>
-              </div>
-            </Card>
-          )}
-        </TabsContent>
-
-        <TabsContent value="history" className="space-y-6">
-          <Card className="p-6">
-            <h3 className="font-semibold text-lg mb-4">Payment History</h3>
-            {paymentHistory.isLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : paymentHistory.data && paymentHistory.data.length > 0 ? (
-              <div className="space-y-4">
-                {paymentHistory.data.map((payment) => (
-                  <div
-                    key={payment.id}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
-                    <div>
-                      <p className="font-medium">
-                        {payment.description || "Payment"}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {payment.processed_at
-                          ? format(
-                              new Date(payment.processed_at),
-                              "MMM d, yyyy",
-                            )
-                          : "Pending"}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold">
-                        {formatCurrency(payment.amount, payment.currency)}
-                      </p>
-                      <p className="text-sm text-muted-foreground capitalize">
-                        {payment.status}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <History className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No payment history available</p>
-              </div>
-            )}
-          </Card>
-        </TabsContent>
-      </Tabs>
+        )}
+      </section>
 
       {/* Plan Change Confirmation Dialog */}
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Plan Change</AlertDialogTitle>
+            <AlertDialogTitle>Change plan?</AlertDialogTitle>
             <AlertDialogDescription>
               {selectedPlan && (
                 <>
@@ -373,7 +283,7 @@ export default function BillingPage() {
                           selectedPlan.currency,
                         )}
                       </strong>{" "}
-                      per {selectedPlan.billing_cycle}.
+                      per {isYearlyPlan(selectedPlan) ? "year" : "month"}.
                     </>
                   )}
                 </>
