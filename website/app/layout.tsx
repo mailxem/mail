@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { DM_Sans, EB_Garamond } from "next/font/google";
 import { siteUrl } from "@/lib/site";
 import "./globals.css";
+import { ReferralCapture } from "@/components/referral-capture";
 const sans = DM_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -54,6 +55,7 @@ export default function RootLayout({
           Skip to content
         </a>
         {children}
+        <ReferralCapture />
       </body>
     </html>
   );

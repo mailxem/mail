@@ -286,6 +286,10 @@ func (s *webhookService) handleDisputeEvent(ctx context.Context, event *models.W
 		"currency":      disputeData.Currency,
 	})
 
+	// A disputed payment earns no affiliate commission, whatever the outcome.
+	if Affiliates != nil && event.Type == "dispute.opened" {
+		return Affiliates.Reversal(ctx, disputeData.PaymentID)
+	}
 	return nil
 }
 
@@ -320,6 +324,22 @@ func (s *webhookService) handlePaymentSucceeded(ctx context.Context, eventID str
 		"amount":     data.TotalAmount,
 		"currency":   data.Currency,
 	})
+	return s.reportAffiliatePayment(ctx, data)
+}
+
+// reportAffiliatePayment credits the referring affiliate, if any. A failure
+// fails the webhook so Dodo retries it; the API ignores repeats.
+func (s *webhookService) reportAffiliatePayment(ctx context.Context, data *models.PaymentWebhookData) error {
+	if Affiliates == nil || data.SubscriptionID == nil || *data.SubscriptionID == "" {
+		return nil
+	}
+	subscription, err := s.linkSubscription(ctx, *data.SubscriptionID, data.Metadata)
+	if err != nil {
+		return fmt.Errorf("affiliate commission: find subscription: %w", err)
+	}
+	if err := Affiliates.Payment(ctx, subscription.TeamID, data); err != nil {
+		return fmt.Errorf("affiliate commission: %w", err)
+	}
 	return nil
 }
 
@@ -607,6 +627,10 @@ func (s *webhookService) handleRefundSucceeded(ctx context.Context, eventID stri
 		"payment_id": data.PaymentID,
 		"amount":     data.Amount,
 	})
+	// A refunded payment earns no affiliate commission.
+	if Affiliates != nil {
+		return Affiliates.Reversal(ctx, data.PaymentID)
+	}
 	return nil
 }
 

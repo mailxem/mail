@@ -99,6 +99,7 @@ export function SiteFooter() {
             <Link href="/#sending">Sending & setup</Link>
             <Link href="/pricing">Pricing</Link>
             <Link href="/compare">Compare Xem</Link>
+            <Link href="/affiliates">Affiliates · earn 30%</Link>
             <Link href="/tools/email-checker">
               Email deliverability checker
             </Link>

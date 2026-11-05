@@ -4,7 +4,8 @@ import { spawnSync } from "node:child_process";
 // Explicit deployment overrides use separate build-only variables.
 const site = new URL(process.env.XEM_BUILD_SITE_URL || "https://xem.email");
 const app = new URL(process.env.XEM_BUILD_APP_URL || "https://app.xem.email");
-for (const url of [site, app]) {
+const api = new URL(process.env.XEM_BUILD_API_URL || "https://api.xem.email");
+for (const url of [site, app, api]) {
   if (url.protocol !== "https:")
     throw new Error("Static deployment URLs must use HTTPS.");
 }
@@ -17,6 +18,7 @@ const result = spawnSync(
       ...process.env,
       NEXT_PUBLIC_SITE_URL: site.origin,
       NEXT_PUBLIC_APP_URL: app.origin,
+      NEXT_PUBLIC_API_URL: api.origin,
       NEXT_TELEMETRY_DISABLED: "1",
     },
   },

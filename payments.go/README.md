@@ -66,6 +66,33 @@ $PAYMENTS_INTERNAL_KEY`, `feature: emails_per_month` and a stable `event_id`.
 A repeated `event_id` is ignored. Paid plans forward the count to the Dodo
 meter with the same ID, so retries are never billed twice.
 
+### Affiliate commissions
+
+Xem Cloud pays affiliates 30% of every plan payment a referred workspace makes,
+for as long as it pays (terms: https://xem.email/affiliates). The Xem API keeps
+the program; this service only reports money movements to it. Set
+`XEM_API_INTERNAL_URL` (the API base, e.g. `http://api:9001/api/v1`) next to
+`PAYMENTS_INTERNAL_KEY`; without it nothing is reported.
+
+- `payment.succeeded` for a subscription sends the payment to
+  `POST /internal/affiliates/payments` with the amount after discounts and
+  without tax, in the settlement currency. Repeats are ignored.
+- `refund.succeeded` and `dispute.opened` send `POST /internal/affiliates/reversals`.
+- If the API can't be reached, the webhook fails and Dodo retries it.
+
+Commissions unlock 60 days after their payment. Payouts are bank transfers made
+by hand at the start of each month. To see who is owed at least $100, then
+record a transfer after making it:
+
+```bash
+curl -H "X-API-Key: $PAYMENTS_INTERNAL_KEY" https://api.xem.email/api/v1/internal/affiliates/payouts/due
+curl -X POST -H "X-API-Key: $PAYMENTS_INTERNAL_KEY" -H "content-type: application/json" \
+  -d '{"currency":"USD"}' https://api.xem.email/api/v1/internal/affiliates/<affiliate_id>/payouts
+```
+
+Recording a payout marks every unlocked commission as paid and subtracts
+commissions that were paid earlier and then refunded.
+
 ## API Endpoints
 
 ### Subscriptions

@@ -299,6 +299,13 @@ func runMigrations() error {
 		&models.Segment{},
 		&models.SegmentContact{},
 
+		// Affiliate program
+		&models.Affiliate{},
+		&models.AffiliateClick{},
+		&models.AffiliateReferral{},
+		&models.AffiliateCommission{},
+		&models.AffiliatePayout{},
+
 		// Lead scoring models
 		&models.LeadScore{},
 		&models.ScoreActivity{},
