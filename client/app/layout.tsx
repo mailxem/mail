@@ -12,6 +12,15 @@ import { cn } from "@/lib/utils";
 import { QueryProvider } from "./providers/query-provider";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
+import { EB_Garamond } from "next/font/google";
+
+// Same editorial serif as the website, for a few display headings.
+const editorial = EB_Garamond({
+  subsets: ["latin"],
+  variable: "--font-editorial",
+  style: ["normal", "italic"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   keywords: [
@@ -121,6 +130,7 @@ export default async function RootLayout({
           "document-theme antialiased bg-background text-foreground font-sans text-sm",
           GeistSans.variable,
           GeistMono.variable,
+          editorial.variable,
         ))}
       >
         <ThemeProvider
