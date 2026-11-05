@@ -11,10 +11,11 @@ const manifest = JSON.parse(
     "utf8",
   ),
 );
-// "Reference designs" recreate other companies' emails, and the `xem-*`
-// starters are Xem's own account notices, so neither is published.
+// Only the hand-built "Xem originals" are published. "Reference designs"
+// recreate other companies' emails, the generated "Editorial collection" is
+// being redesigned, and the `xem-*` starters are Xem's own account notices.
 const gallery = manifest
-  .filter((t) => t.collection !== "Reference designs")
+  .filter((t) => t.collection === "Xem originals")
   .filter((t) => !t.key.startsWith("xem-"))
   .map(
     ({
