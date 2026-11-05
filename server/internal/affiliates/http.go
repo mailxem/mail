@@ -43,6 +43,7 @@ func Register(e *echo.Echo, db *gorm.DB, jwtSecret string) {
 	in := e.Group("/api/v1/internal/affiliates", cloudOnly, em.BodyLimit("16K"), internalKey)
 	in.POST("/payments", h.payment)
 	in.POST("/reversals", h.reversal)
+	in.GET("/referrals/:team", h.referred)
 	in.GET("/payouts/due", h.due)
 	in.POST("/:id/payouts", h.pay)
 }
@@ -187,4 +188,14 @@ func (h *handler) pay(c echo.Context) error {
 		return err
 	}
 	return c.JSON(http.StatusCreated, p)
+}
+
+// referred tells the payments service whether a workspace was referred, so
+// its checkout can carry the referral discount.
+func (h *handler) referred(c echo.Context) error {
+	var n int64
+	if err := h.db.Model(&models.AffiliateReferral{}).Where("team_id = ?", c.Param("team")).Count(&n).Error; err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, map[string]bool{"referred": n > 0})
 }

@@ -46,6 +46,8 @@ type CheckoutRequest struct {
 	// Optional: prefills the address on Dodo's checkout page.
 	BillingDetails    BillingDetails `json:"billing_details"`
 	XemSubscriptionID string         `json:"xem_subscription_id"`
+	// Optional: a Dodo discount code applied to the checkout, e.g. the referral offer.
+	DiscountCode string `json:"discount_code,omitempty"`
 }
 
 // XemSubscriptionIDKey is the checkout metadata key that names our subscription.
@@ -197,6 +199,9 @@ func (c *Client) CreateCheckoutSession(ctx context.Context, req CheckoutRequest)
 			XemSubscriptionIDKey: shared.UnionString(req.XemSubscriptionID),
 			"team_id":            shared.UnionString(req.TeamID),
 		}),
+	}
+	if req.DiscountCode != "" {
+		params.DiscountCode = dodopayments.F(req.DiscountCode)
 	}
 	if req.BillingDetails.Country != "" {
 		params.BillingAddress = dodopayments.F(dodopayments.CheckoutSessionBillingAddressParam{

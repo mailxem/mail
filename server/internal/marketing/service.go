@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"html"
+	"kori/internal/affiliates"
 	"net/mail"
 	"strings"
 	"time"
@@ -201,6 +202,13 @@ func personalize(body string, c models.Contact) string {
 
 // PrepareEdition builds bounded batches with a stable cursor and a unique delivery key.
 func (s *Service) PrepareEdition(ctx context.Context, id string) error {
+	// Built before the transaction: it may look up the plan and create the
+	// sender's referral code, and must not hold or wait on the send's connection.
+	var team string
+	if err := s.DB.WithContext(ctx).Model(&models.Campaign{}).Where("id = ?", id).Pluck("team_id", &team).Error; err != nil {
+		return err
+	}
+	badge := affiliates.Badge(ctx, s.DB, team)
 	return s.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var c models.Campaign
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ? AND newsletter_id IS NOT NULL", id).First(&c).Error; err != nil {
@@ -235,7 +243,7 @@ func (s *Service) PrepareEdition(ctx context.Context, id string) error {
 			key := c.ID + ":" + contact.ID
 			messageID := uuid.NewString()
 			unsub := s.PublicURL + "/public/unsubscribe/" + c.TeamID + "/" + contact.ID + "/" + s.MessageToken(c.TeamID, contact.ID, messageID) + "?message=" + messageID
-			body := personalize(c.HTMLBody, contact) + `<footer style="padding:24px;text-align:center;color:#71717a;font:12px Arial">` + html.EscapeString(c.PostalAddress) + `<br><a href="` + unsub + `">Unsubscribe</a></footer>`
+			body := personalize(c.HTMLBody, contact) + `<footer style="padding:24px;text-align:center;color:#71717a;font:12px Arial">` + html.EscapeString(c.PostalAddress) + `<br><a href="` + unsub + `">Unsubscribe</a></footer>` + badge
 			body = utils.TrackEmailHTML(body, messageID, s.PublicURL, s.Secret)
 			tracking := true
 			email := models.Email{Base: models.Base{ID: messageID}, ClickTrackingEnabled: &tracking, DeliveryKey: &key, UnsubscribeURL: unsub, From: sender.FromEmail, To: contact.Email, Subject: personalize(c.Subject, contact), Body: base64.StdEncoding.EncodeToString([]byte(body)), Status: models.EmailStatusPending, TeamID: c.TeamID, ContactID: contact.ID, TemplateID: c.TemplateID, SMTPConfigID: c.SMTPConfigID, CategoryID: tpl.CategoryID, CampaignID: c.ID}

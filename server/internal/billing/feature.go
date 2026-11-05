@@ -1,6 +1,7 @@
 package billing
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -23,4 +24,16 @@ func PaidOnly(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		return next(c)
 	}
+}
+
+// IsFree reports whether a Cloud workspace is on the Free plan. It is false
+// when billing is off (self-hosted) or the plan can't be looked up, so callers
+// never treat a paying or unknown workspace as Free.
+func IsFree(ctx context.Context, team string) bool {
+	r := active
+	if !Enabled || r == nil || team == "" {
+		return false
+	}
+	plan, err := r.plan(ctx, team)
+	return err == nil && plan.free
 }

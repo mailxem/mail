@@ -48,3 +48,40 @@ func TestAffiliateReporterErrorsSoTheWebhookIsRetried(t *testing.T) {
 		t.Fatal("expected an error")
 	}
 }
+
+func TestReferralDiscountOnlyForReferredWorkspaces(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("X-API-Key") != "k" {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		switch r.URL.Path {
+		case "/internal/affiliates/referrals/referred":
+			_, _ = w.Write([]byte(`{"referred":true}`))
+		case "/internal/affiliates/referrals/direct":
+			_, _ = w.Write([]byte(`{"referred":false}`))
+		default:
+			w.WriteHeader(http.StatusBadGateway)
+		}
+	}))
+	defer srv.Close()
+	old := Affiliates
+	t.Cleanup(func() { Affiliates = old })
+	Affiliates = &AffiliateReporter{URL: srv.URL, Key: "k", HTTP: srv.Client()}
+	ctx := context.Background()
+
+	t.Setenv("REFERRAL_DISCOUNT_CODE", "")
+	if got := referralDiscount(ctx, "referred"); got != "" {
+		t.Fatalf("no code configured, got %q", got)
+	}
+	t.Setenv("REFERRAL_DISCOUNT_CODE", "FRIEND")
+	if got := referralDiscount(ctx, "referred"); got != "FRIEND" {
+		t.Fatalf("referred workspace got %q", got)
+	}
+	if got := referralDiscount(ctx, "direct"); got != "" {
+		t.Fatalf("direct sign-up got %q", got)
+	}
+	if got := referralDiscount(ctx, "broken"); got != "" {
+		t.Fatalf("a failed lookup must not apply a discount, got %q", got)
+	}
+}

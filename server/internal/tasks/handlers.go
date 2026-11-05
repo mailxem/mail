@@ -1,19 +1,20 @@
 package tasks
 
 import (
+	"kori/internal/affiliates"
 	"bytes"
 	"context"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"os"
-	"time"
 	"github.com/google/uuid"
 	"kori/internal/config"
 	"kori/internal/models"
 	"kori/internal/utils"
 	"kori/internal/utils/base64"
 	"kori/internal/utils/logger"
+	"os"
+	"time"
 
 	"gorm.io/gorm"
 
@@ -261,6 +262,7 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 
 	// Create emails for each contact
 	emails := make([]*models.Email, len(contacts))
+	badge := affiliates.Badge(ctx, h.db, campaign.TeamID)
 	for i, contact := range contacts {
 		// default variables
 		defaultVariables := make(map[string]string)
@@ -293,7 +295,7 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		maps.Copy(variables, data)
 
 		messageID := uuid.NewString()
-		parsedBody := utils.ReplaceVariables(htmlFromTemplate, variables, messageID, h.cfg, true, campaign.Template.Category != nil && campaign.Template.Category.Name == "Marketing")
+		parsedBody := utils.ReplaceVariables(affiliates.WithBadge(htmlFromTemplate, badge), variables, messageID, h.cfg, true, campaign.Template.Category != nil && campaign.Template.Category.Name == "Marketing")
 		parsedSubject := utils.ReplaceVariables(campaign.Template.Subject, variables, campaign.ID, h.cfg, false, false)
 
 		parsedSubject, err = base64.DecodeFromBase64(parsedSubject)

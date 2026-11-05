@@ -90,7 +90,8 @@ export default function AffiliatesPage() {
         <code className="min-w-0 flex-1 truncate text-sm" aria-label="Your affiliate link">{link}</code>
         <Button size="sm" variant="secondary" onClick={copy}><Copy size={14} className="mr-1.5" />Copy link</Button>
       </div>
-      <p className="mt-3 text-xs text-muted-foreground">Works on any xem.email page: add <code>?via={s.code}</code> to a link to your favourite page. A sign-up within 60 days of a click counts, and the last link clicked wins.</p>
+      <p className="mt-3 text-xs text-muted-foreground">On the Free plan, every email you send ends with a small “Sent with Xem” link that carries this code, so readers who sign up count as yours.</p>
+      <p className="mt-1 text-xs text-muted-foreground">Works on any xem.email page: add <code>?via={s.code}</code> to a link to your favourite page. A sign-up within 60 days of a click counts, and the last link clicked wins.</p>
     </section>
 
     <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
