@@ -210,7 +210,8 @@ function DashboardContent() {
               {
                 label: "Today’s recipient sends",
                 used: state.account.dailyUsed,
-                limit: state.account.dailyLimit,
+                // Paid plans have no daily limit; the API sends their month as the day.
+                limit: state.account.dailyLimit >= state.account.monthlyLimit ? 0 : state.account.dailyLimit,
               },
               {
                 label: "This month’s recipient sends",
@@ -233,8 +234,7 @@ function DashboardContent() {
                   {metric.money ? "$" : ""}
                   {metric.used.toLocaleString()}
                   <span className="ml-2 text-sm font-normal text-muted-foreground">
-                    / {metric.money ? "$" : ""}
-                    {metric.limit.toLocaleString()}
+                    {metric.limit ? `/ ${metric.money ? "$" : ""}${metric.limit.toLocaleString()}` : "no daily limit"}
                   </span>
                 </p>
                 <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-muted">

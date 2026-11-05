@@ -77,6 +77,17 @@ type Service struct {
 func New(db *gorm.DB, c Config, p Provider) *Service {
 	return &Service{DB: db, Config: c, Provider: p, DNS: net.DefaultResolver, Now: func() time.Time { return time.Now().UTC() }}
 }
+
+// applyPlan gives an account still on the automatic allowance its plan's
+// limits; limits an operator set stay as they are.
+func (s *Service) applyPlan(a *Account, daily, monthly int64, known bool) bool {
+	if !known || a.DailyLimit != autoApprovalDailyLimit || a.MonthlyLimit != autoApprovalMonthlyLimit || a.MonthlyBudgetMicros != autoApprovalBudgetMicros {
+		return false
+	}
+	a.DailyLimit, a.MonthlyLimit, a.MonthlyBudgetMicros = daily, monthly, monthly*s.Config.CostMicros
+	return true
+}
+
 func (s *Service) Account(ctx context.Context, team string) (Account, error) {
 	a := Account{TeamID: team, DailyLimit: s.Config.DailyLimit, MonthlyLimit: s.Config.MonthlyLimit, MonthlyBudgetMicros: s.Config.BudgetMicros}
 
@@ -467,11 +478,11 @@ func (s *Service) Submit(ctx context.Context, in Submission) (Message, error) {
 				return ErrSuppressed
 			}
 		}
-		daily, monthly, budget, queue := a.DailyLimit, a.MonthlyLimit, a.MonthlyBudgetMicros, s.Config.QueueLimit
-		if planKnown && a.DailyLimit == autoApprovalDailyLimit && a.MonthlyLimit == autoApprovalMonthlyLimit && a.MonthlyBudgetMicros == autoApprovalBudgetMicros {
-			daily, monthly, budget = planDaily, planMonthly, planMonthly*s.Config.CostMicros
+		limits, queue := a, s.Config.QueueLimit
+		if s.applyPlan(&limits, planDaily, planMonthly, planKnown) {
 			queue = max(queue, planDaily) // a day's whole send may wait in the queue
 		}
+		daily, monthly, budget := limits.DailyLimit, limits.MonthlyLimit, limits.MonthlyBudgetMicros
 		var n int64
 		if err = tx.Model(&Message{}).Where("team_id = ? AND status IN ?", in.TeamID, []string{"QUEUED", "SENDING"}).Count(&n).Error; err != nil {
 			return err
