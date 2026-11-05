@@ -2,6 +2,7 @@ package sending
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -9,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/require"
 	"kori/internal/billing"
 )
@@ -112,4 +114,19 @@ func TestManagedLimitsFollowThePlan(t *testing.T) {
 		_, err = s.Submit(ctx, in)
 		require.NoError(t, err)
 	})
+}
+
+func TestStatusShowsThePlanLimits(t *testing.T) {
+	s, team, _, _ := setup(t)
+	planServer(t, s, map[string]string{team: "xem-starter+trial"})
+	useAutomaticAllowance(t, s, team, 0)
+	e := echo.New()
+	c := e.NewContext(httptest.NewRequest(http.MethodGet, "/", nil), httptest.NewRecorder())
+	c.Set("teamID", team)
+	require.NoError(t, s.status(c))
+	var body struct{ Account Account }
+	require.NoError(t, json.Unmarshal(c.Response().Writer.(*httptest.ResponseRecorder).Body.Bytes(), &body))
+	require.Equal(t, int64(20000), body.Account.MonthlyLimit)
+	require.Equal(t, int64(20000), body.Account.DailyLimit)
+	require.Equal(t, 20000*s.Config.CostMicros, body.Account.MonthlyBudgetMicros)
 }

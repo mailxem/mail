@@ -16,6 +16,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"kori/internal/api/middleware"
+	"kori/internal/billing"
 	"kori/internal/models"
 )
 
@@ -97,6 +98,9 @@ func (s *Service) status(c echo.Context) error {
 	if err != nil {
 		return httpError(err)
 	}
+	// Show the limits Submit enforces, not the stored automatic allowance.
+	daily, monthly, known := billing.ManagedLimits(ctx, team)
+	s.applyPlan(&a, daily, monthly, known)
 	domains := []Domain{}
 	credentials := []Credential{}
 	messages := []Message{}
