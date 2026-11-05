@@ -64,6 +64,7 @@ func main() {
 
 	// Load configuration
 	cfg, err := config.Load()
+	services.Affiliates = services.AffiliatesFromEnv()
 
 	fmt.Println(
 		"Configuration loaded:",
