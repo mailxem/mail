@@ -57,15 +57,13 @@ export function rankReferences(brief: string, limit = 6): TemplateStarter[] {
     .map((x) => x.t);
 }
 
-// The hand-built templates published at xem.email/templates (website/lib/template-gallery.json).
-// They are the house style, so the designer's example screenshots come from here.
-export const GALLERY = new Set(
-  "field-notes sunday-letter signal-digest community-roundup warm-welcome first-steps founders-note release-notes feature-spotlight new-collection weekend-edit saved-for-you gather-together live-session order-confirmed reset-password verify-email open-door".split(" "),
-);
-export const galleryUrl = (key: string) => (GALLERY.has(key) ? `https://xem.email/templates/${key}` : null);
+// Every Studio template has a public page at xem.email/templates/<key>
+// (website/lib/template-gallery.json is generated from the same manifest).
+const isGallery = (t: TemplateStarter) => t.collection === "Studio collection";
+export const galleryUrl = (t: TemplateStarter) => (isGallery(t) ? `https://xem.email/templates/${t.key}` : null);
 
 // The reference sheet: Studio templates picked as the look the designer should
-// aim for (from PR #50; absent keys are simply skipped until they land).
+// aim for. They come first among examples of the same kind.
 export const REFERENCE_SHEET = new Set(
   (
     // Welcome and milestones
@@ -74,7 +72,6 @@ export const REFERENCE_SHEET = new Set(
     "studio-blog-welcome-survey studio-tldr-welcome studio-new-sign-in studio-shared-data studio-login-changed studio-confirm-code studio-id-on-phone studio-email-changed studio-privacy-update studio-almost-there-code studio-reset-camper studio-confirm-personal studio-magic-link studio-just-signed-in studio-reset-geometric"
   ).split(" "),
 );
-const isExample = (key: string) => REFERENCE_SHEET.has(key) || GALLERY.has(key);
 
 export type DesignImage = { role: "reference" | "example"; data: string; source?: string };
 
@@ -97,20 +94,21 @@ async function previewData(key: string, signal?: AbortSignal) {
 
 /**
  * Screenshots the designer looks at: the chosen reference first (when there is
- * one), then the reference sheet and gallery templates closest to the brief as
- * house-style examples. At most four; missing previews are skipped.
+ * one), then Studio templates closest to the brief as house-style examples,
+ * same kind as the reference first, then the reference sheet. At most four; missing previews are skipped.
  */
 export async function designImages(brief: string, reference: TemplateStarter | null, signal?: AbortSignal) {
   const examples = rankReferences(brief, Infinity)
-    .filter((t) => isExample(t.key) && t.key !== reference?.key)
-    // Examples of the same kind as the reference come first.
-    .sort((a, b) => Number(b.category === reference?.category) - Number(a.category === reference?.category))
+    .filter((t) => isGallery(t) && t.key !== reference?.key)
+    .map((t) => ({ t, rank: Number(t.category === reference?.category) * 2 + Number(REFERENCE_SHEET.has(t.key)) }))
+    .sort((a, b) => b.rank - a.rank)
+    .map((x) => x.t)
     .slice(0, reference ? 2 : 3);
   const picks = [...(reference ? [{ role: "reference" as const, t: reference }] : []), ...examples.map((t) => ({ role: "example" as const, t }))];
   const loaded = await Promise.all(picks.map(async (p) => ({ role: p.role, data: await previewData(p.t.key, signal) })));
   return loaded
     .map((x, i) => {
-      const url = galleryUrl(picks[i].t.key);
+      const url = galleryUrl(picks[i].t);
       return { ...x, source: url ? `${picks[i].t.name}, ${url}` : picks[i].t.name };
     })
     .filter((x): x is DesignImage & { source: string } => !!x.data);
