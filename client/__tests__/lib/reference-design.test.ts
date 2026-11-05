@@ -62,7 +62,7 @@ test("sends the reference screenshot first, then examples, skipping missing ones
   ) as never;
   const images = await designImages("weekly newsletter", reference);
   expect(images[0]).toMatchObject({ role: "reference", data: expect.stringMatching(/^data:image\/webp;base64,/) });
-  // Examples are gallery templates and cite their public gallery page.
+  // On this branch the examples are gallery templates and cite their public page.
   for (const example of images.slice(1)) {
     expect(example.role).toBe("example");
     expect(example.source).toMatch(/, https:\/\/xem\.email\/templates\/[a-z-]+$/);
@@ -70,4 +70,11 @@ test("sends the reference screenshot first, then examples, skipping missing ones
   expect(images.length).toBeGreaterThan(1);
   expect(images.length).toBeLessThanOrEqual(4);
   expect((global.fetch as jest.Mock).mock.calls.some(([u]) => u.includes(`/${reference.key}/`))).toBe(true);
+});
+
+test("picks a reference of the kind of email the brief asks for", () => {
+  expect(rankReferences("A password reset email. Link expires in 30 minutes.", 1)[0].category).toBe("Transactional");
+  // An event mentioned inside a newsletter is still a newsletter.
+  expect(rankReferences("Our monthly newsletter: a new coffee, a brewing tip and a pop-up on Saturday.", 1)[0].category).toBe("Newsletters");
+  expect(rankReferences("A welcome email for new users with three first steps.", 1)[0].category).toBe("Welcome");
 });

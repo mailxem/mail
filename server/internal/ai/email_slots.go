@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"errors"
+	"regexp"
 	"strings"
 	"unicode/utf8"
 )
@@ -71,7 +72,7 @@ type SlotRow struct {
 
 // humanVoice is shared by every copy prompt: concrete, plain, and free of the
 // phrases readers recognise as machine-written.
-const humanVoice = `Write like a thoughtful person, not a marketing bot: specific, plain, warm without gushing. Use contractions. Vary sentence length. Never use: "thrilled", "excited to announce", "delve", "elevate", "unlock", "supercharge", "game-changer", "seamless", "journey" (figurative), "whether you're X or Y", "in today's world", "look no further", "spark inspiration". At most one em dash in the whole email. No exclamation marks unless the user asks for them.`
+const humanVoice = `Write like a thoughtful person, not a marketing bot: specific, plain, warm without gushing. Use contractions. Vary sentence length. Never use: "thrilled", "excited to announce", "delve", "elevate", "unlock", "supercharge", "game-changer", "seamless", "journey" (figurative), "whether you're X or Y", "in today's world", "look no further", "spark inspiration". No em dashes (—): use a comma, colon or full stop instead. No exclamation marks unless the user asks for them.`
 
 //go:embed skills/email-design.md
 var emailDesignSkill string
@@ -141,7 +142,7 @@ func (w *EmailWriter) draftSlots(ctx context.Context, input EmailDraftRequest) (
 	var body strings.Builder
 	for id, text := range out.Copy {
 		slot, ok := allowed[id]
-		text = strings.TrimSpace(text)
+		text = noDashes(strings.TrimSpace(text))
 		if !ok || text == "" || strings.ContainsAny(text, "<>") || utf8.RuneCountInString(text) > 2400 {
 			continue
 		}
@@ -161,5 +162,11 @@ func (w *EmailWriter) draftSlots(ctx context.Context, input EmailDraftRequest) (
 			remove = append(remove, id)
 		}
 	}
-	return &EmailDraft{Subject: strings.TrimSpace(out.Subject), Preheader: strings.TrimSpace(out.Preheader), Body: strings.TrimSpace(body.String()), Copy: copyOut, Remove: remove}, nil
+	return &EmailDraft{Subject: noDashes(strings.TrimSpace(out.Subject)), Preheader: noDashes(strings.TrimSpace(out.Preheader)), Body: strings.TrimSpace(body.String()), Copy: copyOut, Remove: remove}, nil
 }
+
+// Models keep writing em dashes mid-sentence even when told not to, and they
+// read as machine-written. A leading dash ("— Jo, founder") is a sign-off and stays.
+var midDash = regexp.MustCompile(`(\S)\s*—\s*(\S)`)
+
+func noDashes(s string) string { return midDash.ReplaceAllString(s, "$1, $2") }

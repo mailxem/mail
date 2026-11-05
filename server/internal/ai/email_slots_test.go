@@ -99,3 +99,16 @@ func TestDraftSlotsSendsLabelledImagesAndRejectsBadOnes(t *testing.T) {
 		}
 	}
 }
+
+func TestNoDashes(t *testing.T) {
+	for in, want := range map[string]string{
+		"Start journaling today with Inkwell—follow these steps": "Start journaling today with Inkwell, follow these steps",
+		"Type anything — there's no wrong way":                   "Type anything, there's no wrong way",
+		"— Jo, co-founder":                                       "— Jo, co-founder",
+		"2019–2024":                                              "2019–2024",
+	} {
+		if got := noDashes(in); got != want {
+			t.Errorf("noDashes(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
