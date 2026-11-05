@@ -16,6 +16,7 @@ import (
 	"kori/internal/utils"
 	"kori/internal/utils/crypto"
 	"log"
+	"net/http"
 	"net/url"
 	"os"
 	"os/signal"
@@ -55,6 +56,10 @@ import (
 // @in header
 // @name X-API-KEY
 func main() {
+	// `posthoot healthcheck` lets Docker probe the distroless image, which has no curl.
+	if len(os.Args) == 2 && os.Args[1] == "healthcheck" {
+		os.Exit(healthcheck())
+	}
 
 	logger := logger.New("kori")
 
@@ -458,4 +463,21 @@ func main() {
 		}
 	}
 	logger.Info("Servers shutdown gracefully")
+}
+
+func healthcheck() int {
+	port := os.Getenv("SERVER_PORT")
+	if port == "" {
+		port = "9001"
+	}
+	client := http.Client{Timeout: 5 * time.Second}
+	response, err := client.Get("http://127.0.0.1:" + port + "/health")
+	if err != nil {
+		return 1
+	}
+	response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		return 1
+	}
+	return 0
 }
