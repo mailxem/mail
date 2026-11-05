@@ -129,7 +129,7 @@ const recipes: Record<string, string> = {
     flex items-baseline flex-wrap gap-2 mt-2 [&_strong]:text-[20px] [&_strong]:font-medium [&_strong]:tracking-tight [&_strong]:tabular-nums [&_>_span]:text-[11px] [&_>_span]:text-muted-foreground
   `,
   "product-panel": String.raw`
-    bg-card border border-border rounded-xl p-4 shadow-none
+    bg-card border border-border rounded-xl [padding:16px] shadow-none
   `,
   "panel-toolbar": String.raw`
     flex items-center justify-between [gap:12px] [margin-bottom:16px]
