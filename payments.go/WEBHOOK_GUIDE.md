@@ -108,6 +108,8 @@ CREATE TABLE webhook_logs (
 - Body: Raw webhook payload
 - Response: `{"status": "success", "message": "Webhook processed successfully"}`
 
+The four routes below are for admins: send `X-Admin-Secret: $ADMIN_SECRET`, or they answer 401.
+
 ### GET /webhooks/events
 **Get webhook events**
 - Query params: `type`, `limit`, `offset`
