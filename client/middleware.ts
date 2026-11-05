@@ -5,7 +5,7 @@ import { auth } from "@/auth";
 export const config = {
   runtime: "experimental-edge",
   matcher: [
-    "/((?!accept-invitation|robots.txt|_next/static|_next/image|favicon.ico|android-chrome-192x192.png|android-chrome-512x512.png|apple-touch-icon.png|favicon-16x16.png|favicon-32x32.png|site.webmanifest|auth/login|auth/register|auth/forgot-password|auth/reset-password|api/auth|public|assets|auth).*)",
+    "/((?!accept-invitation|robots.txt|illustrations|logos|_next/static|_next/image|favicon.ico|android-chrome-192x192.png|android-chrome-512x512.png|apple-touch-icon.png|favicon-16x16.png|favicon-32x32.png|site.webmanifest|auth/login|auth/register|auth/forgot-password|auth/reset-password|api/auth|public|assets|auth).*)",
   ],
 };
 
