@@ -43,7 +43,7 @@ func SetupMarketingRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 		model = "gpt-4.1"
 	}
 	writer := ai.NewEmailWriter(endpoint, os.Getenv("AI_PROXY_API_KEY"), model)
-	g.POST("/email-draft", handlers.EmailDraftHandler(writer), em.BodyLimit("100K"), em.ContextTimeout(95*time.Second), em.RateLimiterWithConfig(em.RateLimiterConfig{
+	g.POST("/email-draft", handlers.EmailDraftHandler(writer), em.BodyLimit("1500K"), em.ContextTimeout(95*time.Second), em.RateLimiterWithConfig(em.RateLimiterConfig{
 		Store:               em.NewRateLimiterMemoryStoreWithConfig(em.RateLimiterMemoryStoreConfig{Rate: rate.Limit(0.1), Burst: 3}),
 		IdentifierExtractor: func(c echo.Context) (string, error) { id, _ := c.Get("teamID").(string); return id, nil },
 	}))

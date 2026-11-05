@@ -42,6 +42,51 @@ export function rankReferences(brief: string, limit = 6): TemplateStarter[] {
     .map((x) => x.t);
 }
 
+// The hand-built templates published at xem.email/templates (website/lib/template-gallery.json).
+// They are the house style, so the designer's example screenshots come from here.
+export const GALLERY = new Set(
+  "field-notes sunday-letter signal-digest community-roundup warm-welcome first-steps founders-note release-notes feature-spotlight new-collection weekend-edit saved-for-you gather-together live-session order-confirmed reset-password verify-email open-door".split(" "),
+);
+export const galleryUrl = (key: string) => (GALLERY.has(key) ? `https://xem.email/templates/${key}` : null);
+
+export type DesignImage = { role: "reference" | "example"; data: string; source?: string };
+
+async function previewData(key: string, signal?: AbortSignal) {
+  try {
+    const response = await fetch(`/assets/template-starters/${key}/preview.webp`, { signal });
+    if (!response.ok) return null;
+    const blob = await response.blob();
+    if (blob.size > 290_000) return null;
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Screenshots the designer looks at: the chosen reference first (when there is
+ * one), then gallery templates close to the brief as house-style examples. At most four; missing
+ * previews are skipped.
+ */
+export async function designImages(brief: string, reference: TemplateStarter | null, signal?: AbortSignal) {
+  const examples = rankReferences(brief, Infinity)
+    .filter((t) => GALLERY.has(t.key) && t.key !== reference?.key)
+    .slice(0, reference ? 2 : 3);
+  const picks = [...(reference ? [{ role: "reference" as const, t: reference }] : []), ...examples.map((t) => ({ role: "example" as const, t }))];
+  const loaded = await Promise.all(picks.map(async (p) => ({ role: p.role, data: await previewData(p.t.key, signal) })));
+  return loaded
+    .map((x, i) => {
+      const url = galleryUrl(picks[i].t.key);
+      return { ...x, source: url ? `${picks[i].t.name}, ${url}` : picks[i].t.name };
+    })
+    .filter((x): x is DesignImage & { source: string } => !!x.data);
+}
+
 function plain(html: string) {
   const doc = new DOMParser().parseFromString(html, "text/html");
   doc.querySelectorAll("br").forEach((br) => br.replaceWith("\n"));
