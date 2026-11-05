@@ -26,7 +26,7 @@ export const starterCollections = [
   "All collections",
   "Reference designs",
   "Xem originals",
-  "Editorial collection",
+  "Studio collection",
 ] as const;
 
 export function filterTemplateStarters(
