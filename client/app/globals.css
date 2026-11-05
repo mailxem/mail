@@ -7,49 +7,52 @@
 @layer base {
   :root {
     color-scheme: light;
-    --background: #fafaf8;
-    --foreground: #242520;
+    --background: #ffffff;
+    --foreground: #18181b;
     --card: #ffffff;
     --card-foreground: var(--foreground);
     --popover: #ffffff;
     --popover-foreground: var(--foreground);
-    --primary: #d4ed55;
-    --primary-foreground: #202610;
-    --primary-text: #586d1e;
-    --secondary: #efefeb;
-    --secondary-foreground: #41433b;
-    --muted: #f1f1ed;
-    --muted-foreground: #71736a;
-    --accent: #eaece4;
-    --accent-foreground: #242520;
-    --destructive: #d43b40;
+    --primary: #18181b;
+    --primary-foreground: #ffffff;
+    --primary-text: #18181b;
+    --secondary: #f4f4f5;
+    --secondary-foreground: #3f3f46;
+    --muted: #f7f7f8;
+    --muted-foreground: #8a8a93;
+    --accent: #f1f1f3;
+    --accent-foreground: #18181b;
+    --destructive: #c2302b;
     --destructive-foreground: #ffffff;
-    --success: #e4f1e8;
-    --success-foreground: #2e744a;
-    --warning: #faf0d8;
-    --warning-foreground: #906713;
-    --info: #e7edf5;
-    --info-foreground: #496d98;
-    --border: #e3e4de;
-    --input: #d6d8cf;
-    --ring: #859b32;
+    --success: #e9f8ef;
+    --success-foreground: #1f7a45;
+    --warning: #fff4e5;
+    --warning-foreground: #a35a00;
+    --info: #eaf2ff;
+    --info-foreground: #1d5fd6;
+    --border: #ececee;
+    --input: #e1e1e4;
+    --ring: #a1a1aa;
     --chart-1: #738d20;
     --chart-2: #448773;
     --chart-3: #987522;
     --chart-4: #617eaa;
     --chart-5: #ad6068;
-    --sidebar: #f5f4f2;
+    --sidebar: #f4f4f5;
     --workspace-canvas: #ffffff;
     --sidebar-background: var(--sidebar);
-    --sidebar-foreground: #686a61;
+    --sidebar-foreground: #52525b;
     --sidebar-primary: var(--primary);
     --sidebar-primary-foreground: var(--primary-foreground);
-    --sidebar-accent: #e9eae3;
+    --sidebar-accent: #e9e9ec;
     --sidebar-accent-foreground: var(--foreground);
     --sidebar-border: var(--border);
     --sidebar-ring: var(--ring);
     --surface: var(--card);
     --surface-dark: var(--muted);
+    --brand: #d4ed55;
+    --text-secondary: #52525b;
+    --border-strong: #e1e1e4;
     --font-sans: var(--font-geist-sans), Arial, sans-serif;
     --font-heading: var(--font-sans);
     --font-mono: var(--font-geist-mono), monospace;
@@ -61,36 +64,38 @@
     --shadow-xl: 0 20px 60px #00000024;
   }
   .dark {
+    --primary-foreground: #18181b;
+    --primary: #f4f4f5;
     color-scheme: dark;
-    --background: #191919;
-    --foreground: #ededeb;
-    --card: #1c1c1c;
-    --popover: #222222;
-    --secondary: #292929;
-    --secondary-foreground: #d1d1cd;
-    --muted: #242424;
-    --muted-foreground: #a3a39e;
-    --accent: #2b2c28;
-    --accent-foreground: #ededeb;
+    --background: #18181b;
+    --foreground: #f4f4f5;
+    --card: #18181b;
+    --popover: #1f1f23;
+    --secondary: #26262a;
+    --secondary-foreground: #d4d4d8;
+    --muted: #202024;
+    --muted-foreground: #8a8a93;
+    --accent: #26262a;
+    --accent-foreground: #f4f4f5;
     --success: #183626;
     --success-foreground: #83c89b;
     --warning: #3b311b;
     --warning-foreground: #dfbf79;
     --info: #23303e;
     --info-foreground: #a2bedf;
-    --border: #2d2d2a;
-    --input: #3a3b35;
-    --ring: #d4ed55;
+    --border: #26262a;
+    --input: #323238;
+    --ring: #71717a;
     --chart-1: #d4ed55;
-    --primary-text: #d4ed55;
+    --primary-text: #f4f4f5;
     --chart-2: #80b9a4;
     --chart-3: #d6b371;
     --chart-4: #8baacb;
     --chart-5: #d28c91;
-    --sidebar: #171717;
-    --workspace-canvas: #202020;
-    --sidebar-foreground: #a3a39e;
-    --sidebar-accent: #2b2b28;
+    --sidebar: #111113;
+    --workspace-canvas: #18181b;
+    --sidebar-foreground: #a1a1aa;
+    --sidebar-accent: #222226;
     --shadow-sm: 0 1px 2px #0000000a;
     --shadow: 0 2px 6px #00000014;
     --shadow-md: 0 4px 16px #00000020;
@@ -98,7 +103,7 @@
     --shadow-xl: 0 20px 60px #00000055;
   }
   * { border-color: var(--border); }
-  body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font-sans); font-size: 14px; line-height: 1.5; }
+  body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font-sans); font-size: 13px; line-height: 1.5; }
   p, button, input, textarea, select { font-family: inherit; }
   button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
   button:not(:disabled), summary { cursor: pointer; }

@@ -8,7 +8,7 @@ export function CampaignsHeader() {
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
-        <h1 className="text-3xl font-semibold">Campaigns</h1>
+        <h1 className="text-[17px] font-semibold tracking-[-0.01em]">Campaigns</h1>
         <p className="text-muted-foreground">Create and manage your email campaigns</p>
       </div>
       <div className="flex gap-4 items-center">

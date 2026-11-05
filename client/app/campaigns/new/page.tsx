@@ -440,6 +440,33 @@ function NewCampaignForm() {
             {saving ? "Saving…" : "Save draft"}
           </Button>
         </PageHeader>
+        {!templateResource.isLoading && !listResource.isLoading && !senderResource.isLoading &&
+          (!lists.length || !senders.length || !templates.length) && (
+            <div className="mb-6 rounded-xl border border-dashed p-5">
+              <p className="text-sm font-medium">Before you can send, set up these first</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                A campaign needs people to send to, an address to send from and a design.
+              </p>
+              <ol className="mt-4 grid gap-2 sm:grid-cols-3">
+                {[
+                  { ok: !!lists.length, label: "A contact list", href: "/audience/lists" },
+                  { ok: !!senders.length, label: "A sender", href: "/settings/smtp" },
+                  { ok: !!templates.length, label: "A template", href: "/templates" },
+                ].map((s, i) => (
+                  <li key={s.label} className="flex items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2 text-sm">
+                    <span className={s.ok ? "text-muted-foreground line-through" : ""}>
+                      {i + 1}. {s.label}
+                    </span>
+                    {!s.ok && (
+                      <Link href={s.href} className="text-xs font-medium text-primary underline underline-offset-4">
+                        Set up
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
 
         <div className="grid min-w-0 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_340px] 2xl:grid-cols-[minmax(0,1fr)_380px]">
           <div className="min-w-0 space-y-5">

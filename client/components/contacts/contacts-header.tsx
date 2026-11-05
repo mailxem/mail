@@ -8,7 +8,7 @@ export function ContactsHeader() {
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
-        <h1 className="text-3xl font-semibold">Contacts</h1>
+        <h1 className="text-[17px] font-semibold tracking-[-0.01em]">Contacts</h1>
         <p className="text-muted-foreground">Manage your contacts and lists</p>
       </div>
       <div className="flex gap-4 items-center">

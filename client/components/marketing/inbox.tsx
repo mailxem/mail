@@ -1,6 +1,7 @@
 "use client";
 import { workspaceClassName } from "@/lib/workspace-styles";
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import {
   Mail,
@@ -863,6 +864,13 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
                 outbox
                   ? "No messages in this delivery status. Choose another status or load more messages."
                   : "New messages will appear here. Try another folder or connect a mailbox."
+              }
+              action={
+                !outbox && (
+                  <Button asChild variant="outline">
+                    <Link href="/settings/imap">Connect a mailbox</Link>
+                  </Button>
+                )
               }
             />
           )}

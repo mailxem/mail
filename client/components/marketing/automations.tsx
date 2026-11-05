@@ -291,6 +291,7 @@ export function AutomationsPage() {
             }
           />
         )}
+        {rows.length > 0 && (
         <div className={workspaceClassName("table-wrap")}>
           <table className={workspaceClassName("product-table")}>
             <thead>
@@ -356,6 +357,7 @@ export function AutomationsPage() {
             </tbody>
           </table>
         </div>
+        )}
       </section>
     </>
   );

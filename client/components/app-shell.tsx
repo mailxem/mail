@@ -38,6 +38,7 @@ import {
   Workflow,
 } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
+import { UpgradeSheet } from "@/components/billing/paid-plan";
 import { Modal } from "@/components/marketing/shared";
 import {
   DropdownMenu,
@@ -363,6 +364,7 @@ export function AppShell({
           ))}
         </nav>
         <div className={styles.sidebarBottom}>
+          {!compact && <UpgradeSheet />}
           <Link
             href="/onboarding"
             title={compact ? "Getting started" : undefined}

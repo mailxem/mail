@@ -1,4 +1,5 @@
 "use client";
+import { CreateKey } from "@/components/api-keys/create-key";
 import { useConfirmSheet } from "@/components/ui/confirm-sheet";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -45,7 +46,7 @@ export default function APIKeysPage() {
     </div>
     <section className={workspaceClassName("product-panel")}>
       <div className={workspaceClassName("panel-toolbar")}><h2>Your API keys</h2><a href="https://docs.xem.email/api-reference/email/send-an-email" target="_blank" rel="noreferrer" className="text-xs font-medium text-primary">API documentation ↗</a></div>
-      {query.isLoading || query.error ? <QueryState loading={query.isLoading} error={query.error} retry={() => void query.refetch()}/> : !apiKeys.length ? <Empty title="Connect your application" description="Create an API key to send email and access your workspace through the Xem API."/> : <>
+      {query.isLoading || query.error ? <QueryState loading={query.isLoading} error={query.error} retry={() => void query.refetch()}/> : !apiKeys.length ? <Empty title="Connect your application" description="Create an API key to send email and access your workspace through the Xem API." action={<CreateKey/>}/> : <>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {apiKeys.map(key => <CollectionCard key={key.id} icon={<KeyRound size={22}/>} badge={expired(key) ? "Expired" : key.isDeleted ? "Disabled" : "Active"} title={key.name} href={`/settings/api-keys/${key.id}`} action="View usage" description={`Created ${format(new Date(key.createdAt), "MMM d, yyyy")}`} menu={
             <DropdownMenu><DropdownMenuTrigger asChild><Button disabled={busy === key.id} variant="ghost" size="icon" className="size-8" aria-label={`Actions for ${key.name}`}><MoreHorizontal size={18}/></Button></DropdownMenuTrigger><DropdownMenuContent align="end">

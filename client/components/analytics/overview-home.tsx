@@ -92,10 +92,12 @@ export function OverviewHome() {
     <section className={styles.overview} aria-labelledby="overview-title">
       <header className={styles.head}>
         <div>
-          <p className={styles.eyebrow}>{team?.name ?? "Your workspace"}</p>
           <h1 id="overview-title" className={styles.title}>
             {greeting()}
           </h1>
+          <p className={styles.eyebrow}>
+            How email is doing across {team?.name ?? "your workspace"}.
+          </p>
         </div>
         <div className={styles.headActions}>
           <div className={styles.range} role="group" aria-label="Period">

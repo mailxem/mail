@@ -36,7 +36,7 @@ export function ContactLists() {
     </div>
     <section className={workspaceClassName("product-panel")}>
       <div className={workspaceClassName("panel-toolbar")}><h2>All contact lists</h2><span className="text-xs text-muted-foreground">{pagination.total} lists</span></div>
-      {isLoading || error ? <QueryState loading={isLoading} error={error} retry={refetch}/> : lists.length === 0 ? <Empty title="Build your first audience" description="Create a contact list to use with your campaigns, newsletters, and forms."/> : <>
+      {isLoading || error ? <QueryState loading={isLoading} error={error} retry={refetch}/> : lists.length === 0 ? <Empty title="Build your first audience" description="Use Create New Contact List above, then import a CSV or add people one by one. Lists feed your campaigns, newsletters and forms."/> : <>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {lists.map(list => <CollectionCard key={list.id} icon={<Users size={22}/>} badge="Contact list" title={list.name} description={list.description || "Your audience for email campaigns and newsletters."} href={`/audience/lists/${list.id}`} action="Open contact list" menu={
             <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="size-8" aria-label={`Actions for ${list.name}`}><MoreHorizontal size={18}/></Button></DropdownMenuTrigger><DropdownMenuContent align="end">
