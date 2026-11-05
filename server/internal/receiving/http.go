@@ -11,6 +11,7 @@ import (
 	em "github.com/labstack/echo/v4/middleware"
 	"gorm.io/gorm"
 	"kori/internal/api/middleware"
+	"kori/internal/billing"
 	"kori/internal/models"
 	"kori/internal/sending"
 )
@@ -32,9 +33,9 @@ func team(c echo.Context) string { v, _ := c.Get("teamID").(string); return v }
 func (s *Service) Register(e *echo.Echo, jwt string) {
 	g := e.Group("/api/v1/mail-connections/receiving", em.BodyLimit("16K"), middleware.NewAuthMiddleware(jwt).Middleware(), admin)
 	g.GET("", s.status)
-	g.POST("/mailboxes", s.create)
-	g.PATCH("/mailboxes/:id", s.patch)
-	g.POST("/domains/:id/check", s.check)
+	g.POST("/mailboxes", s.create, billing.PaidOnly)
+	g.PATCH("/mailboxes/:id", s.patch) // still allowed on Free, so a downgraded workspace can turn mailboxes off
+	g.POST("/domains/:id/check", s.check, billing.PaidOnly)
 }
 
 type domainView struct {

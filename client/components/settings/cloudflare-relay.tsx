@@ -2,7 +2,6 @@
 import { useState } from "react";
 import {
   Check,
-  Cloud,
   Database,
   KeyRound,
   RotateCw,
@@ -23,175 +22,26 @@ type Relay = {
   enabled: boolean;
 };
 
+/** Connected Cloudflare inboxes; new ones are added from the setup sheet. */
 export function CloudflareRelays() {
-  const { request, refresh } = useMarketing();
   const result = useMarketingQuery<{ relays: Relay[] }>(
     "mail-connections/cloudflare-relays",
   );
-  const [workerUrl, setWorkerUrl] = useState("");
-  const [address, setAddress] = useState("");
-  const [secret, setSecret] = useState("");
-  const [busy, setBusy] = useState(false);
+  if (result.error)
+    return (
+      <p role="alert" className="text-sm text-muted-foreground">
+        Couldn’t load Cloudflare inboxes.{" "}
+        <button className="underline" onClick={() => result.refetch()}>
+          Retry
+        </button>
+      </p>
+    );
   return (
-    <section className="space-y-5">
-      <div className="flex gap-3">
-        <Cloud className="mt-0.5 size-5 shrink-0" />
-        <div>
-          <h3 className="font-semibold">Cloudflare mailbox Worker</h3>
-          <p className="mt-1 text-sm leading-6 text-muted-foreground">
-            Keep incoming mail in your Cloudflare account. Xem reads it through
-            your authenticated mailbox Worker.
-          </p>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Workspace members with mailbox access can read this inbox. Connect
-            only an address you’re authorized to share with your team.
-          </p>
-        </div>
-      </div>
-
-      <details
-        key={
-          result.data
-            ? result.data.relays.length
-              ? "connected"
-              : "empty"
-            : "loading"
-        }
-        open={result.data?.relays.length === 0 || undefined}
-        className="group rounded-lg border bg-card"
-      >
-        <summary className="cursor-pointer px-3 py-2.5 text-sm font-medium">
-          Setup instructions
-        </summary>
-        <div className="space-y-3 border-t px-3 py-3">
-          <ol className="grid gap-3 text-xs leading-5 text-muted-foreground sm:grid-cols-2 lg:grid-cols-4">
-            <li>
-              <strong className="mb-1 block text-foreground">
-                1. Deploy the Worker
-              </strong>
-              Deploy the Xem mailbox Worker with its D1 database and R2 bucket
-              in your Cloudflare account.
-            </li>
-            <li>
-              <strong className="mb-1 block text-foreground">
-                2. Route incoming mail
-              </strong>
-              Configure the address in Cloudflare Email Routing and route it to
-              the mailbox Worker.
-            </li>
-            <li>
-              <strong className="mb-1 block text-foreground">
-                3. Create an API secret
-              </strong>
-              Create a mailbox API secret in the Worker. Keep it private and use
-              a public HTTPS Worker URL.
-            </li>
-            <li>
-              <strong className="mb-1 block text-foreground">
-                4. Connect in Xem
-              </strong>
-              Xem verifies the mailbox address and API access before saving the
-              connection.
-            </li>
-          </ol>
-          <a
-            className="inline-block text-sm font-medium underline underline-offset-4"
-            href="https://github.com/mailxem/mail/blob/undefined/devops/cloudflare-mailbox/README.md"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Open the deployment guide
-          </a>
-          <p className="text-xs text-muted-foreground">
-            No IMAP server or Cloudflare Email Sending token is needed for
-            receiving.
-          </p>
-        </div>
-      </details>
-
-      {result.error && (
-        <p role="alert" className="text-sm text-muted-foreground">
-          Couldn’t load Cloudflare mailboxes.{" "}
-          <button className="underline" onClick={() => result.refetch()}>
-            Retry
-          </button>
-        </p>
-      )}
+    <>
       {result.data?.relays.map((relay) => (
         <WorkerCard key={relay.id} relay={relay} />
       ))}
-
-      <form
-        className="grid gap-4 border-t pt-4 sm:grid-cols-2"
-        onSubmit={async (event) => {
-          event.preventDefault();
-          if (busy) return;
-          setBusy(true);
-          try {
-            await request("mail-connections/cloudflare-relays", "POST", {
-              workerUrl,
-              address,
-              secret,
-            });
-            setWorkerUrl("");
-            setAddress("");
-            setSecret("");
-            await refresh();
-            toast.success("Cloudflare mailbox verified and connected");
-          } catch (error) {
-            toast.error((error as Error).message);
-          } finally {
-            setBusy(false);
-          }
-        }}
-      >
-        <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="worker-url">Deployed Worker URL</Label>
-          <Input
-            id="worker-url"
-            required
-            type="url"
-            pattern="https://.*"
-            value={workerUrl}
-            onChange={(event) => setWorkerUrl(event.target.value)}
-            placeholder="https://mailbox.your-account.workers.dev"
-            autoComplete="url"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="worker-address">Mailbox address</Label>
-          <Input
-            id="worker-address"
-            required
-            type="email"
-            value={address}
-            onChange={(event) => setAddress(event.target.value)}
-            placeholder="support@yourdomain.com"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="worker-secret">Mailbox API secret</Label>
-          <Input
-            id="worker-secret"
-            required
-            type="password"
-            minLength={32}
-            maxLength={4096}
-            value={secret}
-            onChange={(event) => setSecret(event.target.value)}
-            autoComplete="new-password"
-          />
-          <p className="text-xs text-muted-foreground">
-            Sent once for verification, stored encrypted, and never shown again.
-          </p>
-        </div>
-        <div className="sm:col-span-2">
-          <Button type="submit" disabled={busy || result.isLoading}>
-            {busy ? "Verifying Worker…" : "Connect Cloudflare mailbox"}
-          </Button>
-        </div>
-      </form>
-    </section>
+    </>
   );
 }
 
