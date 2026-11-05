@@ -64,7 +64,7 @@ Xem is an open-source email marketing suite. In one app it covers:
 - signup forms, contact lists, tags and a contact CRM;
 - a shared inbox connected over IMAP;
 - analytics that separate delivery from engagement;
-- 200+ editable templates and AI help for drafting;
+- 80+ editable templates and AI help for drafting;
 - an API, webhooks and an MCP server so AI assistants can operate it.
 
 It sends through Xem's managed Amazon SES delivery or your own SMTP provider. You can run it on your own server or use the hosted app.

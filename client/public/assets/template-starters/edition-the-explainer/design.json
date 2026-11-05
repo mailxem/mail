@@ -2,12 +2,11 @@
   "schemaVersion": 18,
   "counters": {
     "u_row": 6,
-    "u_column": 7,
-    "u_content_text": 11,
-    "u_content_image": 2,
-    "u_content_heading": 6,
-    "u_content_divider": 3,
-    "u_content_button": 1
+    "u_column": 6,
+    "u_content_text": 10,
+    "u_content_heading": 1,
+    "u_content_image": 1,
+    "u_content_divider": 2
   },
   "body": {
     "id": "edition-the-explainer-body",
@@ -43,21 +42,21 @@
                     "linkUnderline": true,
                     "linkHoverUnderline": true
                   },
-                  "text": "THE EXPLAINER",
+                  "text": "THE EXPLAINER  ·  THIS WEEK’S QUESTION",
                   "fontSize": "11px",
                   "fontFamily": {
                     "label": "Courier New",
                     "value": "courier new,courier,monospace"
                   },
-                  "color": "#EBF1FA",
-                  "textAlign": "center",
+                  "color": "#D97706",
+                  "textAlign": "left",
                   "lineHeight": "160%",
-                  "containerPadding": "14px 36px"
+                  "containerPadding": "12px 36px"
                 }
               },
               {
                 "id": "edition-the-explainer-4",
-                "type": "image",
+                "type": "heading",
                 "values": {
                   "anchor": "",
                   "displayCondition": null,
@@ -67,8 +66,8 @@
                   "deletable": true,
                   "hideable": true,
                   "_meta": {
-                    "htmlID": "u_content_image_1",
-                    "htmlClassNames": "u_content_image"
+                    "htmlID": "u_content_heading_1",
+                    "htmlClassNames": "u_content_heading"
                   },
                   "linkStyle": {
                     "inherit": true,
@@ -77,23 +76,17 @@
                     "linkUnderline": true,
                     "linkHoverUnderline": true
                   },
-                  "src": {
-                    "url": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1200&h=280&q=85",
-                    "width": 1200,
-                    "height": 280,
-                    "autoWidth": false,
-                    "maxWidth": "100%"
+                  "text": "Why is the sea salty but rivers aren’t?",
+                  "fontSize": "38px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
                   },
-                  "altText": "A quiet library interior",
-                  "textAlign": "center",
-                  "containerPadding": "0px",
-                  "action": {
-                    "name": "web",
-                    "values": {
-                      "href": "",
-                      "target": "_blank"
-                    }
-                  }
+                  "color": "#0F2C3F",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "10px 36px",
+                  "headingType": "h1"
                 }
               }
             ],
@@ -110,7 +103,7 @@
         ],
         "values": {
           "backgroundColor": "",
-          "columnsBackgroundColor": "#264154",
+          "columnsBackgroundColor": "#FFFFFF",
           "padding": "12px 0px",
           "backgroundImage": {
             "url": "",
@@ -143,7 +136,7 @@
             "contents": [
               {
                 "id": "edition-the-explainer-7",
-                "type": "heading",
+                "type": "image",
                 "values": {
                   "anchor": "",
                   "displayCondition": null,
@@ -153,8 +146,8 @@
                   "deletable": true,
                   "hideable": true,
                   "_meta": {
-                    "htmlID": "u_content_heading_1",
-                    "htmlClassNames": "u_content_heading"
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
                   },
                   "linkStyle": {
                     "inherit": true,
@@ -163,51 +156,23 @@
                     "linkUnderline": true,
                     "linkHoverUnderline": true
                   },
-                  "text": "A complicated idea, in useful pieces.",
-                  "fontSize": "52px",
-                  "fontFamily": {
-                    "label": "Georgia",
-                    "value": "georgia,palatino"
+                  "src": {
+                    "url": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&h=560&q=85",
+                    "width": 1200,
+                    "height": 560,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
                   },
-                  "color": "#264154",
-                  "textAlign": "left",
-                  "lineHeight": "110%",
-                  "containerPadding": "14px 36px",
-                  "headingType": "h1"
-                }
-              },
-              {
-                "id": "edition-the-explainer-8",
-                "type": "text",
-                "values": {
-                  "anchor": "",
-                  "displayCondition": null,
-                  "selectable": true,
-                  "draggable": true,
-                  "duplicatable": true,
-                  "deletable": true,
-                  "hideable": true,
-                  "_meta": {
-                    "htmlID": "u_content_text_2",
-                    "htmlClassNames": "u_content_text"
-                  },
-                  "linkStyle": {
-                    "inherit": true,
-                    "linkColor": "#514293",
-                    "linkHoverColor": "#514293",
-                    "linkUnderline": true,
-                    "linkHoverUnderline": true
-                  },
-                  "text": "A clear introduction that starts with something familiar and builds from there.",
-                  "fontSize": "16px",
-                  "fontFamily": {
-                    "label": "Arial",
-                    "value": "arial,helvetica,sans-serif"
-                  },
-                  "color": "#264154",
-                  "textAlign": "left",
-                  "lineHeight": "160%",
-                  "containerPadding": "14px 36px"
+                  "altText": "A beach beside blue water",
+                  "textAlign": "center",
+                  "containerPadding": "0px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
                 }
               }
             ],
@@ -224,7 +189,7 @@
         ],
         "values": {
           "backgroundColor": "",
-          "columnsBackgroundColor": "#EBF1FA",
+          "columnsBackgroundColor": "#FFFFFF",
           "padding": "12px 0px",
           "backgroundImage": {
             "url": "",
@@ -247,18 +212,17 @@
         }
       },
       {
-        "id": "edition-the-explainer-9",
+        "id": "edition-the-explainer-8",
         "cells": [
-          1,
           1
         ],
         "columns": [
           {
-            "id": "edition-the-explainer-10",
+            "id": "edition-the-explainer-9",
             "contents": [
               {
-                "id": "edition-the-explainer-11",
-                "type": "image",
+                "id": "edition-the-explainer-10",
+                "type": "text",
                 "values": {
                   "anchor": "",
                   "displayCondition": null,
@@ -268,8 +232,8 @@
                   "deletable": true,
                   "hideable": true,
                   "_meta": {
-                    "htmlID": "u_content_image_2",
-                    "htmlClassNames": "u_content_image"
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
                   },
                   "linkStyle": {
                     "inherit": true,
@@ -278,76 +242,20 @@
                     "linkUnderline": true,
                     "linkHoverUnderline": true
                   },
-                  "src": {
-                    "url": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=700&h=700&q=85",
-                    "width": 700,
-                    "height": 700,
-                    "autoWidth": false,
-                    "maxWidth": "100%"
-                  },
-                  "altText": "A quiet library interior",
-                  "textAlign": "center",
-                  "containerPadding": "12px 20px",
-                  "action": {
-                    "name": "web",
-                    "values": {
-                      "href": "",
-                      "target": "_blank"
-                    }
-                  }
-                }
-              }
-            ],
-            "values": {
-              "border": {},
-              "padding": "0px",
-              "backgroundColor": "",
-              "_meta": {
-                "htmlID": "u_column_3",
-                "htmlClassNames": "u_column"
-              }
-            }
-          },
-          {
-            "id": "edition-the-explainer-12",
-            "contents": [
-              {
-                "id": "edition-the-explainer-13",
-                "type": "heading",
-                "values": {
-                  "anchor": "",
-                  "displayCondition": null,
-                  "selectable": true,
-                  "draggable": true,
-                  "duplicatable": true,
-                  "deletable": true,
-                  "hideable": true,
-                  "_meta": {
-                    "htmlID": "u_content_heading_2",
-                    "htmlClassNames": "u_content_heading"
-                  },
-                  "linkStyle": {
-                    "inherit": true,
-                    "linkColor": "#514293",
-                    "linkHoverColor": "#514293",
-                    "linkUnderline": true,
-                    "linkHoverUnderline": true
-                  },
-                  "text": "An inside look",
-                  "fontSize": "27px",
+                  "text": "THE SHORT ANSWER",
+                  "fontSize": "11px",
                   "fontFamily": {
                     "label": "Courier New",
                     "value": "courier new,courier,monospace"
                   },
-                  "color": "#264154",
+                  "color": "#D97706",
                   "textAlign": "left",
-                  "lineHeight": "110%",
-                  "containerPadding": "14px 36px",
-                  "headingType": "h2"
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 36px"
                 }
               },
               {
-                "id": "edition-the-explainer-14",
+                "id": "edition-the-explainer-11",
                 "type": "text",
                 "values": {
                   "anchor": "",
@@ -368,16 +276,16 @@
                     "linkUnderline": true,
                     "linkHoverUnderline": true
                   },
-                  "text": "Welcome to The Explainer. This week, we’re following the smaller details behind the story: the choices that shaped it, the people who care about it, and the ideas you can bring into your own day.",
-                  "fontSize": "14px",
+                  "text": "Rivers do carry salt. They just keep moving, so it never builds up. The sea is where it ends up, and when seawater evaporates, the salt stays behind.",
+                  "fontSize": "18px",
                   "fontFamily": {
-                    "label": "Arial",
-                    "value": "arial,helvetica,sans-serif"
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
                   },
-                  "color": "#264154",
+                  "color": "#0F2C3F",
                   "textAlign": "left",
                   "lineHeight": "160%",
-                  "containerPadding": "14px 36px"
+                  "containerPadding": "10px 36px"
                 }
               }
             ],
@@ -386,7 +294,7 @@
               "padding": "0px",
               "backgroundColor": "",
               "_meta": {
-                "htmlID": "u_column_4",
+                "htmlID": "u_column_3",
                 "htmlClassNames": "u_column"
               }
             }
@@ -394,7 +302,7 @@
         ],
         "values": {
           "backgroundColor": "",
-          "columnsBackgroundColor": "#EBF1FA",
+          "columnsBackgroundColor": "#FDF6E9",
           "padding": "12px 0px",
           "backgroundImage": {
             "url": "",
@@ -417,16 +325,16 @@
         }
       },
       {
-        "id": "edition-the-explainer-15",
+        "id": "edition-the-explainer-12",
         "cells": [
           1
         ],
         "columns": [
           {
-            "id": "edition-the-explainer-16",
+            "id": "edition-the-explainer-13",
             "contents": [
               {
-                "id": "edition-the-explainer-17",
+                "id": "edition-the-explainer-14",
                 "type": "text",
                 "values": {
                   "anchor": "",
@@ -447,55 +355,20 @@
                     "linkUnderline": true,
                     "linkHoverUnderline": true
                   },
-                  "text": "THREE THINGS TO TAKE AWAY",
+                  "text": "THE LONGER ANSWER",
                   "fontSize": "11px",
                   "fontFamily": {
                     "label": "Courier New",
                     "value": "courier new,courier,monospace"
                   },
-                  "color": "#264154",
+                  "color": "#D97706",
                   "textAlign": "left",
                   "lineHeight": "160%",
-                  "containerPadding": "14px 36px"
+                  "containerPadding": "12px 36px"
                 }
               },
               {
-                "id": "edition-the-explainer-18",
-                "type": "heading",
-                "values": {
-                  "anchor": "",
-                  "displayCondition": null,
-                  "selectable": true,
-                  "draggable": true,
-                  "duplicatable": true,
-                  "deletable": true,
-                  "hideable": true,
-                  "_meta": {
-                    "htmlID": "u_content_heading_3",
-                    "htmlClassNames": "u_content_heading"
-                  },
-                  "linkStyle": {
-                    "inherit": true,
-                    "linkColor": "#514293",
-                    "linkHoverColor": "#514293",
-                    "linkUnderline": true,
-                    "linkHoverUnderline": true
-                  },
-                  "text": "01 / Notice the details.",
-                  "fontSize": "22px",
-                  "fontFamily": {
-                    "label": "Courier New",
-                    "value": "courier new,courier,monospace"
-                  },
-                  "color": "#264154",
-                  "textAlign": "left",
-                  "lineHeight": "110%",
-                  "containerPadding": "14px 36px",
-                  "headingType": "h2"
-                }
-              },
-              {
-                "id": "edition-the-explainer-19",
+                "id": "edition-the-explainer-15",
                 "type": "text",
                 "values": {
                   "anchor": "",
@@ -516,20 +389,65 @@
                     "linkUnderline": true,
                     "linkHoverUnderline": true
                   },
-                  "text": "A clear introduction that starts with something familiar and builds from there.",
-                  "fontSize": "14px",
+                  "text": "Rain is slightly acidic. As it runs over rock, it dissolves tiny amounts of minerals and carries them downhill. Each river brings only a little, but it has been doing this for a very long time. Water leaves the sea as vapour; the minerals have nowhere to go.",
+                  "fontSize": "16px",
                   "fontFamily": {
                     "label": "Arial",
                     "value": "arial,helvetica,sans-serif"
                   },
-                  "color": "#264154",
+                  "color": "#0F2C3F",
                   "textAlign": "left",
                   "lineHeight": "160%",
-                  "containerPadding": "14px 36px"
+                  "containerPadding": "10px 36px"
                 }
-              },
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_4",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "12px 0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_4",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "edition-the-explainer-16",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "edition-the-explainer-17",
+            "contents": [
               {
-                "id": "edition-the-explainer-20",
+                "id": "edition-the-explainer-18",
                 "type": "divider",
                 "values": {
                   "anchor": "",
@@ -554,49 +472,14 @@
                   "border": {
                     "borderTopWidth": "1px",
                     "borderTopStyle": "solid",
-                    "borderTopColor": "#264154"
+                    "borderTopColor": "#E5E7EB"
                   },
                   "textAlign": "center",
                   "containerPadding": "18px 36px"
                 }
               },
               {
-                "id": "edition-the-explainer-21",
-                "type": "heading",
-                "values": {
-                  "anchor": "",
-                  "displayCondition": null,
-                  "selectable": true,
-                  "draggable": true,
-                  "duplicatable": true,
-                  "deletable": true,
-                  "hideable": true,
-                  "_meta": {
-                    "htmlID": "u_content_heading_4",
-                    "htmlClassNames": "u_content_heading"
-                  },
-                  "linkStyle": {
-                    "inherit": true,
-                    "linkColor": "#514293",
-                    "linkHoverColor": "#514293",
-                    "linkUnderline": true,
-                    "linkHoverUnderline": true
-                  },
-                  "text": "02 / Follow your curiosity.",
-                  "fontSize": "22px",
-                  "fontFamily": {
-                    "label": "Courier New",
-                    "value": "courier new,courier,monospace"
-                  },
-                  "color": "#264154",
-                  "textAlign": "left",
-                  "lineHeight": "110%",
-                  "containerPadding": "14px 36px",
-                  "headingType": "h2"
-                }
-              },
-              {
-                "id": "edition-the-explainer-22",
+                "id": "edition-the-explainer-19",
                 "type": "text",
                 "values": {
                   "anchor": "",
@@ -617,87 +500,20 @@
                     "linkUnderline": true,
                     "linkHoverUnderline": true
                   },
-                  "text": "Explore the people, places, and ideas behind the explainer.",
-                  "fontSize": "14px",
-                  "fontFamily": {
-                    "label": "Arial",
-                    "value": "arial,helvetica,sans-serif"
-                  },
-                  "color": "#264154",
-                  "textAlign": "left",
-                  "lineHeight": "160%",
-                  "containerPadding": "14px 36px"
-                }
-              },
-              {
-                "id": "edition-the-explainer-23",
-                "type": "divider",
-                "values": {
-                  "anchor": "",
-                  "displayCondition": null,
-                  "selectable": true,
-                  "draggable": true,
-                  "duplicatable": true,
-                  "deletable": true,
-                  "hideable": true,
-                  "_meta": {
-                    "htmlID": "u_content_divider_2",
-                    "htmlClassNames": "u_content_divider"
-                  },
-                  "linkStyle": {
-                    "inherit": true,
-                    "linkColor": "#514293",
-                    "linkHoverColor": "#514293",
-                    "linkUnderline": true,
-                    "linkHoverUnderline": true
-                  },
-                  "width": "100%",
-                  "border": {
-                    "borderTopWidth": "1px",
-                    "borderTopStyle": "solid",
-                    "borderTopColor": "#264154"
-                  },
-                  "textAlign": "center",
-                  "containerPadding": "18px 36px"
-                }
-              },
-              {
-                "id": "edition-the-explainer-24",
-                "type": "heading",
-                "values": {
-                  "anchor": "",
-                  "displayCondition": null,
-                  "selectable": true,
-                  "draggable": true,
-                  "duplicatable": true,
-                  "deletable": true,
-                  "hideable": true,
-                  "_meta": {
-                    "htmlID": "u_content_heading_5",
-                    "htmlClassNames": "u_content_heading"
-                  },
-                  "linkStyle": {
-                    "inherit": true,
-                    "linkColor": "#514293",
-                    "linkHoverColor": "#514293",
-                    "linkUnderline": true,
-                    "linkHoverUnderline": true
-                  },
-                  "text": "03 / Make it your own.",
-                  "fontSize": "22px",
+                  "text": "READ NEXT",
+                  "fontSize": "11px",
                   "fontFamily": {
                     "label": "Courier New",
                     "value": "courier new,courier,monospace"
                   },
-                  "color": "#264154",
+                  "color": "#D97706",
                   "textAlign": "left",
-                  "lineHeight": "110%",
-                  "containerPadding": "14px 36px",
-                  "headingType": "h2"
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 36px"
                 }
               },
               {
-                "id": "edition-the-explainer-25",
+                "id": "edition-the-explainer-20",
                 "type": "text",
                 "values": {
                   "anchor": "",
@@ -718,16 +534,16 @@
                     "linkUnderline": true,
                     "linkHoverUnderline": true
                   },
-                  "text": "What would the explainer look like in your everyday life? Start with the part of this story that caught your attention.",
-                  "fontSize": "14px",
+                  "text": "→ How deep-sea vents add minerals too<br>→ Why the Dead Sea is so much saltier<br>→ Send us a question for next week",
+                  "fontSize": "15px",
                   "fontFamily": {
                     "label": "Arial",
                     "value": "arial,helvetica,sans-serif"
                   },
-                  "color": "#264154",
+                  "color": "#0F2C3F",
                   "textAlign": "left",
                   "lineHeight": "160%",
-                  "containerPadding": "14px 36px"
+                  "containerPadding": "10px 36px"
                 }
               }
             ],
@@ -761,193 +577,22 @@
           "hideDesktop": false,
           "noStackMobile": false,
           "_meta": {
-            "htmlID": "u_row_4",
-            "htmlClassNames": "u_row"
-          }
-        }
-      },
-      {
-        "id": "edition-the-explainer-26",
-        "cells": [
-          1
-        ],
-        "columns": [
-          {
-            "id": "edition-the-explainer-27",
-            "contents": [
-              {
-                "id": "edition-the-explainer-28",
-                "type": "heading",
-                "values": {
-                  "anchor": "",
-                  "displayCondition": null,
-                  "selectable": true,
-                  "draggable": true,
-                  "duplicatable": true,
-                  "deletable": true,
-                  "hideable": true,
-                  "_meta": {
-                    "htmlID": "u_content_heading_6",
-                    "htmlClassNames": "u_content_heading"
-                  },
-                  "linkStyle": {
-                    "inherit": true,
-                    "linkColor": "#514293",
-                    "linkHoverColor": "#514293",
-                    "linkUnderline": true,
-                    "linkHoverUnderline": true
-                  },
-                  "text": "Take the next small step.",
-                  "fontSize": "28px",
-                  "fontFamily": {
-                    "label": "Courier New",
-                    "value": "courier new,courier,monospace"
-                  },
-                  "color": "#EBF1FA",
-                  "textAlign": "left",
-                  "lineHeight": "110%",
-                  "containerPadding": "14px 36px",
-                  "headingType": "h2"
-                }
-              },
-              {
-                "id": "edition-the-explainer-29",
-                "type": "text",
-                "values": {
-                  "anchor": "",
-                  "displayCondition": null,
-                  "selectable": true,
-                  "draggable": true,
-                  "duplicatable": true,
-                  "deletable": true,
-                  "hideable": true,
-                  "_meta": {
-                    "htmlID": "u_content_text_8",
-                    "htmlClassNames": "u_content_text"
-                  },
-                  "linkStyle": {
-                    "inherit": true,
-                    "linkColor": "#514293",
-                    "linkHoverColor": "#514293",
-                    "linkUnderline": true,
-                    "linkHoverUnderline": true
-                  },
-                  "text": "What would the explainer look like in your everyday life? Start with the part of this story that caught your attention.",
-                  "fontSize": "16px",
-                  "fontFamily": {
-                    "label": "Arial",
-                    "value": "arial,helvetica,sans-serif"
-                  },
-                  "color": "#EBF1FA",
-                  "textAlign": "left",
-                  "lineHeight": "160%",
-                  "containerPadding": "10px 36px"
-                }
-              },
-              {
-                "id": "edition-the-explainer-30",
-                "type": "button",
-                "values": {
-                  "anchor": "",
-                  "displayCondition": null,
-                  "selectable": true,
-                  "draggable": true,
-                  "duplicatable": true,
-                  "deletable": true,
-                  "hideable": true,
-                  "_meta": {
-                    "htmlID": "u_content_button_1",
-                    "htmlClassNames": "u_content_button"
-                  },
-                  "linkStyle": {
-                    "inherit": true,
-                    "linkColor": "#514293",
-                    "linkHoverColor": "#514293",
-                    "linkUnderline": true,
-                    "linkHoverUnderline": true
-                  },
-                  "text": "Explore The Explainer",
-                  "href": {
-                    "name": "web",
-                    "attrs": {
-                      "href": "{{href}}",
-                      "target": "{{target}}"
-                    },
-                    "values": {
-                      "href": "https://example.com",
-                      "target": "_blank"
-                    }
-                  },
-                  "buttonColors": {
-                    "color": "#264154",
-                    "backgroundColor": "#84C2EC",
-                    "hoverColor": "#264154",
-                    "hoverBackgroundColor": "#84C2EC"
-                  },
-                  "size": {
-                    "autoWidth": true,
-                    "width": "100%"
-                  },
-                  "fontFamily": {
-                    "label": "Arial",
-                    "value": "arial,helvetica,sans-serif"
-                  },
-                  "fontSize": "16px",
-                  "lineHeight": "140%",
-                  "textAlign": "left",
-                  "padding": "14px 24px",
-                  "border": {},
-                  "borderRadius": "6px",
-                  "containerPadding": "18px 36px 28px"
-                }
-              }
-            ],
-            "values": {
-              "border": {},
-              "padding": "0px",
-              "backgroundColor": "",
-              "_meta": {
-                "htmlID": "u_column_6",
-                "htmlClassNames": "u_column"
-              }
-            }
-          }
-        ],
-        "values": {
-          "backgroundColor": "",
-          "columnsBackgroundColor": "#264154",
-          "padding": "12px 0px",
-          "backgroundImage": {
-            "url": "",
-            "fullWidth": true,
-            "repeat": "no-repeat",
-            "size": "custom",
-            "position": "center"
-          },
-          "selectable": true,
-          "draggable": true,
-          "duplicatable": true,
-          "deletable": true,
-          "hideable": true,
-          "hideDesktop": false,
-          "noStackMobile": false,
-          "_meta": {
             "htmlID": "u_row_5",
             "htmlClassNames": "u_row"
           }
         }
       },
       {
-        "id": "edition-the-explainer-31",
+        "id": "edition-the-explainer-21",
         "cells": [
           1
         ],
         "columns": [
           {
-            "id": "edition-the-explainer-32",
+            "id": "edition-the-explainer-22",
             "contents": [
               {
-                "id": "edition-the-explainer-33",
+                "id": "edition-the-explainer-23",
                 "type": "divider",
                 "values": {
                   "anchor": "",
@@ -958,7 +603,7 @@
                   "deletable": true,
                   "hideable": true,
                   "_meta": {
-                    "htmlID": "u_content_divider_3",
+                    "htmlID": "u_content_divider_2",
                     "htmlClassNames": "u_content_divider"
                   },
                   "linkStyle": {
@@ -979,7 +624,7 @@
                 }
               },
               {
-                "id": "edition-the-explainer-34",
+                "id": "edition-the-explainer-24",
                 "type": "text",
                 "values": {
                   "anchor": "",
@@ -990,7 +635,7 @@
                   "deletable": true,
                   "hideable": true,
                   "_meta": {
-                    "htmlID": "u_content_text_9",
+                    "htmlID": "u_content_text_8",
                     "htmlClassNames": "u_content_text"
                   },
                   "linkStyle": {
@@ -1013,7 +658,7 @@
                 }
               },
               {
-                "id": "edition-the-explainer-35",
+                "id": "edition-the-explainer-25",
                 "type": "text",
                 "values": {
                   "anchor": "",
@@ -1024,7 +669,7 @@
                   "deletable": true,
                   "hideable": true,
                   "_meta": {
-                    "htmlID": "u_content_text_10",
+                    "htmlID": "u_content_text_9",
                     "htmlClassNames": "u_content_text"
                   },
                   "linkStyle": {
@@ -1047,7 +692,7 @@
                 }
               },
               {
-                "id": "edition-the-explainer-36",
+                "id": "edition-the-explainer-26",
                 "type": "text",
                 "values": {
                   "anchor": "",
@@ -1058,7 +703,7 @@
                   "deletable": true,
                   "hideable": true,
                   "_meta": {
-                    "htmlID": "u_content_text_11",
+                    "htmlID": "u_content_text_10",
                     "htmlClassNames": "u_content_text"
                   },
                   "linkStyle": {
@@ -1086,7 +731,7 @@
               "padding": "0px",
               "backgroundColor": "",
               "_meta": {
-                "htmlID": "u_column_7",
+                "htmlID": "u_column_6",
                 "htmlClassNames": "u_column"
               }
             }
@@ -1120,7 +765,7 @@
     "headers": [],
     "footers": [],
     "values": {
-      "backgroundColor": "#EBF1FA",
+      "backgroundColor": "#E8EEF2",
       "contentWidth": "600px",
       "contentAlign": "center",
       "fontFamily": {
@@ -1128,7 +773,7 @@
         "value": "arial,helvetica,sans-serif"
       },
       "textColor": "#30332F",
-      "preheaderText": "A clear introduction that starts with something familiar and builds from there.",
+      "preheaderText": "The short answer, the long answer, and three things to read next.",
       "language": {
         "htmlLang": "en"
       },

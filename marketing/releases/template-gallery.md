@@ -2,15 +2,17 @@
 
 Status: drafts only. Nothing here has been posted.
 
-What shipped: xem.email/templates, a public gallery of 18 email templates
+What shipped: xem.email/templates, a public gallery of 42 email templates
 from the Xem app. Each one has its own page with a full preview, its
 category, sample subject line and preview text, and a link to open it in
 Xem. Before this the templates were only visible after signing up.
 
-Not included: 20 starters that recreate other companies' emails, 20 of Xem's
-own account emails (password resets, sending alerts), and the 180-template
-editorial collection, which is being redesigned. Update the counts below if
-the redesigned set ships before these are posted.
+The 42 are our own designs: 18 hand-built starters and 24 editorial
+newsletters (a restaurant menu, a recipe, cinema listings, a trail report, a
+changelog, a class timetable and so on). Not included: 20 starters that
+recreate other companies' emails, and 20 of Xem's own account emails
+(password resets, sending alerts). If only the first PR has shipped when
+these are posted, the count is 18, not 42.
 
 ## X
 
@@ -62,9 +64,12 @@ Body:
 > it after installing or signing up. We've put the templates on the website so
 > you can see what you'd be getting first: https://xem.email/templates
 >
-> There are 18 so far: newsletters, welcome emails, product updates, shop
-> emails, event invites, order confirmation, password reset and email
-> verification, and one win-back email. They're made of the editor's normal
+> There are 42: welcome emails, product updates, shop emails, event invites,
+> order confirmation, password reset and email verification, a win-back
+> email, and 28 newsletters. The newsletters are written for specific uses (a
+> restaurant's weekly menu, a one-recipe email, cinema listings, a trail
+> report, a changelog, a gym timetable) so you can see how each one reads with
+> real-looking copy in it. They're made of the editor's normal
 > blocks, so after opening one you can change any part of it. The same
 > templates are in the self-hosted build.
 >
