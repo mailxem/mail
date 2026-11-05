@@ -219,6 +219,27 @@
         ]
       },
       {
+        "tab": "DevOps",
+        "groups": [
+          {
+            "group": "Infrastructure",
+            "pages": ["devops/overview", "devops/deployment", "devops/production-status"]
+          },
+          {
+            "group": "Runtimes",
+            "pages": ["devops/dokploy", "devops/kubernetes", "devops/hakopod", "devops/terraform-adoption"]
+          },
+          {
+            "group": "Inbound mail",
+            "pages": ["devops/cloudflare-mailbox", "devops/managed-receiving", "devops/managed-receiving-operations"]
+          },
+          {
+            "group": "Archive",
+            "pages": ["devops/legacy"]
+          }
+        ]
+      },
+      {
         "tab": "Changelog",
         "groups": [
           {

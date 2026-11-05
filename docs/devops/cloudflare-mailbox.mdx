@@ -1,0 +1,43 @@
+---
+title: "Cloudflare mailbox Worker"
+---
+
+This Worker gives one Xem installation a customer-owned inbound mailbox. Cloudflare Email Routing invokes the Worker, private R2 stores raw MIME, bodies, and attachments, and D1 stores the mailbox index, UID state, flags, and attachment metadata. Xem's backend calls the signed Worker API. The browser never receives the shared secret or a Cloudflare API token.
+
+The implementation has a 10 MiB raw-message limit and accepts at most 32 attachments per message. It does not automatically delete received, pending, or quarantined mail. One deployment serves the exact address configured in `MAILBOX_ADDRESS`; use a separate Worker, D1 database, R2 bucket, and secret for each mailbox that needs isolation.
+
+## Account setup
+
+Install Node.js 24 and pnpm 10.7.1, then run `cd devops/cloudflare-mailbox && pnpm install --frozen-lockfile` and authenticate Wrangler with `pnpm wrangler login` before creating resources.
+
+1. Create a private R2 bucket: `npx wrangler r2 bucket create xem-cloudflare-mailbox`.
+2. Create D1: `npx wrangler d1 create xem-cloudflare-mailbox`, then replace the placeholder `database_id` in `wrangler.jsonc`.
+3. Apply the migration before connecting Xem: `npx wrangler d1 migrations apply xem-cloudflare-mailbox --remote`.
+4. Replace the example `MAILBOX_ADDRESS` with the complete mailbox address. It must match the Email Routing destination exactly, ignoring case.
+5. Generate a unique random secret of 32–4096 characters and store it with `npx wrangler secret put MAILBOX_API_SECRET`.
+6. Deploy the Worker with `npx wrangler deploy`, then create a Cloudflare Email Routing rule for that exact address whose action sends to this Worker.
+7. In **Settings → SMTP → Cloudflare mailbox**, enter the Worker URL, exact mailbox address, and the same shared secret. Confirm the signed `/v1/mailbox/identity` response before switching existing mailbox routes or UI. It returns protocol `version: 1` only after the D1 migration is available.
+
+Do not make the R2 bucket public. Xem does not need an R2 or D1 API token; all content access stays behind the signed Worker API. Migrate the backend and verify its mailbox proxy before switching any UI or routes.
+
+## Storage and recovery
+
+Ingestion first writes `pending/<id>.eml`, then parses MIME and writes deterministic message objects before atomically committing the D1 message and attachment rows. It deletes the pending object only after that commit. A per-minute scheduled handler retries one pending object per run and advances a private cursor so a transient failure cannot block the backlog; transient failures remain pending without an expiry. Malformed MIME and messages with more than 32 attachments move to `quarantine/<id>.eml` for operator inspection and manual recovery; they are never automatically deleted.
+
+Inspect the `pending/` and `quarantine/` prefixes through the authenticated Cloudflare dashboard or an account-scoped S3-compatible R2 client. Do not make the bucket public to inspect it. After correcting a parser or operational problem, copy the quarantined raw object and its `from`, `to`, and `receivedAt` custom metadata back to its original `pending/<id>.eml` key and let the scheduled handler retry it. Byte-identical messages with the same normalized envelope sender and recipient produce the same deterministic ID and deduplicate; distinct bytes remain separate messages.
+
+The mailbox exposes only `INBOX`, supports metadata search across subject, sender, recipients, and RFC Message-ID, and permits only independent read (`\\Seen`) and starred (`\\Flagged`) changes. It has no expunge or delete API.
+
+## Validation and limits
+
+```sh
+pnpm install --frozen-lockfile
+pnpm run types
+pnpm test
+pnpm run check
+pnpm run deploy:check
+```
+
+Cloudflare bills and limits Workers, Email Routing, R2, and D1 separately. Check the current account plan and product documentation before production use. D1 databases are documented at 500 MB each on the Free plan and 10 GB each on paid plans; Worker CPU and request quotas also constrain parsing and API access.
+
+This directory is a local implementation. Its tests and Wrangler dry run do not prove a live Cloudflare deployment, Email Routing delivery, DNS readiness, or receipt from external providers such as Google.
