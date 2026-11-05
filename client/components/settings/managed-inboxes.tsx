@@ -384,7 +384,7 @@ export function ManagedInboxes() {
                 </div>
               )}
               {selectedDomain.mx.value &&
-                !["pending_mx", "mx_conflict", "ready"].includes(
+                !["pending_mx", "mx_conflict", "provisioning", "ready"].includes(
                   selectedDomain.receivingStatus,
                 ) && (
                   <p className="rounded-md border bg-background p-3 text-xs text-muted-foreground">
@@ -396,7 +396,7 @@ export function ManagedInboxes() {
                   </p>
                 )}
               {selectedDomain.mx.value &&
-                ["pending_mx", "mx_conflict", "ready"].includes(
+                ["pending_mx", "mx_conflict", "provisioning", "ready"].includes(
                   selectedDomain.receivingStatus,
                 ) && (
                 <div>
