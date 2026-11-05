@@ -1,0 +1,1369 @@
+{
+  "schemaVersion": 18,
+  "counters": {
+    "u_row": 7,
+    "u_column": 8,
+    "u_content_heading": 5,
+    "u_content_image": 1,
+    "u_content_text": 16,
+    "u_content_button": 3,
+    "u_content_divider": 2
+  },
+  "body": {
+    "id": "studio-grind-guide-body",
+    "rows": [
+      {
+        "id": "studio-grind-guide-1",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-grind-guide-2",
+            "contents": [
+              {
+                "id": "studio-grind-guide-3",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_1",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"color:#F2B233\">DAY</span><span style=\"color:#5FB7D4\">BREAK</span>",
+                  "fontSize": "26px",
+                  "fontFamily": {
+                    "label": "Arial Black",
+                    "value": "arial black,avant garde,arial"
+                  },
+                  "color": "#111111",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "28px 40px 4px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-grind-guide-4",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_2",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "HOW TO PICK<br>THE RIGHT<br>GRIND SIZE",
+                  "fontSize": "46px",
+                  "fontFamily": {
+                    "label": "Arial Black",
+                    "value": "arial black,avant garde,arial"
+                  },
+                  "color": "#EF6448",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "8px 40px 16px",
+                  "headingType": "h1"
+                }
+              },
+              {
+                "id": "studio-grind-guide-5",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "/assets/template-starters/illustrations/brewers.png",
+                    "width": 1200,
+                    "height": 600,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "Five coffee brewers: a machine, a drip pot, a stovetop pot, a pour-over and a press",
+                  "textAlign": "center",
+                  "containerPadding": "0px 24px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-grind-guide-6",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_1",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<em>Hint: it depends on how you brew.</em>",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#111111",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 40px 28px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_1",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_1",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-grind-guide-7",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-grind-guide-8",
+            "contents": [
+              {
+                "id": "studio-grind-guide-9",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "We know a thing or two about coffee, and here’s the short version: grind size matters. Whether you brew strong espresso or a slow cafetière, the size of your grounds can make or break the cup.<br><br>Get it right and your coffee tastes like it should. Get it wrong and it’s thin, bitter or just strange.<br><br>Our head roaster, Teo, wrote the full guide on our blog:",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Trebuchet MS",
+                    "value": "trebuchet ms,geneva"
+                  },
+                  "color": "#3A2A10",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "36px 56px 8px"
+                }
+              },
+              {
+                "id": "studio-grind-guide-10",
+                "type": "button",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_button_1",
+                    "htmlClassNames": "u_content_button"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "GET THE FULL GRIND GUIDE",
+                  "href": {
+                    "name": "web",
+                    "attrs": {
+                      "href": "{{href}}",
+                      "target": "{{target}}"
+                    },
+                    "values": {
+                      "href": "https://example.com",
+                      "target": "_blank"
+                    }
+                  },
+                  "buttonColors": {
+                    "color": "#EF6448",
+                    "backgroundColor": "#FFFFFF",
+                    "hoverColor": "#EF6448",
+                    "hoverBackgroundColor": "#FFFFFF"
+                  },
+                  "size": {
+                    "autoWidth": true,
+                    "width": "100%"
+                  },
+                  "fontFamily": {
+                    "label": "Trebuchet MS",
+                    "value": "trebuchet ms,geneva"
+                  },
+                  "fontSize": "13px",
+                  "lineHeight": "140%",
+                  "textAlign": "center",
+                  "padding": "14px 32px",
+                  "border": {},
+                  "borderRadius": "999px",
+                  "containerPadding": "16px 40px 40px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_2",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F9C623",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_2",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-grind-guide-11",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-grind-guide-12",
+            "contents": [
+              {
+                "id": "studio-grind-guide-13",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_3",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "OUR TOP TIPS",
+                  "fontSize": "40px",
+                  "fontFamily": {
+                    "label": "Arial Black",
+                    "value": "arial black,avant garde,arial"
+                  },
+                  "color": "#2B2B2B",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "40px 40px 0px",
+                  "headingType": "h1"
+                }
+              },
+              {
+                "id": "studio-grind-guide-14",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_4",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "For a better cup at home",
+                  "fontSize": "17px",
+                  "fontFamily": {
+                    "label": "Trebuchet MS",
+                    "value": "trebuchet ms,geneva"
+                  },
+                  "color": "#2B2B2B",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "4px 40px 16px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-grind-guide-15",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_3",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong style=\"font-size:17px\">Choose your brewer, then your grind.</strong><br>The brewer decides the grind. Espresso wants fine. Filter wants medium. A cafetière wants coarse.",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Trebuchet MS",
+                    "value": "trebuchet ms,geneva"
+                  },
+                  "color": "#2B2B2B",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 56px"
+                }
+              },
+              {
+                "id": "studio-grind-guide-16",
+                "type": "divider",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_divider_1",
+                    "htmlClassNames": "u_content_divider"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "width": "100%",
+                  "border": {
+                    "borderTopWidth": "1px",
+                    "borderTopStyle": "solid",
+                    "borderTopColor": "#7FB9C8"
+                  },
+                  "textAlign": "center",
+                  "containerPadding": "18px 36px"
+                }
+              },
+              {
+                "id": "studio-grind-guide-17",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_4",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong style=\"font-size:17px\">Grind just before you brew.</strong><br>Ground coffee goes stale in minutes. If you buy it ground, keep it airtight, cool and dark.",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Trebuchet MS",
+                    "value": "trebuchet ms,geneva"
+                  },
+                  "color": "#2B2B2B",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 56px"
+                }
+              },
+              {
+                "id": "studio-grind-guide-18",
+                "type": "divider",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_divider_2",
+                    "htmlClassNames": "u_content_divider"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "width": "100%",
+                  "border": {
+                    "borderTopWidth": "1px",
+                    "borderTopStyle": "solid",
+                    "borderTopColor": "#7FB9C8"
+                  },
+                  "textAlign": "center",
+                  "containerPadding": "18px 36px"
+                }
+              },
+              {
+                "id": "studio-grind-guide-19",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_5",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong style=\"font-size:17px\">Taste, then adjust.</strong><br>Watery or sour? Go finer. Harsh or bitter? Go coarser.",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Trebuchet MS",
+                    "value": "trebuchet ms,geneva"
+                  },
+                  "color": "#2B2B2B",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 56px"
+                }
+              },
+              {
+                "id": "studio-grind-guide-20",
+                "type": "button",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_button_2",
+                    "htmlClassNames": "u_content_button"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "READ THE GRIND GUIDE",
+                  "href": {
+                    "name": "web",
+                    "attrs": {
+                      "href": "{{href}}",
+                      "target": "{{target}}"
+                    },
+                    "values": {
+                      "href": "https://example.com",
+                      "target": "_blank"
+                    }
+                  },
+                  "buttonColors": {
+                    "color": "#FFFFFF",
+                    "backgroundColor": "#EF6448",
+                    "hoverColor": "#FFFFFF",
+                    "hoverBackgroundColor": "#EF6448"
+                  },
+                  "size": {
+                    "autoWidth": true,
+                    "width": "100%"
+                  },
+                  "fontFamily": {
+                    "label": "Trebuchet MS",
+                    "value": "trebuchet ms,geneva"
+                  },
+                  "fontSize": "13px",
+                  "lineHeight": "140%",
+                  "textAlign": "center",
+                  "padding": "14px 32px",
+                  "border": {},
+                  "borderRadius": "999px",
+                  "containerPadding": "20px 40px 40px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_3",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#A9DCE8",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_3",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-grind-guide-21",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-grind-guide-22",
+            "contents": [
+              {
+                "id": "studio-grind-guide-23",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_5",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "NO GRINDER?",
+                  "fontSize": "40px",
+                  "fontFamily": {
+                    "label": "Arial Black",
+                    "value": "arial black,avant garde,arial"
+                  },
+                  "color": "#FFFFFF",
+                  "textAlign": "center",
+                  "lineHeight": "110%",
+                  "containerPadding": "40px 40px 0px",
+                  "headingType": "h1"
+                }
+              },
+              {
+                "id": "studio-grind-guide-24",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_6",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong>We’ll take it from here.</strong>",
+                  "fontSize": "16px",
+                  "fontFamily": {
+                    "label": "Trebuchet MS",
+                    "value": "trebuchet ms,geneva"
+                  },
+                  "color": "#FFFFFF",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px 8px"
+                }
+              },
+              {
+                "id": "studio-grind-guide-25",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_7",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Do you want to buy a grinder?",
+                  "fontSize": "16px",
+                  "fontFamily": {
+                    "label": "Trebuchet MS",
+                    "value": "trebuchet ms,geneva"
+                  },
+                  "color": "#FFFFFF",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 40px 16px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_4",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#EF6448",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_4",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-grind-guide-26",
+        "cells": [
+          1,
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-grind-guide-27",
+            "contents": [
+              {
+                "id": "studio-grind-guide-28",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_8",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Yes, let’s<br>do it ↓",
+                  "fontSize": "16px",
+                  "fontFamily": {
+                    "label": "Trebuchet MS",
+                    "value": "trebuchet ms,geneva"
+                  },
+                  "color": "#FFFFFF",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 8px 12px 40px"
+                }
+              },
+              {
+                "id": "studio-grind-guide-29",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_9",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"display:block;background:#FADCD2;border-radius:12px;padding:18px 10px;color:#EF6448\"><strong>Here are three we like:</strong></span>",
+                  "fontSize": "15px",
+                  "fontFamily": {
+                    "label": "Trebuchet MS",
+                    "value": "trebuchet ms,geneva"
+                  },
+                  "color": "#EF6448",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 8px 8px 40px"
+                }
+              },
+              {
+                "id": "studio-grind-guide-30",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_10",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "•&nbsp; Starter: a hand grinder (about $50)<br>•&nbsp; Middle: an electric burr grinder (about $150)<br>•&nbsp; Splurge: a flat-burr grinder (about $400)",
+                  "fontSize": "13px",
+                  "fontFamily": {
+                    "label": "Trebuchet MS",
+                    "value": "trebuchet ms,geneva"
+                  },
+                  "color": "#FFFFFF",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 8px 24px 40px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_5",
+                "htmlClassNames": "u_column"
+              }
+            }
+          },
+          {
+            "id": "studio-grind-guide-31",
+            "contents": [
+              {
+                "id": "studio-grind-guide-32",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_11",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "No, I’m<br>fine ↓",
+                  "fontSize": "16px",
+                  "fontFamily": {
+                    "label": "Trebuchet MS",
+                    "value": "trebuchet ms,geneva"
+                  },
+                  "color": "#FFFFFF",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px 12px 8px"
+                }
+              },
+              {
+                "id": "studio-grind-guide-33",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_12",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"display:block;background:#FADCD2;border-radius:12px;padding:18px 10px;color:#EF6448\"><strong>We’ll grind it for you.</strong></span>",
+                  "fontSize": "15px",
+                  "fontFamily": {
+                    "label": "Trebuchet MS",
+                    "value": "trebuchet ms,geneva"
+                  },
+                  "color": "#EF6448",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px 8px 8px"
+                }
+              },
+              {
+                "id": "studio-grind-guide-34",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_13",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Pick a grind size when you add a bag to your basket. We grind to order for every way of brewing.",
+                  "fontSize": "13px",
+                  "fontFamily": {
+                    "label": "Trebuchet MS",
+                    "value": "trebuchet ms,geneva"
+                  },
+                  "color": "#FFFFFF",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 40px 24px 8px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_6",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#EF6448",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_5",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-grind-guide-35",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-grind-guide-36",
+            "contents": [
+              {
+                "id": "studio-grind-guide-37",
+                "type": "button",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_button_3",
+                    "htmlClassNames": "u_content_button"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "SHOP DAYBREAK COFFEE",
+                  "href": {
+                    "name": "web",
+                    "attrs": {
+                      "href": "{{href}}",
+                      "target": "{{target}}"
+                    },
+                    "values": {
+                      "href": "https://example.com",
+                      "target": "_blank"
+                    }
+                  },
+                  "buttonColors": {
+                    "color": "#EF6448",
+                    "backgroundColor": "#FFFFFF",
+                    "hoverColor": "#EF6448",
+                    "hoverBackgroundColor": "#FFFFFF"
+                  },
+                  "size": {
+                    "autoWidth": true,
+                    "width": "100%"
+                  },
+                  "fontFamily": {
+                    "label": "Trebuchet MS",
+                    "value": "trebuchet ms,geneva"
+                  },
+                  "fontSize": "13px",
+                  "lineHeight": "140%",
+                  "textAlign": "center",
+                  "padding": "14px 32px",
+                  "border": {},
+                  "borderRadius": "999px",
+                  "containerPadding": "8px 40px 40px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_7",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#EF6448",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_6",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-grind-guide-38",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-grind-guide-39",
+            "contents": [
+              {
+                "id": "studio-grind-guide-40",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_14",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Daybreak Roasters · 12 Example Street, Your City",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#555555",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-grind-guide-41",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_15",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "You’re receiving this because you signed up at our website. <a href=\"https://example.com\" style=\"color:inherit\">Unsubscribe</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#555555",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 48px"
+                }
+              },
+              {
+                "id": "studio-grind-guide-42",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_16",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<a href=\"https://xem.email\" style=\"color:inherit\">Built with Xem</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Arial",
+                    "value": "arial,helvetica,sans-serif"
+                  },
+                  "color": "#555555",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "12px 48px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_8",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#FFFFFF",
+          "padding": "24px 0px 0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_7",
+            "htmlClassNames": "u_row"
+          }
+        }
+      }
+    ],
+    "headers": [],
+    "footers": [],
+    "values": {
+      "backgroundColor": "#FFFFFF",
+      "contentWidth": "600px",
+      "contentAlign": "center",
+      "fontFamily": {
+        "label": "Arial",
+        "value": "arial,helvetica,sans-serif"
+      },
+      "textColor": "#30332F",
+      "preheaderText": "Hint: it depends on how you brew.",
+      "language": {
+        "htmlLang": "en"
+      },
+      "linkStyle": {
+        "body": true,
+        "linkColor": "#514293",
+        "linkHoverColor": "#514293",
+        "linkUnderline": true,
+        "linkHoverUnderline": true
+      },
+      "_meta": {
+        "htmlID": "u_body",
+        "htmlClassNames": "u_body"
+      }
+    }
+  }
+}

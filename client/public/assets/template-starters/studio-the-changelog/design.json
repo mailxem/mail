@@ -1,0 +1,1068 @@
+{
+  "schemaVersion": 18,
+  "counters": {
+    "u_row": 6,
+    "u_column": 6,
+    "u_content_heading": 6,
+    "u_content_text": 12,
+    "u_content_image": 1,
+    "u_content_divider": 3
+  },
+  "body": {
+    "id": "studio-the-changelog-body",
+    "rows": [
+      {
+        "id": "studio-the-changelog-1",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-the-changelog-2",
+            "contents": [
+              {
+                "id": "studio-the-changelog-3",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_1",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"color:#D97757\">✳</span> Tern",
+                  "fontSize": "22px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#1F1E1D",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "28px 40px 8px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-the-changelog-4",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_1",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Hey!<br><br>Two big features shipped in beta this month. <strong>Projects</strong> let you keep several sessions under one goal. And the desktop app now has a <strong>workspace</strong> where sessions, files and notes sit side by side.",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1F1E1D",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 40px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_1",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F7F6F2",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_1",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-the-changelog-5",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-the-changelog-6",
+            "contents": [
+              {
+                "id": "studio-the-changelog-7",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_2",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Projects (beta)",
+                  "fontSize": "22px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#1F1E1D",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "20px 40px 4px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-the-changelog-8",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Group sessions under one goal so you can hand work over without losing the thread. Each project keeps its own files, instructions and history.",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1F1E1D",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px 8px"
+                }
+              },
+              {
+                "id": "studio-the-changelog-9",
+                "type": "image",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_image_1",
+                    "htmlClassNames": "u_content_image"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "src": {
+                    "url": "/assets/template-starters/illustrations/ui-dark-sessions.png",
+                    "width": 1200,
+                    "height": 600,
+                    "autoWidth": false,
+                    "maxWidth": "100%"
+                  },
+                  "altText": "A dark app window with a list of sessions and a welcome message",
+                  "textAlign": "center",
+                  "containerPadding": "8px 40px",
+                  "action": {
+                    "name": "web",
+                    "values": {
+                      "href": "",
+                      "target": "_blank"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "studio-the-changelog-10",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_3",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong><a href=\"https://example.com\" style=\"color:#1F1E1D;\">Read more about Projects →</a></strong>",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1F1E1D",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 40px 16px"
+                }
+              },
+              {
+                "id": "studio-the-changelog-11",
+                "type": "divider",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_divider_1",
+                    "htmlClassNames": "u_content_divider"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "width": "100%",
+                  "border": {
+                    "borderTopWidth": "1px",
+                    "borderTopStyle": "solid",
+                    "borderTopColor": "#DDDAD0"
+                  },
+                  "textAlign": "center",
+                  "containerPadding": "18px 36px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_2",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F7F6F2",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_2",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-the-changelog-12",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-the-changelog-13",
+            "contents": [
+              {
+                "id": "studio-the-changelog-14",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_3",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Check your scripts before you ship",
+                  "fontSize": "22px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#1F1E1D",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "16px 40px 4px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-the-changelog-15",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_4",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Tern can now run a quick evaluation on your plugins and tell you which cases pass:",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1F1E1D",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px 8px"
+                }
+              },
+              {
+                "id": "studio-the-changelog-16",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_5",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"font-family:courier new,monospace;font-size:12px;background:#1F1E1D;color:#E8E6DC;display:block;padding:14px 16px;border-radius:6px;white-space:pre\">$ tern eval ./plugins\n\nCASE            PASS   TIME\n01-setup        yes    0.4s\n02-import       yes    1.2s\n03-edge-cases   no     0.9s\n\n2 of 3 passed</span>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Courier New",
+                    "value": "courier new,courier,monospace"
+                  },
+                  "color": "#1F1E1D",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px"
+                }
+              },
+              {
+                "id": "studio-the-changelog-17",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_6",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<strong><a href=\"https://example.com\" style=\"color:#1F1E1D;\">Read more about evaluations →</a></strong>",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1F1E1D",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 40px 16px"
+                }
+              },
+              {
+                "id": "studio-the-changelog-18",
+                "type": "divider",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_divider_2",
+                    "htmlClassNames": "u_content_divider"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "width": "100%",
+                  "border": {
+                    "borderTopWidth": "1px",
+                    "borderTopStyle": "solid",
+                    "borderTopColor": "#DDDAD0"
+                  },
+                  "textAlign": "center",
+                  "containerPadding": "18px 36px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_3",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F7F6F2",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_3",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-the-changelog-19",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-the-changelog-20",
+            "contents": [
+              {
+                "id": "studio-the-changelog-21",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_4",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "How people use Tern",
+                  "fontSize": "22px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#1F1E1D",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "16px 40px 8px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-the-changelog-22",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_7",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"display:block;border-left:3px solid #D97757;padding-left:14px\"><em>“I give it the boring migrations now. It writes the plan, I read it over coffee, and it’s done before lunch.”</em><br><span style=\"font-size:12px;color:#777777\">— Priya, platform engineer</span></span>",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1F1E1D",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px 12px"
+                }
+              },
+              {
+                "id": "studio-the-changelog-23",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_8",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"display:block;border-left:3px solid #D97757;padding-left:14px\"><em>“The project notes mean whoever picks the work up next knows what was tried and why.”</em><br><span style=\"font-size:12px;color:#777777\">— Sam, engineering lead</span></span>",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1F1E1D",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px 16px"
+                }
+              },
+              {
+                "id": "studio-the-changelog-24",
+                "type": "divider",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_divider_3",
+                    "htmlClassNames": "u_content_divider"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "width": "100%",
+                  "border": {
+                    "borderTopWidth": "1px",
+                    "borderTopStyle": "solid",
+                    "borderTopColor": "#DDDAD0"
+                  },
+                  "textAlign": "center",
+                  "containerPadding": "18px 36px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_4",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F7F6F2",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_4",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-the-changelog-25",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-the-changelog-26",
+            "contents": [
+              {
+                "id": "studio-the-changelog-27",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_5",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Other highlights",
+                  "fontSize": "20px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#1F1E1D",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "16px 40px 8px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-the-changelog-28",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_9",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"font-family:courier new;color:#777777\">2.4.0</span>&nbsp; <strong>Faster start-up.</strong> Opening a large folder takes about half as long.<br><br><span style=\"font-family:courier new;color:#777777\">2.3.2</span>&nbsp; <strong>Clearer errors</strong> when a connection drops halfway through a task.<br><br><span style=\"font-family:courier new;color:#777777\">2.3.0</span>&nbsp; <strong>Keyboard shortcuts</strong> for switching between sessions.",
+                  "fontSize": "13px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1F1E1D",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "4px 40px 16px"
+                }
+              },
+              {
+                "id": "studio-the-changelog-29",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_10",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "That’s it for this month. See the <a href=\"https://example.com\" style=\"color:#1F1E1D;\">full changelog</a> for everything else.<br><br>Happy building,<br>The Tern team",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1F1E1D",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 40px 24px"
+                }
+              },
+              {
+                "id": "studio-the-changelog-30",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_11",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Was this email useful? &nbsp;<a href=\"https://example.com\" style=\"color:#1F1E1D;\">👍</a> &nbsp;<a href=\"https://example.com\" style=\"color:#1F1E1D;\">👎</a>",
+                  "fontSize": "14px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#1F1E1D",
+                  "textAlign": "center",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 40px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_5",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#F7F6F2",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_5",
+            "htmlClassNames": "u_row"
+          }
+        }
+      },
+      {
+        "id": "studio-the-changelog-31",
+        "cells": [
+          1
+        ],
+        "columns": [
+          {
+            "id": "studio-the-changelog-32",
+            "contents": [
+              {
+                "id": "studio-the-changelog-33",
+                "type": "heading",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_heading_6",
+                    "htmlClassNames": "u_content_heading"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "<span style=\"color:#D97757\">✳</span> Tern",
+                  "fontSize": "20px",
+                  "fontFamily": {
+                    "label": "Georgia",
+                    "value": "georgia,palatino"
+                  },
+                  "color": "#FFFFFF",
+                  "textAlign": "left",
+                  "lineHeight": "110%",
+                  "containerPadding": "28px 40px 8px",
+                  "headingType": "h2"
+                }
+              },
+              {
+                "id": "studio-the-changelog-34",
+                "type": "text",
+                "values": {
+                  "anchor": "",
+                  "displayCondition": null,
+                  "selectable": true,
+                  "draggable": true,
+                  "duplicatable": true,
+                  "deletable": true,
+                  "hideable": true,
+                  "_meta": {
+                    "htmlID": "u_content_text_12",
+                    "htmlClassNames": "u_content_text"
+                  },
+                  "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#514293",
+                    "linkHoverColor": "#514293",
+                    "linkUnderline": true,
+                    "linkHoverUnderline": true
+                  },
+                  "text": "Tern · 12 Example Street, Your City · <a href=\"https://example.com\" style=\"color:#BBBBBB\">Unsubscribe</a><br><a href=\"https://xem.email\" style=\"color:#BBBBBB\">Built with Xem</a>",
+                  "fontSize": "12px",
+                  "fontFamily": {
+                    "label": "Helvetica",
+                    "value": "helvetica,sans-serif"
+                  },
+                  "color": "#BBBBBB",
+                  "textAlign": "left",
+                  "lineHeight": "160%",
+                  "containerPadding": "8px 40px 32px"
+                }
+              }
+            ],
+            "values": {
+              "border": {},
+              "padding": "0px",
+              "backgroundColor": "",
+              "_meta": {
+                "htmlID": "u_column_6",
+                "htmlClassNames": "u_column"
+              }
+            }
+          }
+        ],
+        "values": {
+          "backgroundColor": "",
+          "columnsBackgroundColor": "#141414",
+          "padding": "0px",
+          "backgroundImage": {
+            "url": "",
+            "fullWidth": true,
+            "repeat": "no-repeat",
+            "size": "custom",
+            "position": "center"
+          },
+          "selectable": true,
+          "draggable": true,
+          "duplicatable": true,
+          "deletable": true,
+          "hideable": true,
+          "hideDesktop": false,
+          "noStackMobile": false,
+          "_meta": {
+            "htmlID": "u_row_6",
+            "htmlClassNames": "u_row"
+          }
+        }
+      }
+    ],
+    "headers": [],
+    "footers": [],
+    "values": {
+      "backgroundColor": "#EFEDE6",
+      "contentWidth": "600px",
+      "contentAlign": "center",
+      "fontFamily": {
+        "label": "Arial",
+        "value": "arial,helvetica,sans-serif"
+      },
+      "textColor": "#30332F",
+      "preheaderText": "Projects, a desktop workspace, and twenty smaller fixes.",
+      "language": {
+        "htmlLang": "en"
+      },
+      "linkStyle": {
+        "body": true,
+        "linkColor": "#514293",
+        "linkHoverColor": "#514293",
+        "linkUnderline": true,
+        "linkHoverUnderline": true
+      },
+      "_meta": {
+        "htmlID": "u_body",
+        "htmlClassNames": "u_body"
+      }
+    }
+  }
+}

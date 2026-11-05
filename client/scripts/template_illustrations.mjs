@@ -266,6 +266,83 @@ Object.assign(art, {
   "speaker-strip": flat(600, 110, `${["#F28B6B", "#9B7BEA", "#4DE1A1", "#FFD84D", "#FF5FA2", "#3FA9FF"].map((c, i) => `<g transform="translate(${-30 + i * 106} 0)"><rect width="96" height="110" rx="10" fill="${c}"/><path d="M14 110c0-30 14-42 34-42s34 12 34 42z" fill="${["#1F2B40", "#E9E4DA", "#2E7D6A", "#3A5BA0", "#F4F1EA", "#2B2B2B"][i]}"/><ellipse cx="48" cy="44" rx="18" ry="22" fill="${["#E8B48C", "#C98E6B", "#F1C6A6", "#8D5A3E", "#E5B08F", "#F0C8A8"][i]}"/><path d="M28 40c0-20 12-26 22-26s20 8 18 26c-6-8-24-10-40 0z" fill="${["#4A3326", "#2B1E16", "#C98B3A", "#1E1410", "#7A4A2A", "#2E2E2E"][i]}"/></g>`).join("")}`),
 });
 
+// Batch two: dithered portrait, brewer icons, stat cards, launch tiles and more.
+const pixelPortrait = (fg, bg) => {
+  // A 48x48 dither of an original head-and-shoulders silhouette at a laptop.
+  const N = 48, s = 8; let cells = "";
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const dx = x - 24, dy = y - 16;
+    const head = dx * dx / 64 + dy * dy / 90 < 1;
+    const body = y > 26 && Math.abs(dx) < 4 + (y - 26) * 0.9 && y < 40;
+    const desk = y >= 38 && y < 41;
+    const laptop = y > 30 && y < 38 && x > 30 && x < 44 && (x - 30) > (38 - y) * 0.6;
+    const shade = head ? ((x + y) % 3 ? 1 : 0) : body ? ((x * y) % 4 ? 1 : 0) : (desk || laptop) ? 1 : ((x + 2 * y) % 7 === 0 ? 1 : 0);
+    cells += `<rect x="${x * s}" y="${y * s}" width="${s - 1}" height="${s - 1}" fill="${shade ? fg : bg}"/>`;
+  }
+  return flat(N * s, N * s, cells, bg);
+};
+const statCard = (n, label, c1, c2) => flat(240, 280, `<defs>${grad("s" + n.replace(/\W/g, ""), [c1, c2, "#FFF27A"], 0.5, 1)}</defs>
+  <rect width="240" height="280" rx="18" fill="url(#s${n.replace(/\W/g, "")})"/><text x="18" y="200" font-family="Arial" font-size="64" fill="#1A1A1A">${n}</text>
+  ${label.map((l, i) => `<text x="20" y="${228 + i * 15}" font-family="Arial" font-size="12" fill="#1A1A1A">${l}</text>`).join("")}`);
+const tile = (x, y, fill, glyph) => `<rect x="${x}" y="${y}" width="140" height="140" rx="26" fill="${fill}"/>${glyph}`;
+
+Object.assign(art, {
+  "pixel-portrait": pixelPortrait("#E3EA4A", "#8E6BD8"),
+  "brewers": svg(600, 150, null, "#2B2B2B", `
+    <rect x="20" y="40" width="80" height="80" rx="8" fill="#F28B6B"/><rect x="30" y="52" width="60" height="16" fill="#FFFFFF"/><path d="M50 120v16M70 120v16"/>
+    <path d="M140 40h70l-6 90h-58z" fill="#BFE3EE"/><path d="M150 70h50" /><rect x="150" y="30" width="50" height="12" fill="#F2B233"/>
+    <path d="M260 40h70v20l-20 20v50h-30V80l-20-20z" fill="#E8574A"/><rect x="278" y="96" width="34" height="24" fill="#F2B233"/>
+    <path d="M380 40h70l-35 50z" fill="#FFFFFF"/><path d="M395 90h40l10 46h-60z" fill="#8B5A3C"/>
+    <rect x="500" y="40" width="50" height="90" rx="6" fill="#BFE3EE"/><rect x="496" y="30" width="58" height="14" rx="4" fill="#E8574A"/><path d="M500 90h50" />`),
+  "ui-editor": flat(320, 220, `<rect x="40" y="30" width="230" height="160" rx="8" fill="#FFFFFF"/><rect x="40" y="30" width="230" height="22" rx="8" fill="#EDEAF6"/>
+    <rect x="60" y="70" width="110" height="90" rx="6" fill="#F2A33A"/><circle cx="115" cy="115" r="14" fill="#FFE07A"/>
+    ${[0, 1, 2].map((i) => `<rect x="186" y="${70 + i * 32}" width="70" height="22" rx="4" fill="#F7C873"/>`).join("")}
+    <path d="M290 30l6 14 14 6-14 6-6 14-6-14-14-6 14-6z" fill="#FFFFFF"/>`),
+  "icon-brush": flat(80, 80, `<rect width="80" height="80" rx="12" fill="#FFF3D6" stroke="#F2C14E" stroke-width="2"/><path d="M22 58l26-26 8 8-26 26-12 4z" fill="#8E6BD8"/><circle cx="54" cy="26" r="10" fill="#F2A33A"/>`),
+  "icon-toggles": flat(80, 80, `<rect width="80" height="80" rx="12" fill="#EAF7EE" stroke="#4CAF7A" stroke-width="2"/>${[0, 1, 2].map((i) => `<rect x="16" y="${16 + i * 18}" width="12" height="12" rx="2" fill="${i < 2 ? "#4CAF7A" : "#FFFFFF"}" stroke="#4CAF7A"/><rect x="34" y="${18 + i * 18}" width="30" height="8" rx="4" fill="#CFD8D2"/>`).join("")}`),
+  "icon-blocks": flat(80, 80, `<rect width="80" height="80" rx="12" fill="#F1ECFB" stroke="#8E6BD8" stroke-width="2"/>${[[16, 44, "#F28BC4"], [30, 44, "#F2C14E"], [44, 44, "#F2C14E"], [16, 30, "#F28BC4"], [30, 30, "#8E6BD8"], [44, 16, "#8E6BD8"], [58, 16, "#8E6BD8"], [16, 58, "#F28BC4"], [30, 58, "#F2C14E"], [44, 58, "#F2C14E"]].map(([x, y, c]) => `<rect x="${x}" y="${y}" width="12" height="12" fill="${c}"/>`).join("")}`),
+  "house-dots": flat(120, 30, `${[["#D9541E", 10], ["#2F6FED", 46], ["#1E7D5A", 82]].map(([c, x]) => `<path d="M${x} 28V14l12-10 12 10v14z" fill="${c}"/>`).join("")}`),
+  "icon-heart-house": flat(64, 64, `<path d="M8 58V28L32 8l24 20v30z" fill="#FFFFFF"/><path d="M32 46c-10-8-14-12-10-18 3-4 8-3 10 1 2-4 7-5 10-1 4 6 0 10-10 18z" fill="#0B2A7A"/>`),
+  "stat-6": statCard("9%", ["of teams think the tool could", "replace someone today"], "#FFE14D", "#F5B8C8"),
+  "stat-97": statCard("88%", ["of teams have tried", "the tool at least once"], "#FFE14D", "#C9B8F5"),
+  "stat-84": statCard("71%", ["use it first for", "research and prep"], "#F5B8C8", "#FFE14D"),
+  "launch-tiles": flat(500, 300, `<defs>${grad("lt", ["#FBC9A8", "#FBE7D6"], 0.2, 1)}</defs><rect width="500" height="300" rx="20" fill="url(#lt)"/>
+    <path d="M0 230c120 50 260 40 360-30" stroke="#E8743C" stroke-width="2" stroke-dasharray="3 5" fill="none"/><path d="M440 150l30-110" stroke="#E8743C" stroke-width="2" stroke-dasharray="3 5"/><path d="M462 40l12-4 2 12" fill="none" stroke="#E8743C" stroke-width="2"/>
+    ${tile(60, 80, "#24413A", `<path d="M95 130l35-20 35 20-35 20z" fill="#A8E6A1"/><path d="M95 150l35 20 35-20" stroke="#A8E6A1" stroke-width="10" fill="none"/>`)}
+    <path d="M200 150h100" stroke="#1F1F1F" stroke-width="2" stroke-dasharray="2 4"/><circle cx="250" cy="150" r="5" fill="#1F1F1F"/>
+    ${tile(300, 80, "#FF6A1A", `<rect x="335" y="110" width="70" height="10" fill="#FFFFFF"/><rect x="335" y="126" width="70" height="10" fill="#FFFFFF"/><path d="M335 142h70v46l-35-18-35 18z" fill="#FFFFFF"/>`)}`),
+  "emoji-recycle": flat(64, 64, `<rect width="64" height="64" rx="10" fill="#FFD98A"/><path d="M20 40l12-20 12 20z" fill="none" stroke="#2E9E4A" stroke-width="5" stroke-linejoin="round"/>`),
+  "emoji-chart": flat(64, 64, `<rect width="64" height="64" rx="10" fill="#D8C8F5"/><rect x="14" y="14" width="36" height="36" fill="#FFFFFF"/><path d="M18 44l10-12 8 6 12-18" stroke="#D9452B" stroke-width="3" fill="none"/>`),
+  "emoji-shake": flat(64, 64, `<rect width="64" height="64" rx="10" fill="#BFE0F5"/><path d="M14 34l10-8 10 6 8-6 8 8-12 12-8-4-6 4z" fill="#F2B233" stroke="#B5781E" stroke-width="2"/>`),
+  "shield-mail": svg(600, 220, null, "#1A1A1A", `
+    <path d="M120 40l70 26v50c0 50-40 80-70 90-30-10-70-40-70-90V66z" fill="#FFE0E0"/><path d="M95 120l20 20 36-44" stroke="#E8473C" stroke-width="6"/>
+    <rect x="250" y="50" width="160" height="120" rx="10" fill="#FFFFFF"/><path d="M262 70h136M262 92h100M262 112h120M262 132h80"/>
+    <path d="M450 80l60-30 60 30v80H450z" fill="#F7E6F7"/><path d="M450 80l60 44 60-44"/>
+    ${star(230, 40, 14, "#1A1A1A")}${star(580, 190, 12, "#1A1A1A")}${burst(440, 190, 20)}`),
+  "icon-checkbox": flat(48, 48, `<rect x="4" y="4" width="40" height="40" rx="8" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="3"/><rect x="11" y="11" width="26" height="26" rx="4" fill="#F7C6D0"/><path d="M15 24l7 7 13-14" stroke="#E8473C" stroke-width="4" fill="none"/>`),
+  "icon-chat": flat(48, 48, `<path d="M6 10h36v24H20l-10 8v-8H6z" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="3"/><path d="M14 18h20M14 26h14" stroke="#E8473C" stroke-width="3"/>`),
+  "ui-dark-sessions": flat(560, 200, `<rect width="560" height="200" rx="10" fill="#1C1C1A"/><rect x="0" y="0" width="560" height="26" rx="10" fill="#2A2A27"/>
+    ${[0, 1, 2].map((i) => `<circle cx="${16 + i * 14}" cy="13" r="4" fill="#5A5A55"/>`).join("")}
+    <rect x="20" y="44" width="180" height="140" rx="6" fill="#262623"/>${[0, 1, 2, 3, 4].map((i) => `<rect x="32" y="${58 + i * 24}" width="${150 - i * 14}" height="10" rx="5" fill="${i === 1 ? "#D97757" : "#4A4A45"}"/>`).join("")}
+    <text x="230" y="70" font-family="Courier New" font-size="15" fill="#E8E6DC">Welcome back, Sam.</text>${[0, 1, 2, 3].map((i) => `<rect x="230" y="${90 + i * 22}" width="${300 - i * 40}" height="9" rx="4" fill="#3A3A36"/>`).join("")}`),
+  "botanical": svg(200, 200, null, "#CFC8B0", `
+    <path d="M100 190V40M100 120c-30-10-50-40-50-70M100 100c30-10 46-36 44-66M100 150c-24-4-44-20-52-44M100 140c26-6 40-24 46-48"/>
+    ${[[50, 50], [144, 34], [48, 106], [146, 92], [100, 40]].map(([x, y]) => `<path d="M${x} ${y}c-10-14-4-26 0-30 4 4 10 16 0 30z"/>`).join("")}`, 2),
+});
+
+Object.assign(art, {
+  "torn-stripe": flat(600, 24, `<rect width="600" height="24" fill="#1F4D2E"/>${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => `<path d="M${i * 52} 24l${10 + (i % 3) * 6} -14 ${22 + (i % 2) * 8} 4 8 10z" fill="${["#E8743C", "#E3EA4A", "#E8743C", "#C9D94A"][i % 4]}"/>`).join("")}`),
+  "fact-mark": flat(48, 48, `<circle cx="24" cy="24" r="20" fill="none" stroke="#E3EA4A" stroke-width="4"/><path d="M16 30c0-12 18-16 18-4 0 6-8 6-8 0" fill="none" stroke="#E3EA4A" stroke-width="4" stroke-linecap="round"/>`),
+  "map-outline": line(160, 120, `<path d="M14 24l40-14 50 14 44-14v86l-44 14-50-14-40 14z"/><path d="M54 10v86M104 24v86"/>`, 7, "#1E1A4A"),
+  "hand-ok": svg(140, 120, null, "#3A2A20", `<path d="M40 110V70c0-10 14-10 14 0v-30c0-10 14-10 14 0v26c0-10 14-10 14 0v8c4-6 14-4 14 4v20c0 20-14 32-32 32s-24-12-24-30z" fill="#F2C2A0"/><circle cx="104" cy="30" r="12" fill="#E8473C" stroke="none"/><path d="M96 20c4-8 16-8 16 2" stroke="#E8473C"/>`, 3),
+  "megaphone-city": svg(600, 180, null, "#1A1A1A", `<rect x="250" y="40" width="70" height="140" fill="#4A4A4A"/>${[0, 1, 2, 3, 4, 5].map((i) => `<path d="M262 ${56 + i * 20}h46" stroke="#8A8A8A" stroke-width="3"/>`).join("")}
+    <path d="M300 90l90-40v100l-90-40z" fill="#E8473C"/><rect x="280" y="86" width="24" height="32" fill="#FFFFFF"/>${burst(420, 70, 30)}<path d="M150 50c10-12 30-12 34 0 12-4 20 8 12 14h-46c-8-4-6-12 0-14z" fill="#FFFFFF"/><path d="M450 30c10-12 30-12 34 0 12-4 20 8 12 14h-46c-8-4-6-12 0-14z" fill="#FFFFFF"/>`, 3),
+  "bulb": svg(80, 80, null, "#E3EA4A", `<path d="M28 50c-10-8-10-30 12-30s22 22 12 30v8H28z"/><path d="M30 64h20M32 70h16"/>${dash(40, 10, -1.57, 6)}${dash(16, 22, -2.4, 6)}${dash(64, 22, -0.75, 6)}`, 5),
+  "critters": flat(600, 70, `${[[30, "cat"], [120, "dog"], [210, "rabbit"], [300, "deer"], [390, "bird"], [480, "fox"], [560, "hen"]].map(([x, k]) => ({
+      cat: `<path d="M${x} 70v-30l6-14 6 10h12l6-10 6 14v30z"/>`, dog: `<path d="M${x} 70v-24h30l10-14 8 6-4 16v16z"/>`, rabbit: `<path d="M${x} 70c0-20 8-28 20-28l2-28 6 2-2 26c10 4 14 14 14 28z"/>`,
+      deer: `<path d="M${x} 70l4-30h30l8-20-6-14 10 8 4-8 2 12-8 22-4 30z"/>`, bird: `<path d="M${x} 60c10-20 30-24 44-14l10-4-6 10c0 16-16 22-48 8z"/>`, fox: `<path d="M${x} 70c4-18 14-26 28-26l10-18 4 14 8-12 0 18c-6 10-14 16-20 24z"/>`, hen: `<path d="M${x} 70c-4-20 6-34 22-30l4-10 6 8c6 10 4 26-6 32z"/>` })[k]).join("")}`.replace(/<path /g, '<path fill="#2A2AE0" '), null),
+});
+
 for (const [name, markup] of Object.entries(art)) {
   await sharp(Buffer.from(markup), { density: 144 })
     .png({ palette: true, quality: 90, compressionLevel: 9 })
