@@ -41,6 +41,7 @@ jest.mock("@/components/assistant/workspace-ai", () => ({
 }));
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ replace: jest.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 jest.mock("@/app/providers/team-provider", () => ({
   useTeam: () => ({ team: { id: "team" } }),

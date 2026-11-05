@@ -26,17 +26,41 @@ import {
   useWorkspaceAI,
   type DesignEditor,
 } from "@/components/assistant/workspace-ai";
+// jsdom predates structuredClone; designs are plain JSON.
+globalThis.structuredClone ??= ((v: unknown) =>
+  JSON.parse(JSON.stringify(v))) as typeof structuredClone;
+// A design with enough copy to be revised in place.
+const currentDesign = {
+  schemaVersion: 18,
+  body: {
+    rows: [
+      {
+        id: "r1",
+        columns: [
+          {
+            contents: [
+              { id: "h1", type: "heading", values: { text: "Hello there" } },
+              { id: "t1", type: "text", values: { text: "<p>Previous content</p>" } },
+              { id: "b1", type: "button", values: { text: "Read more" } },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+};
 const snapshot = {
   key: "team:fixture",
   revision: 1,
   subject: "Hello",
   html: "Previous content",
-  design: {},
+  design: currentDesign,
 };
 let editor: DesignEditor;
 let root: Root;
 let container: HTMLDivElement;
 let fetchMock: jest.Mock;
+let testRun = 0;
 function Register() {
   const ai = useWorkspaceAI();
   useEffect(() => ai!.register(editor), [ai?.register]);
@@ -54,7 +78,9 @@ beforeEach(async () => {
   fetchMock = jest.fn();
   global.fetch = fetchMock;
   editor = {
-    key: "team:fixture",
+    // Conversations are remembered per template for the session, so each test
+    // uses its own template.
+    key: `team:fixture-${++testRun}`,
     name: "Welcome",
     snapshot: jest.fn().mockResolvedValue(snapshot),
     apply: jest.fn().mockResolvedValue(undefined),
@@ -87,11 +113,11 @@ const generate = async () => {
   });
   await click("Design and save revision");
 };
+// What the server returns in reference mode: plain copy per slot.
 const draft = {
   subject: "Welcome",
-  body: "Hello",
-  previewHtml: "<p>Hello</p>",
-  design: { schemaVersion: 18, body: { rows: [{}] } },
+  body: "Warmer copy",
+  copy: { h1: "Hi, friend", t1: "Warmer copy" },
 };
 test("uses current editor context and reports saved only after persistence resolves", async () => {
   let saved!: () => void;
@@ -103,16 +129,24 @@ test("uses current editor context and reports saved only after persistence resol
   );
   fetchMock.mockResolvedValue({ ok: true, json: async () => draft });
   await generate();
-  expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({
+  const request = JSON.parse(fetchMock.mock.calls[0][1].body);
+  expect(request).toMatchObject({
     teamId: "team",
-    body: "Previous content",
+    format: "slots",
     instruction: "Make this warmer",
   });
-  expect(editor.apply).toHaveBeenCalledWith(draft, snapshot);
+  expect(request.slots).toContainEqual({ id: "t1", kind: "text", text: "Previous content" });
+  const [applied, previous] = (editor.apply as jest.Mock).mock.calls[0];
+  expect(previous).toBe(snapshot);
+  expect(applied.subject).toBe("Welcome");
+  const contents = applied.design.body.rows[0].columns[0].contents;
+  expect(contents[0].values.text).toBe("Hi, friend");
+  expect(contents[1].values.text).toBe("<p>Warmer copy</p>");
+  expect(contents[2].values.text).toBe("Read more");
   expect(container.textContent).toContain("Updating and saving");
-  expect(container.textContent).not.toContain("design is updated and saved");
+  expect(container.textContent).not.toContain("and saved.");
   await act(async () => saved());
-  expect(container.textContent).toContain("design is updated and saved");
+  expect(container.textContent).toContain("Built from your current design and saved");
 });
 test("navigation cancels a pending design and never applies it to another editor", async () => {
   let finish!: (value: unknown) => void;
@@ -143,7 +177,7 @@ test("failed saves keep the generated revision and never claim success", async (
   await generate();
   expect(container.textContent).toContain("another session");
   expect(container.textContent).toContain("Download revision");
-  expect(container.textContent).not.toContain("design is updated and saved");
+  expect(container.textContent).not.toContain("and saved.");
 });
 test("Escape minimizes the non-modal panel and returns focus", async () => {
   await act(async () => {

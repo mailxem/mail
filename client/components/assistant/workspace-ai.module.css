@@ -300,3 +300,80 @@
 .launcher[hidden] {
   display: none;
 }
+.references {
+  margin-top: 20px;
+}
+.references > p {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--foreground);
+  margin-bottom: 8px;
+}
+.references > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.references button {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  text-align: left;
+  font-size: 12px;
+  line-height: 1.3;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.references button:hover {
+  border-color: var(--border-strong);
+}
+.references button[aria-checked="true"] {
+  border-color: var(--foreground);
+  box-shadow: 0 0 0 1px var(--foreground);
+}
+.references button > span:last-child {
+  padding: 0 2px 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.thumb {
+  position: relative;
+  display: block;
+  height: 112px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #fff;
+}
+.thumb iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 640px;
+  height: 900px;
+  border: 0;
+  transform: scale(0.26);
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.referenceCurrent {
+  justify-content: center;
+  align-items: center;
+  min-height: 140px;
+  color: var(--muted-foreground);
+}
+.referenceCurrent[aria-checked="true"] {
+  color: var(--foreground);
+}
+.references > small {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
