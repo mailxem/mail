@@ -1,0 +1,138 @@
+# Single-host Xem: app, API and workers, PostgreSQL, Redis and RustFS object storage.
+# Setup: bash scripts/compose-env.sh <server IP or hostname>, then docker compose up -d
+# The app is built from this checkout because its public API URL is fixed at build time.
+name: xem
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "3"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: xem
+      POSTGRES_DB: xem
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run scripts/compose-env.sh first}
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U xem -d xem"]
+      interval: 10s
+      retries: 12
+    logging: *logging
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 12
+    logging: *logging
+
+  storage:
+    # Same verified multi-architecture RustFS image as the Swarm installer.
+    image: rustfs/rustfs@sha256:8cc9801755448b71a786705ce76692c77e14936cccd87cf2fc31842e58f4d1ff
+    restart: unless-stopped
+    environment:
+      RUSTFS_ACCESS_KEY: xemadmin
+      RUSTFS_SECRET_KEY: ${STORAGE_PASSWORD:?run scripts/compose-env.sh first}
+      RUSTFS_VOLUMES: /data
+      RUSTFS_CONSOLE_ENABLE: "false"
+    ports:
+      - "${XEM_STORAGE_PORT:-9000}:9000"
+    volumes:
+      - storage:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/health"]
+      interval: 10s
+      retries: 12
+    logging: *logging
+
+  api:
+    build: ./server
+    image: xem-api:local
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      storage:
+        condition: service_healthy
+    environment:
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: "9001"
+      PUBLIC_URL: ${XEM_API_URL:?}
+      APP_ENV: production
+      CORS_ALLOWED_ORIGINS: ${XEM_APP_URL:?}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: xem
+      POSTGRES_DB: xem
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_SSLMODE: disable
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_DB: "0"
+      JWT_SECRET: ${JWT_SECRET:?}
+      PRIVATE_KEY: ${PRIVATE_KEY:?}
+      STORAGE_PROVIDER: s3
+      S3_BUCKET_NAME: xem
+      S3_CREATE_BUCKET: "true"
+      S3_REGION: us-east-1
+      # Browsers load signed storage URLs, so this origin must work from browsers and containers.
+      S3_ENDPOINT_URL: ${XEM_STORAGE_URL:?}
+      S3_ACCESS_KEY: xemadmin
+      S3_SECRET_KEY: ${STORAGE_PASSWORD}
+      AI_ENABLED: "false"
+      MANAGED_SENDING_ENABLED: "false"
+      MANAGED_SMTP_ENABLED: "false"
+    ports:
+      - "${XEM_API_PORT:-9001}:9001"
+    healthcheck:
+      test: ["CMD", "/app/posthoot", "healthcheck"]
+      interval: 10s
+      start_period: 60s
+      retries: 12
+    logging: *logging
+
+  app:
+    build:
+      context: ./client
+      args:
+        NEXT_PUBLIC_API_URL: ${XEM_API_URL}/api/v1
+        NEXT_PUBLIC_PAYWALL_URL: ${XEM_APP_URL}/billing-unavailable
+    image: xem-app:local
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      INTERNAL_API_URL: http://api:9001/api/v1
+      NEXTAUTH_URL: ${XEM_APP_URL}
+      AUTH_URL: ${XEM_APP_URL}
+      NEXTAUTH_SECRET: ${AUTH_SECRET:?}
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_TRUST_HOST: "true"
+      XEM_ASSISTANT_ENABLED: "false"
+    ports:
+      - "${XEM_APP_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://127.0.0.1:3000/auth/login"]
+      interval: 10s
+      start_period: 30s
+      retries: 12
+    logging: *logging
+
+volumes:
+  postgres:
+  redis:
+  storage:
