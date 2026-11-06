@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"crypto/hmac"
 	"encoding/base64"
 	"encoding/csv"
 	"fmt"
@@ -154,6 +155,20 @@ func (h *TrackingHandler) HandleEmailClick(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Invalid URL")
 	}
+	// Only redirect to the destination this email actually linked to: links sent
+	// since signing began carry a signature over it; older links must appear in
+	// the email as it was stored. Anything else would make this an open redirect.
+	target := strings.ToLower(string(decodedURL))
+	if !strings.HasPrefix(target, "https://") && !strings.HasPrefix(target, "http://") {
+		return c.NoContent(http.StatusNotFound)
+	}
+	if sig := c.QueryParam("sig"); sig != "" {
+		if !hmac.Equal([]byte(sig), []byte(utils.ClickSignature(config.GetConfig().JWT.Secret, emailID, string(decodedURL)))) {
+			return c.NoContent(http.StatusNotFound)
+		}
+	} else if !h.linkedInEmail(emailID, originalURL) {
+		return c.NoContent(http.StatusNotFound)
+	}
 
 	// Create tracking entry
 	_, err = h.createTrackingEntry(c, emailID, models.EmailTrackingEventClick, string(decodedURL))
@@ -164,6 +179,21 @@ func (h *TrackingHandler) HandleEmailClick(c echo.Context) error {
 
 	// Redirect to original URL
 	return c.Redirect(http.StatusFound, string(decodedURL))
+}
+
+// linkedInEmail reports whether an unsigned (pre-signing) click link is one the
+// email really contained. ponytail: one body read per legacy click; these links
+// age out, so drop this fallback (and require sig) about 90 days after deploy.
+func (h *TrackingHandler) linkedInEmail(emailID, encodedTarget string) bool {
+	var email models.Email
+	if err := h.db.Select("body").First(&email, "id = ?", emailID).Error; err != nil {
+		return false
+	}
+	body := email.Body
+	if decoded, err := base64.StdEncoding.DecodeString(body); err == nil {
+		body = string(decoded)
+	}
+	return strings.Contains(body, "/t/click/"+encodedTarget+"?token=")
 }
 
 // 👁️ HandleOpen handles open tracking
