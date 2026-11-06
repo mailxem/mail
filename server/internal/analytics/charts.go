@@ -52,7 +52,7 @@ func loadCharts(db *gorm.DB, f Filter, c *Charts) error {
  extract(hour FROM t.timestamp AT TIME ZONE @tz)::int AS "hour",
  CASE WHEN lower(t.device_type) IN ('desktop','mobile','tablet','other') THEN lower(t.device_type) ELSE 'unknown' END device,
  COUNT(*) count FROM accepted e JOIN email_trackings t ON t.email_id=e.id
- WHERE t.is_deleted=false AND t.event='click' AND t.timestamp>=GREATEST(CAST(@from AS timestamptz),e.sent_at)
+ WHERE t.is_deleted=false AND t.event='click' AND t.machine='' AND t.timestamp>=GREATEST(CAST(@from AS timestamptz),e.sent_at)
  AND t.timestamp<CAST(@asof AS timestamptz) GROUP BY 1,2,3`, f.args()).Scan(&buckets).Error; err != nil {
 		return err
 	}

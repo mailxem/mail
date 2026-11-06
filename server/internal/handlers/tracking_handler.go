@@ -81,6 +81,10 @@ func (h *TrackingHandler) createTrackingEntry(c echo.Context, emailID string, ev
 		OS:         ua.OS(),
 		URL:        url,
 	}
+	tracking.Machine, tracking.MachineReason = machineReason(c.Request().Method, tracking.UserAgent, event)
+	if tracking.Machine == "" && event == models.EmailTrackingEventClick && !email.SentAt.IsZero() && tracking.Timestamp.Sub(email.SentAt) < clickAfterDelivery {
+		tracking.Machine, tracking.MachineReason = models.TrackingMachineBot, "clicked within seconds of delivery"
+	}
 
 	// Get geolocation data
 	geoData, err := utils.GetGeolocationData(tracking.IPAddress)
@@ -93,6 +97,11 @@ func (h *TrackingHandler) createTrackingEntry(c echo.Context, emailID string, ev
 	// Save to database
 	if err := h.db.Create(tracking).Error; err != nil {
 		return nil, err
+	}
+	if event == models.EmailTrackingEventClick {
+		if err := flagClickBurst(h.db, tracking); err != nil {
+			return nil, err
+		}
 	}
 
 	return tracking, nil
@@ -256,6 +265,10 @@ type EmailAnalytics struct {
 	OpenRate       float64 `json:"openRate"`
 	BounceCount    int     `json:"bounceCount"`
 	ComplaintCount int     `json:"complaintCount"`
+	// 🤖 Machine events left out of every count above
+	BotOpens   int `json:"botOpens"`
+	BotClicks  int `json:"botClicks"`
+	ProxyOpens int `json:"proxyOpens"`
 
 	// 📱 Device & Browser Analytics
 	DeviceBreakdown  map[string]int `json:"deviceBreakdown"`
@@ -342,6 +355,17 @@ func processEmailAnalytics(tracking []models.EmailTracking, timeZone string) Ema
 	readTimeCount := 0
 
 	for _, t := range tracking {
+		if !t.Human() {
+			switch {
+			case t.Machine == models.TrackingMachineProxy:
+				analytics.ProxyOpens++
+			case t.Event == models.EmailTrackingEventOpen:
+				analytics.BotOpens++
+			case t.Event == models.EmailTrackingEventClick:
+				analytics.BotClicks++
+			}
+			continue
+		}
 		// Convert timestamp to user's timezone
 		localTime := t.Timestamp.In(location)
 
@@ -674,7 +698,7 @@ func (h *TrackingHandler) GetClickHeatmap(c echo.Context) error {
 	}
 
 	var tracking []models.EmailTracking
-	query := h.db.Where("event = ?", models.EmailTrackingEventClick)
+	query := h.db.Where("event = ? AND machine = ''", models.EmailTrackingEventClick)
 
 	if emailID != "" {
 		query = query.Where("email_id = ?", emailID)
@@ -742,7 +766,7 @@ func (h *TrackingHandler) GetEngagementTimes(c echo.Context) error {
 	var tracking []models.EmailTracking
 	if err := h.db.Table("email_trackings").
 		Joins("JOIN emails ON email_trackings.email_id = emails.id").
-		Where("emails.team_id = ?", teamID).
+		Where("emails.team_id = ? AND email_trackings.machine = ''", teamID).
 		Find(&tracking).Error; err != nil {
 		return c.String(http.StatusInternalServerError, "Failed to fetch tracking data")
 	}
@@ -1154,6 +1178,7 @@ func generateCSV(tracking []models.EmailTracking) []byte {
 		"City",
 		"Region",
 		"URL",
+		"Machine",
 	})
 
 	// Write data
@@ -1168,6 +1193,7 @@ func generateCSV(tracking []models.EmailTracking) []byte {
 			t.City,
 			t.Region,
 			t.URL,
+			t.MachineReason,
 		})
 	}
 
@@ -1196,6 +1222,7 @@ func generateXLSX(tracking []models.EmailTracking) []byte {
 		"City",
 		"Region",
 		"URL",
+		"Machine",
 	}
 
 	for i, header := range headers {
@@ -1215,6 +1242,7 @@ func generateXLSX(tracking []models.EmailTracking) []byte {
 		f.SetCellValue(sheet, fmt.Sprintf("G%d", row), t.City)
 		f.SetCellValue(sheet, fmt.Sprintf("H%d", row), t.Region)
 		f.SetCellValue(sheet, fmt.Sprintf("I%d", row), t.URL)
+		f.SetCellValue(sheet, fmt.Sprintf("J%d", row), t.MachineReason)
 	}
 
 	buffer, err := f.WriteToBuffer()

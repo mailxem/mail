@@ -99,7 +99,8 @@ func (a *AnalyticsAggregator) GetEmailAnalytics(ctx context.Context, scope Analy
 
 	// Get tracking metrics
 	trackingQuery := a.db.WithContext(ctx).Model(&models.EmailTracking{}).
-		Joins("JOIN emails ON emails.id = email_trackings.email_id")
+		Joins("JOIN emails ON emails.id = email_trackings.email_id").
+		Where("email_trackings.machine = ''")
 
 	if scope.TeamID != "" {
 		trackingQuery = trackingQuery.Where("emails.team_id = ?", scope.TeamID)
@@ -198,7 +199,7 @@ func (a *AnalyticsAggregator) GetCampaignAnalytics(ctx context.Context, campaign
 	}
 	a.db.WithContext(ctx).Model(&models.EmailTracking{}).
 		Select("EXTRACT(HOUR FROM timestamp) as hour, COUNT(*) as count").
-		Where("campaign_id = ? AND event = ?", campaignID, "open").
+		Where("campaign_id = ? AND event = ? AND machine = ''", campaignID, "open").
 		Group("hour").
 		Order("count DESC").
 		Limit(1).
@@ -213,7 +214,7 @@ func (a *AnalyticsAggregator) GetCampaignAnalytics(ctx context.Context, campaign
 	}
 	a.db.WithContext(ctx).Model(&models.EmailTracking{}).
 		Select("device_type, COUNT(*) as count").
-		Where("campaign_id = ? AND event = ?", campaignID, "open").
+		Where("campaign_id = ? AND event = ? AND machine = ''", campaignID, "open").
 		Group("device_type").
 		Order("count DESC").
 		Limit(1).
@@ -251,14 +252,14 @@ func (a *AnalyticsAggregator) GetContactInsights(ctx context.Context, contactID 
 	// Count emails opened
 	var emailsOpened int64
 	a.db.WithContext(ctx).Model(&models.EmailTracking{}).
-		Where("contact_id = ? AND event = ?", contactID, "open").
+		Where("contact_id = ? AND event = ? AND machine = ''", contactID, "open").
 		Distinct("email_id").
 		Count(&emailsOpened)
 
 	// Count emails clicked
 	var emailsClicked int64
 	a.db.WithContext(ctx).Model(&models.EmailTracking{}).
-		Where("contact_id = ? AND event = ?", contactID, "click").
+		Where("contact_id = ? AND event = ? AND machine = ''", contactID, "click").
 		Distinct("email_id").
 		Count(&emailsClicked)
 
@@ -274,7 +275,7 @@ func (a *AnalyticsAggregator) GetContactInsights(ctx context.Context, contactID 
 	// Get last opened time
 	var lastOpen models.EmailTracking
 	err := a.db.WithContext(ctx).
-		Where("contact_id = ? AND event = ?", contactID, "open").
+		Where("contact_id = ? AND event = ? AND machine = ''", contactID, "open").
 		Order("timestamp DESC").
 		First(&lastOpen).Error
 
@@ -286,7 +287,7 @@ func (a *AnalyticsAggregator) GetContactInsights(ctx context.Context, contactID 
 	// Get last clicked time
 	var lastClick models.EmailTracking
 	err = a.db.WithContext(ctx).
-		Where("contact_id = ? AND event = ?", contactID, "click").
+		Where("contact_id = ? AND event = ? AND machine = ''", contactID, "click").
 		Order("timestamp DESC").
 		First(&lastClick).Error
 
@@ -315,7 +316,7 @@ func (a *AnalyticsAggregator) GetContactInsights(ctx context.Context, contactID 
 	}
 	a.db.WithContext(ctx).Model(&models.EmailTracking{}).
 		Select("EXTRACT(HOUR FROM timestamp) as hour, COUNT(*) as count").
-		Where("contact_id = ? AND event = ?", contactID, "open").
+		Where("contact_id = ? AND event = ? AND machine = ''", contactID, "open").
 		Group("hour").
 		Order("count DESC").
 		Limit(1).

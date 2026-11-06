@@ -29,7 +29,7 @@ import { AnalyticsWorkspace } from "./analytics-workspace";
 import { OverviewHome } from "./overview-home";
 import { useTeam } from "@/app/providers/team-provider";
 import { useAnalytics } from "@/lib/analytics/use-analytics";
-import { EmailReport, formatRate } from "@/lib/analytics/types";
+import { EmailReport, formatRate, leftOut } from "@/lib/analytics/types";
 import { PageHeading, QueryState } from "@/components/marketing/shared";
 import { Button } from "@/components/ui/button";
 import {
@@ -304,7 +304,7 @@ export function EmailOverview({ report: r }: { report: EmailReport }) {
         <Stat
           label="Click rate"
           value={formatRate(r.clickRate)}
-          detail={`${number(r.summary.clicked)} clicked messages / ${number(r.summary.sent)} sent.`}
+          detail={`${number(r.summary.clicked)} clicked messages / ${number(r.summary.sent)} sent.${leftOut(r.summary.botClicks, "bot clicks")}`}
           icon={MousePointer2}
         />
         <Stat
