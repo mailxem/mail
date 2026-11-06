@@ -47,6 +47,7 @@ import {
   AnalyticsPage,
   BreakdownRow,
   formatRate,
+  leftOut,
   Rate,
   rateDifference,
   Report,
@@ -453,7 +454,7 @@ function Workspace({
                   <MetricCard
                     label="Message click rate"
                     value={formatRate(summary.clickRate)}
-                    detail={`${number(summary.clickedMessages)} clicked / ${number(summary.accepted)} accepted messages.`}
+                    detail={`${number(summary.clickedMessages)} clicked / ${number(summary.accepted)} accepted messages.${leftOut(summary.botClicks, "bot clicks")}`}
                     icon={MousePointer2}
                     change={
                       compare
@@ -464,7 +465,7 @@ function Workspace({
                   <MetricCard
                     label="Tracked open rate"
                     value={formatRate(summary.openRate)}
-                    detail="Directional only; privacy proxies can inflate opens."
+                    detail={`People only.${leftOut(summary.botOpens, "bot opens")}${leftOut(summary.proxyOpens, "privacy proxy opens")}`}
                     icon={BarChart3}
                   />
                 </>

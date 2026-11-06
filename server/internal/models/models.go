@@ -447,9 +447,24 @@ type EmailTracking struct {
 	OS         string `json:"os" validate:"omitempty"`
 	// 🔗 Click Specific Data (for click events)
 	URL string `json:"url" validate:"omitempty,url"`
+	// 🤖 Machine traffic: empty for people, otherwise TrackingMachineBot or
+	// TrackingMachineProxy. Reports and list cleanup count only machine=''.
+	Machine       string `gorm:"not null;default:''" json:"machine"`
+	MachineReason string `json:"machineReason,omitempty"`
 	// 📊 Additional Metadata
 	Metadata datatypes.JSON `gorm:"type:jsonb;default:'{}'" json:"metadata" validate:"omitempty,json"`
 }
+
+const (
+	// TrackingMachineBot marks link scanners, security gateways and other automated fetches.
+	TrackingMachineBot = "bot"
+	// TrackingMachineProxy marks privacy proxy opens (Apple Mail Privacy Protection,
+	// Google's image proxy). They may stand in for a real open, so they are kept apart from bots.
+	TrackingMachineProxy = "proxy"
+)
+
+// Human reports whether a person, not a machine, caused this event.
+func (t EmailTracking) Human() bool { return t.Machine == "" }
 
 type APIKey struct {
 	Base

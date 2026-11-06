@@ -112,6 +112,9 @@ type Summary struct {
 	Bounced           int64 `json:"bounced"`
 	Complaints        int64 `json:"complaints"`
 	Unsubscribes      int64 `json:"unsubscribes"`
+	BotOpens          int64 `json:"botOpens"`
+	BotClicks         int64 `json:"botClicks"`
+	ProxyOpens        int64 `json:"proxyOpens"`
 	Failed            int64 `json:"failed"`
 	Unknown           int64 `json:"deliveryUnknown"`
 	TrackingKnown     int64 `json:"trackingKnown"`
@@ -194,21 +197,23 @@ const baseSQL = `WITH selected_contacts AS NOT MATERIALIZED (
 ), accepted AS (
  SELECT * FROM messages WHERE sent_at>'2000-01-01' AND sent_at<CAST(@asof AS timestamptz) AND status IN ('SENT','OPENED','CLICKED','BOUNCED')
 ), outcomes AS (
- SELECT email_id,event,timestamp FROM email_trackings WHERE is_deleted=false
- UNION ALL SELECT email_id,'bounce',created_at FROM email_bounces WHERE team_id=@team AND is_deleted=false AND email_id IS NOT NULL
- UNION ALL SELECT email_id,'complaint',created_at FROM complaint_reports WHERE team_id=@team AND is_deleted=false AND email_id IS NOT NULL
+ SELECT email_id,event,timestamp,machine FROM email_trackings WHERE is_deleted=false
+ UNION ALL SELECT email_id,'bounce',created_at,'' FROM email_bounces WHERE team_id=@team AND is_deleted=false AND email_id IS NOT NULL
+ UNION ALL SELECT email_id,'complaint',created_at,'' FROM complaint_reports WHERE team_id=@team AND is_deleted=false AND email_id IS NOT NULL
 ), event_facts AS (
- SELECT t.email_id,bool_or(t.event='open') opened,bool_or(t.event='click') clicked,
- bool_or(t.event='bounce') bounced,bool_or(t.event='complaint') complained,bool_or(t.event='unsubscribe') unsubscribed
+ SELECT t.email_id,bool_or(t.event='open' AND t.machine='') opened,bool_or(t.event='click' AND t.machine='') clicked,
+ bool_or(t.event='bounce') bounced,bool_or(t.event='complaint') complained,bool_or(t.event='unsubscribe') unsubscribed,
+ COUNT(*) FILTER(WHERE t.event='open' AND t.machine='bot') bot_opens,COUNT(*) FILTER(WHERE t.event='click' AND t.machine<>'') bot_clicks,COUNT(*) FILTER(WHERE t.event='open' AND t.machine='proxy') proxy_opens
  FROM outcomes t JOIN accepted e ON e.id=t.email_id
  WHERE e.sent_at>=LEAST(CAST(@from AS timestamptz),CAST(@lookback AS timestamptz)) AND t.timestamp>=e.sent_at AND t.timestamp<CAST(@asof AS timestamptz) GROUP BY t.email_id
 ), facts AS (
  SELECT e.*,COALESCE(t.opened,false) opened,COALESCE(t.clicked,false) clicked,
- COALESCE(t.bounced,false) OR e.status='BOUNCED' bounced,COALESCE(t.complained,false) complained,COALESCE(t.unsubscribed,false) unsubscribed
+ COALESCE(t.bounced,false) OR e.status='BOUNCED' bounced,COALESCE(t.complained,false) complained,COALESCE(t.unsubscribed,false) unsubscribed,
+ COALESCE(t.bot_opens,0) bot_opens,COALESCE(t.bot_clicks,0) bot_clicks,COALESCE(t.proxy_opens,0) proxy_opens
  FROM accepted e LEFT JOIN event_facts t ON t.email_id=e.id WHERE e.sent_at>=LEAST(CAST(@from AS timestamptz),CAST(@lookback AS timestamptz))
 ), click_activity AS (
  SELECT e.recipient,MAX(t.timestamp) last_click FROM accepted e JOIN email_trackings t ON t.email_id=e.id
- WHERE t.is_deleted=false AND t.event='click' AND t.timestamp>=GREATEST(CAST(@lookback AS timestamptz),e.sent_at) AND t.timestamp<CAST(@asof AS timestamptz) GROUP BY e.recipient
+ WHERE t.is_deleted=false AND t.event='click' AND t.machine='' AND t.timestamp>=GREATEST(CAST(@lookback AS timestamptz),e.sent_at) AND t.timestamp<CAST(@asof AS timestamptz) GROUP BY e.recipient
 ), send_activity AS (
  SELECT recipient,COUNT(*) opportunities,COUNT(*) FILTER(WHERE click_tracking_enabled=true) tracked_opportunities
  FROM accepted WHERE sent_at>=CAST(@lookback AS timestamptz) GROUP BY recipient
@@ -228,6 +233,7 @@ const summarySQL = `SELECT
  COUNT(DISTINCT recipient) reached,COUNT(DISTINCT recipient) FILTER(WHERE clicked) clicked,
  COUNT(*) accepted,COUNT(*) FILTER(WHERE opened) opened,COUNT(*) FILTER(WHERE clicked) clicked_messages,
  COUNT(*) FILTER(WHERE bounced) bounced,COUNT(*) FILTER(WHERE complained) complaints,COUNT(*) FILTER(WHERE unsubscribed) unsubscribes,
+ COALESCE(SUM(bot_opens),0)::bigint bot_opens,COALESCE(SUM(bot_clicks),0)::bigint bot_clicks,COALESCE(SUM(proxy_opens),0)::bigint proxy_opens,
  COUNT(*) FILTER(WHERE click_tracking_enabled IS NOT NULL) tracking_known, COUNT(*) FILTER(WHERE click_tracking_enabled=true) tracking_enabled,
  (SELECT COUNT(*) FROM messages WHERE status='FAILED' AND created_at>=CAST(@from AS timestamptz) AND created_at<CAST(@asof AS timestamptz)) failed,
  (SELECT COUNT(*) FROM messages WHERE status='DELIVERY_UNKNOWN' AND created_at>=CAST(@from AS timestamptz) AND created_at<CAST(@asof AS timestamptz)) unknown
@@ -236,7 +242,7 @@ const summarySQL = `SELECT
 func Build(ctx context.Context, db *gorm.DB, f Filter) (Report, error) {
 	r := Report{Version: "audience-v2", AsOf: f.AsOf, From: f.From, To: f.To, Timezone: f.Timezone, Activity: []Day{}, Cohorts: []Cohort{}, Growth: Growth{Series: []GrowthDay{}}, Warnings: []string{
 		"Accepted means acknowledged by SMTP, not confirmed inbox delivery. Rates exclude test messages and messages with CC/BCC or unresolved multi-recipient addresses.",
-		"Clicks and opens are observed tracking events and may include privacy proxies or automated scanners. Missing activity does not prove inactivity.",
+		"Opens and clicks count people only. Link scanners, security gateways and HEAD requests are left out as bot events, and opens fetched by Apple Mail Privacy Protection or Google's image proxy are left out as proxy opens, which may hide some real opens. Both are shown separately. Missing activity does not prove inactivity.",
 		"Historical list and tag filters use current membership. Current active subscribers exclude active workspace suppressions; growth charts measure recorded subscription status, not deliverability eligibility.",
 		"Bounce and complaint counts include only captured outcomes. Opt-out attribution is incomplete for older sends; unattributed subscription changes appear in growth, not campaign rates.",
 	}}
@@ -254,7 +260,7 @@ func Build(ctx context.Context, db *gorm.DB, f Filter) (Report, error) {
 		}
 		r.Previous.rates()
 		if err := tx.Raw(baseSQL+`, daily_reach AS (SELECT to_char(sent_at AT TIME ZONE @tz,'YYYY-MM-DD') date,COUNT(DISTINCT recipient) reached FROM accepted WHERE sent_at>=CAST(@from AS timestamptz) GROUP BY 1),
- daily_click AS (SELECT to_char(t.timestamp AT TIME ZONE @tz,'YYYY-MM-DD') date,COUNT(DISTINCT e.recipient) clicked FROM accepted e JOIN email_trackings t ON t.email_id=e.id WHERE t.is_deleted=false AND t.event='click' AND t.timestamp>=GREATEST(CAST(@from AS timestamptz),e.sent_at) AND t.timestamp<CAST(@asof AS timestamptz) GROUP BY 1)
+ daily_click AS (SELECT to_char(t.timestamp AT TIME ZONE @tz,'YYYY-MM-DD') date,COUNT(DISTINCT e.recipient) clicked FROM accepted e JOIN email_trackings t ON t.email_id=e.id WHERE t.is_deleted=false AND t.event='click' AND t.machine='' AND t.timestamp>=GREATEST(CAST(@from AS timestamptz),e.sent_at) AND t.timestamp<CAST(@asof AS timestamptz) GROUP BY 1)
  SELECT COALESCE(r.date,c.date) date,COALESCE(r.reached,0) reached,COALESCE(c.clicked,0) clicked FROM daily_reach r FULL JOIN daily_click c ON r.date=c.date ORDER BY 1`, f.args()).Scan(&r.Activity).Error; err != nil {
 			return err
 		}
@@ -339,6 +345,7 @@ type Row struct {
 	Bounced           int64  `json:"bounced"`
 	Complaints        int64  `json:"complaints"`
 	Unsubscribes      int64  `json:"unsubscribes"`
+	BotClicks         int64  `json:"botClicks"`
 	New               int64  `json:"new"`
 	ClickRate         Rate   `json:"clickRate" gorm:"-"`
 	AudienceClickRate Rate   `json:"audienceClickRate" gorm:"-"`
@@ -362,13 +369,13 @@ func Breakdown(ctx context.Context, db *gorm.DB, f Filter) (Page, error) {
  COUNT(DISTINCT f.recipient) reached, COUNT(DISTINCT f.recipient) FILTER(WHERE f.clicked) clicked,COUNT(f.id) accepted,COUNT(f.id) FILTER(WHERE f.clicked) clicked_messages,COUNT(f.id) FILTER(WHERE f.bounced) bounced,COUNT(f.id) FILTER(WHERE f.complained) complaints,COUNT(f.id) FILTER(WHERE f.unsubscribed) unsubscribes,0::bigint new
  FROM mailing_lists l LEFT JOIN facts f ON f.list_id=l.id AND f.sent_at>=CAST(@from AS timestamptz) WHERE l.team_id=@team AND l.is_deleted=false AND (@list ='' OR l.id::text=@list) AND (@campaign ='' OR l.id IN(SELECT list_id FROM campaigns WHERE id::text=@campaign AND team_id=@team)) AND (@tag ='' OR EXISTS(SELECT 1 FROM selected_contacts c WHERE c.list_id=l.id)) GROUP BY l.id,l.name`
 	case "campaigns":
-		group = `SELECT cp.id::text id,cp.name,CASE WHEN cp.newsletter_id IS NULL THEN 'campaign' ELSE 'newsletter' END kind,0::bigint active,0::bigint suppressed,COUNT(DISTINCT f.recipient) reached,COUNT(DISTINCT f.recipient) FILTER(WHERE f.clicked) clicked,COUNT(f.id) accepted,COUNT(f.id) FILTER(WHERE f.clicked) clicked_messages,COUNT(f.id) FILTER(WHERE f.bounced) bounced,COUNT(f.id) FILTER(WHERE f.complained) complaints,COUNT(f.id) FILTER(WHERE f.unsubscribed) unsubscribes,0::bigint new FROM campaigns cp JOIN facts f ON f.campaign_id=cp.id AND f.sent_at>=CAST(@from AS timestamptz) GROUP BY cp.id,cp.name,cp.newsletter_id`
+		group = `SELECT cp.id::text id,cp.name,CASE WHEN cp.newsletter_id IS NULL THEN 'campaign' ELSE 'newsletter' END kind,0::bigint active,0::bigint suppressed,COUNT(DISTINCT f.recipient) reached,COUNT(DISTINCT f.recipient) FILTER(WHERE f.clicked) clicked,COUNT(f.id) accepted,COUNT(f.id) FILTER(WHERE f.clicked) clicked_messages,COUNT(f.id) FILTER(WHERE f.bounced) bounced,COUNT(f.id) FILTER(WHERE f.complained) complaints,COUNT(f.id) FILTER(WHERE f.unsubscribed) unsubscribes,COALESCE(SUM(f.bot_clicks),0)::bigint bot_clicks,0::bigint new FROM campaigns cp JOIN facts f ON f.campaign_id=cp.id AND f.sent_at>=CAST(@from AS timestamptz) GROUP BY cp.id,cp.name,cp.newsletter_id`
 	case "domains":
 		group = `SELECT sender_domain id,sender_domain name,'domain' kind,0::bigint active,0::bigint suppressed,COUNT(DISTINCT recipient) reached,COUNT(DISTINCT recipient) FILTER(WHERE clicked) clicked,COUNT(*) accepted,COUNT(*) FILTER(WHERE clicked) clicked_messages,COUNT(*) FILTER(WHERE bounced) bounced,COUNT(*) FILTER(WHERE complained) complaints,COUNT(*) FILTER(WHERE unsubscribed) unsubscribes,0::bigint new FROM facts WHERE sent_at>=CAST(@from AS timestamptz) GROUP BY sender_domain`
 	case "sources":
 		group = `SELECT src id,src name,'source' kind,COUNT(DISTINCT c.recipient) FILTER(WHERE c.status='ACTIVE') active,0::bigint suppressed,COUNT(DISTINCT f.recipient) reached,COUNT(DISTINCT f.recipient) FILTER(WHERE f.clicked) clicked,COUNT(DISTINCT f.id) accepted,COUNT(DISTINCT f.id) FILTER(WHERE f.clicked) clicked_messages,COUNT(DISTINCT f.id) FILTER(WHERE f.bounced) bounced,COUNT(DISTINCT f.id) FILTER(WHERE f.complained) complaints,COUNT(DISTINCT f.id) FILTER(WHERE f.unsubscribed) unsubscribes,COUNT(DISTINCT c.id) new FROM (SELECT c.*,CASE WHEN import_id IS NOT NULL THEN 'Import' WHEN metadata->>'source'='form' THEN 'Form' ELSE 'Unknown' END src FROM selected_contacts c WHERE c.created_at>=CAST(@from AS timestamptz) AND c.created_at<CAST(@asof AS timestamptz)) c LEFT JOIN facts f ON f.recipient=c.recipient AND f.list_id=c.list_id AND f.sent_at>=c.created_at GROUP BY src`
 	case "links":
-		group = `SELECT t.url id,t.url name,'link' kind,0::bigint active,0::bigint suppressed,COUNT(DISTINCT e.recipient) reached,COUNT(DISTINCT e.recipient) clicked, (SELECT COUNT(*) FROM facts WHERE sent_at>=CAST(@from AS timestamptz)) accepted,COUNT(DISTINCT e.id) clicked_messages,0::bigint bounced,0::bigint complaints,0::bigint unsubscribes,0::bigint new FROM facts e JOIN email_trackings t ON t.email_id=e.id WHERE e.sent_at>=CAST(@from AS timestamptz) AND t.event='click' AND t.is_deleted=false AND t.timestamp>=e.sent_at AND t.timestamp<CAST(@asof AS timestamptz) GROUP BY t.url`
+		group = `SELECT t.url id,t.url name,'link' kind,0::bigint active,0::bigint suppressed,COUNT(DISTINCT e.recipient) reached,COUNT(DISTINCT e.recipient) clicked, (SELECT COUNT(*) FROM facts WHERE sent_at>=CAST(@from AS timestamptz)) accepted,COUNT(DISTINCT e.id) clicked_messages,0::bigint bounced,0::bigint complaints,0::bigint unsubscribes,0::bigint new FROM facts e JOIN email_trackings t ON t.email_id=e.id WHERE e.sent_at>=CAST(@from AS timestamptz) AND t.event='click' AND t.machine='' AND t.is_deleted=false AND t.timestamp>=e.sent_at AND t.timestamp<CAST(@asof AS timestamptz) GROUP BY t.url`
 	default:
 		return p, fmt.Errorf("Invalid breakdown")
 	}

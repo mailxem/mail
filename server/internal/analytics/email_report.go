@@ -20,6 +20,10 @@ type EmailTotals struct {
 	Bounced   int64 `json:"bounced"`
 	Campaigns int64 `json:"campaigns"`
 	Other     int64 `json:"other"`
+	// Machine events left out of Opened and Clicked
+	BotOpens   int64 `json:"botOpens"`
+	BotClicks  int64 `json:"botClicks"`
+	ProxyOpens int64 `json:"proxyOpens"`
 }
 type EmailDay struct {
 	Date string `json:"date"`
@@ -57,8 +61,11 @@ func BuildEmailReport(ctx context.Context, db *gorm.DB, f Filter) (EmailReport, 
  SELECT * FROM scope WHERE recorded_at>=CAST(@from AS timestamptz) AND recorded_at<CAST(@asof AS timestamptz)
  ), facts AS (
  SELECT e.*,
- e.accepted AND EXISTS(SELECT 1 FROM email_trackings t WHERE t.email_id=e.id AND t.is_deleted=false AND t.event='open' AND t.timestamp>=e.sent_at AND t.timestamp<CAST(@asof AS timestamptz)) opened,
- e.accepted AND EXISTS(SELECT 1 FROM email_trackings t WHERE t.email_id=e.id AND t.is_deleted=false AND t.event='click' AND t.timestamp>=e.sent_at AND t.timestamp<CAST(@asof AS timestamptz)) clicked,
+ e.accepted AND EXISTS(SELECT 1 FROM email_trackings t WHERE t.email_id=e.id AND t.is_deleted=false AND t.event='open' AND t.machine='' AND t.timestamp>=e.sent_at AND t.timestamp<CAST(@asof AS timestamptz)) opened,
+ e.accepted AND EXISTS(SELECT 1 FROM email_trackings t WHERE t.email_id=e.id AND t.is_deleted=false AND t.event='click' AND t.machine='' AND t.timestamp>=e.sent_at AND t.timestamp<CAST(@asof AS timestamptz)) clicked,
+ CASE WHEN e.accepted THEN (SELECT COUNT(*) FROM email_trackings t WHERE t.email_id=e.id AND t.is_deleted=false AND t.event='open' AND t.machine='bot' AND t.timestamp>=e.sent_at AND t.timestamp<CAST(@asof AS timestamptz)) ELSE 0 END bot_opens,
+ CASE WHEN e.accepted THEN (SELECT COUNT(*) FROM email_trackings t WHERE t.email_id=e.id AND t.is_deleted=false AND t.event='click' AND t.machine<>'' AND t.timestamp>=e.sent_at AND t.timestamp<CAST(@asof AS timestamptz)) ELSE 0 END bot_clicks,
+ CASE WHEN e.accepted THEN (SELECT COUNT(*) FROM email_trackings t WHERE t.email_id=e.id AND t.is_deleted=false AND t.event='open' AND t.machine='proxy' AND t.timestamp>=e.sent_at AND t.timestamp<CAST(@asof AS timestamptz)) ELSE 0 END proxy_opens,
  e.accepted AND (e.status='BOUNCED' OR EXISTS(SELECT 1 FROM email_trackings t WHERE t.email_id=e.id AND t.is_deleted=false AND t.event='bounce' AND t.timestamp>=e.sent_at AND t.timestamp<CAST(@asof AS timestamptz)) OR EXISTS(SELECT 1 FROM email_bounces b WHERE b.email_id=e.id AND b.team_id=@team AND b.is_deleted=false AND b.created_at>=e.sent_at AND b.created_at<CAST(@asof AS timestamptz))) bounced
  FROM selected e)
  SELECT to_char(recorded_at AT TIME ZONE @tz,'YYYY-MM-DD') date,
@@ -69,6 +76,7 @@ func BuildEmailReport(ctx context.Context, db *gorm.DB, f Filter) (EmailReport, 
  COUNT(*) FILTER(WHERE NOT accepted AND status='DRAFT') drafts,
  COUNT(*) FILTER(WHERE NOT accepted AND status NOT IN ('QUEUED','PENDING','SENDING','SCHEDULED','FAILED','DRAFT')) unknown,
  COUNT(*) FILTER(WHERE opened) opened, COUNT(*) FILTER(WHERE clicked) clicked, COUNT(*) FILTER(WHERE bounced) bounced,
+ COALESCE(SUM(bot_opens),0)::bigint bot_opens, COALESCE(SUM(bot_clicks),0)::bigint bot_clicks, COALESCE(SUM(proxy_opens),0)::bigint proxy_opens,
  COUNT(*) FILTER(WHERE accepted AND campaign_id IS NOT NULL) campaigns,
  COUNT(*) FILTER(WHERE accepted AND campaign_id IS NULL) other
  FROM facts GROUP BY 1 ORDER BY 1`
@@ -88,6 +96,9 @@ func BuildEmailReport(ctx context.Context, db *gorm.DB, f Filter) (EmailReport, 
 		r.Summary.Opened += d.Opened
 		r.Summary.Clicked += d.Clicked
 		r.Summary.Bounced += d.Bounced
+		r.Summary.BotOpens += d.BotOpens
+		r.Summary.BotClicks += d.BotClicks
+		r.Summary.ProxyOpens += d.ProxyOpens
 		r.Summary.Campaigns += d.Campaigns
 		r.Summary.Other += d.Other
 	}

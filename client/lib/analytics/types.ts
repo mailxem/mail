@@ -14,6 +14,10 @@ export type Summary = {
   bounced: number;
   complaints: number;
   unsubscribes: number;
+  /** Machine events left out of opened/clicked: scanners and HEAD probes, and privacy proxy opens. */
+  botOpens: number;
+  botClicks: number;
+  proxyOpens: number;
   failed: number;
   deliveryUnknown: number;
   trackingKnown: number;
@@ -69,6 +73,7 @@ export type BreakdownRow = {
   bounced: number;
   complaints: number;
   unsubscribes: number;
+  botClicks?: number;
   new: number;
   clickRate: Rate;
   audienceClickRate: Rate;
@@ -80,6 +85,10 @@ export type AnalyticsPage<T> = {
   pageSize: number;
   asOf?: string;
 };
+/** "42 bot clicks left out", or "" when nothing was filtered. */
+export function leftOut(count: number | undefined, label: string) {
+  return count ? ` ${count.toLocaleString()} ${label} left out.` : "";
+}
 export function formatRate(rate?: Rate) {
   return rate?.value == null ? "—" : `${(rate.value * 100).toFixed(1)}%`;
 }
@@ -99,6 +108,9 @@ export type EmailTotals = {
   opened: number;
   clicked: number;
   bounced: number;
+  botOpens?: number;
+  botClicks?: number;
+  proxyOpens?: number;
   campaigns: number;
   other: number;
 };

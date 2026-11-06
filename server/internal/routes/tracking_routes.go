@@ -15,6 +15,9 @@ func RegisterTrackingRoutes(e *echo.Echo, h *handlers.TrackingHandler, cfg *conf
 	trackGroup := e.Group("/t")
 	trackGroup.GET("/click/*", h.HandleEmailClick) // The * captures the rest of the URL
 	trackGroup.GET("/open", h.HandleEmailOpen)
+	// Scanners probe with HEAD; answer it like GET so the redirect still works, and flag the event.
+	trackGroup.HEAD("/click/*", h.HandleEmailClick)
+	trackGroup.HEAD("/open", h.HandleEmailOpen)
 	trackGroup.GET("/unsubscribe", h.HandleEmailUnsubscribe)
 	trackGroup.POST("/unsubscribe", h.HandleEmailUnsubscribe)
 	trackGroup.GET("/resubscribe", h.HandleEmailResubscribe)
