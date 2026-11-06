@@ -24,6 +24,8 @@ type EmailTotals struct {
 	BotOpens   int64 `json:"botOpens"`
 	BotClicks  int64 `json:"botClicks"`
 	ProxyOpens int64 `json:"proxyOpens"`
+	// Untracked sent emails carry no pixel or click links; open and click rates exclude them.
+	Untracked int64 `json:"untracked"`
 }
 type EmailDay struct {
 	Date string `json:"date"`
@@ -78,7 +80,8 @@ func BuildEmailReport(ctx context.Context, db *gorm.DB, f Filter) (EmailReport, 
  COUNT(*) FILTER(WHERE opened) opened, COUNT(*) FILTER(WHERE clicked) clicked, COUNT(*) FILTER(WHERE bounced) bounced,
  COALESCE(SUM(bot_opens),0)::bigint bot_opens, COALESCE(SUM(bot_clicks),0)::bigint bot_clicks, COALESCE(SUM(proxy_opens),0)::bigint proxy_opens,
  COUNT(*) FILTER(WHERE accepted AND campaign_id IS NOT NULL) campaigns,
- COUNT(*) FILTER(WHERE accepted AND campaign_id IS NULL) other
+ COUNT(*) FILTER(WHERE accepted AND campaign_id IS NULL) other,
+ COUNT(*) FILTER(WHERE accepted AND click_tracking_enabled=false) untracked
  FROM facts GROUP BY 1 ORDER BY 1`
 	rows := []EmailDay{}
 	if err := db.WithContext(ctx).Raw(query, f.args()).Scan(&rows).Error; err != nil {
@@ -101,6 +104,7 @@ func BuildEmailReport(ctx context.Context, db *gorm.DB, f Filter) (EmailReport, 
 		r.Summary.ProxyOpens += d.ProxyOpens
 		r.Summary.Campaigns += d.Campaigns
 		r.Summary.Other += d.Other
+		r.Summary.Untracked += d.Untracked
 	}
 	loc, err := time.LoadLocation(f.Timezone)
 	if err != nil {
@@ -112,8 +116,8 @@ func BuildEmailReport(ctx context.Context, db *gorm.DB, f Filter) (EmailReport, 
 		d.Date = key
 		r.Series = append(r.Series, d)
 	}
-	r.OpenRate = Ratio(r.Summary.Opened, r.Summary.Sent)
-	r.ClickRate = Ratio(r.Summary.Clicked, r.Summary.Sent)
+	r.OpenRate = Ratio(r.Summary.Opened, r.Summary.Sent-r.Summary.Untracked)
+	r.ClickRate = Ratio(r.Summary.Clicked, r.Summary.Sent-r.Summary.Untracked)
 	r.BounceRate = Ratio(r.Summary.Bounced, r.Summary.Sent)
 	return r, nil
 }

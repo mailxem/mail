@@ -276,6 +276,7 @@ func (h *TrackingHandler) GetCampaignAnalytics(c echo.Context) error {
 // @Description Email analytics data
 type EmailAnalytics struct {
 	AcceptedMessages int64   `json:"acceptedMessages"`
+	Untracked        int64   `json:"untracked"` // sent without open/click tracking; excluded from rates
 	ClickToOpenRate  float64 `json:"clickToOpenRate"`
 	// 📊 Basic Metrics
 	OpenCount      int     `json:"openCount"`

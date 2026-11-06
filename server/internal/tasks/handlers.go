@@ -297,8 +297,9 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		messageID := uuid.NewString()
 		// A campaign goes to a list, so it's marketing: every email gets an
 		// unsubscribe footer and the one-click header that managed sending,
-		// Gmail and Yahoo require.
-		parsedBody := utils.ReplaceVariables(affiliates.WithBadge(htmlFromTemplate, badge), variables, messageID, h.cfg, true, true)
+		// Gmail and Yahoo require, whether or not it's tracked.
+		tracked := models.ShouldTrack(h.db, campaign.TeamID, contact.Email, campaign.TrackEngagement, true)
+		parsedBody := utils.ReplaceVariables(affiliates.WithBadge(htmlFromTemplate, badge), variables, messageID, h.cfg, tracked, true)
 		unsubscribe, err := utils.UnsubscribeLink(messageID, h.cfg)
 		if err != nil {
 			return h.logger.Error("❌ failed to sign unsubscribe link: %w", err)
@@ -316,7 +317,6 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 			return h.logger.Error("❌ failed to convert variables to json: %w", err)
 		}
 
-		tracked := true
 		email := &models.Email{
 			Base: models.Base{ID: messageID}, ClickTrackingEnabled: &tracked, UnsubscribeURL: unsubscribe,
 			From:         smtpConfig.FromEmail,

@@ -58,11 +58,13 @@ func (h *MarketingHandler) SaveNewsletter(c echo.Context) error {
 		NextSendAt                                                                                             *time.Time
 		// Absent keeps the current web archive setting; "" turns it off.
 		PublicSlug *string
+		// Absent keeps the current setting; tracking is on for new newsletters.
+		TrackEngagement *bool
 	}
 	if err := c.Bind(&input); err != nil {
 		return bad("Invalid newsletter")
 	}
-	n := models.Newsletter{TeamID: team(c), Name: input.Name, Subject: input.Subject, Description: input.Description, TemplateID: input.TemplateID, ListID: input.ListID, SMTPConfigID: input.SMTPConfigID, Status: input.Status, Cadence: input.Cadence, Timezone: input.Timezone, NextSendAt: input.NextSendAt, PostalAddress: input.PostalAddress}
+	n := models.Newsletter{TeamID: team(c), Name: input.Name, Subject: input.Subject, Description: input.Description, TemplateID: input.TemplateID, ListID: input.ListID, SMTPConfigID: input.SMTPConfigID, Status: input.Status, Cadence: input.Cadence, Timezone: input.Timezone, NextSendAt: input.NextSendAt, PostalAddress: input.PostalAddress, TrackEngagement: input.TrackEngagement}
 	if err := h.service.ValidateNewsletter(c.Request().Context(), &n); err != nil {
 		return bad(err.Error())
 	}
@@ -86,6 +88,9 @@ func (h *MarketingHandler) SaveNewsletter(c echo.Context) error {
 			n.Base, n.Editions, n.LastSentAt = old.Base, old.Editions, old.LastSentAt
 			if input.PublicSlug == nil {
 				n.PublicSlug = old.PublicSlug
+			}
+			if input.TrackEngagement == nil {
+				n.TrackEngagement = old.TrackEngagement
 			}
 			if n.NextSendAt != nil && old.NextSendAt != nil && n.NextSendAt.Equal(*old.NextSendAt) && n.Timezone == old.Timezone {
 				n.MonthDay = old.MonthDay
@@ -193,13 +198,20 @@ func (h *MarketingHandler) Unsubscribe(c echo.Context) error {
 	if !valid {
 		return missing()
 	}
+	var contact models.Contact
+	if err := marketing.Scope(h.service.DB, c.Param("team")).First(&contact, "id = ?", c.Param("contact")).Error; err != nil {
+		return missing()
+	}
+	consent, done, err := trackingPreference(c, h.service.DB, contact.TeamID, contact.Email)
+	if done {
+		return err
+	}
 	if c.Request().Method == http.MethodGet {
 		c.Response().Header().Set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'")
-		return c.HTML(200, `<!doctype html><html><meta name="viewport" content="width=device-width"><title>Unsubscribe</title><body style="font:16px Arial;max-width:480px;margin:80px auto;padding:24px"><h1>Unsubscribe from this audience</h1><p>You can stop receiving these emails at any time.</p><form method="post"><button style="padding:12px 24px">Confirm unsubscribe</button></form></body></html>`)
+		return c.HTML(200, `<!doctype html><html><meta name="viewport" content="width=device-width"><title>Unsubscribe</title><body style="font:16px Arial;max-width:480px;margin:80px auto;padding:24px"><h1>Unsubscribe from this audience</h1><p>You can stop receiving these emails at any time.</p><form method="post"><button style="padding:12px 24px">Confirm unsubscribe</button></form>`+consent+`</body></html>`)
 	}
-	var contact models.Contact
 	var unsubscribed *models.EmailEvent
-	err := h.service.DB.Transaction(func(tx *gorm.DB) error {
+	err = h.service.DB.Transaction(func(tx *gorm.DB) error {
 		if err := marketing.Scope(tx, c.Param("team")).Clauses(clause.Locking{Strength: "UPDATE"}).First(&contact, "id = ?", c.Param("contact")).Error; err != nil {
 			return err
 		}

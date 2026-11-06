@@ -289,6 +289,7 @@ function NewsletterEditor({
       value.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
     postalAddress: value.postalAddress || "",
     publicSlug: value.publicSlug || "",
+    trackEngagement: value.trackEngagement ?? true,
   });
   const [at, setAt] = useState(localDate(value.nextSendAt));
   const [status, setStatus] = useState(
@@ -300,7 +301,7 @@ function NewsletterEditor({
   const template = options?.templates.find((t) => t.id === draft.templateId);
   const preview = useMarketingQuery<{htmlBody:string}>(`marketing/templates/${draft.templateId}/preview`, !!draft.templateId && !template?.htmlBody);
   const templateHTML = template?.htmlBody || preview.data?.htmlBody;
-  const set = (key: string, val: string) => {
+  const set = (key: string, val: string | boolean) => {
     setDraft((d) => ({ ...d, [key]: val }));
     setReview(false);
   };
@@ -478,6 +479,22 @@ function NewsletterEditor({
                 placeholder="Company, street, city, postal code, country"
               />
             </Field>
+            <label className="flex items-start gap-2 text-sm">
+              <input
+                type="checkbox"
+                className="mt-1 !w-4"
+                checked={draft.trackEngagement}
+                onChange={(e) => set("trackEngagement", e.target.checked)}
+              />
+              <span>
+                Track opens and link clicks
+                <span className="block text-xs text-muted-foreground">
+                  Off sends editions without a tracking pixel or rewritten
+                  links. Deliveries, bounces, complaints and unsubscribes are
+                  still recorded.
+                </span>
+              </span>
+            </label>
             <Field
               label="Web archive (optional)"
               hint={

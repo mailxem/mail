@@ -1,6 +1,9 @@
 package templates
 
-import "fmt"
+import (
+	"fmt"
+	"html"
+)
 
 func UnsubscribeTemplate(email string, emailID string) string {
 	return fmt.Sprintf(`
@@ -245,4 +248,26 @@ func UnsubscribeTemplate(email string, emailID string) string {
 
 </html>
 `, email, emailID)
+}
+
+// TrackingConsentForm lets a reader choose whether the sender sees opens and clicks.
+// It posts back to the page it is on; tracking_choice marks it as a preference, not an unsubscribe.
+func TrackingConsentForm(sender string, allowed bool) string {
+	checked := ""
+	if allowed {
+		checked = " checked"
+	}
+	if sender == "" {
+		sender = "the sender"
+	}
+	return fmt.Sprintf(`<form method="post" style="margin-top:24px;padding-top:16px;border-top:1px solid #ddd"><input type="hidden" name="tracking_choice" value="1"><label style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" name="tracking" value="allow"%s> <span>Let %s see when I open emails and click links</span></label><p><button type="submit" style="padding:8px 16px">Save preference</button></p></form>`, checked, html.EscapeString(sender))
+}
+
+// TrackingConsentSaved confirms a reader's tracking preference.
+func TrackingConsentSaved(allowed bool) string {
+	message := "Opens and clicks in future emails will not be tracked."
+	if allowed {
+		message = "Opens and clicks in future emails may be tracked."
+	}
+	return `<!doctype html><html><meta name="viewport" content="width=device-width"><title>Preference saved</title><body style="font:16px Arial;max-width:480px;margin:80px auto;padding:24px"><h1>Preference saved</h1><p>` + message + `</p></body></html>`
 }

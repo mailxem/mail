@@ -16,20 +16,22 @@ import (
 
 type Team struct {
 	Base
-	OwnerUserID     string          `gorm:"type:uuid;default:NULL" json:"-"`
-	Name            string          `gorm:"not null" json:"name" validate:"required,min=2"`
-	Settings        []TeamSettings  `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"settings,omitempty"`
-	Users           []User          `gorm:"foreignKey:TeamID;references:ID" json:"users,omitempty"`
-	MailingLists    []MailingList   `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"mailingLists,omitempty"`
-	Webhooks        []Webhook       `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"webhooks,omitempty"`
-	SMTPConfigs     []SMTPConfig    `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"smtpConfigs,omitempty"`
-	Domains         []Domain        `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"domains,omitempty"`
-	Invites         []TeamInvite    `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"invites,omitempty"`
-	APIKeys         []APIKey        `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"apiKeys,omitempty"`
-	Automations     []Automation    `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"automations,omitempty"`
-	Models          []Model         `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"models,omitempty"`
-	EmailCategories []EmailCategory `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"emailCategories,omitempty"`
-	Campaigns       []Campaign      `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"campaigns,omitempty"`
+	OwnerUserID string `gorm:"type:uuid;default:NULL" json:"-"`
+	Name        string `gorm:"not null" json:"name" validate:"required,min=2"`
+	// TrackingConsentMode is none, opt_out or opt_in; see ShouldTrack.
+	TrackingConsentMode string          `gorm:"not null;default:'none'" json:"trackingConsentMode"`
+	Settings            []TeamSettings  `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"settings,omitempty"`
+	Users               []User          `gorm:"foreignKey:TeamID;references:ID" json:"users,omitempty"`
+	MailingLists        []MailingList   `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"mailingLists,omitempty"`
+	Webhooks            []Webhook       `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"webhooks,omitempty"`
+	SMTPConfigs         []SMTPConfig    `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"smtpConfigs,omitempty"`
+	Domains             []Domain        `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"domains,omitempty"`
+	Invites             []TeamInvite    `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"invites,omitempty"`
+	APIKeys             []APIKey        `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"apiKeys,omitempty"`
+	Automations         []Automation    `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"automations,omitempty"`
+	Models              []Model         `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"models,omitempty"`
+	EmailCategories     []EmailCategory `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"emailCategories,omitempty"`
+	Campaigns           []Campaign      `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"campaigns,omitempty"`
 }
 
 func (t *Team) BeforeCreate(tx *gorm.DB) error {
@@ -530,6 +532,8 @@ type Campaign struct {
 	ArchiveNewsletterID *string `gorm:"type:uuid;index" json:"archiveNewsletterId,omitempty"`
 	// SendInStages: nil sends in stages automatically to never-mailed lists.
 	SendInStages *bool `json:"sendInStages,omitempty"`
+	// TrackEngagement: nil or true adds the open pixel and click-tracking links.
+	TrackEngagement *bool `json:"trackEngagement,omitempty"`
 	// PauseReason says why staged sending paused the campaign.
 	PauseReason       string                    `json:"pauseReason,omitempty"`
 	HTMLBody          string                    `gorm:"type:text" json:"htmlBody,omitempty"`

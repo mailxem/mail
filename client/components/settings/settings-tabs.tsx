@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Bell, CreditCard, Globe, Palette, User } from "lucide-react";
 import { ProfileSettings } from "./profile-settings";
-import { BrandingSettings } from "./branding-settings";
+import { BrandingSettings, TrackingConsentSettings } from "./branding-settings";
 import { CustomDomains } from "./custom-domains";
 import dynamic from "next/dynamic";
 import styles from "./settings-tabs.module.css";
@@ -40,7 +40,7 @@ export function SettingsTabs() {
           <div className={styles.profileForm}><ProfileSettings /></div>
         </section>
       </TabsContent>
-      <TabsContent value="branding" className={styles.content}><BrandingSettings /></TabsContent>
+      <TabsContent value="branding" className={styles.content}><BrandingSettings /><TrackingConsentSettings /></TabsContent>
       <TabsContent value="domains" className={styles.content}><CustomDomains /></TabsContent>
       <TabsContent value="notifications" className={styles.content}>
         <section className={styles.section} aria-labelledby="notification-settings-heading">

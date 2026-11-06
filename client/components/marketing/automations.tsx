@@ -1148,6 +1148,25 @@ export function AutomationBuilder({
                 />
               </Field>
             )}
+            {kind === "EMAIL" && (
+              <label className="flex items-start gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  className="mt-1 !w-4"
+                  checked={config.trackEngagement !== false}
+                  onChange={(e) =>
+                    update({ trackEngagement: e.target.checked })
+                  }
+                />
+                <span>
+                  Track opens and link clicks
+                  <span className="block text-xs text-muted-foreground">
+                    Off sends this email without a tracking pixel or rewritten
+                    links.
+                  </span>
+                </span>
+              </label>
+            )}
             {kind === "WAIT" && (
               <WaitSettings config={config} update={update} />
             )}
