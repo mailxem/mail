@@ -96,8 +96,8 @@ func (p *ConditionProcessor) Process(ctx *automation.ExecutionContext, node *mod
 		branchKey = "true"
 	}
 
-	var edges []models.AutomationNodeEdge
-	if err := p.db.Where("automation_id = ? AND source_id = ?", ctx.AutomationID, node.ID).Find(&edges).Error; err != nil {
+	edges, err := ctx.EdgesFrom(p.db, node.ID)
+	if err != nil {
 		return nil, err
 	}
 	for _, edge := range edges {

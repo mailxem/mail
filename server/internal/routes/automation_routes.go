@@ -30,6 +30,13 @@ func SetupAutomationRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config, taskCl
 	automationGroup.POST("/:id/activate", handler.ActivateAutomation)
 	automationGroup.POST("/:id/deactivate", handler.DeactivateAutomation)
 
+	// Draft and published versions
+	automationGroup.POST("/:id/publish", handler.PublishAutomation)
+	automationGroup.POST("/:id/discard", handler.RestoreDraft)
+	automationGroup.GET("/:id/versions", handler.ListVersions)
+	automationGroup.POST("/:id/versions/:number/restore", handler.RestoreDraft)
+	automationGroup.GET("/:id/stats", handler.GetStepStats)
+
 	// Trigger
 	automationGroup.POST("/:id/trigger", handler.TriggerAutomation)
 
