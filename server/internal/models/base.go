@@ -110,6 +110,7 @@ const (
 	NodeTypeStart            NodeType = "START"
 	NodeTypeEmail            NodeType = "EMAIL"
 	NodeTypeWait             NodeType = "WAIT"
+	NodeTypeWaitUntil        NodeType = "WAIT_UNTIL"
 	NodeTypeCondition        NodeType = "CONDITION"
 	NodeTypeWebhook          NodeType = "WEBHOOK"
 	NodeTypeAddToList        NodeType = "ADD_TO_LIST"
@@ -183,4 +184,5 @@ const (
 	ExecutionStatusFailed    ExecutionStatus = "FAILED"
 	ExecutionStatusPaused    ExecutionStatus = "PAUSED"
 	ExecutionStatusWaiting   ExecutionStatus = "WAITING"
+	ExecutionStatusExited    ExecutionStatus = "EXITED" // left early; see ExitReason
 )

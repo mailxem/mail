@@ -80,3 +80,46 @@ func (p *WaitProcessor) Process(ctx *automation.ExecutionContext, node *models.A
 		},
 	}, nil
 }
+
+// WaitUntilProcessor handles WAIT_UNTIL nodes. It pauses on the "timeout" path;
+// the engine moves the contact down the "happened" path if the event comes first.
+type WaitUntilProcessor struct {
+	db *gorm.DB
+}
+
+func NewWaitUntilProcessor(db *gorm.DB) *WaitUntilProcessor {
+	return &WaitUntilProcessor{db: db}
+}
+
+func (p *WaitUntilProcessor) Type() models.NodeType { return models.NodeTypeWaitUntil }
+
+func (p *WaitUntilProcessor) Validate(node *models.AutomationNode) error {
+	if node.Type != models.NodeTypeWaitUntil {
+		return fmt.Errorf("invalid node type for WaitUntilProcessor")
+	}
+	return workflowconfig.Validate("WAIT_UNTIL", node.Data)
+}
+
+func (p *WaitUntilProcessor) Process(ctx *automation.ExecutionContext, node *models.AutomationNode) (*automation.ProcessResult, error) {
+	if err := p.Validate(node); err != nil {
+		return nil, err
+	}
+	var data workflowconfig.WaitUntil
+	if err := json.Unmarshal(node.Data, &data); err != nil {
+		return nil, err
+	}
+	timeout, _ := time.ParseDuration(data.Timeout)
+	var edges []models.AutomationNodeEdge
+	if err := p.db.Where("automation_id = ? AND source_id = ? AND label = ?", ctx.AutomationID, node.ID, "timeout").Find(&edges).Error; err != nil {
+		return nil, fmt.Errorf("failed to load edges: %w", err)
+	}
+	if len(edges) != 1 {
+		return nil, fmt.Errorf("wait step needs a timed-out path")
+	}
+	return &automation.ProcessResult{
+		NextNodeIDs: []string{edges[0].TargetID},
+		Wait:        &timeout,
+		Message:     fmt.Sprintf("Waiting up to %s for %s", timeout, data.Event),
+		Data:        map[string]interface{}{"event": data.Event, "timeoutAt": time.Now().Add(timeout).Format(time.RFC3339)},
+	}, nil
+}

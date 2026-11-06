@@ -26,6 +26,15 @@ func (s *AutomationService) SaveGraph(ctx context.Context, a *models.Automation)
 	default:
 		return fmt.Errorf("unsupported trigger")
 	}
+	switch a.ReentryMode {
+	case "", "once", "after_finish":
+	case "after_days":
+		if a.ReentryDays < 1 || a.ReentryDays > 3650 {
+			return fmt.Errorf("allow re-entry after 1 to 3650 days")
+		}
+	default:
+		return fmt.Errorf("unsupported re-entry rule")
+	}
 	if len(a.Nodes) > 100 || len(a.Edges) > 200 {
 		return fmt.Errorf("workflow is too large")
 	}
@@ -46,9 +55,15 @@ func (s *AutomationService) SaveGraph(ctx context.Context, a *models.Automation)
 				// The live trigger changes only when the draft is published.
 				a.DraftTriggerEvent, a.TriggerEvent = a.TriggerEvent, old.TriggerEvent
 			}
+			if a.ReentryMode == "" {
+				a.ReentryMode = old.ReentryMode
+			}
 		} else {
 			a.ID = uuid.NewString()
 			a.IsActive, a.LiveVersion, a.HasDraft, a.DraftTriggerEvent = false, 0, false, ""
+			if a.ReentryMode == "" {
+				a.ReentryMode = "once"
+			}
 		}
 		a.Team = nil
 		for i := range a.Nodes {
@@ -126,10 +141,10 @@ func (s *AutomationService) ValidateConfiguration(a *models.Automation) error {
 		if n.Type == models.NodeTypeExit && len(outgoing[n.ID]) != 0 {
 			return fmt.Errorf("finish steps cannot have outgoing connections")
 		}
-		if n.Type != models.NodeTypeExit && n.Type != models.NodeTypeCondition && n.Type != "PERCENTAGE_SPLIT" && len(outgoing[n.ID]) != 1 {
+		if n.Type != models.NodeTypeExit && n.Type != models.NodeTypeCondition && n.Type != "PERCENTAGE_SPLIT" && n.Type != models.NodeTypeWaitUntil && len(outgoing[n.ID]) != 1 {
 			return fmt.Errorf("each step must have exactly one continuation; use a condition to branch")
 		}
-		if (n.Type == models.NodeTypeCondition || n.Type == "PERCENTAGE_SPLIT") && len(outgoing[n.ID]) != 2 {
+		if (n.Type == models.NodeTypeCondition || n.Type == "PERCENTAGE_SPLIT" || n.Type == models.NodeTypeWaitUntil) && len(outgoing[n.ID]) != 2 {
 			return fmt.Errorf("conditions require exactly two paths")
 		}
 
@@ -176,7 +191,7 @@ func (s *AutomationService) ValidateConfiguration(a *models.Automation) error {
 			if uuid.Validate(listID) != nil || s.db.Model(&models.MailingList{}).Where("id = ? AND team_id = ? AND is_deleted = ?", listID, a.TeamID, false).Count(&count).Error != nil || count != 1 {
 				return fmt.Errorf("choose a list in this workspace")
 			}
-		case models.NodeTypeCondition, "PERCENTAGE_SPLIT":
+		case models.NodeTypeCondition, "PERCENTAGE_SPLIT", models.NodeTypeWaitUntil:
 			if err := workflowconfig.Validate(string(n.Type), n.Data); err != nil {
 				return err
 			}
@@ -189,6 +204,8 @@ func (s *AutomationService) ValidateConfiguration(a *models.Automation) error {
 			left, right := "true", "false"
 			if n.Type == "PERCENTAGE_SPLIT" {
 				left, right = "A", "B"
+			} else if n.Type == models.NodeTypeWaitUntil {
+				left, right = "happened", "timeout"
 			}
 			if !labels[left] || !labels[right] {
 				return fmt.Errorf("branch needs %s and %s paths", left, right)

@@ -127,6 +127,9 @@ export type Workflow = {
   isActive: boolean;
   liveVersion?: number;
   hasDraft?: boolean;
+  reentryMode?: string;
+  reentryDays?: number;
+  exitOnGoal?: boolean | null;
   nodes: WorkflowNode[];
   edges: WorkflowEdge[];
   updatedAt: string;
