@@ -119,6 +119,12 @@ func (h *TrackingHandler) createTrackingEntry(c echo.Context, emailID string, ev
 		events.Emit("email.opened", tracking)
 	}
 
+	if event == models.EmailTrackingEventClick {
+		events.Emit("email.clicked", tracking)
+	} else if earlierOpens == 0 {
+		events.Emit("email.opened", tracking)
+	}
+
 	return tracking, nil
 }
 
