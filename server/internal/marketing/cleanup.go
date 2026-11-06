@@ -39,7 +39,7 @@ func KeepSending(tx *gorm.DB, contact *models.Contact, now time.Time) error {
 	if contact.Status != models.SubscriberStatusActive && contact.Status != models.SubscriberStatusInactive {
 		return nil
 	}
-	if err := tx.Model(&models.Contact{}).Where("id = ?", contact.ID).UpdateColumns(map[string]interface{}{"status": models.SubscriberStatusActive, "reengage_sent_at": nil, "cleanup_from": now}).Error; err != nil {
+	if err := tx.Model(&models.Contact{}).Where("id = ?", contact.ID).UpdateColumns(map[string]interface{}{"status": models.SubscriberStatusActive, "reengage_sent_at": nil, "cleanup_since": now}).Error; err != nil {
 		return err
 	}
 	return models.SyncSubscribersCountByID(tx, contact.ListID)
@@ -76,22 +76,23 @@ func (s *Service) CleanUpLists(ctx context.Context, now time.Time) error {
 		return nil
 	}
 	// A paused reader who clicks an old email is back.
-	if err := changed(func() *gorm.DB { return contacts(models.SubscriberStatusInactive, clicked("cleanup_from")) }, map[string]interface{}{"status": models.SubscriberStatusActive, "cleanup_from": now}); err != nil {
+	if err := changed(func() *gorm.DB { return contacts(models.SubscriberStatusInactive, clicked("cleanup_since")) }, map[string]interface{}{"status": models.SubscriberStatusActive, "cleanup_since": now}); err != nil {
 		return err
 	}
 	// Clicking any email while being asked answers the question too.
-	if err := contacts(models.SubscriberStatusActive, clicked("reengage_sent_at")).UpdateColumns(map[string]interface{}{"reengage_sent_at": nil, "cleanup_from": now}).Error; err != nil {
+	if err := contacts(models.SubscriberStatusActive, clicked("reengage_sent_at")).UpdateColumns(map[string]interface{}{"reengage_sent_at": nil, "cleanup_since": now}).Error; err != nil {
 		return err
 	}
 	// No answer in time: pause them, and restart the count in case the owner turns them back on.
 	if err := changed(func() *gorm.DB {
 		return contacts(models.SubscriberStatusActive, "reengage_sent_at <= ?", now.Add(-CleanupWait))
-	}, map[string]interface{}{"status": models.SubscriberStatusInactive, "reengage_sent_at": nil, "cleanup_from": now}); err != nil {
+	}, map[string]interface{}{"status": models.SubscriberStatusInactive, "reengage_sent_at": nil, "cleanup_since": now}); err != nil {
 		return err
 	}
-	// Ask everyone who qualifies. Ignored mail is newsletter and campaign mail since the last restart.
-	since := "COALESCE(contacts.cleanup_from, contacts.created_at)"
-	ignored := "FROM emails e WHERE e.contact_id = contacts.id AND e.campaign_id IS NOT NULL AND e.status IN ('SENT','OPENED','CLICKED') AND e.created_at > " + since
+	// Ask everyone who qualifies. Ignored mail is tracked newsletter and campaign mail since the
+	// last restart; mail sent without tracking can't show an open, so it never counts as ignored.
+	since := "COALESCE(contacts.cleanup_since, contacts.created_at)"
+	ignored := "FROM emails e WHERE e.contact_id = contacts.id AND e.campaign_id IS NOT NULL AND e.click_tracking_enabled IS NOT FALSE AND e.status IN ('SENT','OPENED','CLICKED') AND e.created_at > " + since
 	for {
 		var ids []string
 		err := contacts(models.SubscriberStatusActive, "reengage_sent_at IS NULL").

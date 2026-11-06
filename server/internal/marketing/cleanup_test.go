@@ -46,6 +46,8 @@ func TestListCleanupAsksOncePausesAndKeepLinkReactivates(t *testing.T) {
 	recent := reader(list, 5, 30*day)
 	few := reader(list, 4, 70*day)
 	quietOff := reader(offList, 5, 70*day)
+	untracked := reader(list, 5, 70*day) // mail sent without tracking can't show an open
+	require.NoError(t, db.Model(&models.Email{}).Where("contact_id = ?", untracked).Update("click_tracking_enabled", false).Error)
 	create(&models.EmailTracking{Base: models.Base{ID: uuid.NewString()}, EmailID: uuid.NewString(), ContactID: clicker, Event: models.EmailTrackingEventClick, Timestamp: now.Add(-10 * day)})
 	create(&models.EmailTracking{Base: models.Base{ID: uuid.NewString()}, EmailID: uuid.NewString(), ContactID: opener, Event: models.EmailTrackingEventOpen, Timestamp: now.Add(-10 * day)})
 
@@ -89,7 +91,7 @@ func TestListCleanupAsksOncePausesAndKeepLinkReactivates(t *testing.T) {
 	require.Equal(t, models.SubscriberStatusActive, status(quietOff).Status)
 	var readers models.MailingList
 	require.NoError(t, db.First(&readers, "id = ?", list).Error)
-	require.EqualValues(t, 4, readers.SubscribersCount)
+	require.EqualValues(t, 5, readers.SubscribersCount)
 	require.Len(t, asked(), 1)
 
 	// Paused readers get no newsletter edition.
@@ -103,7 +105,7 @@ func TestListCleanupAsksOncePausesAndKeepLinkReactivates(t *testing.T) {
 	require.NoError(t, service.PrepareEdition(ctx, edition.ID))
 	var editionTo []string
 	require.NoError(t, db.Model(&models.Email{}).Where("campaign_id = ?", edition.ID).Pluck("contact_id", &editionTo).Error)
-	require.Len(t, editionTo, 4)
+	require.Len(t, editionTo, 5)
 	require.NotContains(t, editionTo, quiet)
 
 	// The keep link needs a POST and a valid signature, then turns mail back on.
@@ -136,7 +138,7 @@ func TestListCleanupClickReactivatesPausedReader(t *testing.T) {
 	team, list, id := uuid.NewString(), uuid.NewString(), uuid.NewString()
 	paused := now.Add(-48 * time.Hour)
 	require.NoError(t, db.Create(&models.MailingList{Base: models.Base{ID: list}, TeamID: team, Name: "Readers"}).Error)
-	require.NoError(t, db.Session(&gorm.Session{SkipHooks: true}).Create(&models.Contact{Base: models.Base{ID: id}, TeamID: team, ListID: list, Email: "back@example.com", Status: models.SubscriberStatusInactive, CleanupFrom: &paused}).Error)
+	require.NoError(t, db.Session(&gorm.Session{SkipHooks: true}).Create(&models.Contact{Base: models.Base{ID: id}, TeamID: team, ListID: list, Email: "back@example.com", Status: models.SubscriberStatusInactive, CleanupSince: &paused}).Error)
 	service := marketing.New(db, strings.Repeat("s", 32), "https://api.example.com")
 	require.NoError(t, service.CleanUpLists(context.Background(), now))
 	var c models.Contact
