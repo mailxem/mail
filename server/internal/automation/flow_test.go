@@ -225,14 +225,22 @@ func TestWaitUntilTagAndFieldAndAppEvent(t *testing.T) {
 		send  func(*flowFixture) interface{}
 	}{
 		{`{"event":"tag_added","tag":"VIP","timeout":"1h"}`, "contact.tag_added", func(f *flowFixture) interface{} {
-			return map[string]interface{}{"contactId": f.contact.ID, "tag": "vip"}
+			// Same shape as models.TagAdded.
+			return &struct {
+				Contact *models.Contact
+				Tag     models.Tag
+			}{f.contact, models.Tag{Name: "vip"}}
 		}},
 		{`{"event":"field_changed","field":"company","value":"Acme","timeout":"1h"}`, "contact.updated", func(f *flowFixture) interface{} {
 			require.NoError(t, f.db.Model(f.contact).UpdateColumn("company", "Acme").Error)
 			return f.contact
 		}},
-		{`{"event":"app_event","name":"trial_started","timeout":"1h"}`, "app.event", func(f *flowFixture) interface{} {
-			return map[string]interface{}{"contactId": f.contact.ID, "name": "trial_started"}
+		{`{"event":"app_event","name":"trial_started","timeout":"1h"}`, "event.received", func(f *flowFixture) interface{} {
+			// Same shape as models.ContactEvent.
+			return &struct {
+				ContactID string `json:"contactId"`
+				Name      string `json:"name"`
+			}{f.contact.ID, "trial_started"}
 		}},
 	} {
 		f := waitFlow(t, c.data)
