@@ -39,6 +39,9 @@ func TestFeedbackQueuesDeduplicatedAlertsAndSuspension(t *testing.T) {
 			s, team, d, _ := setup(t)
 			enableAlerts(t, s)
 			m := reputationMessage(t, s, team, d, []string{"reader@example.net"})
+			if kind == "Complaint" {
+				earlier(t, s, team, "Complaint", 2) // so this one crosses 0.3%
+			}
 			raw := reputationFeedback(t, m, kind, "Permanent", "reader@example.net")
 			require.NoError(t, s.ApplyFeedback(context.Background(), "event-one", raw))
 			require.NoError(t, s.ApplyFeedback(context.Background(), "event-one", raw))

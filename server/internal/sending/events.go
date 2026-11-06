@@ -176,6 +176,44 @@ type Feedback struct {
 	} `json:"complaint"`
 }
 
+// Reputation limits, as shares of the emails a workspace sent over the window.
+// They match the levels at which Amazon SES puts a sending account at risk, so
+// one complaint on a normal newsletter never suspends anyone. Below
+// reputationFloor emails, rates are taken over the floor: a new workspace is
+// suspended after 3 complaints or 50 hard bounces, not after its first.
+const (
+	reputationWindow     = 7 * 24 * time.Hour
+	reputationFloor      = 1000
+	complaintLimitPerMil = 3  // 0.3%
+	bounceLimitPerMil    = 50 // 5%
+)
+
+// overReputationLimit says whether the workspace's complaint or hard-bounce
+// rate now crosses its limit, with the audit action and a reason for the owner.
+func (s *Service) overReputationLimit(tx *gorm.DB, team, eventType string) (string, string, error) {
+	since := s.Now().Add(-reputationWindow)
+	var sent int64
+	// Recipients are stored comma-separated, one message per send.
+	if e := tx.Model(&Message{}).
+		Select("COALESCE(SUM(LENGTH(recipients) - LENGTH(REPLACE(recipients, ',', '')) + 1), 0)").
+		Where("team_id = ? AND is_test = ? AND status NOT IN ? AND created_at >= ?", team, false, []string{"QUEUED", "FAILED"}, since).
+		Scan(&sent).Error; e != nil {
+		return "", "", e
+	}
+	reason, action, limit, label := "Bounce", "auto_suspend_bounces", int64(bounceLimitPerMil), "hard bounces reached 5%"
+	if eventType == "Complaint" {
+		reason, action, limit, label = "Complaint", "auto_suspend_complaint", complaintLimitPerMil, "spam complaints reached 0.3%"
+	}
+	var n int64
+	if e := tx.Model(&Suppression{}).Where("team_id = ? AND reason = ? AND created_at >= ?", team, reason, since).Count(&n).Error; e != nil {
+		return "", "", e
+	}
+	if n*1000 < limit*max(sent, reputationFloor) {
+		return "", "", nil
+	}
+	return action, label + " of emails sent in the last 7 days", nil
+}
+
 func (s *Service) ApplyFeedback(ctx context.Context, eventID string, raw []byte) error {
 	var f Feedback
 	if e := json.Unmarshal(raw, &f); e != nil {
@@ -262,24 +300,16 @@ func (s *Service) ApplyFeedback(ctx context.Context, eventID string, raw []byte)
 			}
 		}
 		if len(blocked) > 0 && !account.Suspended {
-			action := ""
-			if f.EventType == "Complaint" {
-				action = "auto_suspend_complaint"
-			} else {
-				var hardBounces int64
-				if e := tx.Model(&Suppression{}).Where("team_id = ? AND reason = ? AND created_at >= ?", m.TeamID, "Bounce", s.Now().Add(-24*time.Hour)).Count(&hardBounces).Error; e != nil {
-					return e
-				}
-				if hardBounces >= 5 {
-					action = "auto_suspend_bounces"
-				}
+			action, why, err := s.overReputationLimit(tx, m.TeamID, f.EventType)
+			if err != nil {
+				return err
 			}
 			if action != "" {
 				if e := tx.Model(&account).Update("suspended", true).Error; e != nil {
 					return e
 				}
 				if s.NotifyAlerts {
-					if err := models.QueueSendingNotice(tx, m.TeamID, "managed-suspension", eventID, "SUSPENDED", "Suspended after SES reported a "+strings.ToLower(f.EventType), s.Now()); err != nil {
+					if err := models.QueueSendingNotice(tx, m.TeamID, "managed-suspension", eventID, "SUSPENDED", "Suspended: "+why, s.Now()); err != nil {
 						return err
 					}
 				}

@@ -40,12 +40,47 @@ func reputationFeedback(t *testing.T, m Message, kind, bounceType string, recipi
 	return raw
 }
 
-func TestComplaintSuspendsWorkspaceAndCannotBeClearedByDNS(t *testing.T) {
+// sentVolume records n emails the workspace sent recently, as one message.
+func sentVolume(t *testing.T, s *Service, team string, d Domain, n int) {
+	t.Helper()
+	recipients := make([]string, n)
+	for i := range recipients {
+		recipients[i] = uuid.NewString() + "@volume.test"
+	}
+	require.NoError(t, s.DB.Create(&Message{ID: uuid.NewString(), TeamID: team, DomainID: d.ID, From: "hello@example.com", Recipients: strings.Join(recipients, ","), Status: "DELIVERED", CreatedAt: s.Now()}).Error)
+}
+
+// earlier records n addresses that bounced or complained recently.
+func earlier(t *testing.T, s *Service, team, reason string, n int) {
+	t.Helper()
+	for i := 0; i < n; i++ {
+		require.NoError(t, s.DB.Create(&Suppression{TeamID: team, Address: uuid.NewString() + "@earlier.test", Reason: reason, CreatedAt: s.Now()}).Error)
+	}
+}
+
+func TestOneComplaintOnANewsletterDoesNotSuspend(t *testing.T) {
+	s, team, d, _ := setup(t)
+	ctx := context.Background()
+	sentVolume(t, s, team, d, 4999)
+	m := reputationMessage(t, s, team, d, []string{"reader@example.net"})
+	earlier(t, s, team, "Complaint", 13) // 14 of 5,000 is 0.28%
+	require.NoError(t, s.ApplyFeedback(ctx, "complaint", reputationFeedback(t, m, "Complaint", "", "reader@example.net")))
+	a, err := s.Account(ctx, team)
+	require.NoError(t, err)
+	require.False(t, a.Suspended, "complaints under 0.3% of sends must not suspend")
+	var suppressed int64
+	require.NoError(t, s.DB.Model(&Suppression{}).Where("team_id = ? AND address = ?", team, "reader@example.net").Count(&suppressed).Error)
+	require.EqualValues(t, 1, suppressed, "the reader who complained is still never emailed again")
+}
+
+func TestComplaintRateSuspendsWorkspaceAndCannotBeClearedByDNS(t *testing.T) {
 	s, team, d, p := setup(t)
 	ctx := context.Background()
 	m := reputationMessage(t, s, team, d, []string{"reader@example.net"})
 	_, err := s.Submit(ctx, input(team, d)) // queued before the complaint
 	require.NoError(t, err)
+	earlier(t, s, team, "Complaint", 2) // a third complaint in under 1,000 sends is 0.3%
+	earlier(t, s, uuid.NewString(), "Complaint", 5)
 	raw := reputationFeedback(t, m, "Complaint", "", "reader@example.net")
 	require.NoError(t, s.ApplyFeedback(ctx, "complaint-event", raw))
 	require.NoError(t, s.ApplyFeedback(ctx, "complaint-event", raw))
@@ -72,11 +107,13 @@ func TestComplaintSuspendsWorkspaceAndCannotBeClearedByDNS(t *testing.T) {
 	require.False(t, other.Suspended)
 }
 
-func TestHardBounceThresholdCountsDistinctRecentRecipients(t *testing.T) {
+func TestHardBounceRateCountsDistinctRecentRecipients(t *testing.T) {
 	s, team, d, _ := setup(t)
 	ctx := context.Background()
+	sentVolume(t, s, team, d, 1995)
+	earlier(t, s, team, "Bounce", 95) // with the five below, 100 of 2,000 is 5%
 	for i := 0; i < 5; i++ {
-		require.NoError(t, s.DB.Create(&Suppression{TeamID: team, Address: uuid.NewString() + "@old.test", Reason: "Bounce", CreatedAt: s.Now().Add(-25 * time.Hour)}).Error)
+		require.NoError(t, s.DB.Create(&Suppression{TeamID: team, Address: uuid.NewString() + "@old.test", Reason: "Bounce", CreatedAt: s.Now().Add(-reputationWindow - time.Hour)}).Error)
 		require.NoError(t, s.DB.Create(&Suppression{TeamID: uuid.NewString(), Address: uuid.NewString() + "@other.test", Reason: "Bounce", CreatedAt: s.Now()}).Error)
 	}
 	recipients := []string{"one@example.net", "two@example.net", "three@example.net", "four@example.net", "five@example.net"}
@@ -123,6 +160,8 @@ func TestUnmatchedComplaintCannotSuspendOrSuppress(t *testing.T) {
 
 func TestConcurrentBouncesCannotMissSuspensionThreshold(t *testing.T) {
 	s, team, d, _ := setup(t)
+	sentVolume(t, s, team, d, 1995)
+	earlier(t, s, team, "Bounce", 95)
 	recipients := []string{"one@example.net", "two@example.net", "three@example.net", "four@example.net", "five@example.net"}
 	m := reputationMessage(t, s, team, d, recipients)
 	var wg sync.WaitGroup
@@ -148,6 +187,7 @@ func TestConcurrentBouncesCannotMissSuspensionThreshold(t *testing.T) {
 func TestSuspensionRollsBackWithFeedbackWhenAuditFails(t *testing.T) {
 	s, team, d, _ := setup(t)
 	m := reputationMessage(t, s, team, d, []string{"reader@example.net"})
+	earlier(t, s, team, "Complaint", 2)
 	require.NoError(t, s.DB.Callback().Create().Before("gorm:create").Register("fail_suspension_audit", func(tx *gorm.DB) {
 		if tx.Statement.Table == "managed_audits" {
 			tx.AddError(errors.New("audit unavailable"))
@@ -159,7 +199,7 @@ func TestSuspensionRollsBackWithFeedbackWhenAuditFails(t *testing.T) {
 	require.NoError(t, err)
 	require.False(t, a.Suspended)
 	var count int64
-	require.NoError(t, s.DB.Model(&Suppression{}).Count(&count).Error)
+	require.NoError(t, s.DB.Model(&Suppression{}).Where("address = ?", "reader@example.net").Count(&count).Error)
 	require.Zero(t, count)
 	require.NoError(t, s.DB.Model(&Event{}).Count(&count).Error)
 	require.Zero(t, count)
