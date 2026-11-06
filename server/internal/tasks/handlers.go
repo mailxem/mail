@@ -293,7 +293,14 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		maps.Copy(variables, data)
 
 		messageID := uuid.NewString()
-		parsedBody := utils.ReplaceVariables(htmlFromTemplate, variables, messageID, h.cfg, true, campaign.Template.Category != nil && campaign.Template.Category.Name == "Marketing")
+		// A campaign goes to a list, so it's marketing: every email gets an
+		// unsubscribe footer and the one-click header that managed sending,
+		// Gmail and Yahoo require.
+		parsedBody := utils.ReplaceVariables(htmlFromTemplate, variables, messageID, h.cfg, true, true)
+		unsubscribe, err := utils.UnsubscribeLink(messageID, h.cfg)
+		if err != nil {
+			return h.logger.Error("❌ failed to sign unsubscribe link: %w", err)
+		}
 		parsedSubject := utils.ReplaceVariables(campaign.Template.Subject, variables, campaign.ID, h.cfg, false, false)
 
 		parsedSubject, err = base64.DecodeFromBase64(parsedSubject)
@@ -309,7 +316,7 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 
 		tracked := true
 		email := &models.Email{
-			Base: models.Base{ID: messageID}, ClickTrackingEnabled: &tracked,
+			Base: models.Base{ID: messageID}, ClickTrackingEnabled: &tracked, UnsubscribeURL: unsubscribe,
 			From:         smtpConfig.FromEmail,
 			To:           contact.Email,
 			Subject:      parsedSubject,
