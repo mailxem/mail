@@ -37,7 +37,7 @@ type sentEmails struct {
 
 func (p *sentEmails) Process(ctx *ExecutionContext, node *models.AutomationNode) (*ProcessResult, error) {
 	p.sent++
-	return &ProcessResult{NextNodeIDs: testNextNodes(p.db, node), UpdateVars: map[string]interface{}{"last_email_id": ctx.Variables["test_email_id"]}}, nil
+	return &ProcessResult{NextNodeIDs: testNextNodes(ctx, p.db, node), UpdateVars: map[string]interface{}{"last_email_id": ctx.Variables["test_email_id"]}}, nil
 }
 func (p *sentEmails) Validate(*models.AutomationNode) error { return nil }
 func (p *sentEmails) Type() models.NodeType                 { return models.NodeTypeEmail }
