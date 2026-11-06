@@ -1,0 +1,46 @@
+---
+title: "Gmail spam rates (Postmaster Tools)"
+---
+
+Gmail does not report single spam complaints to Amazon SES. It only publishes daily spam rates in Google Postmaster Tools. When managed sending is on, Xem can read those rates once a day and act on them.
+
+## What Xem does
+
+Every managed message carries a `Feedback-ID` header: `<campaign, newsletter or email id>:<team id>:<kind>:xem`. Gmail reports a spam rate for each field on its own, so Xem maps the reported IDs back to a workspace. Unknown IDs are ignored.
+
+For the newest day Google has published (each day is acted on once):
+
+| Gmail spam rate | Action |
+| --- | --- |
+| A workspace at 0.3% or more | Managed sending for that workspace is suspended (audit action `auto_suspend_gmail`) and the owner gets an email with the rate. |
+| A workspace at 0.08% or more | The owner is warned. |
+| The whole shared domain at 0.1% or more | The workspaces of superadmins are emailed. |
+
+Owner and admin emails need `SERVICE_NOTIFICATIONS_ENABLED=true`, like other sending alerts. The check runs every 6 hours from the task scheduler because Google publishes each day late.
+
+Without the four `GOOGLE_POSTMASTER_*` variables, or before a superadmin connects, nothing runs.
+
+## Setup
+
+1. At [postmaster.google.com](https://postmaster.google.com), add and verify the shared DKIM domain that managed mail is signed with.
+2. In a Google Cloud project, enable the **Gmail Postmaster Tools API**.
+3. Configure the OAuth consent screen with the scope `https://www.googleapis.com/auth/postmaster.readonly` and **publish it to production**. While the app is in "Testing", Google expires refresh tokens after 7 days and the sync stops.
+4. Create an OAuth client of type **Web application**. Add the redirect URI `https://<your API host>/api/v1/sending/postmaster/callback`.
+5. Set on the API server and restart it:
+
+   ```bash
+   GOOGLE_POSTMASTER_CLIENT_ID=...
+   GOOGLE_POSTMASTER_CLIENT_SECRET=...
+   GOOGLE_POSTMASTER_REDIRECT_URL=https://<your API host>/api/v1/sending/postmaster/callback
+   GOOGLE_POSTMASTER_DOMAIN=<shared DKIM domain>
+   ```
+
+6. Signed in as a superadmin, ask the API for Google's consent link and open it in the browser with the Google account that owns the domain in Postmaster Tools:
+
+   ```bash
+   curl -X POST -H "Authorization: Bearer <your session token>" https://<your API host>/api/v1/sending/postmaster/connect
+   ```
+
+   The response is `{"url": "..."}`. After you approve, Google redirects to the callback, which shows "Google Postmaster Tools is connected". The link works once and expires after 10 minutes.
+
+The refresh token is stored encrypted with the installation key. To reconnect with another Google account, repeat step 6.
