@@ -25,6 +25,7 @@ import type { EmailDraft } from "@/components/ai/email-writer";
 import { XemMark, XemMarkTile } from "./xem-mark";
 import styles from "./workspace-ai.module.css";
 import { designContext } from "@/lib/assistant/design-context";
+import { GmailClipNotice } from "@/components/campaigns/gmail-clip-notice";
 
 export type DesignSnapshot = {
   key: string;
@@ -345,6 +346,7 @@ function DesignConversation({
                 srcDoc={candidate.previewHtml}
               />
             </details>
+            <GmailClipNotice html={candidate.previewHtml} />
             <button
               onClick={() => {
                 const url = URL.createObjectURL(

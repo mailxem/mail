@@ -43,7 +43,11 @@ import { resourceEntity } from "@/lib/resource-response";
 import { workspaceClassName } from "@/lib/workspace-styles";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/page-header";
-import { PhonePreview } from "@/components/campaigns/phone-preview";
+import {
+  PhonePreview,
+  useTemplatePreviewHtml,
+} from "@/components/campaigns/phone-preview";
+import { GmailClipNotice } from "@/components/campaigns/gmail-clip-notice";
 import { BestTimeHint } from "@/components/campaigns/best-time-hint";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -282,6 +286,7 @@ function NewCampaignForm() {
   const selectedTemplate = templates.find(
     (template) => template.id === draft.templateId,
   );
+  const templateHtml = useTemplatePreviewHtml(selectedTemplate?.id).data;
   const contactsQuery = useQuery<ContactPreview[]>({
     queryKey: ["campaign-contact-preview", team?.id, draft.listId],
     queryFn: async ({ signal }) => {
@@ -1374,6 +1379,7 @@ function NewCampaignForm() {
           <p className="text-xs text-muted-foreground">
             Your next great connection starts with an email.
           </p>
+          <GmailClipNotice html={templateHtml} className="max-w-md" />
           <Button type="submit" disabled={saving || !team?.id}>
             {saving ? (
               <Loader2 className="size-4 animate-spin" />
