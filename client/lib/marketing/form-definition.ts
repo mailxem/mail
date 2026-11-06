@@ -43,6 +43,7 @@ export type FormDefinition = {
   consent: { mode: "required" | "optional" | "none"; label: string };
   saveProgress: boolean;
   successRedirectUrl?: string;
+  turnstile?: boolean;
 };
 export const DEFAULT_CONSENT_LABEL =
   "I agree to receive emails and understand that I can unsubscribe at any time.";
@@ -60,6 +61,7 @@ const reservedKeys = new Set([
   "fields",
   "pageId",
   "token",
+  "formToken",
 ]);
 export const isValidFormFieldKey = (key: string) =>
   /^[a-zA-Z][a-zA-Z0-9_]{0,63}$/.test(key) && !reservedKeys.has(key);

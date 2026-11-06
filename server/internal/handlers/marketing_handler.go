@@ -43,7 +43,7 @@ func (h *MarketingHandler) Options(c echo.Context) error {
 	if err := h.scoped(c).Model(&models.SMTPConfig{}).Select("id", "provider AS name", "from_email", "supports_tls").Find(&senders).Error; err != nil {
 		return err
 	}
-	return c.JSON(200, map[string]interface{}{"lists": lists, "templates": templates, "senders": senders, "starters": marketing.Starters()})
+	return c.JSON(200, map[string]interface{}{"lists": lists, "templates": templates, "senders": senders, "starters": marketing.Starters(), "turnstileSiteKey": marketing.TurnstileSiteKey()})
 }
 func (h *MarketingHandler) Newsletters(c echo.Context) error {
 	var rows []models.Newsletter

@@ -135,7 +135,7 @@ func TestPublicCaptureConsentRetryAndTenantIsolation(t *testing.T) {
 	e.PUT("/contacts/:id/stage", handler.UpdateContactStage)
 	e.POST("/contacts/:id/notes", handler.Notes)
 	call := func(method, path string, payload interface{}) *httptest.ResponseRecorder {
-		b, err := json.Marshal(payload)
+		b, err := json.Marshal(withFormToken(path, payload))
 		require.NoError(t, err)
 		req := httptest.NewRequest(method, path, strings.NewReader(string(b)))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)

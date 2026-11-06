@@ -47,11 +47,13 @@ type FormDefinition struct {
 	Consent            FormConsent `json:"consent"`
 	SaveProgress       bool        `json:"saveProgress"`
 	SuccessRedirectURL string      `json:"successRedirectUrl,omitempty"`
+	// Turnstile asks visitors to pass a Cloudflare check when the server has keys for it.
+	Turnstile bool `json:"turnstile,omitempty"`
 }
 
 var formKey = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_]{0,63}$`)
 var formNumber = regexp.MustCompile(`^[+-]?(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$`)
-var reservedFormKeys = map[string]bool{"__proto__": true, "prototype": true, "constructor": true, "consent": true, "website": true, "requestId": true, "version": true, "sessionId": true, "resumeToken": true, "attribution": true, "fields": true, "pageId": true, "token": true}
+var reservedFormKeys = map[string]bool{"__proto__": true, "prototype": true, "constructor": true, "consent": true, "website": true, "requestId": true, "version": true, "sessionId": true, "resumeToken": true, "attribution": true, "fields": true, "pageId": true, "token": true, "formToken": true}
 
 // ValidateFormDefinition bounds payload complexity and guarantees acyclic forward branching.
 func ValidateFormDefinition(d FormDefinition) error {

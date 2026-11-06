@@ -11,6 +11,7 @@ import (
 	"kori/internal/config"
 	"kori/internal/handlers"
 	"kori/internal/models"
+	"kori/internal/utils"
 	"os"
 	"time"
 )
@@ -90,7 +91,11 @@ func SetupMarketingRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 	g.POST("/contacts/:id/notes", h.Notes)
 	public := e.Group("/public", em.BodyLimit("32K"), em.RateLimiter(em.NewRateLimiterMemoryStore(rate.Limit(2))))
 	public.GET("/forms/:slug", h.PublicForm)
-	public.POST("/forms/:slug", h.SubmitForm)
+	if redisClient, err := utils.NewRedisClient(cfg); err == nil {
+		public.POST("/forms/:slug", h.SubmitForm, middleware.FormSubmitRateLimiter(redisClient.Client))
+	} else {
+		public.POST("/forms/:slug", h.SubmitForm)
+	}
 	public.GET("/forms/:slug/manifest", h.FormManifest)
 	public.POST("/forms/:slug/progress", h.SaveFormProgress)
 	public.POST("/forms/:slug/resume", h.ResumeForm)

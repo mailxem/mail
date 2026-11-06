@@ -182,7 +182,15 @@ func (h *MarketingHandler) PublicForm(c echo.Context) error {
 	}
 	c.Response().Header().Set("Cache-Control", "no-store")
 	// Explicit projection never exposes audience routing, tokens, or submitted answers.
-	return c.JSON(200, map[string]interface{}{"name": f.Name, "description": f.Description, "fields": f.Fields, "buttonText": f.SubmitButtonText, "successMessage": f.SuccessMessage, "theme": f.Theme, "definition": d, "version": f.Version})
+	return c.JSON(200, map[string]interface{}{"name": f.Name, "description": f.Description, "fields": f.Fields, "buttonText": f.SubmitButtonText, "successMessage": f.SuccessMessage, "theme": f.Theme, "definition": d, "version": f.Version, "formToken": h.service.FormToken(f.Slug, time.Now()), "turnstileSiteKey": formTurnstileKey(d)})
+}
+
+// formTurnstileKey is the widget key a form shows, or empty when it shows none.
+func formTurnstileKey(d marketing.FormDefinition) string {
+	if !d.Turnstile {
+		return ""
+	}
+	return marketing.TurnstileSiteKey()
 }
 func (h *MarketingHandler) FormManifest(c echo.Context) error {
 	f, err := h.publicForm(c, h.service.DB, false)
@@ -199,7 +207,7 @@ func (h *MarketingHandler) FormManifest(c echo.Context) error {
 
 // legacyEditableDefinition recognizes only the representation synthesized for old clients.
 func legacyEditableDefinition(d marketing.FormDefinition) bool {
-	if len(d.Pages) != 1 || d.Pages[0].ID != "details" || d.Pages[0].Condition != nil || d.Consent.Mode != "required" || d.Consent.Label != "I agree to receive emails and can unsubscribe at any time." || d.SaveProgress || d.SuccessRedirectURL != "" {
+	if len(d.Pages) != 1 || d.Pages[0].ID != "details" || d.Pages[0].Condition != nil || d.Consent.Mode != "required" || d.Consent.Label != "I agree to receive emails and can unsubscribe at any time." || d.SaveProgress || d.Turnstile || d.SuccessRedirectURL != "" {
 		return false
 	}
 	for _, q := range d.Pages[0].Fields {

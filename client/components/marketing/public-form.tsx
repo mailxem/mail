@@ -18,6 +18,14 @@ import {
 import { FormSurface } from "./form-surface";
 import styles from "./public-form.module.css";
 
+type Turnstile = {
+  render(element: HTMLElement, options: Record<string, unknown>): string;
+  reset(id: string): void;
+  remove(id: string): void;
+};
+const turnstileApi = () =>
+  (window as unknown as { turnstile?: Turnstile }).turnstile;
+
 type PublicFormData = {
   theme?: Partial<FormTheme>;
   name: string;
@@ -27,6 +35,9 @@ type PublicFormData = {
   version?: number;
   buttonText: string;
   successMessage: string;
+  /** Signed render time; the server ignores answers sent back too quickly. */
+  formToken?: string;
+  turnstileSiteKey?: string;
 };
 type PendingRequest = {
   requestId: string;
@@ -38,6 +49,7 @@ type PendingRequest = {
   resumeToken?: string;
   pageId?: string;
   attribution: Record<string, string>;
+  formToken?: string;
 };
 
 export function PublicForm({ slug }: { slug: string }) {
@@ -68,6 +80,9 @@ function FormRuntime({ slug }: { slug: string }) {
   const heading = useRef<HTMLHeadingElement>(null);
   const element = useRef<HTMLFormElement>(null);
   const website = useRef<HTMLInputElement>(null);
+  const turnstileBox = useRef<HTMLDivElement>(null);
+  const turnstileWidget = useRef<string>(undefined);
+  const [turnstileToken, setTurnstileToken] = useState("");
   const definition = useMemo(
     () => (form ? getFormDefinition(form) : null),
     [form],
@@ -201,6 +216,36 @@ function FormRuntime({ slug }: { slug: string }) {
     if (page) track("step", page.id);
   }, [page?.id, form]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    const sitekey = form?.turnstileSiteKey;
+    const box = turnstileBox.current;
+    if (!sitekey || !box) return;
+    const render = () => {
+      if (!turnstileApi() || turnstileWidget.current) return;
+      turnstileWidget.current = turnstileApi()!.render(box, {
+        sitekey,
+        callback: setTurnstileToken,
+        "expired-callback": () => setTurnstileToken(""),
+      });
+    };
+    let script = document.querySelector<HTMLScriptElement>("script[data-turnstile]");
+    if (!script) {
+      script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.dataset.turnstile = "";
+      document.head.appendChild(script);
+    }
+    script.addEventListener("load", render);
+    render();
+    return () => {
+      script.removeEventListener("load", render);
+      if (turnstileWidget.current) turnstileApi()?.remove(turnstileWidget.current);
+      turnstileWidget.current = undefined;
+      setTurnstileToken("");
+    };
+  }, [form?.turnstileSiteKey, done]);
+
   // Only send non-sensitive sizing/completion signals to the explicitly named parent origin.
   useEffect(() => {
     if (window.parent === window) return;
@@ -281,6 +326,7 @@ function FormRuntime({ slug }: { slug: string }) {
       resumeToken,
       pageId: page?.id,
       attribution: attribution.current,
+      formToken: form?.formToken,
     };
   }
   async function refreshRevision() {
@@ -332,16 +378,25 @@ function FormRuntime({ slug }: { slug: string }) {
       }
       pendingSubmission.current = payload();
     }
+    if (form?.turnstileSiteKey && !turnstileToken) {
+      setError("Please complete the security check before submitting.");
+      return;
+    }
     setError("");
     setBusy("submit");
     try {
       const response = await fetch(publicFormAction(slug), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(pendingSubmission.current),
+        body: JSON.stringify({ ...pendingSubmission.current, turnstileToken }),
       });
       const body = await response.json();
       if (!response.ok) {
+        // Each Turnstile answer works once, so a refused submission needs a fresh one.
+        if (turnstileWidget.current) {
+          turnstileApi()?.reset(turnstileWidget.current);
+          setTurnstileToken("");
+        }
         if (
           response.status === 409 &&
           (body.code === "FORM_VERSION_CHANGED" ||
@@ -516,6 +571,7 @@ function FormRuntime({ slug }: { slug: string }) {
                 />
               </label>
             </div>
+            {form.turnstileSiteKey && <div ref={turnstileBox} />}
             {error && (
               <div className={workspaceClassName("product-error")} role="alert">
                 {error}

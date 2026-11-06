@@ -23,6 +23,8 @@ export type Options = {
     supportsTLS: boolean;
   }[];
   starters: Starter[];
+  /** Set when this server can show Cloudflare Turnstile on forms. */
+  turnstileSiteKey?: string;
 };
 export type Newsletter = {
   id: string;

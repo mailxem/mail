@@ -57,9 +57,18 @@ func newFormHarness(t *testing.T) *formTestHarness {
 	h.app.POST("/public/:slug/events", handler.RecordFormEvent)
 	return h
 }
+// withFormToken stamps public submissions with a render time a minute back, as the form page does.
+func withFormToken(path string, body any) any {
+	m, ok := body.(map[string]any)
+	slug, isSubmit := strings.CutPrefix(path, "/public/")
+	if ok && isSubmit && !strings.Contains(slug, "/") && m["formToken"] == nil {
+		m["formToken"] = marketing.New(nil, strings.Repeat("s", 32), "").FormToken(slug, time.Now().Add(-time.Minute))
+	}
+	return body
+}
 func (h *formTestHarness) call(method, path string, body any) *httptest.ResponseRecorder {
 	h.t.Helper()
-	raw, err := json.Marshal(body)
+	raw, err := json.Marshal(withFormToken(path, body))
 	require.NoError(h.t, err)
 	req := httptest.NewRequest(method, path, strings.NewReader(string(raw)))
 	req.Header.Set("Content-Type", echo.MIMEApplicationJSON)
