@@ -229,6 +229,13 @@ func (h *MarketingHandler) submitForm(c echo.Context) error {
 			} else if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				return err
 			}
+			// Signing up again is a clear yes, so a reader paused by list cleanup gets mail again.
+			if contact.Status == models.SubscriberStatusInactive && suppressed == 0 {
+				if err := marketing.KeepSending(tx, &contact, time.Now().UTC()); err != nil {
+					return err
+				}
+				contact.Status = models.SubscriberStatusActive
+			}
 			// Suppression is never reversed by submitting a form; suppressed recipients are not eligible for a journey.
 			if contact.ID != "" && contact.Status == models.SubscriberStatusActive && suppressed == 0 {
 				contactID = &contact.ID

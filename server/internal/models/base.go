@@ -85,6 +85,8 @@ const (
 	SubscriberStatusUnsubscribed SubscriberStatus = "UNSUBSCRIBED"
 	SubscriberStatusBounced      SubscriberStatus = "BOUNCED"
 	SubscriberStatusComplained   SubscriberStatus = "COMPLAINED"
+	// SubscriberStatusInactive pauses readers who ignored the list and a "still want these?" email.
+	SubscriberStatusInactive SubscriberStatus = "INACTIVE"
 )
 
 // Tracking type constants
