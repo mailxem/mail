@@ -66,6 +66,8 @@ func (s *Service) Register(e *echo.Echo, jwtSecret string) {
 	g.PUT("/pause", s.pause)
 	g.POST("/test", s.test)
 	g.GET("/messages/:id/events", s.messageEvents)
+	g.POST("/postmaster/connect", s.postmasterConnect, superadmin)
+	e.GET("/api/v1/sending/postmaster/callback", s.postmasterCallback, em.RateLimiter(em.NewRateLimiterMemoryStore(rate.Limit(5))))
 	e.POST("/api/v1/sending/events/ses", s.feedback, em.BodyLimit("512K"), em.RateLimiter(em.NewRateLimiterMemoryStore(rate.Limit(50))))
 }
 

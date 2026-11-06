@@ -45,7 +45,15 @@ func (s *Service) SubmitEmail(ctx context.Context, email *models.Email, raw []by
 			recipients = append(recipients, strings.Split(list, ",")...)
 		}
 	}
-	_, err := s.Submit(ctx, Submission{TeamID: email.TeamID, DomainID: d.ID, EmailID: email.ID, Key: "email-" + email.ID, From: email.From, Recipients: recipients, Raw: raw, Marketing: email.CampaignID != "" || email.ContactID != ""})
+	ref, kind := email.ID, "email"
+	if email.CampaignID != "" {
+		ref, kind = email.CampaignID, "campaign"
+		var c models.Campaign
+		if s.DB.WithContext(ctx).Select("newsletter_id").First(&c, "id = ? AND team_id = ?", email.CampaignID, email.TeamID).Error == nil && c.NewsletterID != nil {
+			ref, kind = *c.NewsletterID, "newsletter"
+		}
+	}
+	_, err := s.Submit(ctx, Submission{TeamID: email.TeamID, DomainID: d.ID, EmailID: email.ID, Key: "email-" + email.ID, From: email.From, Recipients: recipients, Raw: raw, Marketing: email.CampaignID != "" || email.ContactID != "", FeedbackRef: ref, FeedbackKind: kind})
 	return err
 }
 func (s *Service) RecipientPolicy(ctx context.Context, team string, recipients []string) error {
