@@ -116,8 +116,9 @@ type Contact struct {
 	ImportID       string           `gorm:"type:uuid;default:NULL;" json:"importId" validate:"omitempty,uuid"`
 	Import         *ContactImport   `json:"import,omitempty"`
 	Status         SubscriberStatus `gorm:"not null;default:'ACTIVE'" json:"status" validate:"required,oneof=ACTIVE UNSUBSCRIBED BOUNCED COMPLAINED INACTIVE"`
-	// List cleanup: ignored mail is counted from CleanupFrom; ReengageSentAt marks an unanswered question.
-	CleanupFrom    *time.Time `json:"-"`
+	// List cleanup: ignored mail is counted from CleanupSince (else CreatedAt); ReengageSentAt marks an
+	// unanswered question. Contacts that existed before cleanup shipped start counting at the upgrade.
+	CleanupSince   *time.Time `json:"-"`
 	ReengageSentAt *time.Time `json:"-"`
 	previousListID string
 }

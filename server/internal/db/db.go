@@ -278,6 +278,7 @@ func runMigrations() error {
 	defer tx.Rollback()
 
 	firstVersions := !tx.Migrator().HasTable(&models.AutomationVersion{})
+	firstCleanup := !tx.Migrator().HasColumn(&models.Contact{}, "cleanup_since")
 	if err := tx.AutoMigrate(
 		// Base models without foreign keys
 		&models.User{},
@@ -396,6 +397,12 @@ func runMigrations() error {
 	}
 	if firstVersions {
 		if err := models.BackfillAutomationVersions(tx); err != nil {
+			return err
+		}
+	}
+	// List cleanup must not judge readers on mail sent before it existed.
+	if firstCleanup {
+		if err := tx.Model(&models.Contact{}).Where("1 = 1").UpdateColumn("cleanup_since", time.Now().UTC()).Error; err != nil {
 			return err
 		}
 	}
