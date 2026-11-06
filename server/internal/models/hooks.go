@@ -2,6 +2,7 @@ package models
 
 import (
 	"kori/internal/events"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -72,6 +73,7 @@ func (c *Campaign) AfterCreate(tx *gorm.DB) error {
 func (c *Contact) AfterCreate(tx *gorm.DB) error {
 	log.Info("Contact created %s", c.ID)
 	events.Emit("contact.created", c)
+	EmitTagsAdded(c, nil, c.Tags)
 	if err := SyncSubscribersCountByID(tx, c.ListID); err != nil {
 		return err
 	}
@@ -87,9 +89,32 @@ func (c *Contact) AfterDelete(tx *gorm.DB) error {
 	return nil
 }
 
+// BeforeUpdate remembers the stored list so AfterUpdate can tell a move from an edit.
+func (c *Contact) BeforeUpdate(tx *gorm.DB) error {
+	c.previousListID = ""
+	if c.ID == "" {
+		return nil
+	}
+	var stored []string
+	if err := tx.Session(&gorm.Session{NewDB: true}).Model(&Contact{}).Where("id = ?", c.ID).Limit(1).Pluck("list_id", &stored).Error; err != nil {
+		return err
+	}
+	if len(stored) == 1 {
+		c.previousListID = stored[0]
+	}
+	return nil
+}
+
 func (c *Contact) AfterUpdate(tx *gorm.DB) error {
 	log.Info("Contact updated %s", c.ID)
 	events.Emit("contact.updated", c)
+	if c.previousListID != "" && c.ListID != "" && c.ListID != c.previousListID {
+		moved := *c
+		events.Emit("list.subscriber_added", &moved)
+		if err := SyncSubscribersCountByID(tx, c.previousListID); err != nil {
+			return err
+		}
+	}
 	if err := SyncSubscribersCountByID(tx, c.ListID); err != nil {
 		return err
 	}
@@ -110,4 +135,34 @@ func SyncSubscribersCountByID(tx *gorm.DB, listID string) error {
 		return err.Error
 	}
 	return tx.Model(&MailingList{}).Where("id = ?", listID).Update("subscribers_count", count).Error
+}
+
+// TagAdded is the payload of "contact.tag_added": emitted once when a tag is newly attached.
+type TagAdded struct {
+	Contact *Contact
+	Tag     Tag
+	At      time.Time
+}
+
+// SegmentEntry is the payload of "segment.entered". Since is when the window of
+// the entry began (the previous refresh of a dynamic segment), so a refresh that
+// is retried or races another one names the same entries.
+type SegmentEntry struct {
+	TeamID     string
+	SegmentID  string
+	ContactIDs []string
+	Since      time.Time
+}
+
+// EmitTagsAdded announces tags that were not on the contact before.
+func EmitTagsAdded(contact *Contact, before map[string]bool, after []Tag) {
+	snapshot := *contact // handlers run later, on other goroutines
+	snapshot.Tags = nil
+	contact = &snapshot
+	now := time.Now()
+	for _, tag := range after {
+		if tag.ID != "" && !before[tag.ID] {
+			events.Emit("contact.tag_added", &TagAdded{Contact: contact, Tag: tag, At: now})
+		}
+	}
 }

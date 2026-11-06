@@ -118,6 +118,17 @@ type Contact struct {
 	// List cleanup: ignored mail is counted from CleanupFrom; ReengageSentAt marks an unanswered question.
 	CleanupFrom    *time.Time `json:"-"`
 	ReengageSentAt *time.Time `json:"-"`
+	previousListID string
+}
+
+// ContactEvent is something a contact did in the customer's own app, sent to
+// POST /api/v1/events. It starts automations triggered by that event name.
+type ContactEvent struct {
+	Base
+	TeamID     string         `gorm:"type:uuid;not null;index:idx_contact_events_contact" json:"teamId"`
+	ContactID  string         `gorm:"type:uuid;not null;index:idx_contact_events_contact" json:"contactId"`
+	Name       string         `gorm:"not null;index" json:"name"`
+	Properties datatypes.JSON `gorm:"type:jsonb;default:'{}'" json:"properties"`
 }
 
 type ContactImport struct {

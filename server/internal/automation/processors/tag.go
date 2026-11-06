@@ -71,9 +71,16 @@ func (p *TagProcessor) Process(ctx *automation.ExecutionContext, node *models.Au
 				return nil, fmt.Errorf("failed to query tag '%s': %w", tagName, err)
 			}
 
+			var attached int64
+			if err := p.db.Table("contact_tags").Where("contact_id = ? AND tag_id = ?", ctx.Contact.ID, tag.ID).Count(&attached).Error; err != nil {
+				return nil, fmt.Errorf("failed to check tag '%s': %w", tagName, err)
+			}
 			// Associate tag with contact (using many-to-many relationship)
 			if err := p.db.Model(ctx.Contact).Association("Tags").Append(&tag); err != nil {
 				return nil, fmt.Errorf("failed to add tag '%s' to contact: %w", tagName, err)
+			}
+			if attached == 0 {
+				models.EmitTagsAdded(ctx.Contact, nil, []models.Tag{tag})
 			}
 
 			processedTags = append(processedTags, tagName)

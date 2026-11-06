@@ -96,10 +96,31 @@ func (tm *TriggerManager) registerEventListeners() {
 		}
 	})
 
-	// List events
+	// List events: a new contact joins its list; a move is announced by the contact update hook.
+	events.On("contact.created", func(data interface{}) {
+		if contact, ok := data.(*models.Contact); ok {
+			tm.logFailure(tm.handleListJoined(context.Background(), contact))
+		}
+	})
 	events.On("list.subscriber_added", func(data interface{}) {
-		if subscriber, ok := data.(*models.Contact); ok {
-			tm.handleContactEvent("list.subscriber_added", subscriber)
+		if contact, ok := data.(*models.Contact); ok {
+			tm.logFailure(tm.handleListJoined(context.Background(), contact))
+		}
+	})
+
+	events.On("contact.tag_added", func(data interface{}) {
+		if added, ok := data.(*models.TagAdded); ok {
+			tm.logFailure(tm.handleTagAdded(context.Background(), added))
+		}
+	})
+	events.On("segment.entered", func(data interface{}) {
+		if entry, ok := data.(*models.SegmentEntry); ok {
+			tm.logFailure(tm.handleSegmentEntered(context.Background(), entry))
+		}
+	})
+	events.On("event.received", func(data interface{}) {
+		if event, ok := data.(*models.ContactEvent); ok {
+			tm.logFailure(tm.handleContactAppEvent(context.Background(), event))
 		}
 	})
 

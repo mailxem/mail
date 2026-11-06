@@ -17,7 +17,25 @@ Drafts can be saved before configuration is complete. Validation and publishing 
 
 The editor includes step search, optional step names, workflow descriptions, separate branch handles, multiple-rule editing, wait presets and date selection, and per-step execution history. Selecting a finish step inserts before it, including inside an existing branch. All paths must terminate, and graphs cannot contain cycles.
 
-Supported entry events remain manual, contact created, email opened, email clicked, and opted-in form completed. These changes do not expose legacy webhook or AI processors as publishable steps.
+## Triggers
+
+The START step holds the trigger's settings. Publishing checks that each one names something in the workspace.
+
+| Trigger | START settings | Starts when |
+| --- | --- | --- |
+| `manual` | — | Started from the API or the editor. |
+| `contact.created` | — | A contact is created. |
+| `email.opened` / `email.clicked` | — | The first open of an email; every click. |
+| `form.completed` | `formId` | An opted-in subscriber completes that form. |
+| `contact.tag_added` | `tagId` | The tag is newly attached: on the contact page, by a `TAG` step, or with a new contact. Keeping a tag is not a change; removing and adding it again is. |
+| `list.subscriber_added` | `listId` | A contact is created in the list (forms, imports, API) or moved into it. Edits that keep the list do not count. |
+| `segment.entered` | `segmentId` | A contact newly matches a dynamic segment (checked every 5 minutes and whenever the segment is refreshed), or is added to a static one. The first refresh only records who is already in; a workflow only receives entries after it was published. Leaving and re-entering starts it again. |
+| `date.reached` | `field`, `offsetDays` (−365…365, negative is before), `yearly` | A contact date shifted by the offset is today in the workspace time zone (send-time defaults, else UTC). `field` is `createdAt` or a custom field holding `YYYY-MM-DD`. Checked hourly; starts on the first check from 09:00 local. Yearly dates repeat each year from the date itself; 29 February falls on 28 February in other years. Unsubscribed contacts are skipped. |
+| `event.received` | `eventName` | `POST /api/v1/events` records that event for the contact (name matched without regard to case). Scalar properties are variables named `event_<property>`, alongside `event_name` and `event_id`. |
+
+Each start has a stable execution ID derived from the occurrence (the tag addition, list join, segment entry, contact and date, or event), so a repeated delivery never starts the same workflow twice for it.
+
+These changes do not expose legacy webhook or AI processors as publishable steps.
 
 ## Validation
 

@@ -307,3 +307,30 @@ func TestAutomationService_GetWithNodesAndEdges(t *testing.T) {
 	assert.Len(t, fetched.Nodes, 3)
 	assert.Len(t, fetched.Edges, 2)
 }
+
+func TestTriggerSettingsMustNameWorkspaceResources(t *testing.T) {
+	db := setupTestDB(t)
+	require.NoError(t, db.AutoMigrate(&models.Tag{}, &models.MailingList{}, &models.Segment{}))
+	service := NewAutomationService(db)
+	team := uuid.NewString()
+	tag := models.Tag{TeamID: team, Name: "vip"}
+	foreign := models.Tag{TeamID: uuid.NewString(), Name: "vip"}
+	require.NoError(t, db.Create(&tag).Error)
+	require.NoError(t, db.Create(&foreign).Error)
+	check := func(trigger, settings string) error {
+		return service.ValidateConfiguration(&models.Automation{TeamID: team, TriggerEvent: trigger,
+			Nodes: []models.AutomationNode{{Base: models.Base{ID: "start"}, Type: models.NodeTypeStart, Data: []byte(settings)}, {Base: models.Base{ID: "exit"}, Type: models.NodeTypeExit}},
+			Edges: []models.AutomationNodeEdge{{SourceID: "start", TargetID: "exit"}}})
+	}
+	assert.NoError(t, check("contact.tag_added", `{"tagId":"`+tag.ID+`"}`))
+	assert.Error(t, check("contact.tag_added", `{"tagId":"`+foreign.ID+`"}`), "another workspace's tag")
+	assert.Error(t, check("list.subscriber_added", `{}`))
+	assert.Error(t, check("segment.entered", `{"segmentId":"`+uuid.NewString()+`"}`))
+	assert.NoError(t, check("date.reached", `{"field":"birthday","offsetDays":-3,"yearly":true}`))
+	assert.Error(t, check("date.reached", `{"field":"birthday"}`), "offset is required")
+	assert.Error(t, check("date.reached", `{"field":"birth day","offsetDays":0}`))
+	assert.Error(t, check("date.reached", `{"field":"birthday","offsetDays":1.5}`))
+	assert.Error(t, check("date.reached", `{"field":"birthday","offsetDays":400}`))
+	assert.NoError(t, check("event.received", `{"eventName":"trial_started"}`))
+	assert.Error(t, check("event.received", `{"eventName":"  "}`))
+}
