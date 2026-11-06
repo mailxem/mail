@@ -229,6 +229,28 @@ func (h *MarketingHandler) Unsubscribe(c echo.Context) error {
 	}
 	return c.HTML(200, "<p>You have been unsubscribed.</p>")
 }
+
+// KeepSending answers the list cleanup question. GET only shows a button, so link scanners can't answer for the reader.
+func (h *MarketingHandler) KeepSending(c echo.Context) error {
+	if !h.service.CheckKeepToken(c.Param("team"), c.Param("contact"), c.Param("token")) {
+		return missing()
+	}
+	if c.Request().Method == http.MethodGet {
+		c.Response().Header().Set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'")
+		return c.HTML(200, `<!doctype html><html><meta name="viewport" content="width=device-width"><title>Keep sending</title><body style="font:16px Arial;max-width:480px;margin:80px auto;padding:24px"><h1>Still want these emails?</h1><p>Confirm and you'll keep getting them.</p><form method="post"><button style="padding:12px 24px">Yes, keep sending</button></form></body></html>`)
+	}
+	err := h.service.DB.Transaction(func(tx *gorm.DB) error {
+		var contact models.Contact
+		if err := marketing.Scope(tx, c.Param("team")).Clauses(clause.Locking{Strength: "UPDATE"}).First(&contact, "id = ?", c.Param("contact")).Error; err != nil {
+			return err
+		}
+		return marketing.KeepSending(tx, &contact, time.Now())
+	})
+	if err != nil {
+		return missing()
+	}
+	return c.HTML(200, "<p>Thanks, you'll keep getting these emails.</p>")
+}
 func (h *MarketingHandler) Notes(c echo.Context) error {
 	id := c.Param("id")
 	if !h.service.Owns(c.Request().Context(), &models.Contact{}, id, team(c)) {

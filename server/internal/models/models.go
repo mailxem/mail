@@ -112,7 +112,10 @@ type Contact struct {
 	List           *MailingList     `json:"list,omitempty"`
 	ImportID       string           `gorm:"type:uuid;default:NULL;" json:"importId" validate:"omitempty,uuid"`
 	Import         *ContactImport   `json:"import,omitempty"`
-	Status         SubscriberStatus `gorm:"not null;default:'ACTIVE'" json:"status" validate:"required,oneof=ACTIVE UNSUBSCRIBED BOUNCED COMPLAINED"`
+	Status         SubscriberStatus `gorm:"not null;default:'ACTIVE'" json:"status" validate:"required,oneof=ACTIVE UNSUBSCRIBED BOUNCED COMPLAINED INACTIVE"`
+	// List cleanup: ignored mail is counted from CleanupFrom; ReengageSentAt marks an unanswered question.
+	CleanupFrom    *time.Time `json:"-"`
+	ReengageSentAt *time.Time `json:"-"`
 }
 
 type ContactImport struct {
@@ -180,6 +183,8 @@ type MailingList struct {
 	Team             *Team           `json:"team,omitempty"`
 	ContactImports   []ContactImport `gorm:"foreignKey:ListID" json:"contactImports,omitempty"`
 	Contacts         []Contact       `gorm:"foreignKey:ListID" json:"contacts,omitempty"`
+	// ListCleanup asks long-silent readers once, then stops emailing them. Nil means on.
+	ListCleanup *bool `gorm:"not null;default:true" json:"listCleanup"`
 }
 
 type SMTPConfig struct {

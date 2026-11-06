@@ -72,6 +72,7 @@ export function Status({ value }: { value: string }) {
     COMPLETED: "Completed",
     ACTIVE: "Subscribed",
     UNSUBSCRIBED: "Unsubscribed",
+    INACTIVE: "Inactive",
   };
   return (
     <span className={workspaceClassName(`status-pill status-${value.toLowerCase()}`)}>

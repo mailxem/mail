@@ -181,6 +181,7 @@ export interface MailingList {
   description?: string;
   teamId: string;
   subscribersCount?: number;
+  listCleanup?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

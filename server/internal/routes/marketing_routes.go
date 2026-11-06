@@ -106,4 +106,6 @@ func SetupMarketingRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 	archive.GET("/:slug", h.PublicNewsletter)
 	archive.GET("/:slug/issues/:id", h.PublicNewsletterIssue)
 	public.POST("/unsubscribe/:team/:contact/:token", h.Unsubscribe)
+	public.GET("/keep/:team/:contact/:token", h.KeepSending)
+	public.POST("/keep/:team/:contact/:token", h.KeepSending)
 }
