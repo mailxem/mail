@@ -31,19 +31,10 @@ const FILLER = [
   ["Order updates", "Your order has shipped", "It should arrive by Thursday"],
 ];
 
-export function PhonePreview({
-  templateId,
-  subject,
-  sender,
-}: {
-  templateId?: string;
-  subject?: string;
-  sender?: string;
-}) {
+/** The template's rendered HTML; shared cache with the phone preview. */
+export function useTemplatePreviewHtml(templateId?: string) {
   const { apiFetch, session } = useApi();
-  const [open, setOpen] = useState(false);
-  const [contentWidth, setContentWidth] = useState(PHONE_WIDTH);
-  const html = useQuery<string>({
+  return useQuery<string>({
     queryKey: ["template-preview-html", templateId],
     enabled: !!templateId && !!session?.accessToken,
     staleTime: 60000,
@@ -55,6 +46,20 @@ export function PhonePreview({
       return (await res.json()).htmlBody ?? "";
     },
   });
+}
+
+export function PhonePreview({
+  templateId,
+  subject,
+  sender,
+}: {
+  templateId?: string;
+  subject?: string;
+  sender?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [contentWidth, setContentWidth] = useState(PHONE_WIDTH);
+  const html = useTemplatePreviewHtml(templateId);
   // Re-measure from phone width whenever the email changes.
   useEffect(() => setContentWidth(PHONE_WIDTH), [html.data, open]);
   const snippet = useMemo(

@@ -34,6 +34,7 @@ import {
   rowsOf,
 } from "@/lib/assistant/reference-design";
 import { loadStarterDesign } from "@/lib/template-starters/registry";
+import { GmailClipNotice } from "@/components/campaigns/gmail-clip-notice";
 
 export type DesignSnapshot = {
   key: string;
@@ -472,6 +473,9 @@ function DesignConversation({
                   srcDoc={candidate.previewHtml}
                 />
               </details>
+            )}
+            {candidate.previewHtml && (
+              <GmailClipNotice html={candidate.previewHtml} />
             )}
             <button
               onClick={() => {
