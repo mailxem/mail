@@ -71,7 +71,7 @@ func AlertThreshold(kind string) int64 {
 	}
 	return map[string]int64{
 		"sending_failed": routine, "sending_bounced": routine, "sending_unknown": routine, "sending_delayed": routine,
-		"automation_failed": 5, "sending_complaint": 3, "sending_suspended": 1, "import_failed": 1,
+		"automation_failed": 5, "sending_complaint": 3, "sending_suspended": 1, "sending_paused": 1, "import_failed": 1,
 		"gmail_spam_rate": 1, "gmail_domain_spam_rate": 1,
 	}[kind]
 }

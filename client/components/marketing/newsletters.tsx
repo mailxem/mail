@@ -605,6 +605,7 @@ function EditionHistory({
             <th>Sent</th>
             <th>Failed</th>
             <th>In flight / review</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
@@ -615,10 +616,66 @@ function EditionHistory({
               <td>{e.sent}</td>
               <td>{e.failed}</td>
               <td>{e.needsReview || 0}</td>
+              <td>
+                <EditionStatus edition={e} reload={q.refetch} />
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
     </Modal>
   );
+}
+function EditionStatus({
+  edition,
+  reload,
+}: {
+  edition: any;
+  reload: () => unknown;
+}) {
+  const { request } = useMarketing();
+  const [busy, setBusy] = useState(false);
+  const act = async (action: "resume" | "cancel") => {
+    setBusy(true);
+    try {
+      await request(`marketing/campaigns/${edition.id}/${action}`, "POST", {});
+      toast.success(
+        action === "resume"
+          ? "Edition resumed. The rest of the list sends now."
+          : "Edition cancelled. The rest of the list won’t be sent.",
+      );
+      await reload();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  if (edition.status === "PAUSED")
+    return (
+      <div role="alert" className="max-w-xs text-xs">
+        <p>{edition.pauseReason || "Paused"}</p>
+        <div className="mt-2 flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={busy}
+            onClick={() => void act("resume")}
+          >
+            Resume
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={busy}
+            onClick={() => void act("cancel")}
+          >
+            Cancel the rest
+          </Button>
+        </div>
+      </div>
+    );
+  if (edition.status === "SENDING" && edition.sendInStages)
+    return <span>Sending in stages</span>;
+  return <Status value={edition.status} />;
 }
