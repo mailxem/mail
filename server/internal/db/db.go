@@ -402,7 +402,18 @@ func runMigrations() error {
 		tx.Rollback()
 		return err
 	}
+	if err := campaignEmailIndex(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
 	return tx.Commit().Error
+}
+
+// campaignEmailIndex speeds up the campaign sender's check for contacts that
+// already have an email in the campaign. It isn't unique: recurring campaigns
+// and API sends tagged with a campaign may email the same contact again.
+func campaignEmailIndex(tx *gorm.DB) error {
+	return tx.Exec("CREATE INDEX IF NOT EXISTS emails_campaign_contact ON emails (campaign_id, contact_id) WHERE campaign_id IS NOT NULL").Error
 }
 
 func Close() error {
