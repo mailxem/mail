@@ -21,6 +21,7 @@ import (
 	"kori/internal/events"
 	"kori/internal/models"
 	"kori/internal/tasks"
+	"kori/internal/utils"
 )
 
 type recordedAutomations struct {
@@ -78,7 +79,8 @@ func TestOpensAndClicksStartAutomations(t *testing.T) {
 	}
 	link := base64.StdEncoding.EncodeToString([]byte("https://example.com/pricing"))
 	for range 2 {
-		require.NoError(t, h.HandleEmailClick(e.NewContext(httptest.NewRequest("GET", "/t/click/"+link+"?token="+token, nil), httptest.NewRecorder())))
+		sig := utils.ClickSignature(config.GetConfig().JWT.Secret, email.ID, "https://example.com/pricing")
+		require.NoError(t, h.HandleEmailClick(e.NewContext(httptest.NewRequest("GET", "/t/click/"+link+"?token="+token+"&sig="+sig, nil), httptest.NewRecorder())))
 	}
 
 	require.Eventually(t, func() bool { return queue.started(clicked.ID) == 2 }, 2*time.Second, 10*time.Millisecond, "every click starts the click automation")

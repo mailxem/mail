@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	stdbase64 "encoding/base64"
 	"encoding/json"
 	"fmt"
 	"html"
@@ -98,6 +101,14 @@ func UnsubscribeLink(mailID string, cfg *config.Config) (string, error) {
 	return cfg.Server.PublicURL + "/t/unsubscribe?token=" + signed, nil
 }
 
+// ClickSignature binds a tracked link's destination to its email, so a token
+// from one email can't be reused to redirect anywhere else.
+func ClickSignature(secret, messageID, target string) string {
+	mac := hmac.New(sha256.New, []byte(secret))
+	mac.Write([]byte("click\x00" + messageID + "\x00" + target))
+	return stdbase64.RawURLEncoding.EncodeToString(mac.Sum(nil)[:16])
+}
+
 // TrackEmailHTML keeps original attributes and does not count opt-out links as engagement.
 func TrackEmailHTML(body, messageID, publicURL, secret string) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"mailId": messageID})
@@ -121,7 +132,7 @@ func TrackEmailHTML(body, messageID, publicURL, secret string) string {
 		if (!strings.HasPrefix(lower, "https://") && !strings.HasPrefix(lower, "http://")) || strings.Contains(lower, "unsubscribe") || strings.Contains(lower, "/t/click/") {
 			return tag
 		}
-		tracking := fmt.Sprintf(` href="%s/t/click/%s?token=%s"`, publicURL, base64.EncodeToBase64(target), signed)
+		tracking := fmt.Sprintf(` href="%s/t/click/%s?token=%s&amp;sig=%s"`, publicURL, base64.EncodeToBase64(target), signed, ClickSignature(secret, messageID, target))
 		return href.ReplaceAllStringFunc(tag, func(string) string { return tracking })
 	})
 	return body + fmt.Sprintf(`<img alt="" src="%s/t/open?token=%s" width="1" height="1">`, publicURL, signed)
