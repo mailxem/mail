@@ -23,6 +23,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"kori/internal/events"
+	"kori/internal/hygiene"
 	"kori/internal/models"
 )
 
@@ -296,6 +297,12 @@ func (s *Service) ApplyFeedback(ctx context.Context, eventID string, raw []byte)
 			suppression := Suppression{TeamID: m.TeamID, Address: r, Reason: f.EventType, CreatedAt: s.Now()}
 			if e := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&suppression).Error; e != nil {
 				return e
+			}
+			// A hard bounce keeps the address off every workspace, stored as a keyed hash only.
+			if f.EventType == "Bounce" {
+				if e := hygiene.Block(tx, r, s.Now()); e != nil {
+					return e
+				}
 			}
 			contactStatus := "BOUNCED"
 			if f.EventType == "Complaint" {

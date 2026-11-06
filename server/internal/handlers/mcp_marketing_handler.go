@@ -12,6 +12,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"kori/internal/events"
+	"kori/internal/hygiene"
 	"kori/internal/marketing"
 	"kori/internal/models"
 )
@@ -71,6 +72,16 @@ func (h *MarketingHandler) ImportContactBatch(c echo.Context) error {
 	dryRun := in.DryRun == nil || *in.DryRun
 	created := []models.Contact{}
 	skipped := 0
+	// Rows that would bounce, complain or never be read are left out, counted by reason.
+	reasons := map[string]int{}
+	leftOut := map[string]bool{}
+	checker := hygiene.Checker{Import: true}
+	for _, row := range in.Contacts {
+		if reason := checker.Reason(c.Request().Context(), row.Email); reason != "" {
+			reasons[reason]++
+			leftOut[row.Email] = true
+		}
+	}
 	err := h.service.DB.WithContext(c.Request().Context()).Transaction(func(tx *gorm.DB) error {
 		var list models.MailingList
 		if err := marketing.Scope(tx, team(c)).Clauses(clause.Locking{Strength: "UPDATE"}).First(&list, "id = ?", in.ListID).Error; err != nil {
@@ -90,7 +101,18 @@ func (h *MarketingHandler) ImportContactBatch(c echo.Context) error {
 		for _, email := range existing {
 			seen[email] = true
 		}
+		blocked, err := hygiene.Blocked(tx, emails...)
+		if err != nil {
+			return err
+		}
 		for _, row := range in.Contacts {
+			if leftOut[row.Email] {
+				continue
+			}
+			if blocked[row.Email] {
+				reasons[hygiene.NeverEmail]++
+				continue
+			}
 			if seen[row.Email] {
 				skipped++
 				continue
@@ -122,7 +144,7 @@ func (h *MarketingHandler) ImportContactBatch(c echo.Context) error {
 	if !dryRun {
 		createdCount = len(created)
 	}
-	return c.JSON(200, map[string]any{"dryRun": dryRun, "created": createdCount, "wouldCreate": len(created), "skipped": skipped, "total": len(in.Contacts)})
+	return c.JSON(200, map[string]any{"dryRun": dryRun, "created": createdCount, "wouldCreate": len(created), "skipped": skipped, "skippedReasons": reasons, "total": len(in.Contacts)})
 }
 
 // CreateCampaignDraft never queues delivery, including through model hooks.

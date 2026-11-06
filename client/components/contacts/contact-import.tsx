@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import { useApi } from "@/hooks/use-api";
 import {
   CONTACT_FIELDS,
+  describeSkipped,
   detectSource,
   guessField,
   prepareImport,
@@ -149,16 +150,36 @@ export function ContactImport({
         body: JSON.stringify({ mappings, listId, fileId }),
       });
       if (!response.ok) throw new Error(response.statusText);
+      const { id } = await response.json();
       toast.success(
         `Importing ${prepared.keep.length.toLocaleString()} contacts. They’ll appear in this list shortly.`,
       );
       reset();
       setIsDialogOpen(false);
       onImportComplete();
+      void reportServerSkips(id);
     } catch (error) {
       toast.error(`Failed to import contacts: ${(error as Error).message}`);
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  // The server also leaves out typos, role, disposable and dead-domain
+  // addresses; say how many once the import has run.
+  async function reportServerSkips(id?: string) {
+    for (let i = 0; id && i < 30; i++) {
+      await new Promise((r) => setTimeout(r, 2000));
+      const res = await apiFetch(`imports/contact/${id}`);
+      if (!res.ok) return;
+      const { status, skipped } = await res.json();
+      if (status === "PENDING" || status === "PROCESSING") continue;
+      const counts: Record<string, number> = skipped ?? {};
+      const total = Object.values(counts).reduce((a, b) => a + b, 0);
+      if (status === "COMPLETED" && total > 0)
+        toast.info(`${total.toLocaleString()} more left out: ${describeSkipped(counts)}.`);
+      onImportComplete();
+      return;
     }
   }
 
@@ -241,6 +262,7 @@ export function ContactImport({
               <li>An email column is required; other columns are kept as contact data.</li>
               <li>People who unsubscribed, bounced or were marked inactive in the export are left out.</li>
               <li>Duplicate and invalid addresses are left out.</li>
+              <li>So are role addresses like info@, disposable and misspelled domains, domains that can’t receive mail, and addresses that hard-bounced recently.</li>
             </ul>
           </div>
         )}
@@ -302,9 +324,7 @@ export function ContactImport({
                   {skippedTotal > 0 && (
                     <p className="mt-1 text-muted-foreground">
                       {skippedTotal.toLocaleString()} left out:{" "}
-                      {Object.entries(prepared.skipped)
-                        .map(([why, n]) => `${n.toLocaleString()} ${why}`)
-                        .join(", ")}
+                      {describeSkipped(prepared.skipped)}
                       .
                     </p>
                   )}
