@@ -4,6 +4,7 @@ package sending
 
 import (
 	"gorm.io/gorm"
+	"kori/internal/models"
 	"time"
 )
 
@@ -113,8 +114,19 @@ func Migrate(db *gorm.DB) error {
 	if err := baselineMilestones(db); err != nil {
 		return err
 	}
+	// Managed senders used to be created at 1/s, which throttled campaigns before
+	// they reached the queue. Only the old default is raised; other values were chosen.
+	if db.Migrator().HasTable(&models.SMTPConfig{}) {
+		if err := db.Session(&gorm.Session{SkipHooks: true}).Model(&models.SMTPConfig{}).Where("provider = ? AND max_send_rate = ?", "MANAGED", 1).Update("max_send_rate", HandoffRate).Error; err != nil {
+			return err
+		}
+	}
 	return upgradeStarterAllowance(db)
 }
+
+// HandoffRate is how fast campaigns may enqueue into a managed sender (per
+// second). The managed queue and its worker pool pace the real SES sends.
+const HandoffRate = 100
 
 type Audit struct {
 	ID        string    `gorm:"primaryKey;type:uuid" json:"id"`
