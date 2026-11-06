@@ -315,7 +315,7 @@ type Webhook struct {
 	Base
 	Name       string         `gorm:"not null" json:"name" validate:"required,min=2"`
 	URL        string         `gorm:"not null" json:"url" validate:"required,url"`
-	Events     pq.StringArray `gorm:"type:text[]" json:"events" validate:"required,min=1,dive,oneof=click open reply bounce complaint"`
+	Events     pq.StringArray `gorm:"type:text[]" json:"events" validate:"required,min=1,dive,oneof=click open reply bounce complaint sent delivered unsubscribed failed"`
 	IsActive   bool           `gorm:"not null;default:false" json:"isActive"`
 	Secret     string         `json:"secret" validate:"required,min=16"`
 	TeamID     string         `gorm:"type:uuid;not null" json:"teamId" validate:"required,uuid"`
@@ -325,12 +325,23 @@ type Webhook struct {
 type Delivery struct {
 	Base
 	WebhookID    string         `gorm:"type:uuid;not null" json:"webhookId" validate:"required,uuid"`
-	Event        string         `gorm:"not null" json:"event" validate:"required,oneof=click open reply bounce complaint"`
+	Event        string         `gorm:"not null" json:"event" validate:"required,oneof=click open reply bounce complaint sent delivered unsubscribed failed"`
 	Payload      datatypes.JSON `gorm:"type:jsonb;not null" json:"payload" validate:"required,json"`
 	ResponseCode int            `json:"responseCode" validate:"omitempty,min=100,max=599"`
 	ResponseBody string         `json:"responseBody" validate:"omitempty"`
 	Error        string         `json:"error" validate:"omitempty"`
 	Status       string         `gorm:"not null" json:"status" validate:"required,oneof=PENDING SUCCESS FAILED"`
+}
+
+// EmailEvent is an email.* event-bus payload for lifecycle events that have no
+// tracking row of their own, such as provider feedback or an unsubscribe.
+type EmailEvent struct {
+	TeamID     string
+	EmailID    string
+	CampaignID string
+	ContactID  string
+	Address    string
+	Source     string
 }
 
 type EmailCategory struct {

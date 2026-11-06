@@ -198,15 +198,20 @@ func (h *MarketingHandler) Unsubscribe(c echo.Context) error {
 		return c.HTML(200, `<!doctype html><html><meta name="viewport" content="width=device-width"><title>Unsubscribe</title><body style="font:16px Arial;max-width:480px;margin:80px auto;padding:24px"><h1>Unsubscribe from this audience</h1><p>You can stop receiving these emails at any time.</p><form method="post"><button style="padding:12px 24px">Confirm unsubscribe</button></form></body></html>`)
 	}
 	var contact models.Contact
+	var unsubscribed *models.EmailEvent
 	err := h.service.DB.Transaction(func(tx *gorm.DB) error {
 		if err := marketing.Scope(tx, c.Param("team")).Clauses(clause.Locking{Strength: "UPDATE"}).First(&contact, "id = ?", c.Param("contact")).Error; err != nil {
 			return err
+		}
+		if contact.Status != models.SubscriberStatusUnsubscribed {
+			unsubscribed = &models.EmailEvent{TeamID: contact.TeamID, ContactID: contact.ID, Address: contact.Email, Source: unsubscribeSource(c)}
 		}
 		if messageID != "" && contact.Status != models.SubscriberStatusUnsubscribed {
 			var message models.Email
 			if err := tx.Where("id=? AND team_id=? AND contact_id=?", messageID, contact.TeamID, contact.ID).First(&message).Error; err != nil {
 				return err
 			}
+			unsubscribed.EmailID, unsubscribed.CampaignID = message.ID, message.CampaignID
 			if err := tx.Create(&models.EmailTracking{EmailID: message.ID, CampaignID: message.CampaignID, ContactID: contact.ID, Event: models.EmailTrackingEventUnsubscribe, Timestamp: time.Now().UTC()}).Error; err != nil {
 				return err
 			}
@@ -218,6 +223,9 @@ func (h *MarketingHandler) Unsubscribe(c echo.Context) error {
 	})
 	if err != nil {
 		return missing()
+	}
+	if unsubscribed != nil {
+		events.Emit("email.unsubscribed", unsubscribed)
 	}
 	return c.HTML(200, "<p>You have been unsubscribed.</p>")
 }

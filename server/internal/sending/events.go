@@ -22,6 +22,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"kori/internal/events"
 	"kori/internal/models"
 )
 
@@ -191,7 +192,8 @@ func (s *Service) ApplyFeedback(ctx context.Context, eventID string, raw []byte)
 	if !ok {
 		return nil
 	}
-	return s.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	var emitted *models.EmailEvent
+	err := s.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var account Account
 		reputationEvent := f.EventType == "Complaint" || (f.EventType == "Bounce" && f.Bounce.BounceType == "Permanent")
 		if reputationEvent {
@@ -219,6 +221,16 @@ func (s *Service) ApplyFeedback(ctx context.Context, eventID string, raw []byte)
 		}
 		if result.RowsAffected == 0 {
 			return nil
+		}
+		if !m.IsTest {
+			emitted = &models.EmailEvent{TeamID: m.TeamID, EmailID: m.EmailID, Address: m.Recipients}
+			if m.EmailID != "" {
+				var email models.Email
+				if e := tx.Select("campaign_id", "contact_id").Where("id = ? AND team_id = ?", m.EmailID, m.TeamID).Limit(1).Find(&email).Error; e != nil {
+					return e
+				}
+				emitted.CampaignID, emitted.ContactID = email.CampaignID, email.ContactID
+			}
 		}
 		recipients := map[string]bool{}
 		for _, r := range strings.Split(m.Recipients, ",") {
@@ -322,6 +334,11 @@ func (s *Service) ApplyFeedback(ctx context.Context, eventID string, raw []byte)
 		}
 		return nil
 	})
+	names := map[string]string{"Send": "email.sent", "Delivery": "email.delivered", "Bounce": "email.bounced", "Complaint": "email.complained", "Reject": "email.failed"}
+	if err == nil && emitted != nil && names[f.EventType] != "" {
+		events.Emit(names[f.EventType], emitted)
+	}
+	return err
 }
 
 // feedbackReason names the SES event, and the bounce type for bounces.

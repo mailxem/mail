@@ -17,7 +17,7 @@ var triggerLog = logger.New("AUTOMATION_TRIGGERS")
 // TriggerManager manages event-based automation triggers
 type TriggerManager struct {
 	db         *gorm.DB
-	taskClient *tasks.TaskClient
+	taskClient tasks.AutomationEnqueuer
 	eventBus   *events.EventBus
 }
 
@@ -30,7 +30,7 @@ type TriggerConfig struct {
 }
 
 // NewTriggerManager creates a new trigger manager
-func NewTriggerManager(db *gorm.DB, taskClient *tasks.TaskClient) *TriggerManager {
+func NewTriggerManager(db *gorm.DB, taskClient tasks.AutomationEnqueuer) *TriggerManager {
 	return &TriggerManager{
 		db:         db,
 		taskClient: taskClient,

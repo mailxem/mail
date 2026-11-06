@@ -20,11 +20,15 @@ export interface Domain {
 }
 
 export enum WebhookEventType {
-  DELIVERY = "delivery",
+  SENT = "sent",
+  DELIVERED = "delivered",
+  OPEN = "open",
+  CLICK = "click",
+  REPLY = "reply",
   BOUNCE = "bounce",
   COMPLAINT = "complaint",
-  CLICK = "click",
-  OPEN = "open",
+  UNSUBSCRIBED = "unsubscribed",
+  FAILED = "failed",
 }
 
 export interface Webhook {

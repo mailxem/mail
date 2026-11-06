@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm/clause"
 	"kori/internal/billing"
 	"kori/internal/db"
+	"kori/internal/events"
 	"kori/internal/mailconnect"
 	"kori/internal/models"
 	"kori/internal/utils/base64"
@@ -332,7 +333,7 @@ func (h *EmailHandler) UpdateEmail(email *models.Email) error {
 		return fmt.Errorf("email is nil")
 	}
 
-	return db.GetDB().Transaction(func(tx *gorm.DB) error {
+	err := db.GetDB().Transaction(func(tx *gorm.DB) error {
 		// Save only the email: saving its loaded SMTPConfig would re-encrypt the
 		// stored password and fail, leaving failed emails stuck as PENDING.
 		if err := tx.Omit(clause.Associations).Updates(email).Error; err != nil {
@@ -349,6 +350,12 @@ func (h *EmailHandler) UpdateEmail(email *models.Email) error {
 		}
 		return nil
 	})
+	// Managed sends report their outcome through provider feedback instead.
+	if name := map[models.EmailStatus]string{models.EmailStatusSent: "email.sent", models.EmailStatusFailed: "email.failed", models.EmailStatusBounced: "email.bounced"}[email.Status]; err == nil && name != "" && !email.Test {
+		sent := *email
+		events.Emit(name, &sent)
+	}
+	return err
 }
 
 // recipientCount counts the addresses an email went to, which is what is billed.

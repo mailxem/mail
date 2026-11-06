@@ -231,7 +231,8 @@ func (c *TaskClient) EnqueueWebhookDeliveryTask(ctx context.Context, task Webhoo
 	info, err := c.client.EnqueueContext(ctx,
 		asynq.NewTask(TaskTypeWebhookDelivery, payload),
 		asynq.Queue(QueueDefault),
-		asynq.MaxRetry(RetryDefault),
+		asynq.Timeout(TimeoutShort),
+		asynq.MaxRetry(8), // asynq's exponential backoff spreads these over roughly a day
 	)
 	if err != nil {
 		return fmt.Errorf("failed to enqueue webhook task: %w", err)
