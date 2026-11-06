@@ -121,6 +121,11 @@ func main() {
 		}
 	}
 	managed := sending.New(db_instance, managedConfig, provider)
+	if managedConfig.EventsQueueURL != "" {
+		if managed.Events, err = sending.NewEventQueue(context.Background(), managedConfig); err != nil {
+			log.Fatalf("SES event queue initialization failed: %v", err)
+		}
+	}
 	receivingConfig, err := receiving.LoadConfig()
 	if err != nil {
 		log.Fatalf("Invalid managed receiving configuration: %v", err)

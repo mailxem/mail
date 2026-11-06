@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -215,10 +216,13 @@ func finalizeConnection(expectedDatabase string) error {
 		return fmt.Errorf("refusing to migrate unexpected database %q; configured database is %q", actualDatabase, expectedDatabase)
 	}
 
-	// Set connection pool settings
-	sqlDB.SetMaxOpenConns(300)                 // Maximum number of open connections to the database
-	sqlDB.SetMaxIdleConns(5)                   // Maximum number of idle connections in the pool
-	sqlDB.SetConnMaxLifetime(time.Hour)        // Maximum amount of time a connection may be reused
+	open, idle, lifetime, err := poolSettings()
+	if err != nil {
+		return err
+	}
+	sqlDB.SetMaxOpenConns(open)
+	sqlDB.SetMaxIdleConns(idle)
+	sqlDB.SetConnMaxLifetime(lifetime)
 	sqlDB.SetConnMaxIdleTime(time.Minute * 15) // Maximum amount of time a connection may be idle
 
 	// Run migrations
@@ -228,6 +232,36 @@ func finalizeConnection(expectedDatabase string) error {
 
 	log.Success("Migrations completed")
 	return nil
+}
+
+// poolSettings reads DB_MAX_OPEN_CONNS (default 50), DB_MAX_IDLE_CONNS (default
+// the open limit, so busy pools do not close and reopen connections) and
+// DB_CONN_MAX_LIFETIME (default 30m). Every replica opens up to its own limit:
+// keep replicas x DB_MAX_OPEN_CONNS (plus workers and migrations) under the
+// server's max_connections, or put PgBouncer in transaction mode in front. That
+// is safe because connections use the simple protocol and GORM's PrepareStmt is
+// off, so no prepared statement outlives a transaction.
+func poolSettings() (open, idle int, lifetime time.Duration, err error) {
+	open, idle, lifetime = 50, -1, 30*time.Minute
+	for _, v := range []struct {
+		key string
+		dst *int
+	}{{"DB_MAX_OPEN_CONNS", &open}, {"DB_MAX_IDLE_CONNS", &idle}} {
+		if raw := os.Getenv(v.key); raw != "" {
+			if *v.dst, err = strconv.Atoi(raw); err != nil || *v.dst <= 0 {
+				return 0, 0, 0, fmt.Errorf("invalid %s", v.key)
+			}
+		}
+	}
+	if idle < 0 {
+		idle = open
+	}
+	if raw := os.Getenv("DB_CONN_MAX_LIFETIME"); raw != "" {
+		if lifetime, err = time.ParseDuration(raw); err != nil || lifetime <= 0 {
+			return 0, 0, 0, fmt.Errorf("invalid DB_CONN_MAX_LIFETIME")
+		}
+	}
+	return open, idle, lifetime, nil
 }
 
 func runMigrations() error {

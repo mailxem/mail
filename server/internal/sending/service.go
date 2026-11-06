@@ -72,6 +72,8 @@ type Service struct {
 	Provider        Provider
 	DNS             Resolver
 	Now             func() time.Time
+	// Events reads SES feedback from Config.EventsQueueURL; nil uses only the webhook.
+	Events EventQueue
 }
 
 func New(db *gorm.DB, c Config, p Provider) *Service {
@@ -199,7 +201,15 @@ func (s *Service) RefreshDomain(ctx context.Context, team, id string) (result Do
 		if e = s.Provider.Provision(ctx, team, d.Name); e != nil {
 			return d, fmt.Errorf("provider setup failed; contact the operator: %w", e)
 		}
-		d.Provisioned = true
+		d.Provisioned, d.EventsVersion = true, eventDestinationVersion
+	} else if d.EventsVersion < eventDestinationVersion {
+		// Provisioning is idempotent and updates the configuration set's event
+		// destination. A failure keeps the domain working; the next check retries.
+		if e = s.Provider.Provision(ctx, team, d.Name); e == nil {
+			d.EventsVersion = eventDestinationVersion
+		} else {
+			logDomainCheckError(team, d.ID, s.Config.Region, &domainCheckError{stage: "event_destination", cause: e})
+		}
 	}
 	stage = "identity"
 	identity, e := s.Provider.Identity(ctx, d.Name)
@@ -538,7 +548,7 @@ func (s *Service) persistDomain(ctx context.Context, d *Domain) error {
 		if a.Suspended {
 			d.Ready = false
 		}
-		r := tx.Model(&Domain{}).Where("id = ? AND team_id = ? AND token = ? AND check_id = ?", d.ID, d.TeamID, d.Token, d.CheckID).Updates(map[string]any{"ready": d.Ready, "ownership": d.Ownership, "provisioned": d.Provisioned, "identity_status": d.IdentityStatus, "dkim_status": d.DKIMStatus, "mailfrom_status": d.MAILFROMStatus, "dmarc_status": d.DMARCStatus, "dkim_tokens": d.DKIMTokens, "checked_at": d.CheckedAt})
+		r := tx.Model(&Domain{}).Where("id = ? AND team_id = ? AND token = ? AND check_id = ?", d.ID, d.TeamID, d.Token, d.CheckID).Updates(map[string]any{"ready": d.Ready, "ownership": d.Ownership, "provisioned": d.Provisioned, "identity_status": d.IdentityStatus, "dkim_status": d.DKIMStatus, "mailfrom_status": d.MAILFROMStatus, "dmarc_status": d.DMARCStatus, "dkim_tokens": d.DKIMTokens, "checked_at": d.CheckedAt, "events_version": d.EventsVersion})
 		if r.Error != nil {
 			return r.Error
 		}

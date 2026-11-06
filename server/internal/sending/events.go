@@ -176,6 +176,14 @@ type Feedback struct {
 	} `json:"complaint"`
 }
 
+// feedbackStates maps SES event types to message statuses. Send is no longer
+// subscribed (the worker records SES acceptance itself) but is still applied
+// for events already in flight.
+var feedbackStates = map[string]string{"Send": "SENT", "Delivery": "DELIVERED", "Bounce": "BOUNCED", "Complaint": "COMPLAINED", "Reject": "FAILED", "DeliveryDelay": "DELAYED"}
+
+// statusRank orders message statuses; feedback never moves a message to a lower rank.
+var statusRank = map[string]int{"QUEUED": 0, "SENDING": 0, "DELIVERY_UNKNOWN": 0, "SENT": 1, "DELAYED": 2, "DELIVERED": 3, "FAILED": 4, "BOUNCED": 5, "COMPLAINED": 6}
+
 func (s *Service) ApplyFeedback(ctx context.Context, eventID string, raw []byte) error {
 	var f Feedback
 	if e := json.Unmarshal(raw, &f); e != nil {
@@ -186,8 +194,7 @@ func (s *Service) ApplyFeedback(ctx context.Context, eventID string, raw []byte)
 	if len(ids) != 1 || len(configs) != 1 || f.Mail.MessageID == "" {
 		return errors.New("event has no Xem routing metadata")
 	}
-	kinds := map[string]string{"Send": "SENT", "Delivery": "DELIVERED", "Bounce": "BOUNCED", "Complaint": "COMPLAINED", "Reject": "FAILED", "DeliveryDelay": "DELAYED"}
-	state, ok := kinds[f.EventType]
+	state, ok := feedbackStates[f.EventType]
 	if !ok {
 		return nil
 	}
@@ -288,7 +295,7 @@ func (s *Service) ApplyFeedback(ctx context.Context, eventID string, raw []byte)
 				}
 			}
 		}
-		rank := map[string]int{"QUEUED": 0, "SENDING": 0, "DELIVERY_UNKNOWN": 0, "SENT": 1, "DELAYED": 2, "DELIVERED": 3, "FAILED": 4, "BOUNCED": 5, "COMPLAINED": 6}
+		rank := statusRank
 		updates := map[string]any{"provider_id": f.Mail.MessageID}
 		if rank[state] >= rank[m.Status] {
 			updates["status"] = state

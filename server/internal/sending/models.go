@@ -46,6 +46,7 @@ type Domain struct {
 	CheckedAt      *time.Time `json:"checkedAt"`
 	SMTPConfigID   string     `json:"smtpConfigId"`
 	FromEmail      string     `json:"fromEmail"`
+	EventsVersion  int        `json:"-"`
 	CreatedAt      time.Time  `json:"createdAt"`
 	UpdatedAt      time.Time  `json:"updatedAt"`
 }
