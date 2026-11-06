@@ -739,6 +739,7 @@ definitions:
         - UNSUBSCRIBED
         - BOUNCED
         - COMPLAINED
+        - INACTIVE
       tags:
         items:
           $ref: '#/definitions/kori_internal_models.Tag'
@@ -1397,12 +1398,14 @@ definitions:
     - UNSUBSCRIBED
     - BOUNCED
     - COMPLAINED
+    - INACTIVE
     type: string
     x-enum-varnames:
     - SubscriberStatusActive
     - SubscriberStatusUnsubscribed
     - SubscriberStatusBounced
     - SubscriberStatusComplained
+    - SubscriberStatusInactive
   kori_internal_models.Subscription:
     properties:
       canceled_at:

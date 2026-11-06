@@ -50,7 +50,7 @@ const contactsQuery = z
     listId: id.optional(),
     email: z.string().email().optional(),
     status: z
-      .enum(["ACTIVE", "UNSUBSCRIBED", "BOUNCED", "COMPLAINED"])
+      .enum(["ACTIVE", "UNSUBSCRIBED", "BOUNCED", "COMPLAINED", "INACTIVE"])
       .optional(),
   })
   .strict();
