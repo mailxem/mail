@@ -7,7 +7,9 @@ import (
 	"kori/internal/config"
 	"kori/internal/utils/base64"
 	"kori/internal/utils/logger"
+	"maps"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/golang-jwt/jwt"
@@ -36,7 +38,15 @@ func ParseVariables(html string) (map[string]string, error) {
 // ReplaceVariables input is html text with variables in the form of {{variable}} or {{ variable.subvariable }} or {{ varible }}
 // output is a string with the variables replaced by their values
 func ReplaceVariables(input string, variables map[string]string, mailId string, cfg *config.Config, trackLinks bool, isMarketing bool) string {
-	for variable, value := range variables {
+	return base64.EncodeToBase64(fillVariables(input, variables, mailId, cfg, trackLinks, isMarketing))
+}
+
+// fillVariables is ReplaceVariables without the base64 encoding. Variables
+// go in key order, so a value that itself holds a {{variable}} renders the
+// same every time; bulk emails are rendered again when shown.
+func fillVariables(input string, variables map[string]string, mailId string, cfg *config.Config, trackLinks bool, isMarketing bool) string {
+	for _, variable := range slices.Sorted(maps.Keys(variables)) {
+		value := variables[variable]
 		re := regexp.MustCompile(`{{\s*` + regexp.QuoteMeta(variable) + `(?:\.\w+)*\s*}}`)
 		input = re.ReplaceAllStringFunc(input, func(string) string { return value })
 	}
@@ -44,8 +54,7 @@ func ReplaceVariables(input string, variables map[string]string, mailId string, 
 	if trackLinks {
 		input = ReplaceLinksWithRedirect(input, mailId, cfg, isMarketing)
 	}
-
-	return base64.EncodeToBase64(input)
+	return input
 }
 
 // JSONToMap convert datatypes.JSON to map[string]string

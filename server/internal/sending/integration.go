@@ -9,7 +9,62 @@ import (
 	"kori/internal/models"
 )
 
+// RenderRaw rebuilds the MIME of an in-process email (utils.RenderRaw). Those
+// messages are queued without their MIME, which is only needed at dispatch.
+var RenderRaw func(ctx context.Context, emailID string) ([]byte, error)
+
 func (s *Service) SubmitEmail(ctx context.Context, email *models.Email, raw []byte) error {
+	domainID, err := s.emailDomain(ctx, email)
+	if err != nil {
+		return err
+	}
+	_, err = s.Submit(ctx, emailSubmission(email, domainID, raw))
+	return err
+}
+
+// SubmitEmails is SubmitEmail for a page of one team's emails, reserving
+// quota for the page at once (SubmitBatch). It returns each email's error.
+func (s *Service) SubmitEmails(ctx context.Context, emails []*models.Email, raws [][]byte) []error {
+	errs := make([]error, len(emails))
+	type resolved struct {
+		id  string
+		err error
+	}
+	domains := map[string]resolved{} // a page shares its sender
+	var subs []Submission
+	var at []int
+	for i, email := range emails {
+		k := email.TeamID + ":" + email.SMTPConfigID + ":" + email.From
+		d, ok := domains[k]
+		if !ok {
+			d.id, d.err = s.emailDomain(ctx, email)
+			domains[k] = d
+		}
+		if d.err != nil {
+			errs[i] = d.err
+			continue
+		}
+		subs = append(subs, emailSubmission(email, d.id, raws[i]))
+		at = append(at, i)
+	}
+	for j, r := range s.SubmitBatch(ctx, subs) {
+		errs[at[j]] = r.Err
+	}
+	return errs
+}
+
+func emailSubmission(email *models.Email, domainID string, raw []byte) Submission {
+	recipients := []string{email.To}
+	for _, list := range []string{email.CC, email.BCC} {
+		if list != "" {
+			recipients = append(recipients, strings.Split(list, ",")...)
+		}
+	}
+	return Submission{TeamID: email.TeamID, DomainID: domainID, EmailID: email.ID, Key: "email-" + email.ID, From: email.From, Recipients: recipients, Raw: raw, Marketing: email.CampaignID != "" || email.ContactID != "", Transient: RenderRaw != nil}
+}
+
+// emailDomain finds the managed domain an email's sender may use.
+func (s *Service) emailDomain(ctx context.Context, email *models.Email) (string, error) {
 	var d Domain
 	var managedMailbox struct {
 		DomainID, Address, Status string
@@ -22,31 +77,24 @@ func (s *Service) SubmitEmail(ctx context.Context, email *models.Email, raw []by
 	if managedQuery.Error == nil {
 		// A full mailbox cannot receive, but replies from it still send.
 		if !managedMailbox.Active || (managedMailbox.Status != "active" && managedMailbox.Status != "storage_full") || email.From != managedMailbox.Address {
-			return ErrDenied
+			return "", ErrDenied
 		}
 		if e := s.DB.WithContext(ctx).First(&d, "id = ? AND team_id = ? AND ready = true AND ownership = true AND provisioned = true", managedMailbox.DomainID, email.TeamID).Error; e != nil {
-			return ErrDenied
+			return "", ErrDenied
 		}
 		var account Account
 		if e := s.DB.WithContext(ctx).First(&account, "team_id = ? AND approved = true AND paused = false AND suspended = false", email.TeamID).Error; e != nil {
-			return ErrDenied
+			return "", ErrDenied
 		}
 	} else {
 		if !errors.Is(managedQuery.Error, gorm.ErrRecordNotFound) {
-			return ErrDenied
+			return "", ErrDenied
 		}
 		if e := s.DB.WithContext(ctx).First(&d, "smtp_config_id = ? AND team_id = ? AND ready = true", email.SMTPConfigID, email.TeamID).Error; e != nil {
-			return ErrDenied
+			return "", ErrDenied
 		}
 	}
-	recipients := []string{email.To}
-	for _, list := range []string{email.CC, email.BCC} {
-		if list != "" {
-			recipients = append(recipients, strings.Split(list, ",")...)
-		}
-	}
-	_, err := s.Submit(ctx, Submission{TeamID: email.TeamID, DomainID: d.ID, EmailID: email.ID, Key: "email-" + email.ID, From: email.From, Recipients: recipients, Raw: raw, Marketing: email.CampaignID != "" || email.ContactID != ""})
-	return err
+	return d.ID, nil
 }
 func (s *Service) RecipientPolicy(ctx context.Context, team string, recipients []string) error {
 	for _, r := range recipients {

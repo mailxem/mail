@@ -962,8 +962,8 @@ func RegisterCRUDRoutes(g *echo.Group, db *gorm.DB) {
 	modelWriteGroup.DELETE("/:id", modelController.Delete)
 
 	// Emails with team-specific permissions
-	emailService := services.NewBaseService(db, models.Email{})
-	emailController := controllers.NewBaseController(emailService)
+	emailService := services.NewEmailReader(db) // renders bulk emails' shared content
+	emailController := controllers.NewBaseController[models.Email](emailService)
 	emailGroup := g.Group("/emails")
 	emailGroup.Use(middleware.RequirePermissions(db, "emails:read"))
 	// @Summary List emails

@@ -33,14 +33,19 @@ type fakeProvider struct {
 	err        error
 	identity   Identity
 	provisions int
+	raws       map[string][]byte // what was sent, by message ID
 }
 
 func (p *fakeProvider) Provision(context.Context, string, string) error    { p.provisions++; return nil }
 func (p *fakeProvider) Identity(context.Context, string) (Identity, error) { return p.identity, nil }
-func (p *fakeProvider) Send(context.Context, string, string, string, []string, []byte, string) (string, error) {
+func (p *fakeProvider) Send(_ context.Context, _, _, _ string, _ []string, raw []byte, id string) (string, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	p.sends++
+	if p.raws == nil {
+		p.raws = map[string][]byte{}
+	}
+	p.raws[id] = raw
 	return "ses-message", p.err
 }
 

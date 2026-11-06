@@ -67,13 +67,24 @@ func (s *Service) ProcessOne(ctx context.Context) error {
 		}
 	}
 	providerID := ""
-	if err == nil && (len(m.Raw) == 0 || m.CreatedAt.Before(s.Now().Add(-7*24*time.Hour))) {
+	raw := m.Raw
+	if err == nil && len(raw) == 0 && m.EmailID != "" && RenderRaw != nil {
+		// Queued without its MIME: rebuild it from the email, as Submit stored it.
+		if raw, err = RenderRaw(ctx, m.EmailID); err == nil {
+			raw, _, _, err = NormalizeRaw(raw, m.From)
+		}
+		if err != nil {
+			log.Printf("managed delivery could not rebuild message: message_id=%s error=%v", m.ID, err)
+			err, detail = ErrDenied, "The queued email could no longer be built."
+		}
+	}
+	if err == nil && (len(raw) == 0 || m.CreatedAt.Before(s.Now().Add(-7*24*time.Hour))) {
 		err = ErrDenied
 		detail = "Queued message expired before dispatch."
 	}
 	if err == nil {
 		sendCtx, cancel := context.WithTimeout(ctx, 25*time.Second)
-		providerID, err = s.Provider.Send(sendCtx, m.TeamID, d.Name, m.From, strings.Split(m.Recipients, ","), m.Raw, m.ID)
+		providerID, err = s.Provider.Send(sendCtx, m.TeamID, d.Name, m.From, strings.Split(m.Recipients, ","), raw, m.ID)
 		cancel()
 		if err == nil {
 			status = "SENT"
@@ -96,7 +107,8 @@ func (s *Service) ProcessOne(ctx context.Context) error {
 	recordCtx, cancelRecord := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
 	defer cancelRecord()
 	return s.DB.WithContext(recordCtx).Transaction(func(tx *gorm.DB) error {
-		r := tx.Model(&Message{}).Where("id = ? AND status = ?", m.ID, "SENDING").Updates(map[string]any{"status": status, "detail": detail, "provider_id": providerID, "updated_at": s.Now()})
+		// Every outcome here is final, so the MIME is no longer needed.
+		r := tx.Model(&Message{}).Where("id = ? AND status = ?", m.ID, "SENDING").Updates(map[string]any{"status": status, "detail": detail, "provider_id": providerID, "updated_at": s.Now(), "raw": nil})
 		if r.Error != nil {
 			return r.Error
 		}
@@ -189,7 +201,7 @@ func (s *Service) MaintainMessages(ctx context.Context) error {
 			if m.Status == "SENDING" {
 				status, detail = "DELIVERY_UNKNOWN", "Worker stopped before outcome was recorded. Review events before resending."
 			}
-			if err := tx.Model(&m).Updates(map[string]any{"status": status, "detail": detail}).Error; err != nil {
+			if err := tx.Model(&m).Updates(map[string]any{"status": status, "detail": detail, "raw": nil}).Error; err != nil {
 				return err
 			}
 			if s.NotifyAlerts && !m.IsTest {

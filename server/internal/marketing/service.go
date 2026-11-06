@@ -4,11 +4,10 @@ import (
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
-	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"html"
 	"net/mail"
 	"strings"
 	"time"
@@ -192,11 +191,9 @@ func (s *Service) MaterializeDue(ctx context.Context, now time.Time) error {
 	}
 	return nil
 }
-func personalize(body string, c models.Contact) string {
-	for k, v := range map[string]string{"first_name": c.FirstName, "last_name": c.LastName, "name": strings.TrimSpace(c.FirstName + " " + c.LastName), "email": c.Email, "company": c.Company} {
-		body = strings.ReplaceAll(body, "{{"+k+"}}", html.EscapeString(v))
-	}
-	return body
+// contactValues are the {{fields}} a newsletter fills in for a contact.
+func contactValues(c models.Contact) map[string]string {
+	return map[string]string{"first_name": c.FirstName, "last_name": c.LastName, "name": strings.TrimSpace(c.FirstName + " " + c.LastName), "email": c.Email, "company": c.Company}
 }
 
 // PrepareEdition builds bounded batches with a stable cursor and a unique delivery key.
@@ -231,14 +228,27 @@ func (s *Service) PrepareEdition(ctx context.Context, id string) error {
 		if err := q.Order("id").Limit(100).Find(&contacts).Error; err != nil {
 			return err
 		}
+		var contentID string
+		if len(contacts) > 0 {
+			// The edition's HTML is stored once; utils.RenderEmail adds each
+			// reader's fields, footer and tracking when it is sent or shown.
+			id, err := utils.StoreEmailContent(tx, c.TeamID, utils.ContentNewsletter, c.HTMLBody, c.Subject, c.PostalAddress)
+			if err != nil {
+				return err
+			}
+			contentID = id
+		}
 		for _, contact := range contacts {
 			key := c.ID + ":" + contact.ID
 			messageID := uuid.NewString()
 			unsub := s.PublicURL + "/public/unsubscribe/" + c.TeamID + "/" + contact.ID + "/" + s.MessageToken(c.TeamID, contact.ID, messageID) + "?message=" + messageID
-			body := personalize(c.HTMLBody, contact) + `<footer style="padding:24px;text-align:center;color:#71717a;font:12px Arial">` + html.EscapeString(c.PostalAddress) + `<br><a href="` + unsub + `">Unsubscribe</a></footer>`
-			body = utils.TrackEmailHTML(body, messageID, s.PublicURL, s.Secret)
+			values := contactValues(contact)
+			data, err := json.Marshal(values)
+			if err != nil {
+				return err
+			}
 			tracking := true
-			email := models.Email{Base: models.Base{ID: messageID}, ClickTrackingEnabled: &tracking, DeliveryKey: &key, UnsubscribeURL: unsub, From: sender.FromEmail, To: contact.Email, Subject: personalize(c.Subject, contact), Body: base64.StdEncoding.EncodeToString([]byte(body)), Status: models.EmailStatusPending, TeamID: c.TeamID, ContactID: contact.ID, TemplateID: c.TemplateID, SMTPConfigID: c.SMTPConfigID, CategoryID: tpl.CategoryID, CampaignID: c.ID}
+			email := models.Email{Base: models.Base{ID: messageID}, ClickTrackingEnabled: &tracking, DeliveryKey: &key, UnsubscribeURL: unsub, From: sender.FromEmail, To: contact.Email, Subject: utils.Personalize(c.Subject, values), ContentID: &contentID, Data: data, Status: models.EmailStatusPending, TeamID: c.TeamID, ContactID: contact.ID, TemplateID: c.TemplateID, SMTPConfigID: c.SMTPConfigID, CategoryID: tpl.CategoryID, CampaignID: c.ID}
 			if err := tx.Omit(clause.Associations).Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "delivery_key"}}, DoNothing: true}).Create(&email).Error; err != nil {
 				return err
 			}

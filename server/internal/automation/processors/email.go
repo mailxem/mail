@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm/clause"
-	"html"
 	"kori/internal/automation"
 	"kori/internal/config"
 	"kori/internal/marketing"
@@ -160,22 +159,22 @@ func (p *EmailProcessor) Process(ctx *automation.ExecutionContext, node *models.
 	}
 	deliveryKey := "automation:" + ctx.Execution.ID + ":" + node.ID
 	emailID := uuid.NewString()
-	bodyVariables := make(map[string]string, len(variables))
-	for k, v := range variables {
-		bodyVariables[k] = html.EscapeString(v)
-	}
-	// Replace variables in body and subject
 	isMarketing := template != nil && template.Category != nil && template.Category.Name == "Marketing"
-	unsub := ""
+	unsub, postalAddress := "", ""
 	if isMarketing {
 		service := marketing.New(p.db, p.cfg.JWT.Secret, os.Getenv("PUBLIC_API_URL"))
 		if len(service.Secret) < 32 || !strings.HasPrefix(service.PublicURL, "https://") || len(strings.TrimSpace(data.PostalAddress)) < 8 {
 			return nil, fmt.Errorf("marketing email requires HTTPS public URL, signing secret and sender postal address")
 		}
 		unsub = service.PublicURL + "/public/unsubscribe/" + ctx.TeamID + "/" + ctx.ContactID + "/" + service.Token(ctx.TeamID, ctx.ContactID)
-		htmlBody += `<footer style="padding:24px;text-align:center;font:12px Arial">` + html.EscapeString(data.PostalAddress) + `<br><a href="` + unsub + `">Unsubscribe</a></footer>`
+		postalAddress = data.PostalAddress
 	}
-	parsedBody := utils.ReplaceVariables(htmlBody, bodyVariables, emailID, p.cfg, true, false)
+	// The body is stored once per template; utils.RenderEmail adds the
+	// footer, the escaped variables and tracking when it is sent or shown.
+	contentID, err := utils.StoreEmailContent(p.db, ctx.TeamID, utils.ContentAutomation, htmlBody, subject, postalAddress)
+	if err != nil {
+		return nil, fmt.Errorf("failed to store email content: %w", err)
+	}
 	parsedSubject := utils.ReplaceVariables(subject, variables, emailID, p.cfg, false, false)
 
 	parsedSubject, err = base64.DecodeFromBase64(parsedSubject)
@@ -197,7 +196,7 @@ func (p *EmailProcessor) Process(ctx *automation.ExecutionContext, node *models.
 		From:           smtpConfig.FromEmail,
 		To:             ctx.Contact.Email,
 		Subject:        parsedSubject,
-		Body:           parsedBody,
+		ContentID:      &contentID,
 		Data:           jsonData,
 		Status:         models.EmailStatusPending,
 		TeamID:         ctx.TeamID,

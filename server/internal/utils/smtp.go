@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -10,7 +11,6 @@ import (
 	"kori/internal/db"
 	"kori/internal/mailconnect"
 	"kori/internal/models"
-	"kori/internal/utils/base64"
 	"net/mail"
 	"os"
 	"strings"
@@ -70,97 +70,16 @@ func validSendRate(rate int) int {
 var ManagedDelivery func(*models.Email, *gomail.Message) error
 var RecipientPolicy func(string, []string) error
 
+// ManagedDeliveryBatch queues a page of one team's managed emails, given their
+// MIME, with one quota reservation. It returns each email's error.
+var ManagedDeliveryBatch func([]*models.Email, [][]byte) []error
+
 // SendEmail sends a single email using the configured SMTP server
 func (h *EmailHandler) SendEmail(email *models.Email) error {
-	if email == nil {
-		return fmt.Errorf("email is nil")
-	}
-
-	if email.Status != models.EmailStatusPending && email.Status != models.EmailStatusFailed {
-		return fmt.Errorf("email is not pending or failed")
-	}
-
-	if email.SMTPConfig == nil || email.SMTPConfig.TeamID != email.TeamID || !email.SMTPConfig.IsActive {
-		return fmt.Errorf("SMTP config is nil")
-	}
-	// Managed sending enforces its own account limits.
-	if !email.Test && email.SMTPConfig.Provider != "MANAGED" {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		err := billing.AllowSend(ctx, email.TeamID, recipientCount(email.To, email.CC, email.BCC))
-		cancel()
-		if err != nil {
-			email.Error = err.Error()
-			email.Status = models.EmailStatusFailed
-			if dbErr := h.UpdateEmail(email); dbErr != nil {
-				return h.logger.Error("❌ Failed to update email status", dbErr)
-			}
-			return err
-		}
-	}
-
-	h.logger.Info("📧 Sending email to: %s using SMTP server: %s", email.To, email.SMTPConfig.Host)
-
-	// Create new message
-	m := gomail.NewMessage()
-	m.SetHeader("From", email.From)
-	m.SetHeader("To", email.To)
-	m.SetHeader("Subject", email.Subject)
-	sender, err := mail.ParseAddress(email.From)
+	m, decodedBody, err := h.prepareEmail(email)
 	if err != nil {
-		return fmt.Errorf("invalid sender address")
-	}
-	messageDomain := sender.Address[strings.LastIndexByte(sender.Address, '@')+1:]
-	m.SetHeader("Message-ID", "<"+email.ID+"@"+messageDomain+">")
-	if !email.CreatedAt.IsZero() {
-		m.SetHeader("Date", email.CreatedAt.UTC().Format(time.RFC1123Z))
-	}
-	if email.UnsubscribeURL != "" {
-		m.SetHeader("List-Unsubscribe", "<"+email.UnsubscribeURL+">")
-		m.SetHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
-	}
-
-	if email.ReplyTo != "" {
-		m.SetHeader("Reply-To", email.ReplyTo)
-	}
-	if email.InReplyTo != "" {
-		m.SetHeader("In-Reply-To", email.InReplyTo)
-		m.SetHeader("References", email.InReplyTo)
-	}
-
-	if email.CC != "" {
-		addresses, err := mail.ParseAddressList(email.CC)
-		if err != nil {
-			return fmt.Errorf("invalid Cc recipients")
-		}
-		values := make([]string, len(addresses))
-		for i, address := range addresses {
-			values[i] = address.String()
-		}
-		m.SetHeader("Cc", values...)
-	}
-
-	if email.BCC != "" {
-		addresses, err := mail.ParseAddressList(email.BCC)
-		if err != nil {
-			return fmt.Errorf("invalid Bcc recipients")
-		}
-		values := make([]string, len(addresses))
-		for i, address := range addresses {
-			values[i] = address.String()
-		}
-		m.SetHeader("Bcc", values...)
-	}
-
-	// Decode base64 body
-	decodedBody, err := base64.DecodeFromBase64(email.Body)
-	if err != nil {
-		return fmt.Errorf("❌ failed to decode email body: %w", err)
-	}
-	m.SetBody("text/html", decodedBody)
-	if err := addMailAttachments(m, email.Attachments); err != nil {
 		return err
 	}
-
 	if RecipientPolicy != nil {
 		var recipients []string
 		for _, header := range []string{"To", "Cc", "Bcc"} {
@@ -214,6 +133,134 @@ func (h *EmailHandler) SendEmail(email *models.Email) error {
 	h.logger.Success("✅ Email sent successfully to: %s", email.To)
 
 	return nil
+}
+
+// prepareEmail checks an email can be sent and builds its message.
+func (h *EmailHandler) prepareEmail(email *models.Email) (*gomail.Message, string, error) {
+	if email == nil {
+		return nil, "", fmt.Errorf("email is nil")
+	}
+
+	if email.Status != models.EmailStatusPending && email.Status != models.EmailStatusFailed {
+		return nil, "", fmt.Errorf("email is not pending or failed")
+	}
+
+	if email.SMTPConfig == nil || email.SMTPConfig.TeamID != email.TeamID || !email.SMTPConfig.IsActive {
+		return nil, "", fmt.Errorf("SMTP config is nil")
+	}
+	// Managed sending enforces its own account limits.
+	if !email.Test && email.SMTPConfig.Provider != "MANAGED" {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		err := billing.AllowSend(ctx, email.TeamID, recipientCount(email.To, email.CC, email.BCC))
+		cancel()
+		if err != nil {
+			email.Error = err.Error()
+			email.Status = models.EmailStatusFailed
+			if dbErr := h.UpdateEmail(email); dbErr != nil {
+				return nil, "", h.logger.Error("❌ Failed to update email status", dbErr)
+			}
+			return nil, "", err
+		}
+	}
+
+	h.logger.Info("📧 Sending email to: %s using SMTP server: %s", email.To, email.SMTPConfig.Host)
+	return buildMessage(email)
+}
+
+// buildMessage builds an email's MIME message and returns it with its HTML.
+func buildMessage(email *models.Email) (*gomail.Message, string, error) {
+	m := gomail.NewMessage()
+	m.SetHeader("From", email.From)
+	m.SetHeader("To", email.To)
+	m.SetHeader("Subject", email.Subject)
+	sender, err := mail.ParseAddress(email.From)
+	if err != nil {
+		return nil, "", fmt.Errorf("invalid sender address")
+	}
+	messageDomain := sender.Address[strings.LastIndexByte(sender.Address, '@')+1:]
+	m.SetHeader("Message-ID", "<"+email.ID+"@"+messageDomain+">")
+	if !email.CreatedAt.IsZero() {
+		m.SetHeader("Date", email.CreatedAt.UTC().Format(time.RFC1123Z))
+	}
+	if email.UnsubscribeURL != "" {
+		m.SetHeader("List-Unsubscribe", "<"+email.UnsubscribeURL+">")
+		m.SetHeader("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
+	}
+
+	if email.ReplyTo != "" {
+		m.SetHeader("Reply-To", email.ReplyTo)
+	}
+	if email.InReplyTo != "" {
+		m.SetHeader("In-Reply-To", email.InReplyTo)
+		m.SetHeader("References", email.InReplyTo)
+	}
+
+	if email.CC != "" {
+		addresses, err := mail.ParseAddressList(email.CC)
+		if err != nil {
+			return nil, "", fmt.Errorf("invalid Cc recipients")
+		}
+		values := make([]string, len(addresses))
+		for i, address := range addresses {
+			values[i] = address.String()
+		}
+		m.SetHeader("Cc", values...)
+	}
+
+	if email.BCC != "" {
+		addresses, err := mail.ParseAddressList(email.BCC)
+		if err != nil {
+			return nil, "", fmt.Errorf("invalid Bcc recipients")
+		}
+		values := make([]string, len(addresses))
+		for i, address := range addresses {
+			values[i] = address.String()
+		}
+		m.SetHeader("Bcc", values...)
+	}
+
+	// Decode the base64 body, or render a bulk email's shared content
+	decodedBody, err := EmailHTML(db.GetDB(), email)
+	if err != nil {
+		return nil, "", fmt.Errorf("❌ failed to decode email body: %w", err)
+	}
+	m.SetBody("text/html", decodedBody)
+	if err := addMailAttachments(m, email.Attachments); err != nil {
+		return nil, "", err
+	}
+	return m, decodedBody, nil
+}
+
+// submitManaged queues a page of managed emails with one quota reservation.
+// The managed worker paces delivery, so nothing waits here. RecipientPolicy is
+// skipped: SubmitBatch makes the same suppression check for the whole page.
+func (h *EmailHandler) submitManaged(emails []*models.Email, smtpConfig *models.SMTPConfig) []BatchEmailResult {
+	results := make([]BatchEmailResult, len(emails))
+	var ready []*models.Email
+	var raws [][]byte
+	var at []int
+	for i, e := range emails {
+		e.SMTPConfig = smtpConfig
+		results[i].Email = e
+		m, _, err := h.prepareEmail(e)
+		var raw bytes.Buffer
+		if err == nil {
+			_, err = m.WriteTo(&raw)
+		}
+		if err != nil {
+			results[i].Error = err
+			continue
+		}
+		ready = append(ready, e)
+		raws = append(raws, raw.Bytes())
+		at = append(at, i)
+	}
+	if len(ready) > 0 {
+		for j, err := range ManagedDeliveryBatch(ready, raws) {
+			results[at[j]].Error = err
+		}
+	}
+	return results
 }
 
 func sendCloudflareEmail(email *models.Email, message *gomail.Message, html string) (string, error) {
@@ -313,6 +360,9 @@ func sendPooled(emails []*models.Email, workers int, limiter interface{ Wait(con
 
 // SendCampaignEmails sends campaign emails in batches
 func (h *EmailHandler) SendCampaignEmails(emails []*models.Email, batchSize int, delay time.Duration, smtpConfig *models.SMTPConfig) []BatchEmailResult {
+	if smtpConfig.Provider == "MANAGED" && ManagedDeliveryBatch != nil {
+		return h.submitManaged(emails, smtpConfig)
+	}
 	totalEmails := len(emails)
 	results := make([]BatchEmailResult, totalEmails)
 

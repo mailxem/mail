@@ -4,13 +4,10 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
-	"crypto/sha256"
 	"encoding/base64"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
-	"kori/internal/billing"
 	"net"
 	"net/mail"
 	"net/url"
@@ -23,7 +20,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"kori/internal/models"
 )
 
 // Starter ceilings apply only to automatic approval. Operators can review and
@@ -366,27 +362,8 @@ func validateMarketing(raw []byte) error {
 
 // Suppressed checks recipient addresses, including submissions without contact IDs.
 func Suppressed(tx *gorm.DB, team, recipient string, marketing bool) (bool, error) {
-	var n int64
-	if e := tx.Model(&Suppression{}).Where("team_id = ? AND address = ?", team, recipient).Count(&n).Error; e != nil {
-		return true, e
-	}
-	if n > 0 {
-		return true, nil
-	}
-	if e := tx.Model(&models.SuppressionList{}).Where("team_id = ? AND LOWER(email_address) = ? AND is_active = true AND is_deleted = false AND (expires_at IS NULL OR expires_at > ?)", team, recipient, time.Now()).Count(&n).Error; e != nil {
-		return true, e
-	}
-	if n > 0 {
-		return true, nil
-	}
-	states := []string{"BOUNCED", "COMPLAINED"}
-	if marketing {
-		states = append(states, "UNSUBSCRIBED")
-	}
-	if e := tx.Model(&models.Contact{}).Where("team_id = ? AND LOWER(email) = ? AND status IN ?", team, recipient, states).Count(&n).Error; e != nil {
-		return true, e
-	}
-	return n > 0, nil
+	blocked, e := suppressedSet(tx, team, []string{recipient}, marketing)
+	return e != nil || blocked[recipient], e
 }
 
 type Submission struct {
@@ -395,137 +372,14 @@ type Submission struct {
 	Raw                                                []byte
 	IsTest                                             bool
 	Marketing                                          bool
+	// Transient: Raw is checked but not stored; the worker rebuilds it from
+	// EmailID at dispatch (RenderRaw).
+	Transient bool
 }
 
 func (s *Service) Submit(ctx context.Context, in Submission) (Message, error) {
-	var msg Message
-	if !s.Config.Enabled || len(in.Raw) == 0 || int64(len(in.Raw)) > s.Config.MaxBytes || len(in.Recipients) < 1 || len(in.Recipients) > 50 || len(in.Key) > 128 || len(in.Key) < 1 {
-		return msg, errors.New("invalid message, recipient count, or idempotency key")
-	}
-	raw, from, subject, e := NormalizeRaw(in.Raw, in.From)
-	if e != nil {
-		return msg, e
-	}
-	if in.Marketing {
-		if e = validateMarketing(raw); e != nil {
-			return msg, e
-		}
-	}
-	to := []string{}
-	seen := map[string]bool{}
-	for _, r := range in.Recipients {
-		a, e := address(r)
-		if e != nil {
-			return msg, e
-		}
-		if !seen[a] {
-			to = append(to, a)
-			seen[a] = true
-		}
-	}
-	sort.Strings(to)
-	digest := sha256.Sum256(append(append([]byte(strings.Join(to, ",")+"\x00"+in.DomainID+"\x00"+in.CredentialID+"\x00"+in.EmailID+fmt.Sprint(in.IsTest)+"\x00"), raw...), byte(0)))
-	hash := hex.EncodeToString(digest[:])
-	key := in.TeamID + ":" + in.Key
-	// The plan sets the limits of accounts still on the automatic allowance;
-	// limits an operator set stay as they are. Looked up outside the lock.
-	planDaily, planMonthly, planKnown := billing.ManagedLimits(ctx, in.TeamID)
-	if !in.IsTest {
-		if e = billing.AllowSend(ctx, in.TeamID, len(to)); e != nil {
-			return msg, fmt.Errorf("%w: %v", ErrLimit, e)
-		}
-	}
-	e = s.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		var a Account
-		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&a, "team_id = ?", in.TeamID).Error; err != nil {
-			return ErrDenied
-		}
-		if !a.Approved || a.Suspended || a.Paused {
-			return ErrDenied
-		}
-		err := tx.First(&msg, "idempotency_key = ?", key).Error
-		if err == nil {
-			if msg.PayloadHash != hash {
-				return errors.New("idempotency key was already used for a different message")
-			}
-			return nil
-		}
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
-		}
-		var d Domain
-		if err = tx.First(&d, "id = ? AND team_id = ? AND ready = true", in.DomainID, in.TeamID).Error; err != nil {
-			return ErrDenied
-		}
-		if strings.Split(from, "@")[1] != d.Name {
-			return errors.New("From address must belong to the selected verified domain")
-		}
-		if d.CheckedAt == nil || s.Now().Sub(*d.CheckedAt) > 24*time.Hour {
-			return errors.New("domain verification is stale; check DNS again")
-		}
-		if in.CredentialID != "" {
-			var c Credential
-			if err = tx.First(&c, "id = ? AND team_id = ? AND domain_id = ? AND revoked_at IS NULL AND expires_at > ?", in.CredentialID, in.TeamID, d.ID, s.Now()).Error; err != nil {
-				return ErrDenied
-			}
-		}
-		for _, r := range to {
-			blocked, err := Suppressed(tx, in.TeamID, r, true)
-			if err != nil {
-				return err
-			}
-			if blocked {
-				return ErrSuppressed
-			}
-		}
-		limits, queue := a, s.Config.QueueLimit
-		if s.applyPlan(&limits, planDaily, planMonthly, planKnown) {
-			queue = max(queue, planDaily) // a day's whole send may wait in the queue
-		}
-		daily, monthly, budget := limits.DailyLimit, limits.MonthlyLimit, limits.MonthlyBudgetMicros
-		var n int64
-		if err = tx.Model(&Message{}).Where("team_id = ? AND status IN ?", in.TeamID, []string{"QUEUED", "SENDING"}).Count(&n).Error; err != nil {
-			return err
-		}
-		if n >= queue {
-			return ErrLimit
-		}
-		day, month := s.Now().Format("2006-01-02"), s.Now().Format("2006-01")
-		if a.Day != day {
-			a.Day = day
-			a.DailyUsed = 0
-		}
-		if a.Month != month {
-			a.Month = month
-			a.MonthlyUsed = 0
-			a.BudgetUsedMicros = 0
-		}
-		count := int64(len(to))
-		cost := count * s.Config.CostMicros
-		if count > daily-a.DailyUsed || count > monthly-a.MonthlyUsed || cost > budget-a.BudgetUsedMicros {
-			return ErrLimit
-		}
-		a.DailyUsed += count
-		a.MonthlyUsed += count
-		a.BudgetUsedMicros += cost
-		if err = tx.Save(&a).Error; err != nil {
-			return err
-		}
-		msg = Message{ID: uuid.NewString(), TeamID: in.TeamID, DomainID: d.ID, CredentialID: in.CredentialID, EmailID: in.EmailID, IsTest: in.IsTest, IdempotencyKey: key, PayloadHash: hash, From: from, Recipients: strings.Join(to, ","), Subject: subject, Raw: raw, Status: "QUEUED"}
-		if in.EmailID != "" {
-			if e := tx.Model(&models.Email{}).Where("id = ? AND team_id = ?", in.EmailID, in.TeamID).Updates(map[string]any{"status": "QUEUED", "error": ""}).Error; e != nil {
-				return e
-			}
-		}
-		if err := tx.Create(&msg).Error; err != nil {
-			return err
-		}
-		if msg.IsTest {
-			return QueueMilestone(tx, msg.TeamID, msg.DomainID, "test_queued")
-		}
-		return nil
-	})
-	return msg, e
+	r := s.SubmitBatch(ctx, []Submission{in})
+	return r[0].Message, r[0].Err
 }
 
 func (s *Service) persistDomain(ctx context.Context, d *Domain) error {

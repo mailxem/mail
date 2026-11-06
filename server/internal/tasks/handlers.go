@@ -209,12 +209,13 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		stageLimit = target - sentSoFar
 	}
 
-	// Fetched on first use, so a list with no one left completes without it.
-	var htmlFromTemplate string
+	// Fetched and stored on first use, so a list with no one left completes
+	// without it. Every email shares it and keeps only its own variables.
+	var contentID string
 	// Builds one contact's email; the pages below call it for each contact.
 	build := func(contact models.Contact) (*models.Email, error) {
-		if htmlFromTemplate == "" {
-			htmlFromTemplate = campaign.Template.HTMLBody
+		if contentID == "" {
+			htmlFromTemplate := campaign.Template.HTMLBody
 			if htmlFromTemplate == "" {
 				if campaign.Template.HtmlFile == nil {
 					return nil, fmt.Errorf("template has no HTML")
@@ -225,6 +226,15 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 				}
 				htmlFromTemplate = html
 			}
+			kind := utils.ContentCampaign
+			if campaign.Template.Category != nil && campaign.Template.Category.Name == "Marketing" {
+				kind = utils.ContentCampaignMarketing
+			}
+			id, err := utils.StoreEmailContent(h.db, campaign.TeamID, kind, htmlFromTemplate, campaign.Template.Subject, "")
+			if err != nil {
+				return nil, h.logger.Error("❌ failed to store campaign content: %w", err)
+			}
+			contentID = id
 		}
 
 		// default variables
@@ -258,7 +268,6 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		maps.Copy(variables, data)
 
 		messageID := uuid.NewString()
-		parsedBody := utils.ReplaceVariables(htmlFromTemplate, variables, messageID, h.cfg, true, campaign.Template.Category != nil && campaign.Template.Category.Name == "Marketing")
 		parsedSubject := utils.ReplaceVariables(campaign.Template.Subject, variables, campaign.ID, h.cfg, false, false)
 
 		parsedSubject, err = base64.DecodeFromBase64(parsedSubject)
@@ -278,7 +287,7 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 			From:         smtpConfig.FromEmail,
 			To:           contact.Email,
 			Subject:      parsedSubject,
-			Body:         parsedBody,
+			ContentID:    &contentID,
 			Data:         jsonData,
 			Status:       models.EmailStatusPending,
 			TeamID:       campaign.TeamID,

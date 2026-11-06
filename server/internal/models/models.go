@@ -371,6 +371,7 @@ type Email struct {
 	To                   string           `gorm:"not null" json:"to" validate:"required,email"`
 	Subject              string           `gorm:"not null" json:"subject" validate:"required"`
 	Body                 string           `gorm:"not null" json:"body" validate:"required"`
+	ContentID            *string          `gorm:"index" json:"-"` // bulk sends: shared EmailContent, rendered per email when Body is empty
 	Status               EmailStatus      `gorm:"not null" json:"status" validate:"required,oneof=DRAFT QUEUED SENDING SENT FAILED"`
 	Error                string           `json:"error" validate:"omitempty"`
 	Data                 datatypes.JSON   `gorm:"type:jsonb;default:'{}'" json:"data" validate:"omitempty,json"`
@@ -394,6 +395,19 @@ type Email struct {
 	InReplyTo            string           `json:"inReplyTo,omitempty"`
 	ProviderResult       datatypes.JSON   `gorm:"type:jsonb" json:"providerResult,omitempty"`
 	Test                 bool             `gorm:"not null;default:false" json:"test"`
+}
+
+// EmailContent is the HTML a bulk send shares. Each of its emails stores only
+// its own data and is rendered when sent or shown (utils.RenderEmail). The ID
+// is a hash of everything here, so a row never changes once written.
+type EmailContent struct {
+	ID            string    `gorm:"primaryKey" json:"id"`
+	TeamID        string    `gorm:"type:uuid;not null;index" json:"teamId"`
+	Kind          string    `gorm:"not null" json:"kind"` // how to render it, with a version
+	HTML          string    `gorm:"type:text;not null" json:"html"`
+	Subject       string    `gorm:"not null" json:"subject"`
+	PostalAddress string    `json:"postalAddress"` // for the unsubscribe footer, when the kind has one
+	CreatedAt     time.Time `json:"createdAt"`
 }
 
 func (e *Email) BeforeUpdate(tx *gorm.DB) error {
