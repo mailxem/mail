@@ -41,8 +41,8 @@ func ReplaceVariables(input string, variables map[string]string, mailId string, 
 		input = re.ReplaceAllStringFunc(input, func(string) string { return value })
 	}
 
-	if trackLinks {
-		input = ReplaceLinksWithRedirect(input, mailId, cfg, isMarketing)
+	if trackLinks || isMarketing {
+		input = ReplaceLinksWithRedirect(input, mailId, cfg, isMarketing, trackLinks)
 	}
 
 	return base64.EncodeToBase64(input)
@@ -68,8 +68,9 @@ func MapToJSON(data map[string]string) (datatypes.JSON, error) {
 }
 
 // ReplaceLinksWithRedirect usecase is to replace all the links in the html with our redirect url
-// so we can track the number of clicks
-func ReplaceLinksWithRedirect(body string, mailID string, cfg *config.Config, isMarketing bool) string {
+// so we can track the number of clicks. Marketing email always gets the
+// unsubscribe footer; track=false leaves links and the open pixel out.
+func ReplaceLinksWithRedirect(body string, mailID string, cfg *config.Config, isMarketing bool, track bool) string {
 	if isMarketing {
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"mailId": mailID})
 		signed, err := token.SignedString([]byte(cfg.JWT.Secret))
@@ -81,6 +82,9 @@ func ReplaceLinksWithRedirect(body string, mailID string, cfg *config.Config, is
 				body += footer
 			}
 		}
+	}
+	if !track {
+		return body
 	}
 	return TrackEmailHTML(body, mailID, cfg.Server.PublicURL, cfg.JWT.Secret)
 }

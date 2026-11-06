@@ -36,6 +36,8 @@ type EmailNodeData struct {
 	Subject       string            `json:"subject,omitempty"`    // Override template subject
 	CustomBody    string            `json:"customBody,omitempty"` // Override template body
 	Variables     map[string]string `json:"variables,omitempty"`  // Additional variables
+	// TrackEngagement: nil or true adds the open pixel and click-tracking links.
+	TrackEngagement *bool `json:"trackEngagement,omitempty"`
 }
 
 // NewEmailProcessor creates a new EMAIL node processor
@@ -175,7 +177,8 @@ func (p *EmailProcessor) Process(ctx *automation.ExecutionContext, node *models.
 		unsub = service.PublicURL + "/public/unsubscribe/" + ctx.TeamID + "/" + ctx.ContactID + "/" + service.Token(ctx.TeamID, ctx.ContactID)
 		htmlBody += `<footer style="padding:24px;text-align:center;font:12px Arial">` + html.EscapeString(data.PostalAddress) + `<br><a href="` + unsub + `">Unsubscribe</a></footer>`
 	}
-	parsedBody := utils.ReplaceVariables(htmlBody, bodyVariables, emailID, p.cfg, true, false)
+	tracked := models.ShouldTrack(p.db, ctx.TeamID, ctx.Contact.Email, data.TrackEngagement, isMarketing)
+	parsedBody := utils.ReplaceVariables(htmlBody, bodyVariables, emailID, p.cfg, tracked, false)
 	parsedSubject := utils.ReplaceVariables(subject, variables, emailID, p.cfg, false, false)
 
 	parsedSubject, err = base64.DecodeFromBase64(parsedSubject)
@@ -191,20 +194,21 @@ func (p *EmailProcessor) Process(ctx *automation.ExecutionContext, node *models.
 
 	// Create email record
 	email := &models.Email{
-		Base:           models.Base{ID: emailID},
-		DeliveryKey:    &deliveryKey,
-		UnsubscribeURL: unsub,
-		From:           smtpConfig.FromEmail,
-		To:             ctx.Contact.Email,
-		Subject:        parsedSubject,
-		Body:           parsedBody,
-		Data:           jsonData,
-		Status:         models.EmailStatusPending,
-		TeamID:         ctx.TeamID,
-		TemplateID:     data.TemplateID,
-		ContactID:      ctx.ContactID,
-		SMTPConfigID:   smtpConfig.ID,
-		CategoryID:     "",
+		Base:                 models.Base{ID: emailID},
+		ClickTrackingEnabled: &tracked,
+		DeliveryKey:          &deliveryKey,
+		UnsubscribeURL:       unsub,
+		From:                 smtpConfig.FromEmail,
+		To:                   ctx.Contact.Email,
+		Subject:              parsedSubject,
+		Body:                 parsedBody,
+		Data:                 jsonData,
+		Status:               models.EmailStatusPending,
+		TeamID:               ctx.TeamID,
+		TemplateID:           data.TemplateID,
+		ContactID:            ctx.ContactID,
+		SMTPConfigID:         smtpConfig.ID,
+		CategoryID:           "",
 	}
 
 	if template != nil {

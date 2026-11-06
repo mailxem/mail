@@ -47,6 +47,11 @@ func (h *TrackingHandler) legacyDetail(c echo.Context, emailID, campaignID strin
 	if err := messages().Count(&count).Error; err != nil {
 		return EmailAnalytics{}, err
 	}
+	// Untracked sends have no pixel or click links, so rates count tracked sends only.
+	var untracked int64
+	if err := messages().Where("click_tracking_enabled = ?", false).Count(&untracked).Error; err != nil {
+		return EmailAnalytics{}, err
+	}
 	var tracking []models.EmailTracking
 	err = h.db.WithContext(c.Request().Context()).Model(&models.EmailTracking{}).Where("is_deleted=false AND timestamp>=? AND timestamp<? AND email_id IN (?)", f.From, f.AsOf, messages().Select("id")).Order("timestamp,id").Limit(100001).Find(&tracking).Error
 	if err != nil {
@@ -57,13 +62,15 @@ func (h *TrackingHandler) legacyDetail(c echo.Context, emailID, campaignID strin
 	}
 	result := processEmailAnalytics(tracking, f.Timezone)
 	result.AcceptedMessages = count
-	if count > 0 {
-		result.ClickRate = float64(result.UniqueClicks) / float64(count) * 100
-		result.OpenRate = float64(result.UniqueOpens) / float64(count) * 100
+	result.Untracked = untracked
+	tracked := count - untracked
+	if tracked > 0 {
+		result.ClickRate = float64(result.UniqueClicks) / float64(tracked) * 100
+		result.OpenRate = float64(result.UniqueOpens) / float64(tracked) * 100
 	}
 	for i := range result.ClickedLinks {
-		if count > 0 {
-			result.ClickedLinks[i].ClickRate = float64(result.ClickedLinks[i].UniqueClicks) / float64(count) * 100
+		if tracked > 0 {
+			result.ClickedLinks[i].ClickRate = float64(result.ClickedLinks[i].UniqueClicks) / float64(tracked) * 100
 		}
 	}
 	c.Response().Header().Set("Deprecation", "true")

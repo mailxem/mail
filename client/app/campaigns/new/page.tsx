@@ -93,6 +93,7 @@ const campaignSchema = z.object({
   smtpConfigId: z.string().uuid("Choose a sender"),
   archiveNewsletterId: z.string().optional(),
   stages: z.enum(["auto", "on", "off"]).default("auto"),
+  trackEngagement: z.boolean().default(true),
 });
 type CampaignFormValues = z.infer<typeof campaignSchema>;
 type ContactPreview = {
@@ -264,6 +265,7 @@ function NewCampaignForm() {
       timezone: "UTC",
       archiveNewsletterId: "",
       stages: "auto",
+      trackEngagement: true,
     },
   });
   const archives = (
@@ -1254,6 +1256,30 @@ function NewCampaignForm() {
                         of 500 or fewer always send at once.
                       </FormDescription>
                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="trackEngagement"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <FormControl>
+                          <input
+                            type="checkbox"
+                            className="size-4"
+                            checked={field.value}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                          />
+                        </FormControl>
+                        Track opens and link clicks
+                      </FormLabel>
+                      <FormDescription>
+                        Off sends without a tracking pixel or rewritten links.
+                        Deliveries, bounces, complaints and unsubscribes are
+                        still recorded.
+                      </FormDescription>
                     </FormItem>
                   )}
                 />

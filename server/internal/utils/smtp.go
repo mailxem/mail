@@ -196,7 +196,7 @@ func (h *EmailHandler) SendEmail(email *models.Email) error {
 	}
 
 	if email.ClickTrackingEnabled == nil {
-		tracked := strings.Contains(decodedBody, "/t/click/")
+		tracked := strings.Contains(decodedBody, "/t/click/") || strings.Contains(decodedBody, "/t/open?token=")
 		email.ClickTrackingEnabled = &tracked
 	}
 	email.SentAt = time.Now()

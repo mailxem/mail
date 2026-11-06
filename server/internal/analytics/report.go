@@ -116,6 +116,8 @@ type Summary struct {
 	Unknown           int64 `json:"deliveryUnknown"`
 	TrackingKnown     int64 `json:"trackingKnown"`
 	TrackingEnabled   int64 `json:"trackingEnabled"`
+	Untracked         int64 `json:"untracked"` // no pixel or click links; open and click rates exclude them
+	TrackedReached    int64 `json:"trackedRecipientsReached"`
 	AudienceClickRate Rate  `json:"audienceClickRate" gorm:"-"`
 	ClickRate         Rate  `json:"clickRate" gorm:"-"`
 	OpenRate          Rate  `json:"openRate" gorm:"-"`
@@ -124,9 +126,9 @@ type Summary struct {
 }
 
 func (s *Summary) rates() {
-	s.AudienceClickRate = Ratio(s.Clicked, s.Reached)
-	s.ClickRate = Ratio(s.ClickedMessages, s.Accepted)
-	s.OpenRate = Ratio(s.Opened, s.Accepted)
+	s.AudienceClickRate = Ratio(s.Clicked, s.TrackedReached)
+	s.ClickRate = Ratio(s.ClickedMessages, s.Accepted-s.Untracked)
+	s.OpenRate = Ratio(s.Opened, s.Accepted-s.Untracked)
 	s.BounceRate = Ratio(s.Bounced, s.Accepted)
 	s.ComplaintRate = Ratio(s.Complaints, s.Accepted)
 }
@@ -229,6 +231,7 @@ const summarySQL = `SELECT
  COUNT(*) accepted,COUNT(*) FILTER(WHERE opened) opened,COUNT(*) FILTER(WHERE clicked) clicked_messages,
  COUNT(*) FILTER(WHERE bounced) bounced,COUNT(*) FILTER(WHERE complained) complaints,COUNT(*) FILTER(WHERE unsubscribed) unsubscribes,
  COUNT(*) FILTER(WHERE click_tracking_enabled IS NOT NULL) tracking_known, COUNT(*) FILTER(WHERE click_tracking_enabled=true) tracking_enabled,
+ COUNT(*) FILTER(WHERE click_tracking_enabled=false) untracked, COUNT(DISTINCT recipient) FILTER(WHERE click_tracking_enabled IS NOT FALSE) tracked_reached,
  (SELECT COUNT(*) FROM messages WHERE status='FAILED' AND created_at>=CAST(@from AS timestamptz) AND created_at<CAST(@asof AS timestamptz)) failed,
  (SELECT COUNT(*) FROM messages WHERE status='DELIVERY_UNKNOWN' AND created_at>=CAST(@from AS timestamptz) AND created_at<CAST(@asof AS timestamptz)) unknown
  FROM facts WHERE sent_at>=CAST(@from AS timestamptz)`
@@ -340,6 +343,8 @@ type Row struct {
 	Complaints        int64  `json:"complaints"`
 	Unsubscribes      int64  `json:"unsubscribes"`
 	New               int64  `json:"new"`
+	Untracked         int64  `json:"untracked"`
+	TrackedReached    int64  `json:"trackedReached"`
 	ClickRate         Rate   `json:"clickRate" gorm:"-"`
 	AudienceClickRate Rate   `json:"audienceClickRate" gorm:"-"`
 }
@@ -359,20 +364,20 @@ func Breakdown(ctx context.Context, db *gorm.DB, f Filter) (Page, error) {
 		group = `SELECT l.id::text id,l.name,'list' kind,
  (SELECT COUNT(DISTINCT c.recipient) FROM selected_contacts c JOIN recipients r ON r.recipient=c.recipient WHERE c.list_id=l.id AND c.status='ACTIVE' AND r.active) active,
  (SELECT COUNT(DISTINCT recipient) FROM selected_contacts c WHERE c.list_id=l.id AND c.status<>'ACTIVE') suppressed,
- COUNT(DISTINCT f.recipient) reached, COUNT(DISTINCT f.recipient) FILTER(WHERE f.clicked) clicked,COUNT(f.id) accepted,COUNT(f.id) FILTER(WHERE f.clicked) clicked_messages,COUNT(f.id) FILTER(WHERE f.bounced) bounced,COUNT(f.id) FILTER(WHERE f.complained) complaints,COUNT(f.id) FILTER(WHERE f.unsubscribed) unsubscribes,0::bigint new
+ COUNT(DISTINCT f.recipient) reached, COUNT(DISTINCT f.recipient) FILTER(WHERE f.clicked) clicked,COUNT(f.id) accepted,COUNT(f.id) FILTER(WHERE f.clicked) clicked_messages,COUNT(f.id) FILTER(WHERE f.bounced) bounced,COUNT(f.id) FILTER(WHERE f.complained) complaints,COUNT(f.id) FILTER(WHERE f.unsubscribed) unsubscribes,0::bigint new,COUNT(f.id) FILTER(WHERE f.click_tracking_enabled=false) untracked,COUNT(DISTINCT f.recipient) FILTER(WHERE f.click_tracking_enabled IS NOT FALSE) tracked_reached
  FROM mailing_lists l LEFT JOIN facts f ON f.list_id=l.id AND f.sent_at>=CAST(@from AS timestamptz) WHERE l.team_id=@team AND l.is_deleted=false AND (@list ='' OR l.id::text=@list) AND (@campaign ='' OR l.id IN(SELECT list_id FROM campaigns WHERE id::text=@campaign AND team_id=@team)) AND (@tag ='' OR EXISTS(SELECT 1 FROM selected_contacts c WHERE c.list_id=l.id)) GROUP BY l.id,l.name`
 	case "campaigns":
-		group = `SELECT cp.id::text id,cp.name,CASE WHEN cp.newsletter_id IS NULL THEN 'campaign' ELSE 'newsletter' END kind,0::bigint active,0::bigint suppressed,COUNT(DISTINCT f.recipient) reached,COUNT(DISTINCT f.recipient) FILTER(WHERE f.clicked) clicked,COUNT(f.id) accepted,COUNT(f.id) FILTER(WHERE f.clicked) clicked_messages,COUNT(f.id) FILTER(WHERE f.bounced) bounced,COUNT(f.id) FILTER(WHERE f.complained) complaints,COUNT(f.id) FILTER(WHERE f.unsubscribed) unsubscribes,0::bigint new FROM campaigns cp JOIN facts f ON f.campaign_id=cp.id AND f.sent_at>=CAST(@from AS timestamptz) GROUP BY cp.id,cp.name,cp.newsletter_id`
+		group = `SELECT cp.id::text id,cp.name,CASE WHEN cp.newsletter_id IS NULL THEN 'campaign' ELSE 'newsletter' END kind,0::bigint active,0::bigint suppressed,COUNT(DISTINCT f.recipient) reached,COUNT(DISTINCT f.recipient) FILTER(WHERE f.clicked) clicked,COUNT(f.id) accepted,COUNT(f.id) FILTER(WHERE f.clicked) clicked_messages,COUNT(f.id) FILTER(WHERE f.bounced) bounced,COUNT(f.id) FILTER(WHERE f.complained) complaints,COUNT(f.id) FILTER(WHERE f.unsubscribed) unsubscribes,0::bigint new,COUNT(f.id) FILTER(WHERE f.click_tracking_enabled=false) untracked,COUNT(DISTINCT f.recipient) FILTER(WHERE f.click_tracking_enabled IS NOT FALSE) tracked_reached FROM campaigns cp JOIN facts f ON f.campaign_id=cp.id AND f.sent_at>=CAST(@from AS timestamptz) GROUP BY cp.id,cp.name,cp.newsletter_id`
 	case "domains":
-		group = `SELECT sender_domain id,sender_domain name,'domain' kind,0::bigint active,0::bigint suppressed,COUNT(DISTINCT recipient) reached,COUNT(DISTINCT recipient) FILTER(WHERE clicked) clicked,COUNT(*) accepted,COUNT(*) FILTER(WHERE clicked) clicked_messages,COUNT(*) FILTER(WHERE bounced) bounced,COUNT(*) FILTER(WHERE complained) complaints,COUNT(*) FILTER(WHERE unsubscribed) unsubscribes,0::bigint new FROM facts WHERE sent_at>=CAST(@from AS timestamptz) GROUP BY sender_domain`
+		group = `SELECT sender_domain id,sender_domain name,'domain' kind,0::bigint active,0::bigint suppressed,COUNT(DISTINCT recipient) reached,COUNT(DISTINCT recipient) FILTER(WHERE clicked) clicked,COUNT(*) accepted,COUNT(*) FILTER(WHERE clicked) clicked_messages,COUNT(*) FILTER(WHERE bounced) bounced,COUNT(*) FILTER(WHERE complained) complaints,COUNT(*) FILTER(WHERE unsubscribed) unsubscribes,0::bigint new,COUNT(*) FILTER(WHERE click_tracking_enabled=false) untracked,COUNT(DISTINCT recipient) FILTER(WHERE click_tracking_enabled IS NOT FALSE) tracked_reached FROM facts WHERE sent_at>=CAST(@from AS timestamptz) GROUP BY sender_domain`
 	case "sources":
-		group = `SELECT src id,src name,'source' kind,COUNT(DISTINCT c.recipient) FILTER(WHERE c.status='ACTIVE') active,0::bigint suppressed,COUNT(DISTINCT f.recipient) reached,COUNT(DISTINCT f.recipient) FILTER(WHERE f.clicked) clicked,COUNT(DISTINCT f.id) accepted,COUNT(DISTINCT f.id) FILTER(WHERE f.clicked) clicked_messages,COUNT(DISTINCT f.id) FILTER(WHERE f.bounced) bounced,COUNT(DISTINCT f.id) FILTER(WHERE f.complained) complaints,COUNT(DISTINCT f.id) FILTER(WHERE f.unsubscribed) unsubscribes,COUNT(DISTINCT c.id) new FROM (SELECT c.*,CASE WHEN import_id IS NOT NULL THEN 'Import' WHEN metadata->>'source'='form' THEN 'Form' ELSE 'Unknown' END src FROM selected_contacts c WHERE c.created_at>=CAST(@from AS timestamptz) AND c.created_at<CAST(@asof AS timestamptz)) c LEFT JOIN facts f ON f.recipient=c.recipient AND f.list_id=c.list_id AND f.sent_at>=c.created_at GROUP BY src`
+		group = `SELECT src id,src name,'source' kind,COUNT(DISTINCT c.recipient) FILTER(WHERE c.status='ACTIVE') active,0::bigint suppressed,COUNT(DISTINCT f.recipient) reached,COUNT(DISTINCT f.recipient) FILTER(WHERE f.clicked) clicked,COUNT(DISTINCT f.id) accepted,COUNT(DISTINCT f.id) FILTER(WHERE f.clicked) clicked_messages,COUNT(DISTINCT f.id) FILTER(WHERE f.bounced) bounced,COUNT(DISTINCT f.id) FILTER(WHERE f.complained) complaints,COUNT(DISTINCT f.id) FILTER(WHERE f.unsubscribed) unsubscribes,COUNT(DISTINCT c.id) new,COUNT(DISTINCT f.id) FILTER(WHERE f.click_tracking_enabled=false) untracked,COUNT(DISTINCT f.recipient) FILTER(WHERE f.click_tracking_enabled IS NOT FALSE) tracked_reached FROM (SELECT c.*,CASE WHEN import_id IS NOT NULL THEN 'Import' WHEN metadata->>'source'='form' THEN 'Form' ELSE 'Unknown' END src FROM selected_contacts c WHERE c.created_at>=CAST(@from AS timestamptz) AND c.created_at<CAST(@asof AS timestamptz)) c LEFT JOIN facts f ON f.recipient=c.recipient AND f.list_id=c.list_id AND f.sent_at>=c.created_at GROUP BY src`
 	case "links":
-		group = `SELECT t.url id,t.url name,'link' kind,0::bigint active,0::bigint suppressed,COUNT(DISTINCT e.recipient) reached,COUNT(DISTINCT e.recipient) clicked, (SELECT COUNT(*) FROM facts WHERE sent_at>=CAST(@from AS timestamptz)) accepted,COUNT(DISTINCT e.id) clicked_messages,0::bigint bounced,0::bigint complaints,0::bigint unsubscribes,0::bigint new FROM facts e JOIN email_trackings t ON t.email_id=e.id WHERE e.sent_at>=CAST(@from AS timestamptz) AND t.event='click' AND t.is_deleted=false AND t.timestamp>=e.sent_at AND t.timestamp<CAST(@asof AS timestamptz) GROUP BY t.url`
+		group = `SELECT t.url id,t.url name,'link' kind,0::bigint active,0::bigint suppressed,COUNT(DISTINCT e.recipient) reached,COUNT(DISTINCT e.recipient) clicked, (SELECT COUNT(*) FROM facts WHERE sent_at>=CAST(@from AS timestamptz)) accepted,COUNT(DISTINCT e.id) clicked_messages,0::bigint bounced,0::bigint complaints,0::bigint unsubscribes,0::bigint new,(SELECT COUNT(*) FROM facts WHERE sent_at>=CAST(@from AS timestamptz) AND click_tracking_enabled=false) untracked,COUNT(DISTINCT e.recipient) tracked_reached FROM facts e JOIN email_trackings t ON t.email_id=e.id WHERE e.sent_at>=CAST(@from AS timestamptz) AND t.event='click' AND t.is_deleted=false AND t.timestamp>=e.sent_at AND t.timestamp<CAST(@asof AS timestamptz) GROUP BY t.url`
 	default:
 		return p, fmt.Errorf("Invalid breakdown")
 	}
-	sorts := map[string]string{"name": "name", "accepted": "accepted", "clicked": "clicked", "active": "active", "bounced": "bounced", "clickRate": "CAST(clicked_messages AS double precision)/NULLIF(accepted,0)", "new": "new"}
+	sorts := map[string]string{"name": "name", "accepted": "accepted", "clicked": "clicked", "active": "active", "bounced": "bounced", "clickRate": "CAST(clicked_messages AS double precision)/NULLIF(accepted-untracked,0)", "new": "new"}
 	if f.Sort == "" {
 		f.Sort = "accepted"
 	}
@@ -397,8 +402,8 @@ func Breakdown(ctx context.Context, db *gorm.DB, f Filter) (Page, error) {
 	}, &sql.TxOptions{Isolation: sql.LevelRepeatableRead, ReadOnly: true})
 	for i := range p.Items {
 		r := &p.Items[i]
-		r.ClickRate = Ratio(r.ClickedMessages, r.Accepted)
-		r.AudienceClickRate = Ratio(r.Clicked, r.Reached)
+		r.ClickRate = Ratio(r.ClickedMessages, r.Accepted-r.Untracked)
+		r.AudienceClickRate = Ratio(r.Clicked, r.TrackedReached)
 	}
 	return p, err
 }

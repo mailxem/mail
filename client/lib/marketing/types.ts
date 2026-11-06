@@ -41,6 +41,8 @@ export type Newsletter = {
   postalAddress: string;
   /** Web archive address (/n/{publicSlug}); null when the archive is private. */
   publicSlug?: string | null;
+  /** Off sends editions without the open pixel or click-tracking links. */
+  trackEngagement?: boolean;
 };
 export type FormField = {
   id?: string;

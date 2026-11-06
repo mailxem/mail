@@ -159,7 +159,7 @@ func (s *Service) MaterializeDue(ctx context.Context, now time.Time) error {
 				return err
 			}
 			cutoff := now
-			campaign := models.Campaign{NewsletterID: &n.ID, Name: n.Name, TeamID: n.TeamID, TemplateID: n.TemplateID, ListID: n.ListID, SMTPConfigID: n.SMTPConfigID, Status: models.CampaignStatusScheduled, Schedule: models.CampaignScheduleOneTime, ScheduledFor: *n.NextSendAt, HTMLBody: body, Subject: n.Subject, PostalAddress: n.PostalAddress, AudienceCutoff: &cutoff, BatchSize: 100, Timezone: n.Timezone}
+			campaign := models.Campaign{NewsletterID: &n.ID, Name: n.Name, TeamID: n.TeamID, TemplateID: n.TemplateID, ListID: n.ListID, SMTPConfigID: n.SMTPConfigID, Status: models.CampaignStatusScheduled, Schedule: models.CampaignScheduleOneTime, ScheduledFor: *n.NextSendAt, HTMLBody: body, Subject: n.Subject, PostalAddress: n.PostalAddress, TrackEngagement: n.TrackEngagement, AudienceCutoff: &cutoff, BatchSize: 100, Timezone: n.Timezone}
 			if err := tx.Omit(clause.Associations).Create(&campaign).Error; err != nil {
 				return err
 			}
@@ -236,8 +236,10 @@ func (s *Service) PrepareEdition(ctx context.Context, id string) error {
 			messageID := uuid.NewString()
 			unsub := s.PublicURL + "/public/unsubscribe/" + c.TeamID + "/" + contact.ID + "/" + s.MessageToken(c.TeamID, contact.ID, messageID) + "?message=" + messageID
 			body := personalize(c.HTMLBody, contact) + `<footer style="padding:24px;text-align:center;color:#71717a;font:12px Arial">` + html.EscapeString(c.PostalAddress) + `<br><a href="` + unsub + `">Unsubscribe</a></footer>`
-			body = utils.TrackEmailHTML(body, messageID, s.PublicURL, s.Secret)
-			tracking := true
+			tracking := models.ShouldTrack(tx, c.TeamID, contact.Email, c.TrackEngagement, true)
+			if tracking {
+				body = utils.TrackEmailHTML(body, messageID, s.PublicURL, s.Secret)
+			}
 			email := models.Email{Base: models.Base{ID: messageID}, ClickTrackingEnabled: &tracking, DeliveryKey: &key, UnsubscribeURL: unsub, From: sender.FromEmail, To: contact.Email, Subject: personalize(c.Subject, contact), Body: base64.StdEncoding.EncodeToString([]byte(body)), Status: models.EmailStatusPending, TeamID: c.TeamID, ContactID: contact.ID, TemplateID: c.TemplateID, SMTPConfigID: c.SMTPConfigID, CategoryID: tpl.CategoryID, CampaignID: c.ID}
 			if err := tx.Omit(clause.Associations).Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "delivery_key"}}, DoNothing: true}).Create(&email).Error; err != nil {
 				return err
