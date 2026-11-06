@@ -101,8 +101,9 @@ func (h *MarketingHandler) ContactTags(c echo.Context) error {
 		return bad("Choose up to 50 tags")
 	}
 	var tags []models.Tag
+	var contact models.Contact
+	had := map[string]bool{}
 	err := h.service.DB.WithContext(c.Request().Context()).Transaction(func(tx *gorm.DB) error {
-		var contact models.Contact
 		if err := marketing.Scope(tx, team(c)).Clauses(clause.Locking{Strength: "UPDATE"}).First(&contact, "id = ?", c.Param("id")).Error; err != nil {
 			return missing()
 		}
@@ -124,6 +125,13 @@ func (h *MarketingHandler) ContactTags(c echo.Context) error {
 				return missing()
 			}
 		}
+		var previous []string
+		if err := tx.Table("contact_tags").Where("contact_id = ?", contact.ID).Pluck("tag_id", &previous).Error; err != nil {
+			return err
+		}
+		for _, id := range previous {
+			had[id] = true
+		}
 		return tx.Model(&contact).Omit("Tags.*").Association("Tags").Replace(tags)
 	})
 	if err != nil {
@@ -131,6 +139,9 @@ func (h *MarketingHandler) ContactTags(c echo.Context) error {
 			return missing()
 		}
 		return err
+	}
+	if c.Request().Method == "PUT" {
+		models.EmitTagsAdded(&contact, had, tags)
 	}
 	if tags == nil {
 		tags = []models.Tag{}

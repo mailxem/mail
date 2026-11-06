@@ -4,13 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"kori/internal/events"
 	"kori/internal/models"
 	"kori/internal/utils/logger"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+	"gorm.io/gorm/schema"
 )
 
 var segmentLog = logger.New("SEGMENT_SERVICE")
@@ -105,6 +109,9 @@ func (s *SegmentService) ValidateRules(segment *models.Segment) error {
 		if rule.Field == "" {
 			return fmt.Errorf("rule %d: field is required", i)
 		}
+		if _, ok := contactColumn(s.db, strings.TrimPrefix(rule.Field, "contact_")); !ok {
+			return fmt.Errorf("rule %d: unknown field %s", i, rule.Field)
+		}
 		if rule.Operator == "" {
 			return fmt.Errorf("rule %d: operator is required", i)
 		}
@@ -140,56 +147,68 @@ func (s *SegmentService) isNullableOperator(op models.RuleOperator) bool {
 	return false
 }
 
-// RefreshSegment recalculates segment membership and updates contact count
+// RefreshSegment recalculates segment membership and updates contact count.
+// Contacts who newly match are announced as "segment.entered".
 func (s *SegmentService) RefreshSegment(ctx context.Context, segmentID string) error {
-	segment, err := s.Get(ctx, segmentID)
-	if err != nil {
-		return fmt.Errorf("failed to load segment: %w", err)
-	}
-
-	if !segment.IsDynamic {
-		return fmt.Errorf("cannot refresh static segment")
-	}
-
-	// Get matching contacts
-	contacts, err := s.GetMatchingContacts(ctx, segment)
-	if err != nil {
-		return fmt.Errorf("failed to get matching contacts: %w", err)
-	}
-
-	// Update contact count
+	var segment models.Segment
+	var entered []string
 	now := time.Now()
-	if err := s.db.WithContext(ctx).Model(&models.Segment{}).
-		Where("id = ?", segmentID).
-		Updates(map[string]interface{}{
-			"contact_count": len(contacts),
-			"last_refresh":  now,
-		}).Error; err != nil {
-		return fmt.Errorf("failed to update contact count: %w", err)
-	}
-
-	// Clear existing memberships
-	if err := s.db.WithContext(ctx).Where("segment_id = ?", segmentID).Delete(&models.SegmentContact{}).Error; err != nil {
-		return fmt.Errorf("failed to clear segment contacts: %w", err)
-	}
-
-	// Add new memberships
-	if len(contacts) > 0 {
-		segmentContacts := make([]models.SegmentContact, len(contacts))
-		for i, contact := range contacts {
-			segmentContacts[i] = models.SegmentContact{
-				SegmentID: segmentID,
-				ContactID: contact.ID,
-				AddedAt:   now,
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// The lock serializes refreshes, so two of them never announce the same entry.
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ? AND is_deleted = ?", segmentID, false).First(&segment).Error; err != nil {
+			return fmt.Errorf("failed to load segment: %w", err)
+		}
+		if !segment.IsDynamic {
+			return fmt.Errorf("cannot refresh static segment")
+		}
+		contacts, err := (&SegmentService{db: tx}).GetMatchingContacts(ctx, &segment)
+		if err != nil {
+			return fmt.Errorf("failed to get matching contacts: %w", err)
+		}
+		var members []string
+		if err := tx.Model(&models.SegmentContact{}).Where("segment_id = ?", segmentID).Pluck("contact_id", &members).Error; err != nil {
+			return err
+		}
+		was := make(map[string]bool, len(members))
+		for _, id := range members {
+			was[id] = true
+		}
+		matches := make(map[string]bool, len(contacts))
+		var joined []models.SegmentContact
+		for _, contact := range contacts {
+			matches[contact.ID] = true
+			if !was[contact.ID] {
+				entered = append(entered, contact.ID)
+				joined = append(joined, models.SegmentContact{SegmentID: segmentID, ContactID: contact.ID, AddedAt: now})
 			}
 		}
-
-		if err := s.db.WithContext(ctx).Create(&segmentContacts).Error; err != nil {
-			return fmt.Errorf("failed to create segment contacts: %w", err)
+		var left []string
+		for _, id := range members {
+			if !matches[id] {
+				left = append(left, id)
+			}
 		}
+		for i := 0; i < len(left); i += 500 {
+			if err := tx.Where("segment_id = ? AND contact_id IN ?", segmentID, left[i:min(i+500, len(left))]).Delete(&models.SegmentContact{}).Error; err != nil {
+				return fmt.Errorf("failed to clear segment contacts: %w", err)
+			}
+		}
+		if len(joined) > 0 {
+			if err := tx.CreateInBatches(&joined, 500).Error; err != nil {
+				return fmt.Errorf("failed to create segment contacts: %w", err)
+			}
+		}
+		return tx.Model(&models.Segment{}).Where("id = ?", segmentID).
+			Updates(map[string]interface{}{"contact_count": len(contacts), "last_refresh": now}).Error
+	})
+	if err != nil {
+		return err
 	}
-
-	segmentLog.Success("Refreshed segment %s: %d contacts", segmentID, len(contacts))
+	// The first refresh only sets the baseline: its members did not just enter.
+	if segment.LastRefresh != nil && len(entered) > 0 {
+		events.Emit("segment.entered", &models.SegmentEntry{TeamID: segment.TeamID, SegmentID: segmentID, ContactIDs: entered, Since: *segment.LastRefresh})
+	}
+	segmentLog.Success("Refreshed segment %s: %d new members", segmentID, len(entered))
 	return nil
 }
 
@@ -203,14 +222,18 @@ func (s *SegmentService) GetMatchingContacts(ctx context.Context, segment *model
 	// Build query
 	query := s.db.WithContext(ctx).Model(&models.Contact{}).Where("team_id = ? AND is_deleted = ?", segment.TeamID, false)
 
-	// Apply rules
+	// Rules are grouped so ANY never widens the query past the workspace.
+	rulesQuery := s.db.Session(&gorm.Session{NewDB: true})
 	for i, rule := range rules.Rules {
 		condition, args := s.buildRuleCondition(rule, i)
-		if rules.MatchType == models.MatchTypeAll {
-			query = query.Where(condition, args...)
+		if rules.MatchType == models.MatchTypeAny {
+			rulesQuery = rulesQuery.Or(condition, args...)
 		} else {
-			query = query.Or(condition, args...)
+			rulesQuery = rulesQuery.Where(condition, args...)
 		}
+	}
+	if len(rules.Rules) > 0 {
+		query = query.Where(rulesQuery)
 	}
 
 	var contacts []models.Contact
@@ -221,6 +244,22 @@ func (s *SegmentService) GetMatchingContacts(ctx context.Context, segment *model
 	return contacts, nil
 }
 
+// contactColumn maps a rule field to a contacts column, so a rule can never
+// splice arbitrary SQL into the query.
+func contactColumn(db *gorm.DB, field string) (string, bool) {
+	contactSchema, err := schema.Parse(&models.Contact{}, &contactSchemaCache, db.NamingStrategy)
+	if err != nil {
+		return "", false
+	}
+	column := contactSchema.LookUpField(field)
+	if column == nil || column.DBName == "" {
+		return "", false
+	}
+	return column.DBName, true
+}
+
+var contactSchemaCache sync.Map
+
 // buildRuleCondition builds a SQL condition for a single rule
 func (s *SegmentService) buildRuleCondition(rule models.SegmentRule, index int) (string, []interface{}) {
 	field := rule.Field
@@ -230,6 +269,11 @@ func (s *SegmentService) buildRuleCondition(rule models.SegmentRule, index int) 
 	// Handle special field mappings
 	if strings.HasPrefix(field, "contact_") {
 		field = strings.TrimPrefix(field, "contact_")
+	}
+	field, known := contactColumn(s.db, field)
+	if !known {
+		segmentLog.Warn("Unknown segment field: %s", rule.Field)
+		return "1 = 0", []interface{}{}
 	}
 
 	switch op {
@@ -416,6 +460,7 @@ func (s *SegmentService) AddContactToSegment(ctx context.Context, segmentID, con
 	if err := s.db.WithContext(ctx).Create(segmentContact).Error; err != nil {
 		return err
 	}
+	events.Emit("segment.entered", &models.SegmentEntry{TeamID: segment.TeamID, SegmentID: segmentID, ContactIDs: []string{contactID}, Since: segmentContact.AddedAt})
 
 	// Update contact count
 	if err := s.db.WithContext(ctx).Model(&models.Segment{}).

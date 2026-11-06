@@ -269,7 +269,7 @@ func runMigrations() error {
 		&models.RateLimit{},
 		&models.AuthTransaction{},
 		&models.Campaign{},
-		&models.Newsletter{}, &models.ContactNote{}, &models.FormReceipt{}, &models.TrackingConsent{},
+		&models.Newsletter{}, &models.ContactNote{}, &models.FormReceipt{}, &models.TrackingConsent{}, &models.ContactEvent{},
 
 		// Subscriber models
 		&models.ContactImport{},

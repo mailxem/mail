@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm/clause"
 	"kori/internal/models"
 	"kori/internal/workflowconfig"
+	"regexp"
 	"strings"
 )
 
@@ -20,7 +21,8 @@ func (s *AutomationService) SaveGraph(ctx context.Context, a *models.Automation)
 		a.TriggerEvent = "manual"
 	}
 	switch a.TriggerEvent {
-	case "manual", "contact.created", "email.opened", "email.clicked", "form.completed":
+	case "manual", "contact.created", "email.opened", "email.clicked", "form.completed",
+		"contact.tag_added", "list.subscriber_added", "segment.entered", "date.reached", "event.received":
 	default:
 		return fmt.Errorf("unsupported trigger")
 	}
@@ -113,6 +115,9 @@ func (s *AutomationService) ValidateConfiguration(a *models.Automation) error {
 			}
 		}
 	}
+	if err := s.validateTriggerSettings(a); err != nil {
+		return err
+	}
 	outgoing := map[string][]models.AutomationNodeEdge{}
 	for _, edge := range a.Edges {
 		outgoing[edge.SourceID] = append(outgoing[edge.SourceID], edge)
@@ -197,3 +202,61 @@ func (s *AutomationService) ValidateConfiguration(a *models.Automation) error {
 	}
 	return nil
 }
+
+// validateTriggerSettings checks the START step names what the trigger watches.
+func (s *AutomationService) validateTriggerSettings(a *models.Automation) error {
+	owned := func(model interface{}, id string, extra ...interface{}) bool {
+		var count int64
+		query := s.db.Model(model).Where("id = ? AND team_id = ? AND is_deleted = ?", id, a.TeamID, false)
+		if len(extra) > 0 {
+			query = query.Where(extra[0], extra[1:]...)
+		}
+		return uuid.Validate(id) == nil && query.Count(&count).Error == nil && count == 1
+	}
+	for _, node := range a.Nodes {
+		if node.Type != models.NodeTypeStart {
+			continue
+		}
+		var config struct {
+			TagID      string   `json:"tagId"`
+			ListID     string   `json:"listId"`
+			SegmentID  string   `json:"segmentId"`
+			Field      string   `json:"field"`
+			OffsetDays *float64 `json:"offsetDays"`
+			EventName  string   `json:"eventName"`
+		}
+		if len(node.Data) > 0 && json.Unmarshal(node.Data, &config) != nil {
+			return fmt.Errorf("invalid trigger settings")
+		}
+		switch a.TriggerEvent {
+		case "contact.tag_added":
+			if !owned(&models.Tag{}, config.TagID) {
+				return fmt.Errorf("choose a tag in this workspace")
+			}
+		case "list.subscriber_added":
+			if !owned(&models.MailingList{}, config.ListID) {
+				return fmt.Errorf("choose a list in this workspace")
+			}
+		case "segment.entered":
+			if !owned(&models.Segment{}, config.SegmentID) {
+				return fmt.Errorf("choose a segment in this workspace")
+			}
+		case "date.reached":
+			if !dateTriggerField.MatchString(config.Field) {
+				return fmt.Errorf("choose a date field")
+			}
+			if config.OffsetDays == nil || *config.OffsetDays != float64(int(*config.OffsetDays)) || *config.OffsetDays < -365 || *config.OffsetDays > 365 {
+				return fmt.Errorf("days before or after must be a whole number up to 365")
+			}
+		case "event.received":
+			name := strings.TrimSpace(config.EventName)
+			if name == "" || len([]rune(name)) > 100 || strings.ContainsAny(name, "\r\n\t") {
+				return fmt.Errorf("name the event that starts this workflow")
+			}
+		}
+	}
+	return nil
+}
+
+// dateTriggerField matches automation.DateFieldPattern: createdAt or a custom field key.
+var dateTriggerField = regexp.MustCompile(`^[A-Za-z0-9_]{1,64}$`)

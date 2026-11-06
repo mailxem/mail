@@ -434,3 +434,73 @@ export function ActionSettings({
   }
   return null;
 }
+
+/** Settings for the "a contact date comes round" trigger. offsetDays < 0 is before the date. */
+export function DateTriggerSettings({ config, update }: Settings) {
+  const offset = Number(config.offsetDays ?? 0);
+  const when = offset < 0 ? "before" : offset > 0 ? "after" : "on";
+  const days = Math.abs(offset);
+  const set = (nextWhen: string, nextDays: number) =>
+    update({
+      offsetDays:
+        nextWhen === "on" ? 0 : nextWhen === "before" ? -nextDays : nextDays,
+    });
+  return (
+    <>
+      <Field
+        label="Date field"
+        hint="A custom field holding a date as YYYY-MM-DD, or createdAt for the signup date."
+      >
+        <input
+          list="date-trigger-fields"
+          maxLength={64}
+          pattern="[A-Za-z0-9_]+"
+          placeholder="birthday"
+          value={String(config.field || "")}
+          onChange={(e) => update({ field: e.target.value.trim() })}
+        />
+        <datalist id="date-trigger-fields">
+          <option value="birthday" />
+          <option value="renewal_date" />
+          <option value="trial_end" />
+          <option value="createdAt" />
+        </datalist>
+      </Field>
+      <div className="grid grid-cols-2 gap-2">
+        <Field label="When">
+          <select
+            value={when}
+            onChange={(e) => set(e.target.value, days || 1)}
+          >
+            <option value="before">Days before</option>
+            <option value="on">On the day</option>
+            <option value="after">Days after</option>
+          </select>
+        </Field>
+        {when !== "on" && (
+          <Field label="Days">
+            <input
+              type="number"
+              min="1"
+              max="365"
+              value={days}
+              onChange={(e) =>
+                set(when, Math.min(365, Math.max(1, Number(e.target.value) || 1)))
+              }
+            />
+          </Field>
+        )}
+      </div>
+      <Field
+        label="Every year"
+        hint="For birthdays and anniversaries. Starts at 9:00 in your workspace time zone, once per contact and date."
+      >
+        <input
+          type="checkbox"
+          checked={!!config.yearly}
+          onChange={(e) => update({ yearly: e.target.checked })}
+        />
+      </Field>
+    </>
+  );
+}

@@ -7,6 +7,8 @@ import (
 	"kori/internal/tasks"
 
 	"github.com/labstack/echo/v4"
+	em "github.com/labstack/echo/v4/middleware"
+	"golang.org/x/time/rate"
 	"gorm.io/gorm"
 )
 
@@ -47,4 +49,10 @@ func SetupAutomationRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config, taskCl
 	executionGroup := e.Group("/api/v1/executions")
 	executionGroup.Use(auth.Middleware())
 	executionGroup.GET("/:id", handler.GetExecutionDetail)
+
+	// Events from the customer's own app start "event named X" automations.
+	e.POST("/api/v1/events", handlers.RecordContactEvent(db), em.BodyLimit("64K"), auth.Middleware(), middleware.RequirePermissions(db, "contacts:create"), em.RateLimiterWithConfig(em.RateLimiterConfig{
+		Store:               em.NewRateLimiterMemoryStoreWithConfig(em.RateLimiterMemoryStoreConfig{Rate: rate.Limit(20), Burst: 100}),
+		IdentifierExtractor: func(c echo.Context) (string, error) { id, _ := c.Get("teamID").(string); return id, nil },
+	}))
 }

@@ -172,6 +172,9 @@ func (m *AuthMiddleware) getResourceFromPath(path string) string {
 	if path == "/mailing-lists" || strings.HasPrefix(path, "/mailing-lists/") {
 		return "lists"
 	}
+	if path == "/events" {
+		return "contacts" // recording an event can add the contact
+	}
 	// Split path and get the first segment
 	parts := strings.Split(strings.Trim(path, "/"), "/")
 	if len(parts) > 0 {

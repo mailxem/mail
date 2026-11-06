@@ -152,6 +152,22 @@ export function createTools(api: XemClient) {
       }),
   );
   add(
+    "record_event",
+    'Record an event a contact did in your app (e.g. "trial_started"). Automations triggered by that event name start for the contact; scalar properties become {{event_<name>}} merge tags. With listId, an unknown email is added to that list first.',
+    z
+      .object({
+        email: z.string().email().optional(),
+        contactId: id.optional(),
+        event: z.string().trim().min(1).max(100),
+        properties: z.record(z.unknown()).optional(),
+        listId: id.optional(),
+      })
+      .strict()
+      .refine((a) => !a.email !== !a.contactId, "Send either email or contactId"),
+    false,
+    (a) => api.request("/events", "POST", a),
+  );
+  add(
     "add_contacts",
     "Atomically add up to 500 contacts. Existing addresses are skipped without changing their status. Defaults to a dry run.",
     z

@@ -133,6 +133,6 @@ Deploy the matching Xem API, launch and verify the Compose service, then publish
 
 ### Dashboard assistant tools
 
-The catalog now includes 42 tools: existing campaign/audience/newsletter operations plus templates and starter import, draft signup forms, contact notes/stages/tags, automation inspection/pause, outbox history, and managed-sending readiness/domain checks/pause. All inputs reject workspace overrides. New writes are annotated for client review; the dashboard stages every write before approval.
+The catalog now includes 43 tools: existing campaign/audience/newsletter operations, recording app events that start automations, plus templates and starter import, draft signup forms, contact notes/stages/tags, automation inspection/pause, outbox history, and managed-sending readiness/domain checks/pause. All inputs reject workspace overrides. New writes are annotated for client review; the dashboard stages every write before approval.
 
 Managed-sending tools require a current admin-bound Xem assistant credential. Ordinary API keys remain denied by those backend routes. The catalog deliberately does not expose credential issuance, billing, team administration or operator approval. Upgrade the backend with its assistant credential support before using these tools. This change does not deploy the hosted MCP or publish an npm release.
