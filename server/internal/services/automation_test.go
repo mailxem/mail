@@ -26,6 +26,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 		&models.AutomationNode{},
 		&models.AutomationNodeEdge{},
 		&models.AutomationExecution{},
+		&models.AutomationVersion{},
 	)
 	require.NoError(t, err)
 

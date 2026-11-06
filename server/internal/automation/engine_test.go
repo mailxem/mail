@@ -50,6 +50,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 		&models.AutomationNode{},
 		&models.AutomationNodeEdge{},
 		&models.AutomationExecution{},
+		&models.AutomationVersion{},
 		&models.Contact{},
 		&models.Team{},
 		&models.Tag{},
@@ -78,7 +79,7 @@ func setupTestEngine(t *testing.T) (*Engine, *MockTaskClient, *gorm.DB) {
 type MockStartProcessor struct{ db *gorm.DB }
 
 func (p *MockStartProcessor) Process(ctx *ExecutionContext, node *models.AutomationNode) (*ProcessResult, error) {
-	return &ProcessResult{Complete: false, NextNodeIDs: testNextNodes(p.db, node)}, nil
+	return &ProcessResult{Complete: false, NextNodeIDs: testNextNodes(ctx, p.db, node)}, nil
 }
 
 func (p *MockStartProcessor) Validate(node *models.AutomationNode) error {
@@ -92,7 +93,7 @@ func (p *MockStartProcessor) Type() models.NodeType {
 type MockEmailProcessor struct{ db *gorm.DB }
 
 func (p *MockEmailProcessor) Process(ctx *ExecutionContext, node *models.AutomationNode) (*ProcessResult, error) {
-	return &ProcessResult{Complete: false, NextNodeIDs: testNextNodes(p.db, node)}, nil
+	return &ProcessResult{Complete: false, NextNodeIDs: testNextNodes(ctx, p.db, node)}, nil
 }
 
 func (p *MockEmailProcessor) Validate(node *models.AutomationNode) error {
@@ -124,7 +125,7 @@ func (p *MockWaitProcessor) Process(ctx *ExecutionContext, node *models.Automati
 	return &ProcessResult{
 		Complete:    false,
 		Wait:        &duration,
-		NextNodeIDs: testNextNodes(p.db, node),
+		NextNodeIDs: testNextNodes(ctx, p.db, node),
 	}, nil
 }
 
@@ -528,9 +529,8 @@ func (m *MockTaskClient) EnqueueAutomationTask(ctx context.Context, task tasks.A
 	return m.EnqueueAutomationExecute(task.AutomationID, task.ContactID, task.TriggerData, task.CurrentNodeID, delay)
 }
 
-func testNextNodes(db *gorm.DB, node *models.AutomationNode) []string {
-	var edges []models.AutomationNodeEdge
-	db.Where("source_id = ? AND automation_id = ?", node.ID, node.AutomationID).Find(&edges)
+func testNextNodes(ctx *ExecutionContext, db *gorm.DB, node *models.AutomationNode) []string {
+	edges, _ := ctx.EdgesFrom(db, node.ID)
 	ids := []string{}
 	for _, edge := range edges {
 		ids = append(ids, edge.TargetID)
@@ -543,14 +543,49 @@ func TestQueueRetryRetainsExecutionIdentity(t *testing.T) {
 	engine := NewEngine(db, &MockTaskClient{})
 	id, workflow, contact := uuid.NewString(), uuid.NewString(), uuid.NewString()
 	data := map[string]interface{}{"_execution_id": id}
-	first, created, err := engine.getOrCreateExecution(context.Background(), workflow, contact, data, "")
+	first, created, err := engine.getOrCreateExecution(context.Background(), workflow, contact, data, "", 0)
 	require.NoError(t, err)
 	require.True(t, created)
 	require.NoError(t, db.Model(first).Update("status", models.ExecutionStatusFailed).Error)
-	retried, created, err := engine.getOrCreateExecution(context.Background(), workflow, contact, data, "")
+	retried, created, err := engine.getOrCreateExecution(context.Background(), workflow, contact, data, "", 0)
 	require.NoError(t, err)
 	require.False(t, created)
 	require.Equal(t, first.ID, retried.ID)
-	_, _, err = engine.getOrCreateExecution(context.Background(), workflow, uuid.NewString(), data, "")
+	_, _, err = engine.getOrCreateExecution(context.Background(), workflow, uuid.NewString(), data, "", 0)
 	require.Error(t, err)
+}
+
+func TestRunningContactsStayOnTheirVersion(t *testing.T) {
+	engine, mockClient, db := setupTestEngine(t)
+	node := func(id string, kind models.NodeType) models.AutomationNode {
+		return models.AutomationNode{Base: models.Base{ID: id}, Type: kind, Data: datatypes.JSON(`{}`)}
+	}
+	// Live version 1: START -> WAIT -> EXIT.
+	live := []models.AutomationNode{node("start", models.NodeTypeStart), node("wait", models.NodeTypeWait), node("exit", models.NodeTypeExit)}
+	liveEdges := []models.AutomationNodeEdge{{SourceID: "start", TargetID: "wait"}, {SourceID: "wait", TargetID: "exit"}}
+	automation := createTestAutomation(t, db, live, liveEdges)
+	require.NoError(t, db.Create(&models.AutomationVersion{AutomationID: automation.ID, Number: 1, Nodes: live, Edges: liveEdges, PublishedAt: time.Now()}).Error)
+	require.NoError(t, db.Model(automation).Update("live_version", 1).Error)
+
+	// The draft sends an email after the wait instead.
+	require.NoError(t, db.Where("automation_id = ?", automation.ID).Delete(&models.AutomationNodeEdge{}).Error)
+	require.NoError(t, db.Create(&models.AutomationNode{Base: models.Base{ID: "email"}, AutomationID: automation.ID, Type: models.NodeTypeEmail, Data: datatypes.JSON(`{}`)}).Error)
+	require.NoError(t, db.Create(&[]models.AutomationNodeEdge{{AutomationID: automation.ID, SourceID: "start", TargetID: "wait"}, {AutomationID: automation.ID, SourceID: "wait", TargetID: "email"}, {AutomationID: automation.ID, SourceID: "email", TargetID: "exit"}}).Error)
+
+	contact := createTestContact(t, db, automation.TeamID)
+	require.NoError(t, engine.Execute(context.Background(), automation.ID, contact.ID, nil, ""))
+	var execution models.AutomationExecution
+	require.NoError(t, db.Where("automation_id = ?", automation.ID).First(&execution).Error)
+	assert.Equal(t, 1, execution.Version)
+	assert.Equal(t, models.ExecutionStatusWaiting, execution.Status)
+	require.Len(t, mockClient.enqueuedTasks, 1)
+	assert.Equal(t, "exit", mockClient.enqueuedTasks[0].(map[string]interface{})["currentNodeID"], "the wait continues on the live graph, not the draft")
+
+	// Moved to a version without the step it would resume at: it exits with a reason.
+	require.NoError(t, db.Create(&models.AutomationVersion{AutomationID: automation.ID, Number: 2, Nodes: live[:2], Edges: liveEdges[:1], PublishedAt: time.Now()}).Error)
+	require.NoError(t, db.Model(&execution).Update("version", 2).Error)
+	require.NoError(t, engine.Execute(context.Background(), automation.ID, contact.ID, map[string]interface{}{"_execution_id": execution.ID}, "exit"))
+	require.NoError(t, db.First(&execution, "id = ?", execution.ID).Error)
+	assert.Equal(t, models.ExecutionStatusCompleted, execution.Status)
+	assert.Contains(t, execution.Error, "removed in version 2")
 }
