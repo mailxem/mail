@@ -25,6 +25,6 @@ func TestCampaignUnsubscribeLinkIsTheFooterLink(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "mail-1", token.Claims.(jwt.MapClaims)["mailId"])
 
-	body := ReplaceLinksWithRedirect(`<html><body><p>Hello</p></body></html>`, "mail-1", cfg, true)
+	body := ReplaceLinksWithRedirect(`<html><body><p>Hello</p></body></html>`, "mail-1", cfg, true, true)
 	require.Contains(t, body, `<a href="`+link+`">Unsubscribe from this list</a></p></body>`, "the footer and the header point at the same address, and the footer isn't click-tracked")
 }
