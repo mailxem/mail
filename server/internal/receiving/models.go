@@ -1,16 +1,20 @@
 package receiving
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/datatypes"
+)
 
 type DomainState struct {
-	DomainID       string     `gorm:"primaryKey;type:uuid" json:"domainId"`
-	TeamID         string     `gorm:"index;type:uuid;not null" json:"-"`
-	Status         string     `gorm:"index;not null" json:"status"`
-	Detail         string     `json:"detail,omitempty"`
-	ExistingMXJSON []byte     `gorm:"type:jsonb" json:"-"`
-	CheckedAt      *time.Time `json:"checkedAt,omitempty"`
-	CreatedAt      time.Time  `json:"createdAt"`
-	UpdatedAt      time.Time  `json:"updatedAt"`
+	DomainID       string         `gorm:"primaryKey;type:uuid" json:"domainId"`
+	TeamID         string         `gorm:"index;type:uuid;not null" json:"-"`
+	Status         string         `gorm:"index;not null" json:"status"`
+	Detail         string         `json:"detail,omitempty"`
+	ExistingMXJSON datatypes.JSON `gorm:"type:jsonb" json:"-"`
+	CheckedAt      *time.Time     `json:"checkedAt,omitempty"`
+	CreatedAt      time.Time      `json:"createdAt"`
+	UpdatedAt      time.Time      `json:"updatedAt"`
 }
 
 func (DomainState) TableName() string { return "managed_receiving_domains" }
@@ -60,12 +64,12 @@ type Message struct {
 	RFCMessageID    string
 	SentAt          time.Time
 	Snippet         string
-	RawKey          string    `gorm:"not null"`
-	RawSize         int64     `gorm:"not null"`
-	Seen            bool      `gorm:"index;not null"`
-	Starred         bool      `gorm:"index;not null"`
-	AttachmentsJSON []byte    `gorm:"type:jsonb"`
-	CreatedAt       time.Time `gorm:"index"`
+	RawKey          string         `gorm:"not null"`
+	RawSize         int64          `gorm:"not null"`
+	Seen            bool           `gorm:"index;not null"`
+	Starred         bool           `gorm:"index;not null"`
+	AttachmentsJSON datatypes.JSON `gorm:"type:jsonb"`
+	CreatedAt       time.Time      `gorm:"index"`
 	UpdatedAt       time.Time
 }
 
@@ -75,10 +79,10 @@ type Rejection struct {
 	ID               string `gorm:"primaryKey;type:uuid"`
 	ProviderID       string `gorm:"uniqueIndex:managed_rejection"`
 	S3Key            string
-	Reason           string    `gorm:"uniqueIndex:managed_rejection"`
-	RecipientSetHash string    `gorm:"uniqueIndex:managed_rejection"`
-	RecipientsJSON   []byte    `gorm:"type:jsonb"`
-	CreatedAt        time.Time `gorm:"index"`
+	Reason           string         `gorm:"uniqueIndex:managed_rejection"`
+	RecipientSetHash string         `gorm:"uniqueIndex:managed_rejection"`
+	RecipientsJSON   datatypes.JSON `gorm:"type:jsonb"`
+	CreatedAt        time.Time      `gorm:"index"`
 }
 
 func (Rejection) TableName() string { return "managed_receiving_rejections" }
