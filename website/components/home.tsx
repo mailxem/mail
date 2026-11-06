@@ -46,6 +46,7 @@ import { SendingSection } from "./sending-section";
 import { MoreFeatures, Testimonials, JournalPreview } from "./home-expansion";
 import type { PostMeta } from "@/lib/blog-types";
 import { HeroFilm } from "./hero-film";
+import { PriceSection, biggestSaving } from "./price-section";
 import { primaryButton as primary } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 const textLink =
@@ -286,8 +287,15 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               className="mx-auto mt-6 max-w-[560px] text-[17px] leading-relaxed tracking-[-.02em] md:text-lg"
             >
               Campaigns, newsletters, automations, forms, a CRM and a shared
-              inbox in one open-source suite. Xem Cloud starts free and costs $9
-              for 20,000 emails; self-host it and pay only Amazon’s $2 to $3.
+              inbox in one open-source suite. Free for 3,000 emails a month,
+              then from $9: up to{" "}
+              <a
+                href="#price"
+                className="font-medium underline decoration-ink/30 underline-offset-4 hover:decoration-ink"
+              >
+                {biggestSaving()}% less than Mailchimp, beehiiv or Kit
+              </a>{" "}
+              for the same newsletter.
             </p>
             <div
               data-intro
@@ -468,6 +476,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
           </div>
         </section>
 
+        <PriceSection />
         <AssistantShowcase />
         <SendingSection />
 
