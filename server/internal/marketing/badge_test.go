@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"html"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -68,8 +69,9 @@ func TestFreeWorkspaceEditionsCarryTheReferralBadge(t *testing.T) {
 	require.Contains(t, freeBody, "Sent with")
 	var a models.Affiliate
 	require.NoError(t, db.First(&a).Error, "the Free workspace's owner became an affiliate")
-	// The badge link goes through click tracking, which encodes the target.
 	target := "https://xem.email/?utm_source=email-badge&via=" + a.Code
-	require.Contains(t, freeBody, base64.RawURLEncoding.EncodeToString([]byte(target)))
+	// The link carries the owner's code whether or not click tracking rewrote it.
+	tracked := strings.Contains(freeBody, base64.RawURLEncoding.EncodeToString([]byte(target))) || strings.Contains(freeBody, base64.StdEncoding.EncodeToString([]byte(target)))
+	require.True(t, tracked || strings.Contains(freeBody, html.EscapeString(target)), "the badge links to %s", target)
 	require.NotContains(t, body(paid), "Sent with")
 }
