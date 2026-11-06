@@ -1,6 +1,7 @@
 import {
   detectSource,
   guessField,
+  describeSkipped,
   prepareImport,
 } from "@/lib/contacts/import-sources";
 
@@ -58,4 +59,10 @@ test("skips listmonk blocklisted and disabled subscribers", () => {
 test("splits a single name column", () => {
   const { keep } = prepareImport([{ email: "a@b.co", name: "Mei Ling Chen" }], "email");
   expect(keep[0]).toMatchObject({ first_name: "Mei", last_name: "Ling Chen" });
+});
+
+test("describes skipped counts by reason", () => {
+  expect(describeSkipped({ "role address": 2, "did you mean gmail.com": 1 })).toBe(
+    "2 role address, 1 did you mean gmail.com",
+  );
 });

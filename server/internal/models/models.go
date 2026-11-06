@@ -130,6 +130,7 @@ type ContactImport struct {
 	ListID    string              `gorm:"type:uuid;not null" json:"listId" validate:"required,uuid"`
 	List      *MailingList        `json:"list,omitempty"`
 	FieldsMap datatypes.JSON      `gorm:"type:jsonb;default:'{}'" json:"fieldsMap" validate:"required,json"`
+	Skipped   datatypes.JSON      `gorm:"type:jsonb;default:'{}'" json:"skipped"` // rows left out, counted by reason
 	Contacts  []Contact           `gorm:"foreignKey:ImportID" json:"contacts,omitempty"`
 }
 

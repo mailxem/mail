@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"kori/internal/config"
+	"kori/internal/hygiene"
 	"kori/internal/models"
 	"kori/internal/utils"
 	"kori/internal/utils/base64"
@@ -488,6 +489,8 @@ func (h *TaskHandler) HandleContactImport(ctx context.Context, t *asynq.Task) er
 
 	// contacts to create
 	var contacts []models.Contact
+	skipped := map[string]int{}
+	checker := hygiene.Checker{Import: true}
 
 	// Process each record (skipping header)
 	for _, record := range records[1:] {
@@ -528,6 +531,10 @@ func (h *TaskHandler) HandleContactImport(ctx context.Context, t *asynq.Task) er
 		if contact.Email == "" {
 			continue
 		}
+		if reason := checker.Reason(ctx, contact.Email); reason != "" {
+			skipped[reason]++
+			continue
+		}
 		contact.FirstName = getFieldValue("first_name")
 		contact.LastName = getFieldValue("last_name")
 		contact.LinkedIn = getFieldValue("linkedin")
@@ -553,8 +560,31 @@ func (h *TaskHandler) HandleContactImport(ctx context.Context, t *asynq.Task) er
 		h.logger.Info("processing record %v", contact)
 	}
 
+	emails := make([]string, len(contacts))
+	for i, contact := range contacts {
+		emails[i] = contact.Email
+	}
+	blocked, err := hygiene.Blocked(h.db, emails...)
+	if err != nil {
+		return h.logger.Error("❌ failed to check the never-email list: %w", err)
+	}
+	kept := contacts[:0]
+	for _, contact := range contacts {
+		if blocked[contact.Email] {
+			skipped[hygiene.NeverEmail]++
+			continue
+		}
+		kept = append(kept, contact)
+	}
+	contacts = kept
+	if contact_import.Skipped, err = json.Marshal(skipped); err != nil {
+		return h.logger.Error("❌ failed to encode skipped counts: %w", err)
+	}
+
 	// save the contacts
-	if err := h.db.CreateInBatches(&contacts, 100).Error; err != nil {
+	if len(contacts) == 0 {
+		// Every row was left out; nothing to save.
+	} else if err := h.db.CreateInBatches(&contacts, 100).Error; err != nil {
 		if err := h.failImport(contact_import, "The contacts could not be saved"); err != nil {
 			return h.logger.Error("❌ failed to update contact import status: %w", err)
 		}

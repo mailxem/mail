@@ -14,6 +14,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/require"
 	"kori/internal/handlers"
+	"kori/internal/hygiene"
 	"kori/internal/models"
 )
 
@@ -155,4 +156,32 @@ func TestMCPAuthorizeChecksKeyExpiryAndDeletion(t *testing.T) {
 		require.Equal(t, status, w.Code, w.Body.String())
 		require.NotContains(t, w.Body.String(), team)
 	}
+}
+
+func TestMCPContactBatchLeavesOutUnmailableAddresses(t *testing.T) {
+	t.Setenv("SUPPRESSION_HASH_KEY", "test-key")
+	db := testDB(t)
+	require.NoError(t, db.AutoMigrate(&hygiene.NeverEmailEntry{}))
+	team, listID := uuid.NewString(), uuid.NewString()
+	seed(t, db, &models.MailingList{Base: models.Base{ID: listID}, TeamID: team, Name: "Our list"})
+	// Another workspace's send hard-bounced at this address.
+	require.NoError(t, hygiene.Block(db, "bounced@example.net", time.Now()))
+	h := handlers.NewMarketingHandler(db, "", "")
+	e := echo.New()
+	e.POST("/batch", h.ImportContactBatch, func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error { c.Set("teamID", team); return next(c) }
+	})
+	body := fmt.Sprintf(`{"listId":%q,"dryRun":false,"contacts":[{"email":"jane@example.com"},{"email":"info@example.com"},{"email":"jane@gmial.com"},{"email":"jane@mailinator.com"},{"email":"bounced@example.net"}]}`, listID)
+	r := httptest.NewRequest("POST", "/batch", strings.NewReader(body))
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	e.ServeHTTP(w, r)
+	require.Equal(t, 200, w.Code, w.Body.String())
+	var out struct {
+		Created        int            `json:"created"`
+		SkippedReasons map[string]int `json:"skippedReasons"`
+	}
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &out))
+	require.Equal(t, 1, out.Created)
+	require.Equal(t, map[string]int{"role address": 1, "did you mean gmail.com": 1, "disposable address": 1, "on the shared never-email list": 1}, out.SkippedReasons)
 }
