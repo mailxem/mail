@@ -1,6 +1,6 @@
 "use client";
 import { workspaceClassName } from "@/lib/workspace-styles";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import {
   ReactFlow,
   Background,
@@ -50,6 +50,8 @@ import type {
   WorkflowNode,
   Contact,
   LeadForm,
+  StepStats,
+  WorkflowVersion,
 } from "@/lib/marketing/types";
 import {
   PageHeading,
@@ -142,6 +144,14 @@ function StepNode({
         </small>
         <strong>{data.title || data.label || labels[data.kind]}</strong>
         <p>{data.summary || "Click to configure this step"}</p>
+        {data.stats && (
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            {count(data.stats.entered)} entered · {count(data.stats.waiting)}{" "}
+            waiting
+            {data.kind === "EMAIL" &&
+              ` · ${percent(data.stats.openRate)} opened · ${percent(data.stats.clickRate)} clicked`}
+          </p>
+        )}
       </div>
       <ChevronRight size={15} className={workspaceClassName("step-chevron")} />
       {["CONDITION", "PERCENTAGE_SPLIT"].includes(data.kind)
@@ -164,6 +174,42 @@ function StepNode({
   );
 }
 const nodeTypes = { step: StepNode };
+const count = (n: number) => n.toLocaleString();
+const percent = (rate: number) => `${Math.round(rate * 1000) / 10}%`;
+function stepResults(s: StepStats | undefined, kind: string) {
+  const z = s || ({} as Partial<StepStats>);
+  const rows: [string, string][] = [
+    ["Entered", count(z.entered || 0)],
+    ["Waiting here", count(z.waiting || 0)],
+    ["Moved on", count(z.movedOn || 0)],
+    ["Exited here", count(z.exited || 0)],
+    ["Reached the goal", count(z.conversions || 0)],
+  ];
+  if (kind === "EMAIL")
+    rows.push(
+      ["Sent", count(z.sent || 0)],
+      [
+        "Delivered",
+        z.delivered == null ? "Not reported" : count(z.delivered),
+      ],
+      ["Unique opens", `${count(z.opens || 0)} · ${percent(z.openRate || 0)}`],
+      ["Unique clicks", `${count(z.clicks || 0)} · ${percent(z.clickRate || 0)}`],
+      [
+        "Unsubscribes",
+        `${count(z.unsubscribes || 0)} · ${percent(z.unsubscribeRate || 0)}`,
+      ],
+    );
+  return rows;
+}
+const toEdge = (e: Workflow["edges"][number], i: number): Edge => ({
+  id: e.id || `edge-${i}`,
+  source: e.sourceId,
+  target: e.targetId,
+  label: e.label,
+  type: "smoothstep",
+  markerEnd: { type: MarkerType.ArrowClosed, width: 12, height: 12 },
+  style: { stroke: "#bcb0d0", strokeWidth: 1.5 },
+});
 function starter(kind = "blank"): Workflow {
   const start = crypto.randomUUID(),
     exit = crypto.randomUUID(),
@@ -378,6 +424,24 @@ export function AutomationBuilder({
   const [stepSearch, setStepSearch] = useState("");
   const [trigger, setTrigger] = useState(initial.triggerEvent || "manual");
   const [active, setActive] = useState(initial.isActive);
+  // The canvas is always the draft; contacts run on the live version.
+  const [liveVersion, setLiveVersion] = useState(initial.liveVersion || 0);
+  const [hasDraft, setHasDraft] = useState(!!initial.hasDraft);
+  const [publishing, setPublishing] = useState(false);
+  const [moveRunning, setMoveRunning] = useState(false);
+  const [versions, setVersions] = useState(false);
+  const [range, setRange] = useState(30);
+  const from = useMemo(
+    () => new Date(Date.now() - range * 864e5).toISOString(),
+    [range],
+  );
+  const stats = useMarketingQuery<{ steps: StepStats[] }>(
+    `automations/${id}/stats?from=${encodeURIComponent(from)}`,
+    !!id && liveVersion > 0,
+  );
+  const statsByNode = new Map(
+    (stats.data?.steps || []).map((step) => [step.nodeId, step]),
+  );
   const [selected, setSelected] = useState(
     initial.nodes?.find((n) => n.type === "START")?.id || "",
   );
@@ -397,18 +461,17 @@ export function AutomationBuilder({
     (initial.nodes || []).filter((n) => !(n as any).isDeleted).map(toFlow),
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(
-    (initial.edges || []).map(
-      (e, i): Edge => ({
-        id: e.id || `edge-${i}`,
-        source: e.sourceId,
-        target: e.targetId,
-        label: e.label,
-        type: "smoothstep",
-        markerEnd: { type: MarkerType.ArrowClosed, width: 12, height: 12 },
-        style: { stroke: "#bcb0d0", strokeWidth: 1.5 },
-      }),
-    ),
+    (initial.edges || []).map(toEdge),
   );
+  const load = (w: Workflow) => {
+    setNodes((w.nodes || []).filter((n) => !(n as any).isDeleted).map(toFlow));
+    setEdges((w.edges || []).map(toEdge));
+    setName(w.name);
+    setDescription(w.description || "");
+    setTrigger(w.triggerEvent || "manual");
+    setHasDraft(!!w.hasDraft);
+    setDirty(false);
+  };
   const current = nodes.find((n) => n.id === selected);
   const config = current?.data || {};
   const kind = String(config.kind || "");
@@ -455,7 +518,9 @@ export function AutomationBuilder({
     await refresh();
     return result.id;
   }
-  async function action(type: "save" | "validate" | "publish" | "pause") {
+  async function action(
+    type: "save" | "validate" | "publish" | "pause" | "resume" | "discard",
+  ) {
     setBusy(true);
     setError("");
     try {
@@ -464,17 +529,38 @@ export function AutomationBuilder({
         setActive(false);
         await refresh();
         toast.success("Workflow paused");
+      } else if (type === "resume") {
+        await request(`automations/${id}/activate`, "POST", {});
+        setActive(true);
+        await refresh();
+        toast.success(`Version ${liveVersion} is running again`);
+      } else if (type === "discard") {
+        load(await request<Workflow>(`automations/${id}/discard`, "POST", {}));
+        toast.success(`Draft discarded; showing version ${liveVersion}`);
       } else if (type === "validate") {
         await request("automations/validate", "POST", serialized());
         toast.success("All steps and connections are valid");
       } else {
         const saved = await save();
         if (type === "publish") {
-          await request(`automations/${saved}/activate`, "POST", {});
-          setActive(true);
+          const version = await request<{ number: number }>(
+            `automations/${saved}/publish`,
+            "POST",
+            { moveRunning },
+          );
+          setLiveVersion(version.number);
+          setHasDraft(false);
+          setMoveRunning(false);
+          if (!active) {
+            await request(`automations/${saved}/activate`, "POST", {});
+            setActive(true);
+          }
           await refresh();
-          toast.success("Workflow is now active");
-        } else toast.success("Draft saved");
+          toast.success(`Version ${version.number} is live`);
+        } else {
+          setHasDraft(liveVersion > 0);
+          toast.success("Draft saved");
+        }
       }
     } catch (e) {
       setError((e as Error).message);
@@ -482,8 +568,22 @@ export function AutomationBuilder({
       setBusy(false);
     }
   }
+  async function restore(number: number) {
+    setVersions(false);
+    try {
+      load(
+        await request<Workflow>(
+          `automations/${id}/versions/${number}/restore`,
+          "POST",
+          {},
+        ),
+      );
+      toast.success(`Version ${number} restored as the draft`);
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
   const addStep = (type: string) => {
-    if (active) return;
     const incoming =
       current?.data.kind === "EXIT"
         ? edges.filter((e) => e.target === current.id)
@@ -605,6 +705,7 @@ export function AutomationBuilder({
     selected: n.id === selected,
     data: {
       ...n.data,
+      stats: statsByNode.get(n.id),
       summary:
         n.data.kind === "START"
           ? triggerLabels[trigger]
@@ -645,19 +746,25 @@ export function AutomationBuilder({
           aria-label="Automation name"
           value={name}
           maxLength={120}
-          disabled={active}
           onChange={(e) => {
             setName(e.target.value);
             setDirty(true);
           }}
         />
-        <Status value={active ? "PUBLISHED" : "DRAFT"} />
+        <Status
+          value={active ? "PUBLISHED" : liveVersion ? "ARCHIVED" : "DRAFT"}
+        />
         <span className={workspaceClassName("save-state")}>
+          {liveVersion > 0 && `Live: version ${liveVersion} · `}
           {dirty
             ? "Unsaved changes"
-            : id
-              ? "All changes saved"
-              : "New workflow"}
+            : liveVersion > 0
+              ? hasDraft
+                ? "Draft not published"
+                : "Draft matches live"
+              : id
+                ? "All changes saved"
+                : "New workflow"}
         </span>
         <div className={workspaceClassName("builder-toolbar-actions")}>
           <Button
@@ -668,6 +775,14 @@ export function AutomationBuilder({
           >
             <History />
             History
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!id || !liveVersion}
+            onClick={() => setVersions(true)}
+          >
+            Versions
           </Button>
           <Button
             variant="outline"
@@ -685,7 +800,7 @@ export function AutomationBuilder({
                 Run
               </Button>
               <Button
-                className={workspaceClassName("product-primary")}
+                variant="outline"
                 disabled={busy}
                 onClick={() => action("pause")}
               >
@@ -694,25 +809,46 @@ export function AutomationBuilder({
               </Button>
             </>
           ) : (
-            <>
+            liveVersion > 0 &&
+            !hasDraft &&
+            !dirty && (
               <Button
                 variant="outline"
                 disabled={busy}
-                onClick={() => action("save")}
-              >
-                <Save />
-                Save draft
-              </Button>
-              <Button
-                className={workspaceClassName("product-primary")}
-                disabled={busy}
-                onClick={() => action("publish")}
+                onClick={() => action("resume")}
               >
                 <Play />
-                Publish
+                Resume
               </Button>
-            </>
+            )
           )}
+          {liveVersion > 0 && hasDraft && !dirty && (
+            <Button
+              variant="outline"
+              disabled={busy}
+              onClick={() => action("discard")}
+            >
+              Discard draft
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            disabled={busy}
+            onClick={() => action("save")}
+          >
+            <Save />
+            Save draft
+          </Button>
+          <Button
+            className={workspaceClassName("product-primary")}
+            disabled={busy}
+            onClick={() =>
+              liveVersion > 0 ? setPublishing(true) : action("publish")
+            }
+          >
+            <Play />
+            Publish
+          </Button>
         </div>
       </div>
       {error && (
@@ -723,9 +859,10 @@ export function AutomationBuilder({
           {error}
         </div>
       )}
-      {active && (
+      {liveVersion > 0 && (hasDraft || dirty) && (
         <div className={workspaceClassName("builder-notice")}>
-          This workflow is active. Pause it before editing steps or connections.
+          You’re editing a draft. Contacts keep running on version{" "}
+          {liveVersion} until you publish.
         </div>
       )}
       <div className={workspaceClassName("builder-workspace")}>
@@ -755,7 +892,6 @@ export function AutomationBuilder({
                   key={type}
                   title={labels[type]}
                   aria-label={`Add ${labels[type]}`}
-                  disabled={active}
                   onClick={() => addStep(type)}
                 >
                   <span
@@ -802,18 +938,16 @@ export function AutomationBuilder({
                 (change) => change.type === "select" && change.selected,
               );
               if (selection && "id" in selection) setSelected(selection.id);
-              if (active) return;
               onNodesChange(changes);
               if (changes.some((c) => c.type === "position" && c.dragging))
                 setDirty(true);
             }}
             onEdgesChange={(changes) => {
-              if (active) return;
               onEdgesChange(changes);
               if (changes.some((c) => c.type === "remove")) setDirty(true);
             }}
             onConnect={(connection: Connection) => {
-              if (active || connection.source === connection.target) return;
+              if (connection.source === connection.target) return;
               setEdges((es) =>
                 addEdge(
                   {
@@ -832,8 +966,6 @@ export function AutomationBuilder({
             fitViewOptions={{ padding: 0.4, maxZoom: 0.9 }}
             minZoom={0.25}
             maxZoom={1.5}
-            nodesDraggable={!active}
-            nodesConnectable={!active}
             deleteKeyCode={null}
           >
             <Background gap={20} size={1.2} color="#e5deed" />
@@ -858,10 +990,43 @@ export function AutomationBuilder({
               <h3>{labels[kind] || "Select a step"}</h3>
             </div>
           </div>
-          <fieldset
-            disabled={active}
-            className={workspaceClassName("product-form")}
-          >
+          {liveVersion > 0 && current && (
+            <section
+              aria-label="Step results"
+              className="mb-4 rounded-md border p-3 text-xs"
+            >
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <strong>Results</strong>
+                <select
+                  aria-label="Results period"
+                  value={range}
+                  onChange={(e) => setRange(Number(e.target.value))}
+                  className="rounded border bg-background px-1 py-0.5"
+                >
+                  {[7, 30, 90].map((days) => (
+                    <option key={days} value={days}>
+                      Last {days} days
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <dl className="grid grid-cols-2 gap-x-3 gap-y-1">
+                {stepResults(statsByNode.get(current.id), kind).map(
+                  ([label, value]) => (
+                    <Fragment key={label}>
+                      <dt className="text-muted-foreground">{label}</dt>
+                      <dd className="text-right font-medium">{value}</dd>
+                    </Fragment>
+                  ),
+                )}
+              </dl>
+              <p className="mt-2 text-muted-foreground">
+                Contacts who entered the workflow in this period. Rates are
+                over sent emails.
+              </p>
+            </section>
+          )}
+          <fieldset className={workspaceClassName("product-form")}>
             {current && (
               <Field label="Step name" hint="Optional label for your team.">
                 <input
@@ -1063,6 +1228,49 @@ export function AutomationBuilder({
       </div>
       {runs && <RunHistory id={id} close={() => setRuns(false)} />}{" "}
       {test && <RunWorkflow id={id} close={() => setTest(false)} />}
+      {versions && (
+        <VersionList
+          id={id}
+          live={liveVersion}
+          restore={restore}
+          close={() => setVersions(false)}
+        />
+      )}
+      <Modal
+        open={publishing}
+        onOpenChange={setPublishing}
+        title={`Publish version ${liveVersion + 1}?`}
+        description={`New contacts will start on it. Contacts already inside stay on the version they started on.`}
+      >
+        <label className="flex items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={moveRunning}
+            onChange={(e) => setMoveRunning(e.target.checked)}
+          />
+          <span>
+            Move running contacts to the new version
+            <small className="block text-muted-foreground">
+              They continue from the same step. Contacts on a step you removed
+              leave the workflow.
+            </small>
+          </span>
+        </label>
+        <div className={workspaceClassName("modal-actions")}>
+          <Button variant="outline" onClick={() => setPublishing(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              setPublishing(false);
+              action("publish");
+            }}
+          >
+            Publish
+          </Button>
+        </div>
+      </Modal>
       <Modal
         open={leave}
         onOpenChange={setLeave}
@@ -1077,6 +1285,61 @@ export function AutomationBuilder({
         </div>
       </Modal>
     </div>
+  );
+}
+function VersionList({
+  id,
+  live,
+  restore,
+  close,
+}: {
+  id: string;
+  live: number;
+  restore: (number: number) => void;
+  close: () => void;
+}) {
+  const q = useMarketingQuery<WorkflowVersion[]>(`automations/${id}/versions`);
+  return (
+    <Modal
+      open
+      onOpenChange={close}
+      title="Published versions"
+      description="Every published version is kept. Restoring one replaces the draft; publish it to make it live."
+    >
+      <QueryState loading={q.isLoading} error={q.error} />
+      <table className={workspaceClassName("product-table")}>
+        <thead>
+          <tr>
+            <th>Version</th>
+            <th>Published</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {(Array.isArray(q.data) ? q.data : []).map((v) => (
+            <tr key={v.number}>
+              <td>
+                Version {v.number}{" "}
+                {v.number === live && <Status value="PUBLISHED" />}
+              </td>
+              <td>
+                {new Date(v.publishedAt).toLocaleString()}
+                <small>{v.publishedBy || "Automatic"}</small>
+              </td>
+              <td>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => restore(v.number)}
+                >
+                  Restore as draft
+                </Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </Modal>
   );
 }
 function RunHistory({ id, close }: { id: string; close: () => void }) {

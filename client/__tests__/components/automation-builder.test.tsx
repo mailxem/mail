@@ -6,10 +6,11 @@ import { randomUUID } from "node:crypto";
 import { AutomationBuilder } from "@/components/marketing/automations";
 import type { Workflow } from "@/lib/marketing/types";
 const mockRequest = jest.fn();
+const mockSteps: any[] = [];
 jest.mock("@/lib/marketing/api", () => ({
   useMarketing: () => ({ request: mockRequest, refresh: async () => {} }),
   useMarketingQuery: () => ({
-    data: { templates: [], senders: [], lists: [] },
+    data: { templates: [], senders: [], lists: [], steps: mockSteps },
   }),
 }));
 jest.mock("sonner", () => ({
@@ -19,12 +20,13 @@ jest.mock("@xyflow/react/dist/style.css", () => ({}));
 jest.mock("@xyflow/react", () => {
   const R = require("react");
   return {
-    ReactFlow: ({ nodes, onNodeClick, children }: any) => (
+    ReactFlow: ({ nodes, nodeTypes, onNodeClick, children }: any) => (
       <div>
         {nodes.map((n: any) => (
-          <button key={n.id} onClick={() => onNodeClick(null, n)}>
-            {n.id}
-          </button>
+          <R.Fragment key={n.id}>
+            <button onClick={() => onNodeClick(null, n)}>{n.id}</button>
+            <nodeTypes.step data={n.data} />
+          </R.Fragment>
         ))}
         {children}
       </div>
@@ -138,17 +140,59 @@ test("adding a second rule preserves the first on save", async () => {
   expect(condition.data.conditions).toHaveLength(2);
   expect(condition.data.conditions[0].value).toBe("example");
 });
-test("published workflows disable step additions and configuration", async () => {
+async function clickIn(scope: ParentNode, text: string, nth = 0) {
+  const buttons = Array.from(scope.querySelectorAll("button")).filter(
+    (b) => b.textContent === text,
+  );
+  expect(buttons[nth]).toBeDefined();
+  await act(async () => buttons[nth].click());
+}
+const live = { ...flow, id: "wf", isActive: true, liveVersion: 2, hasDraft: true };
+test("live workflows stay editable as a draft", async () => {
   await act(async () =>
-    root.render(
-      <AutomationBuilder
-        initial={{ ...flow, id: "published", isActive: true }}
-        close={() => {}}
-      />,
-    ),
+    root.render(<AutomationBuilder initial={live} close={() => {}} />),
   );
   expect(
     container.querySelector('button[aria-label="Add Manage tags"]'),
-  ).toHaveProperty("disabled", true);
-  expect(container.querySelector("fieldset")).toHaveProperty("disabled", true);
+  ).toHaveProperty("disabled", false);
+  expect(container.querySelector("fieldset")).toHaveProperty("disabled", false);
+  expect(container.textContent).toContain("Live: version 2");
+  expect(container.textContent).toContain(
+    "Contacts keep running on version 2 until you publish",
+  );
+});
+test("discarding the draft reloads the live graph", async () => {
+  mockRequest.mockResolvedValue({ ...flow, id: "wf", name: "Live name", hasDraft: false });
+  await act(async () =>
+    root.render(<AutomationBuilder initial={live} close={() => {}} />),
+  );
+  await click("Discard draft");
+  expect(mockRequest).toHaveBeenCalledWith("automations/wf/discard", "POST", {});
+  expect(container.textContent).toContain("Draft matches live");
+});
+test("publishing can move running contacts to the new version", async () => {
+  await act(async () =>
+    root.render(<AutomationBuilder initial={live} close={() => {}} />),
+  );
+  await click("Publish");
+  expect(document.body.textContent).toContain("Publish version 3?");
+  const box = Array.from(document.body.querySelectorAll("input[type=checkbox]")).find(
+    (b) => b.parentElement?.textContent?.includes("Move running contacts"),
+  ) as HTMLInputElement;
+  await act(async () => box.click());
+  await clickIn(document.body, "Publish", 1);
+  expect(mockRequest).toHaveBeenCalledWith("automations/saved/publish", "POST", {
+    moveRunning: true,
+  });
+});
+test("step results show on the canvas and in the step panel", async () => {
+  mockSteps.push({ nodeId: "start", entered: 1200, waiting: 3, movedOn: 1190, exited: 7, conversions: 40 });
+  await act(async () =>
+    root.render(<AutomationBuilder initial={live} close={() => {}} />),
+  );
+  mockSteps.length = 0;
+  expect(container.textContent).toContain("1,200 entered · 3 waiting");
+  const results = container.querySelector('[aria-label="Step results"]');
+  expect(results?.textContent).toContain("Moved on1,190");
+  expect(results?.textContent).toContain("Reached the goal40");
 });

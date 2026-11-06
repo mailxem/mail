@@ -123,7 +123,31 @@ export type Workflow = {
   description: string;
   triggerEvent: string;
   isActive: boolean;
+  liveVersion?: number;
+  hasDraft?: boolean;
   nodes: WorkflowNode[];
   edges: WorkflowEdge[];
   updatedAt: string;
+};
+export type WorkflowVersion = {
+  number: number;
+  triggerEvent: string;
+  publishedAt: string;
+  publishedBy: string;
+};
+export type StepStats = {
+  nodeId: string;
+  entered: number;
+  waiting: number;
+  movedOn: number;
+  exited: number;
+  conversions: number;
+  sent: number;
+  delivered: number | null;
+  opens: number;
+  clicks: number;
+  unsubscribes: number;
+  openRate: number;
+  clickRate: number;
+  unsubscribeRate: number;
 };
