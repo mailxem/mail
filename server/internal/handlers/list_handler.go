@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm/clause"
 	"html"
 	"kori/internal/config"
+	"kori/internal/events"
 	"kori/internal/models"
 	"kori/internal/templates"
 	"net/http"
@@ -65,6 +66,7 @@ func (h *TrackingHandler) HandleEmailUnsubscribe(c echo.Context) error {
 	if c.Request().Method == http.MethodGet {
 		return c.HTML(200, `<!doctype html><html><meta name="viewport" content="width=device-width"><title>Unsubscribe</title><body><h1>Unsubscribe</h1><p>Stop receiving messages for `+html.EscapeString(email.Contact.Email)+`?</p><form method="post"><button>Confirm unsubscribe</button></form></body></html>`)
 	}
+	changed := false
 	err = h.db.Transaction(func(tx *gorm.DB) error {
 		var contact models.Contact
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id=? AND team_id=?", email.ContactID, email.TeamID).First(&contact).Error; err != nil {
@@ -76,14 +78,26 @@ func (h *TrackingHandler) HandleEmailUnsubscribe(c echo.Context) error {
 		if err := tx.Model(&contact).UpdateColumn("status", models.SubscriberStatusUnsubscribed).Error; err != nil {
 			return err
 		}
+		changed = true
 		return tx.Create(&models.EmailTracking{EmailID: email.ID, ContactID: contact.ID, CampaignID: email.CampaignID, Event: models.EmailTrackingEventUnsubscribe, Timestamp: time.Now().UTC()}).Error
 	})
 	if err != nil {
 		return err
 	}
+	if changed {
+		events.Emit("email.unsubscribed", &models.EmailEvent{TeamID: email.TeamID, EmailID: email.ID, CampaignID: email.CampaignID, ContactID: email.ContactID, Address: email.Contact.Email, Source: unsubscribeSource(c)})
+	}
 
 	// Return success page
 	return c.HTML(http.StatusOK, templates.UnsubscribeTemplate(email.Contact.Email, token))
+}
+
+// unsubscribeSource tells a mail client's RFC 8058 one-click request from a person confirming on the page.
+func unsubscribeSource(c echo.Context) string {
+	if c.FormValue("List-Unsubscribe") == "One-Click" {
+		return "one_click"
+	}
+	return "preferences_page"
 }
 
 // HandleEmailResubscribe handles resubscribe requests from email links

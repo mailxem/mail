@@ -24,6 +24,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"kori/internal/events"
 	"kori/internal/models"
 )
 
@@ -227,6 +228,32 @@ func TestFeedbackIdempotencyOrderingAndOwnership(t *testing.T) {
 	require.EqualValues(t, 1, count)
 	bad := strings.Replace(string(feedback(m, "Complaint")), tenant(team), tenant(uuid.NewString()), 1)
 	require.ErrorIs(t, s.ApplyFeedback(ctx, "wrong-tenant", []byte(bad)), ErrDenied)
+}
+func TestFeedbackEmitsLifecycleEventsOnce(t *testing.T) {
+	s, team, d, _ := setup(t)
+	ctx := context.Background()
+	got := make(chan *models.EmailEvent, 4)
+	events.On("email.delivered", func(data interface{}) {
+		if ev, ok := data.(*models.EmailEvent); ok && ev.TeamID == team {
+			got <- ev
+		}
+	})
+	m, e := s.Submit(ctx, input(team, d))
+	require.NoError(t, e)
+	require.NoError(t, s.ProcessOne(ctx))
+	require.NoError(t, s.ApplyFeedback(ctx, "delivery-1", feedback(m, "Delivery")))
+	require.NoError(t, s.ApplyFeedback(ctx, "delivery-1", feedback(m, "Delivery")))
+	select {
+	case ev := <-got:
+		require.Equal(t, m.Recipients, ev.Address)
+	case <-time.After(2 * time.Second):
+		t.Fatal("delivery feedback was not emitted")
+	}
+	select {
+	case <-got:
+		t.Fatal("a replayed SES event was emitted twice")
+	case <-time.After(100 * time.Millisecond):
+	}
 }
 func TestRawSanitizationAndMarketingHeaders(t *testing.T) {
 	raw := []byte("From: hello@example.com\r\nBcc: hidden@example.net\r\nX-SES-TENANT: victim\r\nX-SES-CONFIGURATION-SET: victim\r\nSubject: Hi\r\n\r\nbody")
