@@ -18,6 +18,7 @@ export const CONTACT_FIELDS = [
   "zip",
   "linkedin",
   "twitter",
+  "timezone",
 ] as const;
 
 const ALIASES: Record<string, string[]> = {
@@ -33,6 +34,7 @@ const ALIASES: Record<string, string[]> = {
   zip: ["zip", "zipcode", "postalcode", "postcode"],
   linkedin: ["linkedin"],
   twitter: ["twitter", "x"],
+  timezone: ["timezone", "timezonename", "tz"],
 };
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");

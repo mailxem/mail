@@ -62,6 +62,7 @@ import {
   FilterTabs,
 } from "./shared";
 import { toast } from "sonner";
+import { AutomationWindowSetting } from "@/components/settings/sending-rules-settings";
 import {
   ActionSettings,
   ConditionSettings,
@@ -377,6 +378,7 @@ export function AutomationBuilder({
   const [description, setDescription] = useState(initial.description || "");
   const [stepSearch, setStepSearch] = useState("");
   const [trigger, setTrigger] = useState(initial.triggerEvent || "manual");
+  const [sendWindow, setSendWindow] = useState(initial.sendWindow ?? null);
   const [active, setActive] = useState(initial.isActive);
   const [selected, setSelected] = useState(
     initial.nodes?.find((n) => n.type === "START")?.id || "",
@@ -434,6 +436,7 @@ export function AutomationBuilder({
     name,
     description,
     triggerEvent: trigger,
+    sendWindow,
     nodes: nodes.map((n) => {
       const { kind, label, summary, ...data } = n.data;
       return { id: n.id, type: kind, data: { ...data, position: n.position } };
@@ -921,6 +924,13 @@ export function AutomationBuilder({
                   Only matching events in your workspace will start this
                   workflow.
                 </p>
+                <AutomationWindowSetting
+                  value={sendWindow}
+                  onChange={(w) => {
+                    setSendWindow(w);
+                    setDirty(true);
+                  }}
+                />
               </>
             )}
             {kind === "EMAIL" && (
@@ -974,6 +984,44 @@ export function AutomationBuilder({
                   onChange={(e) => update({ postalAddress: e.target.value })}
                 />
               </Field>
+            )}
+            {kind === "EMAIL" && (
+              <>
+                <label className="flex items-start gap-2 text-sm">
+                  <input
+                    className="!w-4"
+                    type="checkbox"
+                    checked={!!config.transactional}
+                    onChange={(e) => update({ transactional: e.target.checked })}
+                  />
+                  <span>
+                    Transactional
+                    <small className="mt-1 block text-muted-foreground">
+                      Sends straight away, ignoring the send window and
+                      frequency cap.
+                    </small>
+                  </span>
+                </label>
+                {!config.transactional && (
+                  <label className="flex items-start gap-2 text-sm">
+                    <input
+                      className="!w-4"
+                      type="checkbox"
+                      checked={!!config.skipIfCapped}
+                      onChange={(e) =>
+                        update({ skipIfCapped: e.target.checked })
+                      }
+                    />
+                    <span>
+                      Skip if capped
+                      <small className="mt-1 block text-muted-foreground">
+                        When the contact has reached the frequency cap, move
+                        on without sending instead of waiting.
+                      </small>
+                    </span>
+                  </label>
+                )}
+              </>
             )}
             {kind === "WAIT" && (
               <WaitSettings config={config} update={update} />

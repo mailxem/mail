@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"kori/internal/models"
+	"kori/internal/workflowconfig"
 	"strings"
 	"time"
 
@@ -333,6 +334,9 @@ func (s *FormService) findOrCreateContact(ctx context.Context, tx *gorm.DB, team
 		}
 		if company, ok := fieldData["company"].(string); ok {
 			contact.Company = company
+		}
+		if tz, ok := fieldData["timezone"].(string); ok && workflowconfig.ValidTimezone(tz) {
+			contact.Timezone = tz
 		}
 
 		// Store other fields in metadata

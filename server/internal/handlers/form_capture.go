@@ -17,6 +17,7 @@ import (
 	"kori/internal/events"
 	"kori/internal/marketing"
 	"kori/internal/models"
+	"kori/internal/workflowconfig"
 )
 
 type formAttribution struct {
@@ -223,6 +224,9 @@ func (h *MarketingHandler) submitForm(c echo.Context) error {
 				created = true
 				now := time.Now().UTC()
 				contact = models.Contact{Base: models.Base{ID: uuid.NewString(), CreatedAt: now, UpdatedAt: now}, TeamID: f.TeamID, ListID: audience.ID, Email: data["email"], FirstName: data["first_name"], LastName: data["last_name"], Company: data["company"], Phone: data["phone"], Status: models.SubscriberStatusActive, LifecycleStage: "LEAD", Metadata: datatypes.JSON(`{"source":"form","consent":true}`)}
+				if workflowconfig.ValidTimezone(data["timezone"]) {
+					contact.Timezone = data["timezone"]
+				}
 				if err = tx.Session(&gorm.Session{SkipHooks: true}).Create(&contact).Error; err != nil {
 					return err
 				}

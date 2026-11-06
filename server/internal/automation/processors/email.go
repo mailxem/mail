@@ -36,6 +36,10 @@ type EmailNodeData struct {
 	Subject       string            `json:"subject,omitempty"`    // Override template subject
 	CustomBody    string            `json:"customBody,omitempty"` // Override template body
 	Variables     map[string]string `json:"variables,omitempty"`  // Additional variables
+	// Transactional emails ignore the send window and frequency cap.
+	Transactional bool `json:"transactional,omitempty"`
+	// SkipIfCapped moves on without sending when the frequency cap is reached, instead of waiting.
+	SkipIfCapped bool `json:"skipIfCapped,omitempty"`
 }
 
 // NewEmailProcessor creates a new EMAIL node processor
@@ -83,6 +87,46 @@ func (p *EmailProcessor) Process(ctx *automation.ExecutionContext, node *models.
 
 	if ctx.Contact == nil || ctx.Contact.Status != models.SubscriberStatusActive {
 		return &automation.ProcessResult{Complete: true, Message: "Contact is suppressed"}, nil
+	}
+
+	// One immutable email per execution step, even after queue retries.
+	if ctx.Execution == nil || ctx.Execution.ID == "" {
+		return nil, fmt.Errorf("execution identity is required")
+	}
+	deliveryKey := "automation:" + ctx.Execution.ID + ":" + node.ID
+
+	if !data.Transactional {
+		var queued int64
+		if err := p.db.Model(&models.Email{}).Where("delivery_key = ?", deliveryKey).Count(&queued).Error; err != nil {
+			return nil, err
+		}
+		if queued == 0 {
+			now := time.Now()
+			at, capped, err := sendAt(p.db, ctx, now)
+			if err != nil {
+				return nil, err
+			}
+			if capped && data.SkipIfCapped {
+				next, err := nextNodes(p.db, ctx, node)
+				if err != nil {
+					return nil, err
+				}
+				return &automation.ProcessResult{NextNodeIDs: next, Message: "Skipped: contact reached the frequency cap"}, nil
+			}
+			if wait := at.Sub(now); wait > 0 {
+				reason := "send window"
+				if capped {
+					reason = "frequency cap"
+				}
+				// Resume at this step, which checks the rules again before sending.
+				return &automation.ProcessResult{
+					NextNodeIDs: []string{node.ID},
+					Wait:        &wait,
+					Message:     fmt.Sprintf("Waiting until %s to send (%s)", at.UTC().Format(time.RFC3339), reason),
+					Data:        map[string]interface{}{"resumeAt": at.UTC().Format(time.RFC3339)},
+				}, nil
+			}
+		}
 	}
 
 	// Get SMTP config
@@ -154,11 +198,6 @@ func (p *EmailProcessor) Process(ctx *automation.ExecutionContext, node *models.
 		}
 	}
 
-	// One immutable email per execution step, even after queue retries.
-	if ctx.Execution == nil || ctx.Execution.ID == "" {
-		return nil, fmt.Errorf("execution identity is required")
-	}
-	deliveryKey := "automation:" + ctx.Execution.ID + ":" + node.ID
 	emailID := uuid.NewString()
 	bodyVariables := make(map[string]string, len(variables))
 	for k, v := range variables {
@@ -220,15 +259,9 @@ func (p *EmailProcessor) Process(ctx *automation.ExecutionContext, node *models.
 		return nil, err
 	}
 
-	// Get next nodes
-	var edges []models.AutomationNodeEdge
-	if err := p.db.Where("automation_id = ? AND source_id = ?", ctx.AutomationID, node.ID).Find(&edges).Error; err != nil {
-		return nil, fmt.Errorf("failed to load edges: %w", err)
-	}
-
-	nextNodeIDs := make([]string, len(edges))
-	for i, edge := range edges {
-		nextNodeIDs[i] = edge.TargetID
+	nextNodeIDs, err := nextNodes(p.db, ctx, node)
+	if err != nil {
+		return nil, err
 	}
 
 	// Update variables with email info

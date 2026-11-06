@@ -115,12 +115,19 @@ export type WorkflowEdge = {
   targetId: string;
   label: string;
 };
+export type SendWindow = {
+  enabled: boolean;
+  start: string;
+  end: string;
+  days: number[];
+};
 export type Workflow = {
   id: string;
   name: string;
   description: string;
   triggerEvent: string;
   isActive: boolean;
+  sendWindow?: SendWindow | null;
   nodes: WorkflowNode[];
   edges: WorkflowEdge[];
   updatedAt: string;
