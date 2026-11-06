@@ -2,13 +2,13 @@ package handlers
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"encoding/base64"
 	"encoding/csv"
 	"fmt"
 	"kori/internal/analytics"
 	"kori/internal/config"
-	"kori/internal/events"
 	"kori/internal/models"
 	"kori/internal/utils"
 	"kori/internal/utils/logger"
@@ -21,6 +21,7 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/mssola/user_agent"
+	"github.com/redis/go-redis/v9"
 	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 )
@@ -29,12 +30,27 @@ var trackingLog = logger.New("TRACKING_HANDLER")
 
 // 🔍 TrackingHandler handles email tracking events
 type TrackingHandler struct {
-	db *gorm.DB
+	db     *gorm.DB
+	buffer *trackingBuffer
 }
 
-// 🆕 NewTrackingHandler creates a new tracking handler
-func NewTrackingHandler(db *gorm.DB) *TrackingHandler {
-	return &TrackingHandler{db: db}
+// 🆕 NewTrackingHandler creates a new tracking handler. Opens and clicks queue on a Redis Stream
+// when rdb is given, otherwise in process, and are saved in batches.
+func NewTrackingHandler(db *gorm.DB, rdb ...*redis.Client) *TrackingHandler {
+	var stream trackingStream
+	if len(rdb) > 0 && rdb[0] != nil {
+		if s, err := newRedisTrackingStream(rdb[0]); err != nil {
+			trackingLog.Warn("Tracking stream unavailable, buffering opens and clicks in process: %v", err)
+		} else {
+			stream = s
+		}
+	}
+	return &TrackingHandler{db: db, buffer: newTrackingBuffer(db, stream)}
+}
+
+// Close saves opens and clicks still buffered in process.
+func (h *TrackingHandler) Close(ctx context.Context) error {
+	return h.buffer.close(ctx)
 }
 
 // 📊 createTrackingEntry creates a new tracking entry with device and location info
@@ -50,12 +66,6 @@ func NewTrackingHandler(db *gorm.DB) *TrackingHandler {
 // @Failure 500 {object} map[string]string "Internal server error"
 // @Router /api/v1/t [post]
 func (h *TrackingHandler) createTrackingEntry(c echo.Context, emailID string, event models.EmailTrackingEvent, url string) (*models.EmailTracking, error) {
-	// Get email details
-	var email models.Email
-	if err := h.db.Preload("Campaign").First(&email, "id = ?", emailID).Error; err != nil {
-		return nil, err
-	}
-
 	// Parse User-Agent
 	ua := user_agent.New(c.Request().UserAgent())
 	deviceType := "other"
@@ -69,13 +79,11 @@ func (h *TrackingHandler) createTrackingEntry(c echo.Context, emailID string, ev
 	// Get browser and OS info
 	browser, version := ua.Browser()
 
-	// Create tracking entry
+	// Create tracking entry; the campaign and contact are filled in when the batch is saved
 	tracking := &models.EmailTracking{
 		EmailID:    emailID,
 		Event:      event,
 		Timestamp:  time.Now(),
-		CampaignID: email.CampaignID,
-		ContactID:  email.ContactID,
 		IPAddress:  utils.GetIPAddress(c.Request()),
 		UserAgent:  c.Request().UserAgent(),
 		DeviceType: deviceType,
@@ -84,9 +92,6 @@ func (h *TrackingHandler) createTrackingEntry(c echo.Context, emailID string, ev
 		URL:        url,
 	}
 	tracking.Machine, tracking.MachineReason = machineReason(c.Request().Method, tracking.UserAgent, event)
-	if tracking.Machine == "" && event == models.EmailTrackingEventClick && !email.SentAt.IsZero() && tracking.Timestamp.Sub(email.SentAt) < clickAfterDelivery {
-		tracking.Machine, tracking.MachineReason = models.TrackingMachineBot, "clicked within seconds of delivery"
-	}
 
 	// Get geolocation data
 	geoData, err := utils.GetGeolocationData(tracking.IPAddress)
@@ -96,37 +101,8 @@ func (h *TrackingHandler) createTrackingEntry(c echo.Context, emailID string, ev
 		tracking.Region = geoData.Region
 	}
 
-	// Only the first open of an email starts automations and webhooks; image proxies and re-reads reload the pixel.
-	var earlierOpens int64
-	if event == models.EmailTrackingEventOpen {
-		if err := h.db.Model(&models.EmailTracking{}).Where("email_id = ? AND contact_id = ? AND event = ?", emailID, email.ContactID, event).Count(&earlierOpens).Error; err != nil {
-			return nil, err
-		}
-	}
-
-	// Save to database
-	if err := h.db.Create(tracking).Error; err != nil {
-		return nil, err
-	}
-	if event == models.EmailTrackingEventClick {
-		if err := flagClickBurst(h.db, tracking); err != nil {
-			return nil, err
-		}
-	}
-
-	if event == models.EmailTrackingEventClick {
-		events.Emit("email.clicked", tracking)
-	} else if earlierOpens == 0 {
-		events.Emit("email.opened", tracking)
-	}
-
-	if event == models.EmailTrackingEventClick {
-		events.Emit("email.clicked", tracking)
-	} else if earlierOpens == 0 {
-		events.Emit("email.opened", tracking)
-	}
-
-	return tracking, nil
+	// Queue it; the response does not wait for the database
+	return tracking, h.buffer.add(tracking)
 }
 
 // 🖱️ HandleClick handles click tracking

@@ -1,9 +1,12 @@
 package handlers
 
 import (
+	"context"
 	"encoding/base64"
+	"kori/internal/utils"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -46,18 +49,23 @@ func TestMachineReason(t *testing.T) {
 func TestTrackingFlagsMachines(t *testing.T) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
+	raw, err := db.DB()
+	require.NoError(t, err)
+	raw.SetMaxOpenConns(1) // one in-memory database, shared with the background writer
 	require.NoError(t, db.AutoMigrate(&models.Campaign{}, &models.Email{}, &models.EmailTracking{}))
 	config.GetConfig().JWT.Secret = "tracking-test"
+	t.Setenv("TRACKING_FLUSH_INTERVAL", "10ms") // hits are saved in batches; flush quickly
 	h := NewTrackingHandler(db)
+	defer h.Close(context.Background())
 	email := func(sent time.Time) string {
 		e := models.Email{Base: models.Base{ID: uuid.NewString()}, To: "ada@example.com", SentAt: sent, Status: models.EmailStatusSent}
 		require.NoError(t, db.Session(&gorm.Session{SkipHooks: true}).Create(&e).Error)
 		return e.ID
 	}
-	hit := func(method, path, emailID, agent string) *httptest.ResponseRecorder {
+	hit := func(method, path, emailID, agent string, extra ...string) *httptest.ResponseRecorder {
 		token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"mailId": emailID}).SignedString([]byte("tracking-test"))
 		require.NoError(t, err)
-		req := httptest.NewRequest(method, path+"?token="+token, nil)
+		req := httptest.NewRequest(method, path+"?token="+token+strings.Join(extra, ""), nil)
 		req.Header.Set("User-Agent", agent)
 		rec := httptest.NewRecorder()
 		c := echo.New().NewContext(req, rec)
@@ -68,10 +76,18 @@ func TestTrackingFlagsMachines(t *testing.T) {
 		}
 		return rec
 	}
+	saved := func(emailID string) int64 {
+		var n int64
+		require.NoError(t, db.Model(&models.EmailTracking{}).Where("email_id = ?", emailID).Count(&n).Error)
+		return n
+	}
 	click := func(method, emailID, link, agent string) {
-		rec := hit(method, "/t/click/"+base64.StdEncoding.EncodeToString([]byte(link)), emailID, agent)
+		before := saved(emailID)
+		path := "/t/click/" + base64.StdEncoding.EncodeToString([]byte(link))
+		rec := hit(method, path, emailID, agent, "&sig="+utils.ClickSignature("tracking-test", emailID, link))
 		require.Equal(t, http.StatusFound, rec.Code, "the redirect works for machines too")
 		require.Equal(t, link, rec.Header().Get("Location"))
+		require.Eventually(t, func() bool { return saved(emailID) == before+1 }, 2*time.Second, 5*time.Millisecond)
 	}
 	events := func(emailID string) []models.EmailTracking {
 		var rows []models.EmailTracking
@@ -118,6 +134,7 @@ func TestTrackingFlagsMachines(t *testing.T) {
 	hit("GET", "/t/open", opened, browser)
 	hit("GET", "/t/open", opened, "Mozilla/5.0")
 	hit("GET", "/t/open", opened, "Mozilla/5.0 (compatible; Mimecast)")
+	require.Eventually(t, func() bool { return saved(opened) == 3 }, 2*time.Second, 5*time.Millisecond)
 	rows := events(opened)
 	require.Len(t, rows, 3)
 	stats := processEmailAnalytics(rows, "UTC")
