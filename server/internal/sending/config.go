@@ -17,6 +17,9 @@ type Config struct {
 	MaxBytes                                           int64
 	DailyLimit, MonthlyLimit, BudgetMicros, CostMicros int64
 	QueueLimit                                         int64
+	// Workers send in parallel; SendRate (emails/second, per API process) should
+	// match the SES account's max send rate divided by the number of replicas.
+	Workers, SendRate int64
 }
 
 func LoadConfig() (Config, error) {
@@ -28,7 +31,7 @@ func LoadConfig() (Config, error) {
 		k   string
 		dst *int64
 		def int64
-	}{{"MANAGED_MAX_MESSAGE_BYTES", &c.MaxBytes, 5 * 1024 * 1024}, {"MANAGED_DAILY_LIMIT", &c.DailyLimit, autoApprovalDailyLimit}, {"MANAGED_MONTHLY_LIMIT", &c.MonthlyLimit, autoApprovalMonthlyLimit}, {"MANAGED_MONTHLY_BUDGET_MICROS", &c.BudgetMicros, autoApprovalBudgetMicros}, {"MANAGED_COST_PER_RECIPIENT_MICROS", &c.CostMicros, 1000}, {"MANAGED_QUEUE_LIMIT", &c.QueueLimit, 1000}}
+	}{{"MANAGED_MAX_MESSAGE_BYTES", &c.MaxBytes, 5 * 1024 * 1024}, {"MANAGED_DAILY_LIMIT", &c.DailyLimit, autoApprovalDailyLimit}, {"MANAGED_MONTHLY_LIMIT", &c.MonthlyLimit, autoApprovalMonthlyLimit}, {"MANAGED_MONTHLY_BUDGET_MICROS", &c.BudgetMicros, autoApprovalBudgetMicros}, {"MANAGED_COST_PER_RECIPIENT_MICROS", &c.CostMicros, 1000}, {"MANAGED_QUEUE_LIMIT", &c.QueueLimit, 1000}, {"MANAGED_WORKERS", &c.Workers, 16}, {"MANAGED_SEND_RATE", &c.SendRate, 14}}
 	for _, v := range values {
 		*v.dst = v.def
 		if raw := os.Getenv(v.k); raw != "" {
