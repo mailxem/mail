@@ -40,4 +40,19 @@ func TestResumeOnlyContinuesOwnPausedCampaignsWithoutStages(t *testing.T) {
 	require.False(t, *got.SendInStages)
 	require.Error(t, resume(sending.ID), "only paused campaigns resume")
 	require.Error(t, resume(foreign.ID), "another workspace's campaign is not found")
+
+	cancel := func(id string) error {
+		c := echo.New().NewContext(httptest.NewRequest("POST", "/", nil), httptest.NewRecorder())
+		c.Set("teamID", team)
+		c.SetParamNames("id")
+		c.SetParamValues(id)
+		return h.CancelCampaign(c)
+	}
+	stopped := add(team, models.CampaignStatusPaused)
+	require.NoError(t, cancel(stopped.ID))
+	var cancelled models.Campaign
+	require.NoError(t, db.First(&cancelled, "id = ?", stopped.ID).Error)
+	require.Equal(t, models.CampaignStatusCompleted, cancelled.Status)
+	require.Error(t, cancel(sending.ID), "only paused campaigns cancel")
+	require.Error(t, cancel(foreign.ID), "another workspace's campaign is not found")
 }

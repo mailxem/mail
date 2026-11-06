@@ -536,7 +536,11 @@ type Campaign struct {
 	// TrackEngagement: nil or true adds the open pixel and click-tracking links.
 	TrackEngagement *bool `json:"trackEngagement,omitempty"`
 	// PauseReason says why staged sending paused the campaign.
-	PauseReason       string                    `json:"pauseReason,omitempty"`
+	PauseReason string `json:"pauseReason,omitempty"`
+	// Stage counts staged-sending stages cleared; NextStageAt is when the
+	// next stage's results check is due.
+	Stage             int                       `gorm:"not null;default:0" json:"stage"`
+	NextStageAt       *time.Time                `json:"nextStageAt,omitempty"`
 	HTMLBody          string                    `gorm:"type:text" json:"htmlBody,omitempty"`
 	Subject           string                    `json:"subject"`
 	PostalAddress     string                    `json:"postalAddress"`
