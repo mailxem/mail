@@ -68,3 +68,33 @@ func (h *MarketingHandler) Branding(c echo.Context) error {
 	}
 	return c.JSON(200, branding)
 }
+
+// TrackingConsent reads or sets the workspace tracking consent mode for marketing email.
+func (h *MarketingHandler) TrackingConsent(c echo.Context) error {
+	db := h.service.DB.WithContext(c.Request().Context())
+	if c.Request().Method == "PUT" {
+		var input struct {
+			Mode string `json:"mode"`
+		}
+		if c.Bind(&input) != nil {
+			return bad("Invalid tracking consent mode")
+		}
+		switch input.Mode {
+		case models.TrackingConsentNone, models.TrackingConsentOptOut, models.TrackingConsentOptIn:
+		default:
+			return bad("Choose none, opt_out or opt_in")
+		}
+		result := db.Model(&models.Team{}).Where("id = ? AND is_deleted = false", team(c)).Update("tracking_consent_mode", input.Mode)
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected == 0 {
+			return missing()
+		}
+	}
+	mode, err := models.TrackingConsentMode(db, team(c))
+	if err != nil {
+		return err
+	}
+	return c.JSON(200, map[string]string{"mode": mode})
+}

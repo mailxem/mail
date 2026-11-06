@@ -16,6 +16,33 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// trackingPreference saves a posted tracking choice (done=true, response written),
+// or returns the consent form to show on a GET when the workspace asks for consent.
+func trackingPreference(c echo.Context, db *gorm.DB, teamID, address string) (form string, done bool, err error) {
+	if c.Request().Method == http.MethodPost && c.FormValue("tracking_choice") == "1" {
+		allowed := c.FormValue("tracking") == "allow"
+		if err := models.SetTrackingConsent(db, teamID, address, allowed, "preferences_page"); err != nil {
+			return "", true, err
+		}
+		return "", true, c.HTML(http.StatusOK, templates.TrackingConsentSaved(allowed))
+	}
+	if c.Request().Method != http.MethodGet {
+		return "", false, nil
+	}
+	mode, err := models.TrackingConsentMode(db, teamID)
+	if err != nil || mode == models.TrackingConsentNone {
+		return "", false, nil
+	}
+	var sender string
+	db.Model(&models.Team{}).Select("name").Where("id = ?", teamID).Scan(&sender)
+	current, _ := models.TrackingAllowed(db, teamID, address)
+	allowed := current != nil && *current
+	if mode == models.TrackingConsentOptOut {
+		allowed = current == nil || *current
+	}
+	return templates.TrackingConsentForm(sender, allowed), false, nil
+}
+
 // HandleEmailUnsubscribe handles unsubscribe requests from email links
 // @Summary Unsubscribe from email list
 // @Description Unsubscribe from an email list
@@ -63,8 +90,12 @@ func (h *TrackingHandler) HandleEmailUnsubscribe(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "Contact not found for this email")
 	}
 
+	consent, done, err := trackingPreference(c, h.db, email.TeamID, email.Contact.Email)
+	if done {
+		return err
+	}
 	if c.Request().Method == http.MethodGet {
-		return c.HTML(200, `<!doctype html><html><meta name="viewport" content="width=device-width"><title>Unsubscribe</title><body><h1>Unsubscribe</h1><p>Stop receiving messages for `+html.EscapeString(email.Contact.Email)+`?</p><form method="post"><button>Confirm unsubscribe</button></form></body></html>`)
+		return c.HTML(200, `<!doctype html><html><meta name="viewport" content="width=device-width"><title>Unsubscribe</title><body><h1>Unsubscribe</h1><p>Stop receiving messages for `+html.EscapeString(email.Contact.Email)+`?</p><form method="post"><button>Confirm unsubscribe</button></form>`+consent+`</body></html>`)
 	}
 	changed := false
 	err = h.db.Transaction(func(tx *gorm.DB) error {

@@ -21,6 +21,8 @@ type Newsletter struct {
 	LastSentAt    *time.Time `json:"lastSentAt"`
 	Editions      int        `gorm:"default:0" json:"editions"`
 	PostalAddress string     `json:"postalAddress"`
+	// TrackEngagement: nil or true tracks opens and clicks in each edition.
+	TrackEngagement *bool `json:"trackEngagement,omitempty"`
 	// PublicSlug publishes sent editions at /n/{slug}; nil keeps the archive private.
 	PublicSlug *string `gorm:"uniqueIndex" json:"publicSlug"`
 }
