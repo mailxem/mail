@@ -241,6 +241,9 @@ func main() {
 	}
 	// Initialize task handlers
 	taskHandler := tasks.NewTaskHandler(db_instance, cfg)
+	if managedConfig.Enabled {
+		taskHandler.PostmasterSync = managed.SyncPostmaster
+	}
 
 	// Initialize task client for automation engine
 	taskClient := tasks.NewTaskClient(cfg.Redis.Addr, cfg.Redis.Username, cfg.Redis.Password, cfg.Redis.DB, cfg.Redis.UseTLS)

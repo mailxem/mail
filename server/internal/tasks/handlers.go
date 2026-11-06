@@ -32,6 +32,8 @@ type TaskHandler struct {
 	storageHandler *utils.StorageHandler
 	cfg            *config.Config
 	engine         interface{} // Will be set to *automation.Engine to avoid circular dependency
+	// PostmasterSync reads Gmail spam rates; set by main when managed sending is on.
+	PostmasterSync func(context.Context) error
 }
 
 // NewTaskHandler creates a new TaskHandler

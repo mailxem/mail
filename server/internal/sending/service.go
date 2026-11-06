@@ -336,7 +336,7 @@ func NormalizeRaw(raw []byte, envelope string) ([]byte, string, string, error) {
 	sort.Strings(keys)
 	for _, k := range keys {
 		l := strings.ToLower(k)
-		if strings.HasPrefix(l, "x-ses-") || l == "bcc" || l == "return-path" || l == "sender" || l == "dkim-signature" || l == "authentication-results" || strings.HasPrefix(l, "resent-") {
+		if strings.HasPrefix(l, "x-ses-") || l == "bcc" || l == "return-path" || l == "sender" || l == "dkim-signature" || l == "authentication-results" || l == "feedback-id" || strings.HasPrefix(l, "resent-") {
 			continue
 		}
 		for _, v := range m.Header[k] {
@@ -395,6 +395,23 @@ type Submission struct {
 	Raw                                                []byte
 	IsTest                                             bool
 	Marketing                                          bool
+	// FeedbackRef and FeedbackKind open the Feedback-ID header (campaign,
+	// newsletter or email); test and SMTP relay mail get defaults.
+	FeedbackRef, FeedbackKind string
+}
+
+// feedbackID is Gmail's Feedback-ID: up to four fields, the sender last.
+// Postmaster Tools reports spam rates per field, so the team field lets the
+// Postmaster sync find the workspace.
+func feedbackID(in Submission) string {
+	ref, kind := in.FeedbackRef, in.FeedbackKind
+	if ref == "" {
+		ref, kind = in.CredentialID, "smtp"
+		if in.IsTest {
+			ref, kind = in.DomainID, "test"
+		}
+	}
+	return ref + ":" + in.TeamID + ":" + kind + ":xem"
 }
 
 func (s *Service) Submit(ctx context.Context, in Submission) (Message, error) {
@@ -511,7 +528,7 @@ func (s *Service) Submit(ctx context.Context, in Submission) (Message, error) {
 		if err = tx.Save(&a).Error; err != nil {
 			return err
 		}
-		msg = Message{ID: uuid.NewString(), TeamID: in.TeamID, DomainID: d.ID, CredentialID: in.CredentialID, EmailID: in.EmailID, IsTest: in.IsTest, IdempotencyKey: key, PayloadHash: hash, From: from, Recipients: strings.Join(to, ","), Subject: subject, Raw: raw, Status: "QUEUED"}
+		msg = Message{ID: uuid.NewString(), TeamID: in.TeamID, DomainID: d.ID, CredentialID: in.CredentialID, EmailID: in.EmailID, IsTest: in.IsTest, IdempotencyKey: key, PayloadHash: hash, From: from, Recipients: strings.Join(to, ","), Subject: subject, Raw: append([]byte("Feedback-ID: "+feedbackID(in)+"\r\n"), raw...), Status: "QUEUED"}
 		if in.EmailID != "" {
 			if e := tx.Model(&models.Email{}).Where("id = ? AND team_id = ?", in.EmailID, in.TeamID).Updates(map[string]any{"status": "QUEUED", "error": ""}).Error; e != nil {
 				return e
