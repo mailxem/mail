@@ -671,3 +671,42 @@ func sendEmail(
 
 	return nil // ✅
 }
+
+// EmailReader serves the emails API. Bulk emails store no body, so it renders
+// their shared content: readers see the HTML that was sent.
+type EmailReader struct {
+	BaseService[models.Email]
+	db *gorm.DB
+}
+
+func NewEmailReader(db *gorm.DB) EmailReader {
+	return EmailReader{NewBaseService(db, models.Email{}), db}
+}
+
+func (s EmailReader) Get(ctx context.Context, id string, includes ...string) (*models.Email, error) {
+	email, err := s.BaseService.Get(ctx, id, includes...)
+	if err == nil {
+		err = s.fillBody(ctx, email)
+	}
+	return email, err
+}
+
+func (s EmailReader) List(ctx context.Context, page, limit int, filters map[string]interface{}, excludes map[string]bool, sortFields []string, order string, includes ...string) ([]models.Email, int64, error) {
+	emails, total, err := s.BaseService.List(ctx, page, limit, filters, excludes, sortFields, order, includes...)
+	for i := 0; err == nil && !excludes["body"] && i < len(emails); i++ {
+		err = s.fillBody(ctx, &emails[i])
+	}
+	return emails, total, err
+}
+
+func (s EmailReader) fillBody(ctx context.Context, email *models.Email) error {
+	if email.Body != "" || email.ContentID == nil {
+		return nil
+	}
+	html, err := utils.EmailHTML(s.db.WithContext(ctx), email)
+	if err != nil {
+		return err
+	}
+	email.Body = base64.EncodeToBase64(html)
+	return nil
+}

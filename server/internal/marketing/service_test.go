@@ -27,6 +27,7 @@ import (
 	"kori/internal/handlers"
 	"kori/internal/marketing"
 	"kori/internal/models"
+	"kori/internal/utils"
 	cryptoutil "kori/internal/utils/crypto"
 )
 
@@ -43,7 +44,7 @@ func testDB(t *testing.T) *gorm.DB {
 	}
 	db, err := gorm.Open(dialect, &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, Logger: logger.Default.LogMode(logger.Silent)})
 	require.NoError(t, err)
-	require.NoError(t, db.AutoMigrate(&models.Team{}, &models.MailingList{}, &models.Contact{}, &models.Template{}, &models.SMTPConfig{}, &models.Campaign{}, &models.Email{}, &models.Newsletter{}, &models.ContactNote{}, &models.Form{}, &models.FormField{}, &models.FormSubmission{}, &models.FormReceipt{}, &models.FormRevision{}, &models.FormProgress{}, &models.FormAnalyticsEvent{}, &models.FormCompletionEvent{}, &models.SuppressionList{}, &models.File{}, &models.EmailCategory{}, &models.AutomationNodeEdge{}, &models.Automation{}, &models.TeamSendTimeDefaults{}))
+	require.NoError(t, db.AutoMigrate(&models.Team{}, &models.MailingList{}, &models.Contact{}, &models.Template{}, &models.SMTPConfig{}, &models.Campaign{}, &models.Email{}, &models.EmailContent{}, &models.Newsletter{}, &models.ContactNote{}, &models.Form{}, &models.FormField{}, &models.FormSubmission{}, &models.FormReceipt{}, &models.FormRevision{}, &models.FormProgress{}, &models.FormAnalyticsEvent{}, &models.FormCompletionEvent{}, &models.SuppressionList{}, &models.File{}, &models.EmailCategory{}, &models.AutomationNodeEdge{}, &models.Automation{}, &models.TeamSendTimeDefaults{}))
 	raw, err := db.DB()
 	require.NoError(t, err)
 	raw.SetMaxOpenConns(1)
@@ -241,6 +242,9 @@ func TestAutomationEmailRetryUsesOneOutboxRecord(t *testing.T) {
 	cfg := &config.Config{}
 	cfg.JWT.Secret = strings.Repeat("x", 32)
 	processor := processors.NewEmailProcessor(db, nil, cfg)
+	oldRender := utils.RenderConfig
+	t.Cleanup(func() { utils.RenderConfig = oldRender })
+	utils.RenderConfig = cfg
 	data, _ := json.Marshal(map[string]string{"templateId": templateID, "smtpConfigId": senderID})
 	node := &models.AutomationNode{Base: models.Base{ID: uuid.NewString()}, Type: models.NodeTypeEmail, Data: data}
 	contact := &models.Contact{Base: models.Base{ID: uuid.NewString()}, TeamID: teamID, Email: "reader@example.com", FirstName: "<b>$1</b>", Status: models.SubscriberStatusActive}
@@ -253,9 +257,10 @@ func TestAutomationEmailRetryUsesOneOutboxRecord(t *testing.T) {
 	var rows []models.Email
 	require.NoError(t, db.Find(&rows).Error)
 	require.Len(t, rows, 1)
-	decoded, err := base64.StdEncoding.DecodeString(rows[0].Body)
+	require.Empty(t, rows[0].Body, "the body is rendered from the shared content")
+	decoded, err := utils.EmailHTML(db, &rows[0])
 	require.NoError(t, err)
-	require.Contains(t, string(decoded), "&lt;b&gt;$1&lt;/b&gt;")
+	require.Contains(t, decoded, "&lt;b&gt;$1&lt;/b&gt;")
 	require.Equal(t, models.EmailStatusPending, rows[0].Status)
 }
 
