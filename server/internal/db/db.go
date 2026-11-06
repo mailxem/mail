@@ -23,6 +23,7 @@ import (
 
 	"kori/internal/analytics"
 	"kori/internal/config"
+	"kori/internal/hygiene"
 	"kori/internal/models"
 	console "kori/internal/utils/logger"
 )
@@ -271,6 +272,7 @@ func runMigrations() error {
 
 		// Subscriber models
 		&models.ContactImport{},
+		&hygiene.NeverEmailEntry{},
 
 		// Email-related models
 		&models.Email{},

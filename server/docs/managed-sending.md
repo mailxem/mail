@@ -34,6 +34,10 @@ New submissions and credentials are blocked immediately after suspension. Queued
 
 AWS IAM reference used for the template: [SES v2 actions and resource types](https://docs.aws.amazon.com/service-authorization/latest/reference/list_sesv2.html). Identity permissions cover domains in this region/account because customer domains are not known in advance. Xem enforces domain ownership and tenant scope. Tenant and configuration-set permissions are restricted to `xem-*`; sending requires that tenant prefix. SNS permits SES publication only from this account's `xem-*` configuration sets. Isolate this role and account: a compromised runtime can still act across its managed customer domains.
 
+### Shared never-email list
+
+When SES reports a permanent bounce, Xem also records the address in `global_suppressions` so no workspace imports, signs up or sends to it again for 180 days. Only an HMAC-SHA256 of the lower-cased address is stored, keyed with `SUPPRESSION_HASH_KEY`; the plain address is never written there. Set the key to a long random secret (`openssl rand -hex 32`) and keep it stable: leaving it unset turns the list off, and changing it makes existing entries unmatchable.
+
 ## Optional external SMTP submission
 
 The raw MIME transport requires `ses:SendRawEmail` even though the SDK operation

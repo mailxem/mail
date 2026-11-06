@@ -15,6 +15,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"kori/internal/events"
+	"kori/internal/hygiene"
 	"kori/internal/marketing"
 	"kori/internal/models"
 )
@@ -178,6 +179,16 @@ func (h *MarketingHandler) submitForm(c echo.Context) error {
 		if !marketing.ValidEmail(data["email"]) {
 			return bad("Enter a valid email address")
 		}
+		// Role addresses are allowed here: a person typed this one.
+		checker := hygiene.Checker{}
+		reason := checker.Reason(c.Request().Context(), data["email"])
+		if domain, typo := strings.CutPrefix(reason, hygiene.Typo("")); typo {
+			return bad("Did you mean " + data["email"][:strings.LastIndexByte(data["email"], '@')+1] + domain + "?")
+		} else if reason == hygiene.Disposable {
+			return bad("Use an email address you'll keep; disposable addresses can't sign up")
+		} else if reason != "" {
+			return bad("Enter an email address that can receive mail")
+		}
 		if f.AddToListID == nil {
 			return bad("This form is unavailable")
 		}
@@ -217,6 +228,13 @@ func (h *MarketingHandler) submitForm(c echo.Context) error {
 			var suppressed int64
 			if err := tx.Model(&models.SuppressionList{}).Where("team_id = ? AND email_address = ? AND is_active = ? AND is_deleted = ? AND (expires_at IS NULL OR expires_at > ?)", f.TeamID, data["email"], true, false, time.Now().UTC()).Count(&suppressed).Error; err != nil {
 				return err
+			}
+			blocked, e := hygiene.Blocked(tx, data["email"])
+			if e != nil {
+				return e
+			}
+			if blocked[data["email"]] {
+				suppressed++ // hard-bounced for some workspace: never added, and not revealed
 			}
 			err := marketing.Scope(tx, f.TeamID).Where("email = ? AND list_id = ?", data["email"], audience.ID).First(&contact).Error
 			if errors.Is(err, gorm.ErrRecordNotFound) && suppressed == 0 {

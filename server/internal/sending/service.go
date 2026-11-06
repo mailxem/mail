@@ -23,6 +23,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"kori/internal/hygiene"
 	"kori/internal/models"
 )
 
@@ -372,6 +373,9 @@ func Suppressed(tx *gorm.DB, team, recipient string, marketing bool) (bool, erro
 	}
 	if n > 0 {
 		return true, nil
+	}
+	if blocked, e := hygiene.Blocked(tx, recipient); e != nil || blocked[recipient] {
+		return true, e
 	}
 	if e := tx.Model(&models.SuppressionList{}).Where("team_id = ? AND LOWER(email_address) = ? AND is_active = true AND is_deleted = false AND (expires_at IS NULL OR expires_at > ?)", team, recipient, time.Now()).Count(&n).Error; e != nil {
 		return true, e

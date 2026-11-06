@@ -111,3 +111,10 @@ export function prepareImport(rows: Row[], emailHeader: string) {
   }
   return { keep, skipped };
 }
+
+/** "2 duplicate, 1 role address" from counts by reason. */
+export function describeSkipped(skipped: Record<string, number>) {
+  return Object.entries(skipped)
+    .map(([why, n]) => `${n.toLocaleString()} ${why}`)
+    .join(", ");
+}

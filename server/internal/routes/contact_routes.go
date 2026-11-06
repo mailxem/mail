@@ -85,7 +85,16 @@ func SetupImportRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 			return c.String(http.StatusInternalServerError, "failed to create contact import")
 		}
 
-		return c.JSON(http.StatusOK, map[string]string{"message": "Contact import queued successfully"})
+		return c.JSON(http.StatusOK, map[string]string{"message": "Contact import queued successfully", "id": contact_import.ID})
+	})
+
+	// Status of a queued import, with the rows left out counted by reason.
+	importGroup.GET("/contact/:id", func(c echo.Context) error {
+		var ci models.ContactImport
+		if err := db.Select("id", "status", "skipped").Where("id = ? AND team_id = ?", c.Param("id"), c.Get("teamID")).First(&ci).Error; err != nil {
+			return c.String(http.StatusNotFound, "import not found")
+		}
+		return c.JSON(http.StatusOK, map[string]any{"id": ci.ID, "status": ci.Status, "skipped": ci.Skipped})
 	})
 
 }
