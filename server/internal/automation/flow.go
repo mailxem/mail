@@ -23,7 +23,7 @@ var errExited = errors.New("contact left the workflow")
 var liveStatuses = []models.ExecutionStatus{models.ExecutionStatusRunning, models.ExecutionStatusWaiting, models.ExecutionStatusPaused}
 
 // waitEvents are the bus events that can end a wait-until step, an exit check or a goal.
-var waitEvents = []string{"email.opened", "email.clicked", "email.unsubscribed", "email.bounced", "email.complained", "contact.updated", "contact.deleted", "contact.tag_added", "app.event"}
+var waitEvents = []string{"email.opened", "email.clicked", "email.unsubscribed", "email.bounced", "email.complained", "contact.updated", "contact.deleted", "contact.tag_added", "event.received"}
 
 // Listen subscribes the engine to the events running contacts react to.
 func (e *Engine) Listen() {
@@ -49,10 +49,21 @@ func (e *Engine) HandleEvent(ctx context.Context, name string, data interface{})
 		contactID = d.ContactID
 	case *models.Contact:
 		contactID = d.ID
-	case map[string]interface{}:
-		contactID, _ = d["contactId"].(string)
-		tag, _ = d["tag"].(string)
-		appEvent, _ = d["name"].(string)
+	default:
+		// *models.TagAdded {Contact, Tag} and *models.ContactEvent {contactId, name},
+		// read by shape so this works before and after the triggers change lands.
+		var p struct {
+			ContactID string `json:"contactId"`
+			Name      string `json:"name"`
+			Contact   struct{ ID string }
+			Tag       struct{ Name string }
+		}
+		raw, _ := json.Marshal(data)
+		json.Unmarshal(raw, &p)
+		contactID, tag, appEvent = p.ContactID, p.Tag.Name, p.Name
+		if p.Contact.ID != "" {
+			contactID = p.Contact.ID
+		}
 	}
 	if contactID == "" {
 		return nil
@@ -130,7 +141,7 @@ func (e *Engine) HandleEvent(ctx context.Context, name string, data interface{})
 				happened = strings.EqualFold(strings.TrimSpace(value), strings.TrimSpace(w.Value))
 			}
 		case "app_event":
-			happened = name == "app.event" && strings.EqualFold(strings.TrimSpace(appEvent), strings.TrimSpace(w.Name))
+			happened = name == "event.received" && strings.EqualFold(strings.TrimSpace(appEvent), strings.TrimSpace(w.Name))
 		}
 		if !happened {
 			continue
