@@ -205,6 +205,14 @@ func (s *Service) Run(ctx context.Context) {
 		s.deliver(ctx, limiter, int(max(s.Config.Workers, 1)), 100)
 	}()
 	defer func() { <-deliveryDone }()
+	var pollers sync.WaitGroup
+	if s.Events != nil {
+		for range max(s.Config.EventsPollers, 1) {
+			pollers.Add(1)
+			go func() { defer pollers.Done(); s.ConsumeEvents(ctx) }()
+		}
+	}
+	defer pollers.Wait()
 	maintenance := time.NewTicker(time.Minute)
 	defer maintenance.Stop()
 	for {

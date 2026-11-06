@@ -20,10 +20,14 @@ type Config struct {
 	// Workers send in parallel; SendRate (emails/second, per API process) should
 	// match the SES account's max send rate divided by the number of replicas.
 	Workers, SendRate int64
+	// EventsQueueURL, when set, is an SQS queue subscribed to TopicARN; that many
+	// EventsPollers per process read SES feedback from it in batches.
+	EventsQueueURL string
+	EventsPollers  int64
 }
 
 func LoadConfig() (Config, error) {
-	c := Config{Enabled: os.Getenv("MANAGED_SENDING_ENABLED") == "true", Region: os.Getenv("MANAGED_SES_REGION"), AccountID: os.Getenv("MANAGED_AWS_ACCOUNT_ID"), TopicARN: os.Getenv("MANAGED_SNS_TOPIC_ARN"), SMTPEnabled: os.Getenv("MANAGED_SMTP_ENABLED") == "true", SMTPAddr: os.Getenv("MANAGED_SMTP_ADDR"), SMTPHost: os.Getenv("MANAGED_SMTP_HOST"), TLSCert: os.Getenv("MANAGED_SMTP_TLS_CERT"), TLSKey: os.Getenv("MANAGED_SMTP_TLS_KEY")}
+	c := Config{Enabled: os.Getenv("MANAGED_SENDING_ENABLED") == "true", Region: os.Getenv("MANAGED_SES_REGION"), AccountID: os.Getenv("MANAGED_AWS_ACCOUNT_ID"), TopicARN: os.Getenv("MANAGED_SNS_TOPIC_ARN"), SMTPEnabled: os.Getenv("MANAGED_SMTP_ENABLED") == "true", SMTPAddr: os.Getenv("MANAGED_SMTP_ADDR"), SMTPHost: os.Getenv("MANAGED_SMTP_HOST"), TLSCert: os.Getenv("MANAGED_SMTP_TLS_CERT"), TLSKey: os.Getenv("MANAGED_SMTP_TLS_KEY"), EventsQueueURL: os.Getenv("SES_EVENTS_QUEUE_URL")}
 	if c.SMTPAddr == "" {
 		c.SMTPAddr = ":587"
 	}
@@ -31,7 +35,7 @@ func LoadConfig() (Config, error) {
 		k   string
 		dst *int64
 		def int64
-	}{{"MANAGED_MAX_MESSAGE_BYTES", &c.MaxBytes, 5 * 1024 * 1024}, {"MANAGED_DAILY_LIMIT", &c.DailyLimit, autoApprovalDailyLimit}, {"MANAGED_MONTHLY_LIMIT", &c.MonthlyLimit, autoApprovalMonthlyLimit}, {"MANAGED_MONTHLY_BUDGET_MICROS", &c.BudgetMicros, autoApprovalBudgetMicros}, {"MANAGED_COST_PER_RECIPIENT_MICROS", &c.CostMicros, 1000}, {"MANAGED_QUEUE_LIMIT", &c.QueueLimit, 1000}, {"MANAGED_WORKERS", &c.Workers, 16}, {"MANAGED_SEND_RATE", &c.SendRate, 14}}
+	}{{"MANAGED_MAX_MESSAGE_BYTES", &c.MaxBytes, 5 * 1024 * 1024}, {"MANAGED_DAILY_LIMIT", &c.DailyLimit, autoApprovalDailyLimit}, {"MANAGED_MONTHLY_LIMIT", &c.MonthlyLimit, autoApprovalMonthlyLimit}, {"MANAGED_MONTHLY_BUDGET_MICROS", &c.BudgetMicros, autoApprovalBudgetMicros}, {"MANAGED_COST_PER_RECIPIENT_MICROS", &c.CostMicros, 1000}, {"MANAGED_QUEUE_LIMIT", &c.QueueLimit, 1000}, {"MANAGED_WORKERS", &c.Workers, 16}, {"MANAGED_SEND_RATE", &c.SendRate, 14}, {"SES_EVENTS_POLLERS", &c.EventsPollers, 4}}
 	for _, v := range values {
 		*v.dst = v.def
 		if raw := os.Getenv(v.k); raw != "" {
@@ -46,6 +50,9 @@ func LoadConfig() (Config, error) {
 		if c.SMTPEnabled {
 			return c, fmt.Errorf("managed SMTP requires managed sending")
 		}
+		if c.EventsQueueURL != "" {
+			return c, fmt.Errorf("the SES event queue requires managed sending")
+		}
 		return c, nil
 	}
 	if !regexp.MustCompile(`^[a-z]{2}-[a-z]+-[0-9]+$`).MatchString(c.Region) || !regexp.MustCompile(`^[0-9]{12}$`).MatchString(c.AccountID) {
@@ -53,6 +60,9 @@ func LoadConfig() (Config, error) {
 	}
 	if !strings.HasPrefix(c.TopicARN, "arn:aws:sns:"+c.Region+":"+c.AccountID+":") {
 		return c, fmt.Errorf("SNS topic must belong to the configured AWS account and region")
+	}
+	if c.EventsQueueURL != "" && !regexp.MustCompile(`^https://sqs\.`+c.Region+`\.amazonaws\.com/`+c.AccountID+`/[A-Za-z0-9_-]{1,80}$`).MatchString(c.EventsQueueURL) {
+		return c, fmt.Errorf("SES event queue must belong to the configured AWS account and region")
 	}
 	if c.MaxBytes > 10*1024*1024 {
 		return c, fmt.Errorf("managed message size must not exceed 10 MiB")

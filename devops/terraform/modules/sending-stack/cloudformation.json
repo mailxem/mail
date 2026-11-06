@@ -12,6 +12,15 @@
       "Default": "",
       "Description": "Leave blank on first deploy. After configuring Xem, update with https://API_HOST/api/v1/sending/events/ses.",
       "AllowedPattern": "^$|^https://[^/]+/api/v1/sending/events/ses$"
+    },
+    "CreateEventsQueue": {
+      "Type": "String",
+      "Default": "false",
+      "AllowedValues": [
+        "false",
+        "true"
+      ],
+      "Description": "true adds an SQS queue (and dead-letter queue) subscribed to the feedback topic. Set the backend's SES_EVENTS_QUEUE_URL to the FeedbackQueueURL output."
     }
   },
   "Conditions": {
@@ -25,6 +34,14 @@
             ""
           ]
         }
+      ]
+    },
+    "HasEventsQueue": {
+      "Fn::Equals": [
+        {
+          "Ref": "CreateEventsQueue"
+        },
+        "true"
       ]
     }
   },
@@ -171,9 +188,130 @@
                   "ses:TenantName": "xem-*"
                 }
               }
+            },
+            {
+              "Fn::If": [
+                "HasEventsQueue",
+                {
+                  "Sid": "ConsumeFeedbackQueue",
+                  "Effect": "Allow",
+                  "Action": [
+                    "sqs:ReceiveMessage",
+                    "sqs:DeleteMessage"
+                  ],
+                  "Resource": {
+                    "Fn::GetAtt": [
+                      "FeedbackQueue",
+                      "Arn"
+                    ]
+                  }
+                },
+                {
+                  "Ref": "AWS::NoValue"
+                }
+              ]
             }
           ]
         }
+      }
+    },
+    "FeedbackDeadLetterQueue": {
+      "Type": "AWS::SQS::Queue",
+      "Condition": "HasEventsQueue",
+      "Properties": {
+        "MessageRetentionPeriod": 1209600,
+        "SqsManagedSseEnabled": true
+      }
+    },
+    "FeedbackQueue": {
+      "Type": "AWS::SQS::Queue",
+      "Condition": "HasEventsQueue",
+      "Properties": {
+        "MessageRetentionPeriod": 1209600,
+        "ReceiveMessageWaitTimeSeconds": 20,
+        "VisibilityTimeout": 60,
+        "SqsManagedSseEnabled": true,
+        "RedrivePolicy": {
+          "deadLetterTargetArn": {
+            "Fn::GetAtt": [
+              "FeedbackDeadLetterQueue",
+              "Arn"
+            ]
+          },
+          "maxReceiveCount": 5
+        }
+      }
+    },
+    "FeedbackQueuePolicy": {
+      "Type": "AWS::SQS::QueuePolicy",
+      "Condition": "HasEventsQueue",
+      "Properties": {
+        "Queues": [
+          {
+            "Ref": "FeedbackQueue"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "DenyInsecureTransport",
+              "Effect": "Deny",
+              "Principal": "*",
+              "Action": "sqs:*",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "FeedbackQueue",
+                  "Arn"
+                ]
+              },
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false"
+                }
+              }
+            },
+            {
+              "Sid": "OnlyTheFeedbackTopic",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "sns.amazonaws.com"
+              },
+              "Action": "sqs:SendMessage",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "FeedbackQueue",
+                  "Arn"
+                ]
+              },
+              "Condition": {
+                "ArnEquals": {
+                  "aws:SourceArn": {
+                    "Ref": "FeedbackTopic"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "FeedbackQueueSubscription": {
+      "Type": "AWS::SNS::Subscription",
+      "Condition": "HasEventsQueue",
+      "DependsOn": "FeedbackQueuePolicy",
+      "Properties": {
+        "Protocol": "sqs",
+        "Endpoint": {
+          "Fn::GetAtt": [
+            "FeedbackQueue",
+            "Arn"
+          ]
+        },
+        "TopicArn": {
+          "Ref": "FeedbackTopic"
+        },
+        "RawMessageDelivery": false
       }
     }
   },
@@ -196,6 +334,12 @@
     "RuntimePolicyARN": {
       "Value": {
         "Ref": "RuntimePolicy"
+      }
+    },
+    "FeedbackQueueURL": {
+      "Condition": "HasEventsQueue",
+      "Value": {
+        "Ref": "FeedbackQueue"
       }
     }
   }

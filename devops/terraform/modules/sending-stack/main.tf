@@ -18,6 +18,13 @@ variable "feedback_endpoint" {
     error_message = "Leave feedback empty until the backend is ready, then use its exact HTTPS SES event route."
   }
 }
+# SQS feedback ingestion: SES events reach the backend in batches through a
+# queue (with a dead-letter queue after 5 receives) instead of one HTTPS request
+# each. Set SES_EVENTS_QUEUE_URL to the feedback_queue_url output.
+variable "feedback_queue" {
+  type    = bool
+  default = false
+}
 variable "tags" {
   type    = map(string)
   default = { Project = "Xem", Purpose = "ManagedSending" }
@@ -30,8 +37,9 @@ resource "aws_cloudformation_stack" "sending" {
   template_body = file("${path.module}/cloudformation.json")
   capabilities  = ["CAPABILITY_NAMED_IAM"]
   parameters = {
-    RuntimeRoleName  = var.runtime_role_name
-    FeedbackEndpoint = var.feedback_endpoint
+    RuntimeRoleName   = var.runtime_role_name
+    FeedbackEndpoint  = var.feedback_endpoint
+    CreateEventsQueue = tostring(var.feedback_queue)
   }
   tags = var.tags
   lifecycle { prevent_destroy = true }
@@ -41,3 +49,4 @@ output "topic_arn" { value = aws_cloudformation_stack.sending.outputs["TopicARN"
 output "runtime_policy_arn" { value = aws_cloudformation_stack.sending.outputs["RuntimePolicyARN"] }
 output "region" { value = aws_cloudformation_stack.sending.outputs["Region"] }
 output "account_id" { value = aws_cloudformation_stack.sending.outputs["AccountID"] }
+output "feedback_queue_url" { value = lookup(aws_cloudformation_stack.sending.outputs, "FeedbackQueueURL", "") }
