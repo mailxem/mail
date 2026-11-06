@@ -35,6 +35,9 @@ func (s *AutomationService) SaveGraph(ctx context.Context, a *models.Automation)
 	default:
 		return fmt.Errorf("unsupported re-entry rule")
 	}
+	if _, err := workflowconfig.ParseSendWindow(a.SendWindow); err != nil {
+		return err
+	}
 	if len(a.Nodes) > 100 || len(a.Edges) > 200 {
 		return fmt.Errorf("workflow is too large")
 	}

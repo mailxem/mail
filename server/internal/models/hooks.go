@@ -1,7 +1,9 @@
 package models
 
 import (
+	"fmt"
 	"kori/internal/events"
+	"kori/internal/workflowconfig"
 	"time"
 
 	"gorm.io/gorm"
@@ -67,6 +69,14 @@ func (c *Campaign) AfterCreate(tx *gorm.DB) error {
 	}
 	log.Info("Campaign created %s", c.ID)
 	events.Emit("campaign.created", c)
+	return nil
+}
+
+// BeforeSave keeps contact time zones to IANA names so sending rules can rely on them.
+func (c *Contact) BeforeSave(tx *gorm.DB) error {
+	if c.Timezone != "" && !workflowconfig.ValidTimezone(c.Timezone) {
+		return fmt.Errorf("unknown time zone %q", c.Timezone)
+	}
 	return nil
 }
 

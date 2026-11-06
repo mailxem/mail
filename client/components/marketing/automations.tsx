@@ -66,6 +66,7 @@ import {
   FilterTabs,
 } from "./shared";
 import { toast } from "sonner";
+import { AutomationWindowSetting } from "@/components/settings/sending-rules-settings";
 import {
   ActionSettings,
   ConditionSettings,
@@ -447,6 +448,7 @@ export function AutomationBuilder({
   const [name, setName] = useState(initial.name);
   const [description, setDescription] = useState(initial.description || "");
   const [stepSearch, setStepSearch] = useState("");
+  const [sendWindow, setSendWindow] = useState(initial.sendWindow ?? null);
   const [active, setActive] = useState(initial.isActive);
   // The canvas is always the draft; contacts run on the live version.
   const [liveVersion, setLiveVersion] = useState(initial.liveVersion || 0);
@@ -530,6 +532,7 @@ export function AutomationBuilder({
     reentryMode,
     reentryDays: reentryMode === "after_days" ? reentryDays : 0,
     exitOnGoal,
+    sendWindow,
     nodes: nodes.map((n) => {
       const { kind, label, summary, ...data } = n.data;
       return { id: n.id, type: kind, data: { ...data, position: n.position } };
@@ -1248,6 +1251,13 @@ export function AutomationBuilder({
                     </small>
                   </span>
                 </label>
+                <AutomationWindowSetting
+                  value={sendWindow}
+                  onChange={(w) => {
+                    setSendWindow(w);
+                    setDirty(true);
+                  }}
+                />
               </>
             )}
             {kind === "EMAIL" && (
@@ -1310,23 +1320,59 @@ export function AutomationBuilder({
               </Field>
             )}
             {kind === "EMAIL" && (
-              <label className="flex items-start gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  className="mt-1 !w-4"
-                  checked={config.trackEngagement !== false}
-                  onChange={(e) =>
-                    update({ trackEngagement: e.target.checked })
-                  }
-                />
-                <span>
-                  Track opens and link clicks
-                  <span className="block text-xs text-muted-foreground">
-                    Off sends this email without a tracking pixel or rewritten
-                    links.
+              <>
+                <label className="flex items-start gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    className="mt-1 !w-4"
+                    checked={config.trackEngagement !== false}
+                    onChange={(e) =>
+                      update({ trackEngagement: e.target.checked })
+                    }
+                  />
+                  <span>
+                    Track opens and link clicks
+                    <span className="block text-xs text-muted-foreground">
+                      Off sends this email without a tracking pixel or rewritten
+                      links.
+                    </span>
                   </span>
-                </span>
-              </label>
+                </label>
+                <label className="flex items-start gap-2 text-sm">
+                  <input
+                    className="!w-4"
+                    type="checkbox"
+                    checked={!!config.transactional}
+                    onChange={(e) => update({ transactional: e.target.checked })}
+                  />
+                  <span>
+                    Transactional
+                    <small className="mt-1 block text-muted-foreground">
+                      Sends straight away, ignoring the send window and
+                      frequency cap.
+                    </small>
+                  </span>
+                </label>
+                {!config.transactional && (
+                  <label className="flex items-start gap-2 text-sm">
+                    <input
+                      className="!w-4"
+                      type="checkbox"
+                      checked={!!config.skipIfCapped}
+                      onChange={(e) =>
+                        update({ skipIfCapped: e.target.checked })
+                      }
+                    />
+                    <span>
+                      Skip if capped
+                      <small className="mt-1 block text-muted-foreground">
+                        When the contact has reached the frequency cap, move
+                        on without sending instead of waiting.
+                      </small>
+                    </span>
+                  </label>
+                )}
+              </>
             )}
             {kind === "WAIT" && (
               <WaitSettings config={config} update={update} />

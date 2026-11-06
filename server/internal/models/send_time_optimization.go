@@ -73,6 +73,12 @@ type TeamSendTimeDefaults struct {
 	SendSaturday     bool           `gorm:"default:false"`
 	SendSunday       bool           `gorm:"default:false"`
 
+	// Automation sending rules. AutomationWindow is the default send window;
+	// FrequencyCap > 0 limits automation emails per contact per FrequencyCapPeriod (day or week).
+	AutomationWindow   datatypes.JSON `gorm:"type:jsonb"`
+	FrequencyCap       int            `gorm:"default:0"`
+	FrequencyCapPeriod string         `gorm:"default:'day'"`
+
 	// Optimization settings
 	UseSTOByDefault  bool           `gorm:"default:false"` // Enable STO by default for all campaigns
 	MinimumOpensRequired int        `gorm:"default:5"`     // Minimum opens before using STO
