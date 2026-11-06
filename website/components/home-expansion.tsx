@@ -333,9 +333,6 @@ export function Testimonials() {
               </button>
             ))}
           </div>
-          <p className="mt-5 text-[10px] text-cream/55">
-            Testimonials supplied by Xem. Individual experiences may vary.
-          </p>
         </div>
       </div>
     </section>

@@ -107,6 +107,10 @@ const faqs = [
     a: "Yes. Xem is open source under GPL-3.0. Self-hosting is free; you pay your server and your email provider, such as Amazon SES at $0.10 to $0.16 per 1,000 emails.",
   },
   {
+    q: "Can I get my money back?",
+    a: "Yes. If Xem isn't right for you, email team@xem.email within 30 days of your first payment on a plan and we'll refund that payment in full. No forms, no questions you have to answer.",
+  },
+  {
     q: "How is billing handled?",
     a: "Payments, invoices and sales tax are handled by Dodo Payments as merchant of record. You can change or cancel your plan from Settings → Billing at any time.",
   },
@@ -165,6 +169,9 @@ export default function PricingPage() {
           <p className="mt-7 max-w-xl text-lg leading-relaxed text-muted">
             Every plan has the whole of Xem. Start free with 3,000 emails a
             month, and upgrade when your list grows.
+          </p>
+          <p className="mt-4 text-sm font-medium text-forest">
+            Paid plans come with a 30-day money-back guarantee.
           </p>
         </section>
 
