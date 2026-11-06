@@ -207,18 +207,26 @@ func (s *AutomationService) checkOrphanedNodes(nodes []models.AutomationNode, ed
 
 // Activate activates an automation after validation
 func (s *AutomationService) Activate(ctx context.Context, id string) error {
-	automation, err := s.GetWithNodesAndEdges(ctx, id)
+	automation, err := s.Get(ctx, id)
 	if err != nil {
 		return fmt.Errorf("failed to load automation: %w", err)
 	}
 
-	// Validate graph structure
-	if err := s.ValidateGraph(automation); err != nil {
-		return fmt.Errorf("automation validation failed: %w", err)
-	}
-
-	if err := s.ValidateConfiguration(automation); err != nil {
-		return err
+	// The first activation publishes the draft; later ones re-check the live version.
+	if automation.LiveVersion == 0 {
+		if _, err := s.Publish(ctx, id, "", false); err != nil {
+			return err
+		}
+	} else {
+		if err := models.LoadAutomationGraph(s.db.WithContext(ctx), automation, automation.LiveVersion); err != nil {
+			return fmt.Errorf("failed to load automation: %w", err)
+		}
+		if err := s.ValidateGraph(automation); err != nil {
+			return fmt.Errorf("automation validation failed: %w", err)
+		}
+		if err := s.ValidateConfiguration(automation); err != nil {
+			return err
+		}
 	}
 
 	// Update status

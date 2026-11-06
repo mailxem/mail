@@ -43,6 +43,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 		&models.AutomationNode{},
 		&models.AutomationNodeEdge{},
 		&models.AutomationExecution{},
+		&models.AutomationVersion{},
 		&models.Contact{},
 		&models.Tag{},
 	)

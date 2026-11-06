@@ -35,8 +35,8 @@ func (p *StartProcessor) Validate(node *models.AutomationNode) error {
 func (p *StartProcessor) Process(ctx *automation.ExecutionContext, node *models.AutomationNode) (*automation.ProcessResult, error) {
 	// START node simply passes execution to the next node
 	// Load edges to find next node
-	var edges []models.AutomationNodeEdge
-	if err := p.db.Where("automation_id = ? AND source_id = ?", ctx.AutomationID, node.ID).Find(&edges).Error; err != nil {
+	edges, err := ctx.EdgesFrom(p.db, node.ID)
+	if err != nil {
 		return nil, fmt.Errorf("failed to load edges: %w", err)
 	}
 

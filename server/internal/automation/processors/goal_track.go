@@ -85,8 +85,8 @@ func (p *GoalTrackProcessor) Process(ctx *automation.ExecutionContext, node *mod
 	}
 
 	// Get next nodes
-	var edges []models.AutomationNodeEdge
-	if err := p.db.Where("automation_id = ? AND source_id = ?", ctx.AutomationID, node.ID).Find(&edges).Error; err != nil {
+	edges, err := ctx.EdgesFrom(p.db, node.ID)
+	if err != nil {
 		return nil, fmt.Errorf("failed to load edges: %w", err)
 	}
 

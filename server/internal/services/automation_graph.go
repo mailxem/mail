@@ -36,21 +36,18 @@ func (s *AutomationService) SaveGraph(ctx context.Context, a *models.Automation)
 			if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ? AND team_id = ? AND is_deleted = ?", a.ID, a.TeamID, false).First(&old).Error; err != nil {
 				return err
 			}
-			if old.IsActive {
-				return fmt.Errorf("pause this workflow before editing")
-			}
-			var running int64
-			if err := tx.Model(&models.AutomationExecution{}).Where("automation_id = ? AND status IN ?", a.ID, []string{"RUNNING", "WAITING", "PAUSED"}).Count(&running).Error; err != nil {
-				return err
-			}
-			if running > 0 {
-				return fmt.Errorf("wait for in-flight executions before changing the graph")
-			}
+			// The graph tables are the draft; contacts run on published versions, so editing is always safe.
 			a.Base = old.Base
+			a.IsActive, a.LiveVersion, a.HasDraft = old.IsActive, old.LiveVersion, old.LiveVersion > 0
+			a.DraftTriggerEvent = ""
+			if old.LiveVersion > 0 {
+				// The live trigger changes only when the draft is published.
+				a.DraftTriggerEvent, a.TriggerEvent = a.TriggerEvent, old.TriggerEvent
+			}
 		} else {
 			a.ID = uuid.NewString()
+			a.IsActive, a.LiveVersion, a.HasDraft, a.DraftTriggerEvent = false, 0, false, ""
 		}
-		a.IsActive = false
 		a.Team = nil
 		for i := range a.Nodes {
 			n := &a.Nodes[i]

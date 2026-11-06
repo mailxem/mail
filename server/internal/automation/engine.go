@@ -45,11 +45,9 @@ func (e *Engine) RegisterProcessor(processor NodeProcessor) {
 
 // Execute starts or resumes an automation execution
 func (e *Engine) Execute(ctx context.Context, automationID, contactID string, triggerData map[string]interface{}, currentNodeID string) error {
-	// Load automation with nodes and edges
+	// Load automation; its graph comes from the version the execution runs on
 	var automation models.Automation
 	if err := e.db.WithContext(ctx).
-		Preload("Nodes", "is_deleted = ?", false).
-		Preload("Edges").
 		Where("id = ? AND is_deleted = ?", automationID, false).
 		First(&automation).Error; err != nil {
 		return fmt.Errorf("failed to load automation: %w", err)
@@ -67,9 +65,12 @@ func (e *Engine) Execute(ctx context.Context, automationID, contactID string, tr
 	}
 
 	// Load or create execution record
-	execution, isNew, err := e.getOrCreateExecution(ctx, automationID, contactID, triggerData, currentNodeID)
+	execution, isNew, err := e.getOrCreateExecution(ctx, automationID, contactID, triggerData, currentNodeID, automation.LiveVersion)
 	if err != nil {
 		return fmt.Errorf("failed to get execution: %w", err)
+	}
+	if err := models.LoadAutomationGraph(e.db.WithContext(ctx), &automation, execution.Version); err != nil {
+		return fmt.Errorf("failed to load automation version: %w", err)
 	}
 
 	if execution.Status == models.ExecutionStatusCompleted || (execution.Status == models.ExecutionStatusWaiting && currentNodeID == "") {
@@ -78,6 +79,7 @@ func (e *Engine) Execute(ctx context.Context, automationID, contactID string, tr
 
 	// Create execution context
 	execCtx := e.buildExecutionContext(execution, &contact, &automation)
+	execCtx.Edges = automation.Edges
 
 	// Emit start event for new executions
 	if isNew {
@@ -104,6 +106,13 @@ func (e *Engine) Execute(ctx context.Context, automationID, contactID string, tr
 		}
 	}
 
+	if startNode == nil && currentNodeID != "" {
+		// The contact was moved to a newer version that no longer has this step.
+		execution.Status = models.ExecutionStatusCompleted
+		execution.Error = fmt.Sprintf("Exited: the step it was waiting for was removed in version %d", execution.Version)
+		execution.CompletedAt = time.Now()
+		return e.saveExecution(ctx, execution, execCtx)
+	}
 	if startNode == nil {
 		return fmt.Errorf("could not find start node")
 	}
@@ -236,7 +245,7 @@ func (e *Engine) executeWorkflow(ctx context.Context, execCtx *ExecutionContext,
 }
 
 // getOrCreateExecution retrieves existing execution or creates a new one
-func (e *Engine) getOrCreateExecution(ctx context.Context, automationID, contactID string, triggerData map[string]interface{}, currentNodeID string) (*models.AutomationExecution, bool, error) {
+func (e *Engine) getOrCreateExecution(ctx context.Context, automationID, contactID string, triggerData map[string]interface{}, currentNodeID string, version int) (*models.AutomationExecution, bool, error) {
 	// Queue retries and wait continuations retain their execution identity.
 	var execution models.AutomationExecution
 	if id, _ := triggerData["_execution_id"].(string); id != "" {
@@ -247,7 +256,7 @@ func (e *Engine) getOrCreateExecution(ctx context.Context, automationID, contact
 		if err != nil {
 			return nil, false, err
 		}
-		execution = models.AutomationExecution{Base: models.Base{ID: id}, AutomationID: automationID, ContactID: contactID, Status: models.ExecutionStatusRunning, CurrentNodeID: currentNodeID, ExecutionLog: []byte("[]"), Variables: data, TriggerData: data, StartedAt: time.Now(), TriggerType: "event"}
+		execution = models.AutomationExecution{Base: models.Base{ID: id}, AutomationID: automationID, Version: version, ContactID: contactID, Status: models.ExecutionStatusRunning, CurrentNodeID: currentNodeID, ExecutionLog: []byte("[]"), Variables: data, TriggerData: data, StartedAt: time.Now(), TriggerType: "event"}
 		result := e.db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(&execution)
 		if result.Error != nil {
 			return nil, false, result.Error
@@ -277,6 +286,7 @@ func (e *Engine) getOrCreateExecution(ctx context.Context, automationID, contact
 	triggerDataJSON, _ := json.Marshal(triggerData)
 	execution = models.AutomationExecution{
 		AutomationID:  automationID,
+		Version:       version,
 		ContactID:     contactID,
 		Status:        models.ExecutionStatusRunning,
 		CurrentNodeID: currentNodeID,
