@@ -72,12 +72,12 @@ func (e *Engine) Execute(ctx context.Context, automationID, contactID string, tr
 	if err != nil {
 		return fmt.Errorf("failed to get execution: %w", err)
 	}
-	if err := models.LoadAutomationGraph(e.db.WithContext(ctx), &automation, execution.Version); err != nil {
-		return fmt.Errorf("failed to load automation version: %w", err)
-	}
-
+	// A refused re-entry has no execution; finished runs do nothing.
 	if execution == nil || execution.Status == models.ExecutionStatusCompleted || execution.Status == models.ExecutionStatusExited || (execution.Status == models.ExecutionStatusWaiting && currentNodeID == "") {
 		return nil
+	}
+	if err := models.LoadAutomationGraph(e.db.WithContext(ctx), &automation, execution.Version); err != nil {
+		return fmt.Errorf("failed to load automation version: %w", err)
 	}
 	if currentNodeID != "" {
 		if ok, err := e.claimResume(ctx, execution, &automation, currentNodeID); err != nil || !ok {

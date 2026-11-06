@@ -230,11 +230,16 @@ func (e *Engine) claimResume(ctx context.Context, execution *models.AutomationEx
 		// Only a queue retry of the continuation that already won may run again.
 		return execution.ResumeNodeID == nodeID, nil
 	}
-	follows := false
+	follows, exists := false, false
 	for _, edge := range automation.Edges {
 		follows = follows || (edge.SourceID == execution.CurrentNodeID && edge.TargetID == nodeID)
 	}
-	if !follows {
+	for _, node := range automation.Nodes {
+		exists = exists || node.ID == nodeID
+	}
+	// A step missing from the contact's version is still claimed, so the run
+	// exits with a reason instead of waiting forever.
+	if exists && !follows {
 		return false, nil
 	}
 	res := e.db.WithContext(ctx).Model(&models.AutomationExecution{}).
