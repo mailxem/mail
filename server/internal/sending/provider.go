@@ -34,6 +34,11 @@ func NewSES(ctx context.Context, c Config) (*SES, error) {
 	// SES has no SendEmail idempotency token: automatic SDK retries can duplicate mail.
 	return &SES{client: sesv2.NewFromConfig(cfg, func(o *sesv2.Options) { o.RetryMaxAttempts = 1 }), config: c}, nil
 }
+
+// eventDestinationVersion is the event destination Provision installs; see
+// RefreshDomain. Version 1 stopped subscribing to Send.
+const eventDestinationVersion = 1
+
 func tenant(team string) string { return "xem-" + team }
 func already(err error) error {
 	var e smithy.APIError
@@ -52,7 +57,10 @@ func (s *SES) Provision(ctx context.Context, team, domain string) error {
 	if err = already(err); err != nil {
 		return err
 	}
-	dest := &types.EventDestinationDefinition{Enabled: true, MatchingEventTypes: []types.EventType{types.EventTypeSend, types.EventTypeDelivery, types.EventTypeBounce, types.EventTypeComplaint, types.EventTypeReject, types.EventTypeDeliveryDelay}, SnsDestination: &types.SnsDestination{TopicArn: aws.String(s.config.TopicARN)}}
+	// Send is not subscribed: the worker already records SES acceptance, and the
+	// event would double feedback volume. Bump eventDestinationVersion whenever
+	// this list changes so RefreshDomain updates existing configuration sets.
+	dest := &types.EventDestinationDefinition{Enabled: true, MatchingEventTypes: []types.EventType{types.EventTypeDelivery, types.EventTypeBounce, types.EventTypeComplaint, types.EventTypeReject, types.EventTypeDeliveryDelay}, SnsDestination: &types.SnsDestination{TopicArn: aws.String(s.config.TopicARN)}}
 	_, err = s.client.CreateConfigurationSetEventDestination(ctx, &sesv2.CreateConfigurationSetEventDestinationInput{ConfigurationSetName: aws.String(name), EventDestinationName: aws.String("xem-events"), EventDestination: dest})
 	if err != nil {
 		var ae smithy.APIError

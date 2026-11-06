@@ -18,6 +18,23 @@ The feature is off by default. This release provides the application, queue, fee
 
 Automatic onboarding applies to existing unapproved workspaces too: checking records, or the periodic DNS worker, can provision an ownership-verified domain and approve a fully verified workspace. There is no new environment switch. `MANAGED_SENDING_ENABLED=false` still disables the feature. The migration adds an internal `managed_domains.check_id`; stale concurrent DNS results and disconnected-domain results cannot approve an account.
 
+### Delivery reports through SQS (high volume)
+
+The HTTPS route costs one request and one database transaction per SES event. At high volume, deliver the feedback topic to an SQS queue instead. When `SES_EVENTS_QUEUE_URL` is set, each API process runs `SES_EVENTS_POLLERS` (default 4) long-polling readers that take up to 10 events at a time. Delivery and DeliveryDelay events in a batch (about 97% of feedback) are written in one transaction with the same tenant, sender, message and provider ID checks as the webhook. Bounce, Complaint and Reject events take the webhook's path one at a time, because they lock the workspace for suppression and suspension. A queue message is deleted only after its changes commit.
+
+1. With the CloudFormation template, update the stack with `CreateEventsQueue=true` (Terraform: `feedback_queue = true`). It creates the queue (60-second visibility timeout, 20-second long polling, 14-day retention, SQS-managed encryption), a dead-letter queue that receives a message after 5 failed receives, a queue policy that admits only the feedback topic over TLS, the SNS subscription with raw delivery off, and `sqs:ReceiveMessage`/`sqs:DeleteMessage` on the queue for the runtime role. To do it by hand, create the same resources: the subscription must use the `sqs` protocol with raw message delivery **off**, because Xem reads the SNS envelope and checks its topic ARN.
+2. Set `SES_EVENTS_QUEUE_URL` to the `FeedbackQueueURL` output (it must be in `MANAGED_SES_REGION` and `MANAGED_AWS_ACCOUNT_ID`) and redeploy the backend.
+3. Once the queue shows deliveries being processed, clear `FeedbackEndpoint` to remove the HTTPS subscription. While both are subscribed, every event arrives twice; both paths store it under the SNS message ID, so the second copy changes nothing.
+4. Alarm on the dead-letter queue's `ApproximateNumberOfMessagesVisible` above zero and on the main queue's `ApproximateAgeOfOldestMessage`. A message lands in the dead-letter queue after five failed attempts: a database outage, or an event that does not match its message (unknown message, wrong workspace or sender). After fixing the cause, use SQS's dead-letter queue redrive to move messages back; reprocessing is idempotent.
+
+Queue messages are not checked against SNS signatures: only this account's IAM principals and the feedback topic can write to the queue, and its policy requires TLS. The webhook still verifies every signature. Restrict `sqs:SendMessage` on the queue to the topic, as the template does.
+
+SES no longer reports Send events: the worker already records SES acceptance as `SENT`. New configuration sets are created without it, and the next domain check (at least every 12 hours for verified domains) updates each existing one. Send events already in flight are still applied.
+
+### Database connections
+
+Each API process opens at most `DB_MAX_OPEN_CONNS` connections (default 50) and keeps up to `DB_MAX_IDLE_CONNS` idle (default: the same number, so a busy pool does not churn), each reused for `DB_CONN_MAX_LIFETIME` (default `30m`). Replicas add up: keep replicas × `DB_MAX_OPEN_CONNS`, plus migrations and admin sessions, below PostgreSQL's `max_connections`. For many replicas, run PgBouncer in transaction pooling mode in front of PostgreSQL. Xem is compatible with it: connections use pgx's simple query protocol and GORM's `PrepareStmt` is off, so no prepared statement is cached on a server connection. Keep both settings if you change the connection code.
+
 ### Operator review and abuse controls
 
 For higher limits, review the customer's use case, consent practices, volumes, domain, and abuse risk. From a trusted backend environment with the correct database configuration, run:
