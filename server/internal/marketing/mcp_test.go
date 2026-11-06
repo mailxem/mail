@@ -73,7 +73,7 @@ func TestMCPCampaignDraftOwnershipAndStatus(t *testing.T) {
 	db := testDB(t)
 	team, listID, templateID, senderID := uuid.NewString(), uuid.NewString(), uuid.NewString(), uuid.NewString()
 	seed(t, db, &models.MailingList{Base: models.Base{ID: listID}, TeamID: team, Name: "Audience"})
-	seed(t, db, &models.Template{Base: models.Base{ID: templateID}, TeamID: team, Name: "Template"})
+	seed(t, db, &models.Template{Base: models.Base{ID: templateID}, TeamID: team, CategoryID: uuid.NewString(), Name: "Template"})
 	seed(t, db, &models.SMTPConfig{Base: models.Base{ID: senderID}, TeamID: team})
 	h := handlers.NewMarketingHandler(db, "", "")
 	e := echo.New()
