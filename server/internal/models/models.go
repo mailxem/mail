@@ -559,6 +559,10 @@ type Automation struct {
 	Nodes        []AutomationNode     `gorm:"foreignKey:AutomationID" json:"nodes,omitempty"`
 	Edges        []AutomationNodeEdge `gorm:"foreignKey:AutomationID" json:"edges,omitempty"`
 	IsActive     bool                 `gorm:"not null;default:false" json:"isActive"`
+	// Nodes and Edges hold the draft; LiveVersion names the published snapshot new contacts start on.
+	LiveVersion       int    `gorm:"not null;default:0" json:"liveVersion"`
+	HasDraft          bool   `gorm:"not null;default:false" json:"hasDraft"`
+	DraftTriggerEvent string `json:"-"`
 }
 
 type Model struct {
@@ -613,8 +617,9 @@ type AutomationNodeEdge struct {
 
 type AutomationExecution struct {
 	Base
-	AutomationID  string          `gorm:"type:uuid;not null" json:"automationId"`
+	AutomationID  string          `gorm:"type:uuid;not null;index:idx_execution_automation_started" json:"automationId"`
 	Automation    *Automation     `json:"automation,omitempty"`
+	Version       int             `gorm:"not null;default:0" json:"version"`
 	ContactID     string          `gorm:"type:uuid;not null" json:"contactId"`
 	Contact       *Contact        `json:"contact,omitempty"`
 	Status        ExecutionStatus `gorm:"not null;default:'RUNNING'" json:"status"`
@@ -622,7 +627,7 @@ type AutomationExecution struct {
 	CurrentNode   *AutomationNode `json:"currentNode,omitempty"`
 	ExecutionLog  datatypes.JSON  `gorm:"type:jsonb;default:'[]'" json:"executionLog"`
 	Variables     datatypes.JSON  `gorm:"type:jsonb;default:'{}'" json:"variables"`
-	StartedAt     time.Time       `json:"startedAt"`
+	StartedAt     time.Time       `gorm:"index:idx_execution_automation_started" json:"startedAt"`
 	CompletedAt   time.Time       `json:"completedAt"`
 	Error         string          `json:"error"`
 	TriggerType   string          `json:"triggerType"`

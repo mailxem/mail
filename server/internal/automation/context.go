@@ -3,6 +3,8 @@ package automation
 import (
 	"kori/internal/models"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 // ExecutionContext holds the state during automation execution
@@ -15,6 +17,22 @@ type ExecutionContext struct {
 	ExecutionLog []LogEntry
 	Contact      *models.Contact
 	Execution    *models.AutomationExecution
+	// Edges is the graph of the version this execution runs on; nil reads the draft tables.
+	Edges []models.AutomationNodeEdge
+}
+
+// EdgesFrom returns a step's outgoing connections in the version this contact runs on.
+func (ctx *ExecutionContext) EdgesFrom(db *gorm.DB, nodeID string) ([]models.AutomationNodeEdge, error) {
+	var edges []models.AutomationNodeEdge
+	if ctx.Edges == nil {
+		return edges, db.Where("automation_id = ? AND source_id = ?", ctx.AutomationID, nodeID).Find(&edges).Error
+	}
+	for _, edge := range ctx.Edges {
+		if edge.SourceID == nodeID {
+			edges = append(edges, edge)
+		}
+	}
+	return edges, nil
 }
 
 // LogEntry represents a single node execution in the log

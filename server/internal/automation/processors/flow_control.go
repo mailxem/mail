@@ -33,8 +33,8 @@ func (p *FlowControlProcessor) Process(ctx *automation.ExecutionContext, n *mode
 	if err := p.Validate(n); err != nil {
 		return nil, err
 	}
-	var edges []models.AutomationNodeEdge
-	if err := p.db.Where("automation_id = ? AND source_id = ?", ctx.AutomationID, n.ID).Find(&edges).Error; err != nil {
+	edges, err := ctx.EdgesFrom(p.db, n.ID)
+	if err != nil {
 		return nil, err
 	}
 	if p.kind == "SET_VARIABLE" {

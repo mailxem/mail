@@ -62,6 +62,10 @@ func (h *AutomationHandler) GetAutomation(c echo.Context) error {
 	if automation.TeamID != teamID {
 		return c.JSON(http.StatusForbidden, map[string]string{"error": "Access denied"})
 	}
+	// The builder edits the draft, including its trigger.
+	if automation.DraftTriggerEvent != "" {
+		automation.TriggerEvent = automation.DraftTriggerEvent
+	}
 
 	return c.JSON(http.StatusOK, automation)
 }
@@ -118,6 +122,9 @@ func (h *AutomationHandler) UpdateAutomation(c echo.Context) error {
 	}
 
 	automationHandlerLog.Success("Updated automation %s", id)
+	if automation.DraftTriggerEvent != "" {
+		automation.TriggerEvent = automation.DraftTriggerEvent
+	}
 
 	return c.JSON(http.StatusOK, automation)
 }

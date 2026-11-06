@@ -242,6 +242,7 @@ func runMigrations() error {
 	// is a harmless no-op; panics must propagate to the caller.
 	defer tx.Rollback()
 
+	firstVersions := !tx.Migrator().HasTable(&models.AutomationVersion{})
 	if err := tx.AutoMigrate(
 		// Base models without foreign keys
 		&models.User{},
@@ -290,6 +291,7 @@ func runMigrations() error {
 		&models.AutomationNode{},
 		&models.AutomationNodeEdge{},
 		&models.AutomationExecution{},
+		&models.AutomationVersion{},
 		&models.AIOptimization{},
 		&models.LLMEmailWriterJob{},
 
@@ -347,6 +349,11 @@ func runMigrations() error {
 	if err := models.BackfillTagWorkspaces(tx); err != nil {
 		tx.Rollback()
 		return err
+	}
+	if firstVersions {
+		if err := models.BackfillAutomationVersions(tx); err != nil {
+			return err
+		}
 	}
 	if err := analytics.Install(tx); err != nil {
 		tx.Rollback()
