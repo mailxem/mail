@@ -51,7 +51,8 @@ func receivingTestService(t *testing.T) *Service {
 		raw, _ := admin.DB()
 		raw.Close()
 	})
-	db, err := gorm.Open(postgres.Open(dsn+" search_path="+schema), &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, Logger: logger.Default.LogMode(logger.Silent)})
+	// Simple protocol, as in production (internal/db): it sends Go values as text literals.
+	db, err := gorm.Open(postgres.New(postgres.Config{DSN: dsn + " search_path=" + schema, PreferSimpleProtocol: true}), &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, Logger: logger.Default.LogMode(logger.Silent)})
 	require.NoError(t, err)
 	require.NoError(t, db.AutoMigrate(&sending.Account{}, &sending.Domain{}))
 	require.NoError(t, Migrate(db))
