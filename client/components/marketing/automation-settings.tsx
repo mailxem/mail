@@ -504,3 +504,101 @@ export function DateTriggerSettings({ config, update }: Settings) {
     </>
   );
 }
+
+export const waitEvents: Record<string, string> = {
+  opened: "Opens the previous email",
+  clicked: "Clicks a link in the previous email",
+  tag_added: "Gets a tag",
+  field_changed: "A contact field changes",
+  app_event: "Your app sends an event",
+};
+export function WaitUntilSettings({ config, update }: Settings) {
+  const hours = parseFloat(String(config.timeout || "")) || 72;
+  return (
+    <>
+      <Field
+        label="Continue as soon as the contact"
+        hint="Contacts take the “it happened” path the moment this happens."
+      >
+        <select
+          value={String(config.event || "opened")}
+          onChange={(e) => update({ event: e.target.value })}
+        >
+          {Object.entries(waitEvents).map(([key, label]) => (
+            <option key={key} value={key}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </Field>
+      {config.event === "clicked" && (
+        <Field label="Only this link" hint="Leave blank for any link.">
+          <input
+            type="url"
+            maxLength={2000}
+            placeholder="https://"
+            value={String(config.url || "")}
+            onChange={(e) => update({ url: e.target.value })}
+          />
+        </Field>
+      )}
+      {config.event === "tag_added" && (
+        <Field label="Tag">
+          <input
+            maxLength={80}
+            value={String(config.tag || "")}
+            onChange={(e) => update({ tag: e.target.value })}
+          />
+        </Field>
+      )}
+      {config.event === "field_changed" && (
+        <div className="grid grid-cols-2 gap-2">
+          <Field label="Field">
+            <select
+              value={String(config.field || "")}
+              onChange={(e) => update({ field: e.target.value })}
+            >
+              <option value="">Choose a field</option>
+              {Object.entries(contactFields).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Changes to">
+            <input
+              maxLength={1000}
+              value={String(config.value || "")}
+              onChange={(e) => update({ value: e.target.value })}
+            />
+          </Field>
+        </div>
+      )}
+      {config.event === "app_event" && (
+        <Field
+          label="Event name"
+          hint="The name your app sends to the events API."
+        >
+          <input
+            maxLength={100}
+            value={String(config.name || "")}
+            onChange={(e) => update({ name: e.target.value })}
+          />
+        </Field>
+      )}
+      <Field
+        label="Otherwise give up after (hours)"
+        hint="Then the contact takes the “time ran out” path."
+      >
+        <input
+          type="number"
+          min={1}
+          max={8760}
+          value={hours}
+          onChange={(e) => update({ timeout: `${e.target.value}h` })}
+        />
+      </Field>
+    </>
+  );
+}

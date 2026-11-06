@@ -258,3 +258,25 @@ test("event triggers save the event name", async () => {
   );
   expect(start.data.eventName).toBe("order_placed");
 });
+test("a wait-until step gets happened and timed-out paths, and new workflows run once", async () => {
+  await act(async () =>
+    root.render(<AutomationBuilder initial={flow} close={() => {}} />),
+  );
+  await click("start");
+  await click("Add Wait until something happens");
+  await click("Save draft");
+  const payload = mockRequest.mock.calls[0][2];
+  const wait = payload.nodes.find((n: any) => n.type === "WAIT_UNTIL");
+  expect(wait.data).toMatchObject({ event: "opened", timeout: "72h" });
+  expect(payload.edges).toContainEqual({
+    sourceId: wait.id,
+    targetId: "condition",
+    label: "happened",
+  });
+  expect(
+    payload.edges.filter(
+      (e: any) => e.sourceId === wait.id && e.label === "timeout",
+    ),
+  ).toHaveLength(1);
+  expect(payload).toMatchObject({ reentryMode: "once", exitOnGoal: true });
+});
