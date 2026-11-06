@@ -2965,7 +2965,8 @@ const docTemplate = `{
                         "ACTIVE",
                         "UNSUBSCRIBED",
                         "BOUNCED",
-                        "COMPLAINED"
+                        "COMPLAINED",
+                        "INACTIVE"
                     ],
                     "allOf": [
                         {
@@ -3887,13 +3888,15 @@ const docTemplate = `{
                 "ACTIVE",
                 "UNSUBSCRIBED",
                 "BOUNCED",
-                "COMPLAINED"
+                "COMPLAINED",
+                "INACTIVE"
             ],
             "x-enum-varnames": [
                 "SubscriberStatusActive",
                 "SubscriberStatusUnsubscribed",
                 "SubscriberStatusBounced",
-                "SubscriberStatusComplained"
+                "SubscriberStatusComplained",
+                "SubscriberStatusInactive"
             ]
         },
         "kori_internal_models.Subscription": {
