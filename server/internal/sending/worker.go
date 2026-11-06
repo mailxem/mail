@@ -115,13 +115,21 @@ func (s *Service) send(ctx context.Context, m Message) error {
 		}
 	}
 	providerID := ""
-	if err == nil && (len(m.Raw) == 0 || m.CreatedAt.Before(s.Now().Add(-7*24*time.Hour))) {
+	raw := m.Raw
+	if err == nil && len(raw) == 0 && m.EmailID != "" && RenderRaw != nil {
+		// Queued without its MIME: rebuild it from the email, as Submit would have stored it.
+		if raw, err = s.rebuild(ctx, m); err != nil {
+			log.Printf("managed delivery could not rebuild message: message_id=%s error=%v", m.ID, err)
+			err, detail = ErrDenied, "The queued email could no longer be built."
+		}
+	}
+	if err == nil && (len(raw) == 0 || m.CreatedAt.Before(s.Now().Add(-7*24*time.Hour))) {
 		err = ErrDenied
 		detail = "Queued message expired before dispatch."
 	}
 	if err == nil {
 		sendCtx, cancel := context.WithTimeout(ctx, 25*time.Second)
-		providerID, err = s.Provider.Send(sendCtx, m.TeamID, d.Name, m.From, strings.Split(m.Recipients, ","), m.Raw, m.ID)
+		providerID, err = s.Provider.Send(sendCtx, m.TeamID, d.Name, m.From, strings.Split(m.Recipients, ","), raw, m.ID)
 		cancel()
 		if err == nil {
 			status = "SENT"
@@ -144,7 +152,8 @@ func (s *Service) send(ctx context.Context, m Message) error {
 	recordCtx, cancelRecord := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
 	defer cancelRecord()
 	return s.DB.WithContext(recordCtx).Transaction(func(tx *gorm.DB) error {
-		r := tx.Model(&Message{}).Where("id = ? AND status = ?", m.ID, "SENDING").Updates(map[string]any{"status": status, "detail": detail, "provider_id": providerID, "updated_at": s.Now()})
+		// Every outcome here is final, so the MIME is no longer needed.
+		r := tx.Model(&Message{}).Where("id = ? AND status = ?", m.ID, "SENDING").Updates(map[string]any{"status": status, "detail": detail, "provider_id": providerID, "updated_at": s.Now(), "raw": nil})
 		if r.Error != nil {
 			return r.Error
 		}
@@ -178,6 +187,27 @@ func (s *Service) send(ctx context.Context, m Message) error {
 		return nil
 	})
 }
+
+// rebuild is the MIME of a message queued without it (Submission.Transient):
+// the email built again, normalized and given its Feedback-ID, as Submit
+// stores it for messages that keep theirs.
+func (s *Service) rebuild(ctx context.Context, m Message) ([]byte, error) {
+	raw, err := RenderRaw(ctx, m.EmailID)
+	if err == nil {
+		raw, _, _, err = NormalizeRaw(raw, m.From)
+	}
+	var email models.Email
+	if err == nil {
+		err = s.DB.WithContext(ctx).Select("id", "campaign_id").First(&email, "id = ? AND team_id = ?", m.EmailID, m.TeamID).Error
+	}
+	if err != nil {
+		return nil, err
+	}
+	ref, kind := s.feedbackRef(ctx, m.TeamID, m.EmailID, email.CampaignID)
+	in := Submission{TeamID: m.TeamID, DomainID: m.DomainID, CredentialID: m.CredentialID, IsTest: m.IsTest, FeedbackRef: ref, FeedbackKind: kind}
+	return append([]byte("Feedback-ID: "+feedbackID(in)+"\r\n"), raw...), nil
+}
+
 func (s *Service) Run(ctx context.Context) {
 	notificationsDone := make(chan struct{})
 	go func() {
@@ -298,7 +328,7 @@ func (s *Service) MaintainMessages(ctx context.Context) error {
 			if m.Status == "SENDING" {
 				status, detail = "DELIVERY_UNKNOWN", "Worker stopped before outcome was recorded. Review events before resending."
 			}
-			if err := tx.Model(&m).Updates(map[string]any{"status": status, "detail": detail}).Error; err != nil {
+			if err := tx.Model(&m).Updates(map[string]any{"status": status, "detail": detail, "raw": nil}).Error; err != nil {
 				return err
 			}
 			if s.NotifyAlerts && !m.IsTest {

@@ -311,6 +311,7 @@ func runMigrations() error {
 
 		// Email-related models
 		&models.Email{},
+		&models.EmailContent{},
 		&models.EmailTracking{},
 		&models.Delivery{},
 

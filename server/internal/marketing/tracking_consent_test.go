@@ -2,7 +2,6 @@ package marketing_test
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"net/http/httptest"
 	"net/url"
@@ -18,6 +17,7 @@ import (
 	"kori/internal/handlers"
 	"kori/internal/marketing"
 	"kori/internal/models"
+	"kori/internal/utils"
 	cryptoutil "kori/internal/utils/crypto"
 )
 
@@ -37,6 +37,10 @@ func TestEditionTrackingFollowsSwitchAndConsent(t *testing.T) {
 	seed(t, db, &models.Contact{Base: models.Base{ID: ben}, TeamID: team, ListID: list, Email: "ben@example.com", Status: models.SubscriberStatusActive})
 	require.NoError(t, models.SetTrackingConsent(db, team, "ben@example.com", true, "test"))
 	service := marketing.New(db, strings.Repeat("s", 32), "https://api.example.com")
+	t.Setenv("PUBLIC_API_URL", "https://api.example.com")
+	oldRender := utils.RenderConfig
+	t.Cleanup(func() { utils.RenderConfig = oldRender })
+	utils.RenderConfig = &config.Config{JWT: config.JWTConfig{Secret: strings.Repeat("s", 32)}}
 	newsletter := uuid.NewString()
 	send := func(track *bool) map[string]models.Email {
 		c := models.Campaign{Base: models.Base{ID: uuid.NewString()}, NewsletterID: &newsletter, TeamID: team, TemplateID: tpl, ListID: list, SMTPConfigID: sender, Name: "Edition", Status: models.CampaignStatusScheduled, HTMLBody: `<a href="https://example.com/story">Read</a>`, PostalAddress: "42 Market Street", TrackEngagement: track}
@@ -51,9 +55,9 @@ func TestEditionTrackingFollowsSwitchAndConsent(t *testing.T) {
 		return byContact
 	}
 	body := func(e models.Email) string {
-		b, err := base64.StdEncoding.DecodeString(e.Body)
+		b, err := utils.EmailHTML(db, &e)
 		require.NoError(t, err)
-		return string(b)
+		return b
 	}
 
 	// opt_in: only the reader who agreed is tracked; the other still gets a working unsubscribe link.
@@ -116,6 +120,9 @@ func TestAutomationEmailTrackingSwitchAndTransactionalConsent(t *testing.T) {
 	cfg := &config.Config{}
 	cfg.JWT.Secret = strings.Repeat("x", 32)
 	processor := processors.NewEmailProcessor(db, nil, cfg)
+	oldRender := utils.RenderConfig
+	t.Cleanup(func() { utils.RenderConfig = oldRender })
+	utils.RenderConfig = cfg
 	run := func(data map[string]any) models.Email {
 		raw, _ := json.Marshal(data)
 		node := &models.AutomationNode{Base: models.Base{ID: uuid.NewString()}, Type: models.NodeTypeEmail, Data: raw}
@@ -128,9 +135,9 @@ func TestAutomationEmailTrackingSwitchAndTransactionalConsent(t *testing.T) {
 		return email
 	}
 	decode := func(e models.Email) string {
-		b, err := base64.StdEncoding.DecodeString(e.Body)
+		b, err := utils.EmailHTML(db, &e)
 		require.NoError(t, err)
-		return string(b)
+		return b
 	}
 	// Transactional email ignores the opt_in consent mode.
 	tracked := run(map[string]any{"templateId": templateID, "smtpConfigId": senderID})

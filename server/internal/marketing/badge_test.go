@@ -15,8 +15,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"kori/internal/billing"
+	"kori/internal/config"
 	"kori/internal/marketing"
 	"kori/internal/models"
+	"kori/internal/utils"
 	cryptoutil "kori/internal/utils/crypto"
 )
 
@@ -37,6 +39,10 @@ func TestFreeWorkspaceEditionsCarryTheReferralBadge(t *testing.T) {
 	billing.Enabled = true
 	billing.Use(&billing.Reporter{URL: srv.URL, HTTP: srv.Client(), Now: time.Now})
 	t.Cleanup(func() { billing.Enabled = false; billing.Use(nil) })
+	t.Setenv("PUBLIC_API_URL", "https://api.example.com")
+	oldRender := utils.RenderConfig
+	t.Cleanup(func() { utils.RenderConfig = oldRender })
+	utils.RenderConfig = &config.Config{JWT: config.JWTConfig{Secret: strings.Repeat("s", 32)}}
 
 	body := func(team string) string {
 		owner := uuid.NewString()
@@ -60,9 +66,9 @@ func TestFreeWorkspaceEditionsCarryTheReferralBadge(t *testing.T) {
 		require.NoError(t, service.PrepareEdition(ctx, edition.ID))
 		var email models.Email
 		require.NoError(t, db.Where("team_id = ?", team).First(&email).Error)
-		raw, err := base64.StdEncoding.DecodeString(email.Body)
+		html, err := utils.EmailHTML(db, &email)
 		require.NoError(t, err)
-		return string(raw)
+		return html
 	}
 
 	freeBody := body(free)

@@ -184,13 +184,14 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		return nil
 	}
 
-	// Fetched on first use, so a list with no one left completes without it.
-	var htmlFromTemplate string
+	// Fetched and stored on first use, so a list with no one left completes
+	// without it. Every email shares it and keeps only its own variables.
+	var contentID string
 	badge := affiliates.Badge(ctx, h.db, campaign.TeamID)
 	// Builds one contact's email; the pages below call it for each contact.
 	build := func(contact models.Contact) (*models.Email, error) {
-		if htmlFromTemplate == "" {
-			htmlFromTemplate = campaign.Template.HTMLBody
+		if contentID == "" {
+			htmlFromTemplate := campaign.Template.HTMLBody
 			if htmlFromTemplate == "" {
 				if campaign.Template.HtmlFile == nil {
 					return nil, fmt.Errorf("template has no HTML")
@@ -201,6 +202,11 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 				}
 				htmlFromTemplate = html
 			}
+			id, err := utils.StoreEmailContent(h.db, models.EmailContent{TeamID: campaign.TeamID, Kind: utils.ContentCampaign, HTML: htmlFromTemplate, Subject: campaign.Template.Subject, Badge: badge})
+			if err != nil {
+				return nil, h.logger.Error("❌ failed to store campaign content: %w", err)
+			}
+			contentID = id
 		}
 
 		// default variables
@@ -236,9 +242,9 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		messageID := uuid.NewString()
 		// A campaign goes to a list, so it's marketing: every email gets an
 		// unsubscribe footer and the one-click header that managed sending,
-		// Gmail and Yahoo require, whether or not it's tracked.
+		// Gmail and Yahoo require, whether or not it's tracked. The body is
+		// rendered from the shared content when sent (utils.RenderEmail).
 		tracked := models.ShouldTrack(h.db, campaign.TeamID, contact.Email, campaign.TrackEngagement, true)
-		parsedBody := utils.ReplaceVariables(affiliates.WithBadge(htmlFromTemplate, badge), variables, messageID, h.cfg, tracked, true)
 		unsubscribe, err := utils.UnsubscribeLink(messageID, h.cfg)
 		if err != nil {
 			return nil, h.logger.Error("❌ failed to sign unsubscribe link: %w", err)
@@ -260,7 +266,7 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 			From:         smtpConfig.FromEmail,
 			To:           contact.Email,
 			Subject:      parsedSubject,
-			Body:         parsedBody,
+			ContentID:    &contentID,
 			Data:         jsonData,
 			Status:       models.EmailStatusPending,
 			TeamID:       campaign.TeamID,

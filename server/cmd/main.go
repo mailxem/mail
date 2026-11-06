@@ -82,6 +82,7 @@ func main() {
 	}
 
 	services.Initialize(cfg)
+	utils.RenderConfig = cfg // bulk emails render with the config their senders use
 
 	// Initialize keys
 	if err := crypto.InitializeKeys(
@@ -239,6 +240,13 @@ func main() {
 			defer cancel()
 			return managed.SubmitEmail(ctx, email, raw.Bytes())
 		}
+		utils.ManagedDeliveryBatch = func(emails []*models.Email, raws [][]byte) []error {
+			ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+			defer cancel()
+			return managed.SubmitEmails(ctx, emails, raws)
+		}
+		// In-process emails are queued without their MIME and rebuilt at dispatch.
+		sending.RenderRaw = utils.RenderRaw
 		go func() { defer close(managedDone); managed.Run(managedCtx) }()
 		if managedConfig.SMTPEnabled {
 			smtpServer, err := sending.StartSMTP(managed)
