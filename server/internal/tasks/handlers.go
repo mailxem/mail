@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"kori/internal/affiliates"
 	"bytes"
 	"context"
 	"encoding/csv"
@@ -9,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"kori/internal/affiliates"
 	"kori/internal/config"
 	"kori/internal/hygiene"
 	"kori/internal/marketing"
@@ -16,6 +16,7 @@ import (
 	"kori/internal/utils"
 	"kori/internal/utils/base64"
 	"kori/internal/utils/logger"
+	"kori/internal/workflowconfig"
 	"os"
 	"time"
 
@@ -506,6 +507,10 @@ func (h *TaskHandler) HandleContactImport(ctx context.Context, t *asynq.Task) er
 		contact.Zip = getFieldValue("zip")
 		contact.Address = getFieldValue("address")
 		contact.Company = getFieldValue("company")
+		// Unknown time zones are dropped rather than failing the row.
+		if tz := strings.TrimSpace(getFieldValue("timezone")); workflowconfig.ValidTimezone(tz) {
+			contact.Timezone = tz
+		}
 
 		// Store all fields in metadata
 		contact.Metadata, err = utils.MapToJSON(recordMap)

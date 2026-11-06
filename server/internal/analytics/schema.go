@@ -61,5 +61,7 @@ func Install(db *gorm.DB) error {
  CREATE INDEX IF NOT EXISTS analytics_contacts_recipient ON contacts(team_id,lower(trim(email)));
  CREATE INDEX IF NOT EXISTS analytics_emails_scope ON emails(team_id,sent_at,campaign_id) WHERE test = false;
  CREATE INDEX IF NOT EXISTS analytics_tracking_message ON email_trackings(email_id,timestamp,event) WHERE is_deleted = false;
+ -- Automation frequency caps count a contact's recent automation emails.
+ CREATE INDEX IF NOT EXISTS automation_emails_contact ON emails(contact_id,created_at) WHERE delivery_key LIKE 'automation:%';
  `).Error
 }

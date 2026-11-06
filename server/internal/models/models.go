@@ -109,6 +109,7 @@ type Contact struct {
 	Zip            string           `json:"zip" validate:"omitempty"`
 	Address        string           `json:"address" validate:"omitempty"`
 	Company        string           `json:"company" validate:"omitempty"`
+	Timezone       string           `gorm:"size:64" json:"timezone" validate:"omitempty,timezone"` // IANA name; automations send in it
 	ListID         string           `gorm:"type:uuid;not null" json:"listId" validate:"required,uuid"`
 	TeamID         string           `gorm:"type:uuid;not null" json:"teamId" validate:"required,uuid"`
 	List           *MailingList     `json:"list,omitempty"`
@@ -598,6 +599,7 @@ type Automation struct {
 	Team         *Team                `json:"team,omitempty"`
 	Nodes        []AutomationNode     `gorm:"foreignKey:AutomationID" json:"nodes,omitempty"`
 	Edges        []AutomationNodeEdge `gorm:"foreignKey:AutomationID" json:"edges,omitempty"`
+	SendWindow   datatypes.JSON       `gorm:"type:jsonb" json:"sendWindow"` // null uses the workspace default
 	IsActive     bool                 `gorm:"not null;default:false" json:"isActive"`
 	// Nodes and Edges hold the draft; LiveVersion names the published snapshot new contacts start on.
 	LiveVersion       int    `gorm:"not null;default:0" json:"liveVersion"`

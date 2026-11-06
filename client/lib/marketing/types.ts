@@ -119,6 +119,12 @@ export type WorkflowEdge = {
   targetId: string;
   label: string;
 };
+export type SendWindow = {
+  enabled: boolean;
+  start: string;
+  end: string;
+  days: number[];
+};
 export type Workflow = {
   id: string;
   name: string;
@@ -130,6 +136,7 @@ export type Workflow = {
   reentryMode?: string;
   reentryDays?: number;
   exitOnGoal?: boolean | null;
+  sendWindow?: SendWindow | null;
   nodes: WorkflowNode[];
   edges: WorkflowEdge[];
   updatedAt: string;

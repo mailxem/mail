@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bell, CreditCard, Globe, Palette, User } from "lucide-react";
+import { Bell, Clock, CreditCard, Globe, Palette, User } from "lucide-react";
 import { ProfileSettings } from "./profile-settings";
 import { BrandingSettings, TrackingConsentSettings } from "./branding-settings";
+import { SendingRulesSettings } from "./sending-rules-settings";
 import { CustomDomains } from "./custom-domains";
 import dynamic from "next/dynamic";
 import styles from "./settings-tabs.module.css";
@@ -18,6 +19,7 @@ const sections = [
   { id: "profile", title: "Profile", icon: User },
   { id: "branding", title: "Branding", icon: Palette },
   { id: "domains", title: "Domains", icon: Globe },
+  { id: "sending-rules", title: "Sending rules", icon: Clock },
   { id: "notifications", title: "Notifications", icon: Bell },
   { id: "billing", title: "Billing", icon: CreditCard },
 ];
@@ -42,6 +44,7 @@ export function SettingsTabs() {
       </TabsContent>
       <TabsContent value="branding" className={styles.content}><BrandingSettings /><TrackingConsentSettings /></TabsContent>
       <TabsContent value="domains" className={styles.content}><CustomDomains /></TabsContent>
+      <TabsContent value="sending-rules" className={styles.content}><SendingRulesSettings /></TabsContent>
       <TabsContent value="notifications" className={styles.content}>
         <section className={styles.section} aria-labelledby="notification-settings-heading">
           <div className={styles.sectionIntro}>
