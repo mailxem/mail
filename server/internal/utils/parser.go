@@ -71,10 +71,9 @@ func MapToJSON(data map[string]string) (datatypes.JSON, error) {
 // so we can track the number of clicks
 func ReplaceLinksWithRedirect(body string, mailID string, cfg *config.Config, isMarketing bool) string {
 	if isMarketing {
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"mailId": mailID})
-		signed, err := token.SignedString([]byte(cfg.JWT.Secret))
+		link, err := UnsubscribeLink(mailID, cfg)
 		if err == nil {
-			footer := fmt.Sprintf(`<p><a href="%s/t/unsubscribe?token=%s">Unsubscribe from this list</a></p>`, cfg.Server.PublicURL, signed)
+			footer := fmt.Sprintf(`<p><a href="%s">Unsubscribe from this list</a></p>`, link)
 			if strings.Contains(body, "</body>") {
 				body = strings.Replace(body, "</body>", footer+"</body>", 1)
 			} else {
@@ -83,6 +82,16 @@ func ReplaceLinksWithRedirect(body string, mailID string, cfg *config.Config, is
 		}
 	}
 	return TrackEmailHTML(body, mailID, cfg.Server.PublicURL, cfg.JWT.Secret)
+}
+
+// UnsubscribeLink is the signed one-click unsubscribe address for one email; the
+// same address goes in the footer and in the List-Unsubscribe header.
+func UnsubscribeLink(mailID string, cfg *config.Config) (string, error) {
+	signed, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"mailId": mailID}).SignedString([]byte(cfg.JWT.Secret))
+	if err != nil {
+		return "", err
+	}
+	return cfg.Server.PublicURL + "/t/unsubscribe?token=" + signed, nil
 }
 
 // TrackEmailHTML keeps original attributes and does not count opt-out links as engagement.
