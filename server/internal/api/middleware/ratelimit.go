@@ -428,3 +428,41 @@ func CreateDefaultRateLimitConfig(redisClient *redis.Client) RateLimitConfig {
 		AuthLimits:     make(map[string]AuthLimit),
 	}
 }
+
+// Public form submissions are capped per visitor across every form, and per
+// form across every visitor, so a script can't flood one audience with fake
+// or stolen addresses.
+var (
+	formSubmitPerIP = EndpointLimit{
+		Limit:  20.0 / 3600.0, // 20 requests per hour
+		Burst:  5,
+		Window: time.Hour,
+	}
+	formSubmitPerForm = EndpointLimit{
+		Limit:  120.0 / 60.0, // 120 requests per minute
+		Burst:  60,
+		Window: time.Minute,
+	}
+)
+
+// FormSubmitRateLimiter limits POST /public/forms/:slug by visitor IP and by form slug.
+func FormSubmitRateLimiter(redisClient *redis.Client) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			for _, check := range []struct {
+				client string
+				limit  EndpointLimit
+			}{
+				{"ip:" + getClientIP(c), formSubmitPerIP},
+				{"form:" + c.Param("slug"), formSubmitPerForm},
+			} {
+				allowed, _, _, retryAfter := checkRateLimit(c.Request().Context(), redisClient, check.client, "form-submit", check.limit)
+				if !allowed {
+					c.Response().Header().Set("Retry-After", strconv.Itoa(retryAfter))
+					return echo.NewHTTPError(http.StatusTooManyRequests, "Too many submissions. Please try again later.")
+				}
+			}
+			return next(c)
+		}
+	}
+}

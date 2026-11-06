@@ -1,8 +1,15 @@
 package middleware
 
 import (
+	"context"
+	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
+	"github.com/redis/go-redis/v9"
 )
 
 func TestDefaultLimitsMatchRealRoutes(t *testing.T) {
@@ -32,5 +39,51 @@ func TestDefaultLimitsMatchRealRoutes(t *testing.T) {
 			t.Errorf("%s: got counter %q, %d per %s; want %q, %d per %s",
 				tc.request, counter, perWindow(limit), limit.Window, tc.counter, tc.max, tc.window)
 		}
+	}
+}
+
+func TestFormSubmitRateLimiterCapsVisitorsAndForms(t *testing.T) {
+	addr := os.Getenv("REDIS_TEST_ADDR")
+	if addr == "" {
+		t.Skip("set REDIS_TEST_ADDR to run against Redis")
+	}
+	client := redis.NewClient(&redis.Options{Addr: addr, DB: 15})
+	defer client.Close()
+	// The limiter lets requests through when Redis is down, so it can only be checked against a live one.
+	if err := client.Ping(context.Background()).Err(); err != nil {
+		t.Skipf("Redis at %s is unreachable: %v", addr, err)
+	}
+	e := echo.New()
+	e.POST("/public/forms/:slug", func(c echo.Context) error { return c.NoContent(200) }, FormSubmitRateLimiter(client))
+	post := func(slug, ip string) int {
+		req := httptest.NewRequest("POST", "/public/forms/"+slug, nil)
+		req.Header.Set("X-Forwarded-For", ip)
+		rec := httptest.NewRecorder()
+		e.ServeHTTP(rec, req)
+		return rec.Code
+	}
+	perHour := int(float64(formSubmitPerIP.Limit) * formSubmitPerIP.Window.Seconds())
+	perMinute := int(float64(formSubmitPerForm.Limit) * formSubmitPerForm.Window.Seconds())
+
+	// One visitor is capped across every form.
+	ip := uuid.NewString()
+	for i := 0; i < perHour; i++ {
+		if code := post(uuid.NewString(), ip); code != 200 {
+			t.Fatalf("submission %d from one visitor: got %d", i+1, code)
+		}
+	}
+	if code := post(uuid.NewString(), ip); code != 429 {
+		t.Fatalf("visitor over the limit: got %d, want 429", code)
+	}
+
+	// One form is capped across every visitor.
+	slug := uuid.NewString()
+	for i := 0; i < perMinute; i++ {
+		if code := post(slug, uuid.NewString()); code != 200 {
+			t.Fatalf("submission %d to one form: got %d", i+1, code)
+		}
+	}
+	if code := post(slug, uuid.NewString()); code != 429 {
+		t.Fatalf("form over the limit: got %d, want 429", code)
 	}
 }

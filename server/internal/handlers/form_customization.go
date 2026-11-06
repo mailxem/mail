@@ -60,6 +60,9 @@ type formSubmissionInput struct {
 	ResumeToken string            `json:"resumeToken"`
 	PageID      string            `json:"pageId"`
 	Attribution formAttribution   `json:"attribution"`
+	// FormToken is the signed render time; TurnstileToken is the Cloudflare widget's answer.
+	FormToken      string `json:"formToken"`
+	TurnstileToken string `json:"turnstileToken"`
 }
 
 func isHTMLFormPost(c echo.Context) bool {
@@ -93,6 +96,8 @@ func bindFormSubmission(c echo.Context) (formSubmissionInput, error) {
 	in.RequestID = values.Get("requestId")
 	in.SessionID = values.Get("sessionId")
 	in.ResumeToken = values.Get("resumeToken")
+	in.FormToken = values.Get("formToken")
+	in.TurnstileToken = values.Get("cf-turnstile-response")
 	if values.Get("version") != "" {
 		var err error
 		in.Version, err = strconv.Atoi(values.Get("version"))

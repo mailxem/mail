@@ -91,8 +91,33 @@ func (h *MarketingHandler) submitForm(c echo.Context) error {
 	if err != nil {
 		return bad("Invalid submission")
 	}
+	// Bots get the usual thanks so they don't learn what gave them away.
 	if in.Website != "" {
 		return formSubmissionSuccess(c, "Thanks for your response!")
+	}
+	// Copied HTML forms can't carry a render time, so only they may leave it out.
+	if in.FormToken != "" || !isHTMLFormPost(c) {
+		age, ok := h.service.FormTokenAge(c.Param("slug"), in.FormToken, time.Now())
+		if !ok || age < marketing.MinFormFillTime {
+			return formSubmissionSuccess(c, "Thanks for your response!")
+		}
+		if age > marketing.FormTokenLifetime {
+			return bad("This form has expired. Reload the page and submit again.")
+		}
+	}
+	if marketing.TurnstileSiteKey() != "" {
+		// Checked outside the transaction so a slow Cloudflare call never holds the form's row lock.
+		if pf, err := h.publicForm(c, h.service.DB, false); err == nil {
+			if d, err := marketing.DefinitionForForm(pf); err == nil && d.Turnstile {
+				human, err := marketing.VerifyTurnstile(c.Request().Context(), in.TurnstileToken, c.RealIP())
+				if err != nil {
+					return echo.NewHTTPError(503, "We couldn’t check that you’re human. Please try again.")
+				}
+				if !human {
+					return bad("Complete the security check and submit again.")
+				}
+			}
+		}
 	}
 	session, err := formSession(in)
 	if err != nil {

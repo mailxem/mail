@@ -153,7 +153,8 @@ export function FormShare({
           >
             Copy action URL
           </Button>
-          {simplePage && (
+          {/* A copied form can't show the Turnstile check, so the server would refuse it. */}
+          {simplePage && !definition.turnstile && (
             <>
               <Field label="Custom HTML form">
                 <textarea

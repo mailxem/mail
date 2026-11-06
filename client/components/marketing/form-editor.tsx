@@ -374,6 +374,28 @@ export function FormEditor({
                   </small>
                 </span>
               </label>
+              {options?.turnstileSiteKey && (
+                <label className="flex items-start gap-2 text-sm">
+                  <input
+                    className="!w-4"
+                    type="checkbox"
+                    checked={!!definition.turnstile}
+                    onChange={(event) =>
+                      setDefinition({
+                        ...definition,
+                        turnstile: event.target.checked,
+                      })
+                    }
+                  />
+                  <span>
+                    Ask visitors to pass a Cloudflare Turnstile check
+                    <small className="mt-1 block text-muted-foreground">
+                      Stops automated signups. Most people never see a
+                      puzzle. Copied HTML forms can&apos;t show the check.
+                    </small>
+                  </span>
+                </label>
+              )}
               <Field label="Button text">
                 <input
                   required
