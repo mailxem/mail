@@ -130,7 +130,7 @@ func (s *Service) CreateMailbox(ctx context.Context, team, domainID, local, disp
 		id := uuid.NewString()
 		senderID := uuid.NewString()
 		senderReady := account.Approved && !account.Paused && d.Ready && d.Provisioned && d.CheckedAt != nil && s.Now().Sub(*d.CheckedAt) <= 24*time.Hour
-		sender := models.SMTPConfig{Base: models.Base{ID: senderID}, Provider: "MANAGED", Host: "managed.internal", Port: 587, Username: address, FromEmail: address, IsActive: senderReady, SupportsTLS: true, RequiresAuth: true, MaxSendRate: 1, TeamID: team}
+		sender := models.SMTPConfig{Base: models.Base{ID: senderID}, Provider: "MANAGED", Host: "managed.internal", Port: 587, Username: address, FromEmail: address, IsActive: senderReady, SupportsTLS: true, RequiresAuth: true, MaxSendRate: sending.HandoffRate, TeamID: team}
 		if e := tx.Session(&gorm.Session{SkipHooks: true}).Create(&sender).Error; e != nil {
 			return e
 		}

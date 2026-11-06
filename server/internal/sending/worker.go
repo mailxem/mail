@@ -6,9 +6,11 @@ import (
 	"kori/internal/billing"
 	"log"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/aws/smithy-go"
+	"golang.org/x/time/rate"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"kori/internal/models"
@@ -17,31 +19,77 @@ import (
 // ProcessOne claims durably before making a network request. A crashed SENDING
 // claim is quarantined, never automatically replayed: SES has no idempotency key.
 func (s *Service) ProcessOne(ctx context.Context) error {
-	var m Message
+	claimed, err := s.claim(ctx, 1)
+	if err != nil {
+		return err
+	}
+	// An empty queue is normal.
+	if len(claimed) == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return s.send(ctx, claimed[0])
+}
+
+// claim moves up to n eligible messages from QUEUED to SENDING in one
+// transaction. Workspaces take turns (each team's oldest first, then each
+// team's second oldest, ...), so one large send cannot starve the others.
+// Postgres rejects FOR UPDATE beside a window function, so ids are ranked in a
+// subquery and locked outside it; the outer status check is re-evaluated after
+// waiting on a row another replica claimed.
+// ponytail: ranks every QUEUED row per claim; fine at ~1e5 queued, keep a
+// per-team cursor if the queue grows far past that.
+func (s *Service) claim(ctx context.Context, n int) ([]Message, error) {
+	var claimed []Message
 	err := s.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if e := tx.Clauses(clause.Locking{Strength: "UPDATE", Options: "SKIP LOCKED"}).Where("status = ?", "QUEUED").Where("EXISTS (SELECT 1 FROM managed_accounts a WHERE a.team_id = managed_messages.team_id AND a.paused = false)").Where("EXISTS (SELECT 1 FROM managed_domains d WHERE d.id = managed_messages.domain_id AND d.team_id = managed_messages.team_id AND d.ready = true)").Order("created_at").Limit(1).Find(&m).Error; e != nil {
+		ranked := tx.Model(&Message{}).Select("id, created_at, ROW_NUMBER() OVER (PARTITION BY team_id ORDER BY created_at) AS team_turn").Where("status = ?", "QUEUED").Where("EXISTS (SELECT 1 FROM managed_accounts a WHERE a.team_id = managed_messages.team_id AND a.paused = false)").Where("EXISTS (SELECT 1 FROM managed_domains d WHERE d.id = managed_messages.domain_id AND d.team_id = managed_messages.team_id AND d.ready = true)")
+		fair := tx.Table("(?) AS ranked", ranked).Select("id").Order("team_turn, created_at").Limit(n)
+		if e := tx.Clauses(clause.Locking{Strength: "UPDATE", Options: "SKIP LOCKED"}).Where("status = ? AND id IN (?)", "QUEUED", fair).Find(&claimed).Error; e != nil {
 			return e
 		}
-		// An empty queue is normal; Find avoids First's "record not found" log every poll.
-		if m.ID == "" {
-			return gorm.ErrRecordNotFound
+		if len(claimed) == 0 {
+			return nil
 		}
-		r := tx.Model(&Message{}).Where("id = ? AND status = ?", m.ID, "QUEUED").Updates(map[string]any{"status": "SENDING", "updated_at": s.Now()})
+		ids := make([]string, len(claimed))
+		for i, m := range claimed {
+			ids[i] = m.ID
+		}
+		r := tx.Model(&Message{}).Where("id IN ? AND status = ?", ids, "QUEUED").Updates(map[string]any{"status": "SENDING", "updated_at": s.Now()})
 		if r.Error != nil {
 			return r.Error
 		}
-		if r.RowsAffected != 1 {
-			return gorm.ErrRecordNotFound
+		if r.RowsAffected != int64(len(ids)) {
+			return errors.New("managed claim raced another worker")
 		}
 		return nil
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
+	return claimed, nil
+}
+
+// release returns claimed messages that were never handed to the provider.
+func (s *Service) release(ms []Message) {
+	if len(ms) == 0 {
+		return
+	}
+	ids := make([]string, len(ms))
+	for i, m := range ms {
+		ids[i] = m.ID
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if s.DB.WithContext(ctx).Model(&Message{}).Where("id IN ? AND status = ?", ids, "SENDING").Update("status", "QUEUED").Error != nil {
+		log.Print("managed delivery could not release unsent claims; they will be quarantined")
+	}
+}
+
+// send dispatches one message claim() moved to SENDING and records the outcome.
+func (s *Service) send(ctx context.Context, m Message) error {
 	status, detail := "FAILED", "Sending is paused, unapproved, or its domain or credential is no longer eligible."
 	var d Domain
 	var a Account
-	err = s.DB.WithContext(ctx).First(&a, "team_id = ? AND approved = true AND suspended = false AND paused = false", m.TeamID).Error
+	err := s.DB.WithContext(ctx).First(&a, "team_id = ? AND approved = true AND suspended = false AND paused = false", m.TeamID).Error
 	if err == nil {
 		err = s.DB.WithContext(ctx).First(&d, "id = ? AND team_id = ? AND ready = true", m.DomainID, m.TeamID).Error
 	}
@@ -148,18 +196,21 @@ func (s *Service) Run(ctx context.Context) {
 		}
 	}()
 	defer func() { <-notificationsDone }()
-	ticker := time.NewTicker(time.Second)
-	defer ticker.Stop()
+	deliveryDone := make(chan struct{})
+	go func() {
+		defer close(deliveryDone)
+		// The rate is per API process: replicas each get their own bucket, so
+		// MANAGED_SEND_RATE x replicas must stay within the SES account's max send rate.
+		limiter := rate.NewLimiter(rate.Limit(max(s.Config.SendRate, 1)), 1)
+		s.deliver(ctx, limiter, int(max(s.Config.Workers, 1)), 100)
+	}()
+	defer func() { <-deliveryDone }()
 	maintenance := time.NewTicker(time.Minute)
 	defer maintenance.Stop()
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case <-ticker.C:
-			if e := s.ProcessOne(ctx); e != nil && !errors.Is(e, gorm.ErrRecordNotFound) {
-				log.Print("managed delivery worker failed; inspect database/provider availability")
-			}
 		case <-maintenance.C:
 			if e := s.MaintainMessages(ctx); e != nil {
 				log.Print("managed delivery maintenance failed; inspect database availability")
@@ -171,6 +222,56 @@ func (s *Service) Run(ctx context.Context) {
 					_, _ = s.RefreshDomain(refreshCtx, d.TeamID, d.ID)
 					cancel()
 				}
+			}
+		}
+	}
+}
+
+// deliver claims up to batch messages at a time and hands them to workers,
+// paced by limiter. It claims again at once while claims come back full and
+// waits a second when the queue is drained. On cancellation it stops claiming,
+// lets in-flight sends finish, and returns claims never handed to a worker to
+// QUEUED. Replicas stay safe because claims use SKIP LOCKED. A batch of 100 at
+// 1/s or more drains in under two minutes, inside MaintainMessages' 5-minute
+// quarantine of stale SENDING claims.
+func (s *Service) deliver(ctx context.Context, limiter *rate.Limiter, workers, batch int) {
+	jobs := make(chan Message)
+	var wg sync.WaitGroup
+	for range workers {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for m := range jobs {
+				// A started SES request is finished and recorded even during shutdown.
+				if e := s.send(context.WithoutCancel(ctx), m); e != nil {
+					log.Print("managed delivery worker failed; inspect database/provider availability")
+				}
+			}
+		}()
+	}
+	defer wg.Wait()
+	defer close(jobs)
+	for ctx.Err() == nil {
+		claimed, err := s.claim(ctx, batch)
+		if err != nil && ctx.Err() == nil {
+			log.Print("managed delivery claim failed; inspect database availability")
+		}
+		for i, m := range claimed {
+			if limiter.Wait(ctx) != nil {
+				s.release(claimed[i:])
+				return
+			}
+			select {
+			case jobs <- m:
+			case <-ctx.Done():
+				s.release(claimed[i:])
+				return
+			}
+		}
+		if len(claimed) < batch {
+			select {
+			case <-ctx.Done():
+			case <-time.After(time.Second):
 			}
 		}
 	}

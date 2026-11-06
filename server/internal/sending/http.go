@@ -235,7 +235,7 @@ func (s *Service) activateSender(c echo.Context) error {
 			return QueueMilestone(tx, d.TeamID, d.ID, "sender_connected")
 		}
 		id := uuid.NewString()
-		sender := models.SMTPConfig{Base: models.Base{ID: id}, Provider: "MANAGED", Host: "managed.internal", Port: 587, Username: "managed", FromEmail: from, TeamID: d.TeamID, IsActive: true, SupportsTLS: true, RequiresAuth: true, MaxSendRate: 1}
+		sender := models.SMTPConfig{Base: models.Base{ID: id}, Provider: "MANAGED", Host: "managed.internal", Port: 587, Username: "managed", FromEmail: from, TeamID: d.TeamID, IsActive: true, SupportsTLS: true, RequiresAuth: true, MaxSendRate: HandoffRate}
 		if e := tx.Session(&gorm.Session{SkipHooks: true}).Create(&sender).Error; e != nil {
 			return e
 		}
