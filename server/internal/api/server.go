@@ -23,13 +23,15 @@ import (
 
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
 type Server struct {
-	echo   *echo.Echo
-	config *config.Config
-	db     *gorm.DB
+	echo     *echo.Echo
+	config   *config.Config
+	db       *gorm.DB
+	tracking *handlers.TrackingHandler
 }
 
 var log = console.New("API-Server")
@@ -140,7 +142,12 @@ func NewServer(cfg *config.Config, db *gorm.DB) *Server {
 		}
 	}
 
-	trackingHandler := handlers.NewTrackingHandler(s.db)
+	var trackingRedis *redis.Client
+	if redisErr == nil {
+		trackingRedis = redisClient.Client
+	}
+	trackingHandler := handlers.NewTrackingHandler(s.db, trackingRedis)
+	s.tracking = trackingHandler
 
 	routes.SetupAuthRoutes(s.echo, s.db, s.config)
 
@@ -160,7 +167,13 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {
-	return s.echo.Shutdown(ctx)
+	err := s.echo.Shutdown(ctx)
+	if s.tracking != nil {
+		if closeErr := s.tracking.Close(ctx); closeErr != nil {
+			log.Warn("Warning: tracking buffer was not fully flushed: %v", closeErr)
+		}
+	}
+	return err
 }
 
 func (s *Server) GetEcho() *echo.Echo {
