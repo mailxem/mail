@@ -43,6 +43,7 @@ import {
   Variable,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { GmailClipNotice } from "@/components/campaigns/gmail-clip-notice";
 import { useMarketing, useMarketingQuery } from "@/lib/marketing/api";
 import type {
   Workflow,
@@ -1103,6 +1104,13 @@ export function AutomationBuilder({
                     ))}
                   </select>
                 </Field>
+                <GmailClipNotice
+                  html={
+                    options.data?.templates.find(
+                      (t) => t.id === config.templateId,
+                    )?.htmlBody
+                  }
+                />
                 <Field label="Send from">
                   <select
                     value={String(config.smtpConfigId || "")}

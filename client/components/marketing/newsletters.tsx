@@ -18,6 +18,7 @@ import {
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { GmailClipNotice } from "@/components/campaigns/gmail-clip-notice";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -529,6 +530,7 @@ function NewsletterEditor({
               . First send: {at && new Date(at).toLocaleString()}. Frequency:{" "}
               {draft.cadence.toLowerCase()}.
             </p>
+            <GmailClipNotice html={templateHTML} className="mt-2" />
           </div>
         )}
         {error && (
