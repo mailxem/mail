@@ -112,8 +112,8 @@ export function SiteFooter() {
             <a href={githubUrl}>Open source on GitHub ↗</a>
             <a href={selfHostUrl}>Self-host Xem ↗</a>
             <a href={contributeUrl}>Contribute to Xem ↗</a>
-            <Link href="/google-mail">Google mail · limited testing</Link>
-            <Link href="/privacy">Privacy policy · draft</Link>
+            <Link href="/google-mail">Connect Gmail</Link>
+            <Link href="/privacy">Privacy policy</Link>
             <Link href="/data-deletion">Delete your data</Link>
             <a href="mailto:team@xem.email">Contact the Xem team</a>
           </nav>

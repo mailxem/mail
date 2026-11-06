@@ -26,6 +26,18 @@ export function McpSection() {
             npm. Bring your email workflow into the tools where you already
             think.
           </p>
+          <p className="mt-5 text-xs font-medium text-muted">Works with</p>
+          <ul className="mt-2 flex flex-wrap gap-2 text-sm">
+            {["Claude", "Cursor", "Codex", "VS Code"].map((app) => (
+              <li
+                key={app}
+                className="rounded-full border border-ink/15 bg-cream px-3 py-1.5"
+              >
+                {app}
+              </li>
+            ))}
+            <li className="px-1 py-1.5 text-muted">and any MCP client</li>
+          </ul>
           <Link
             href="/mcp"
             className="mt-7 inline-flex items-center gap-2 border-b border-ink pb-1 text-sm font-medium"
