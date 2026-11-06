@@ -61,6 +61,8 @@ func (s *Server) Start(ctx context.Context) error {
 
 	mux.HandleFunc(TaskTypeNewsletterTick, s.handler.HandleNewsletterTick)
 	mux.HandleFunc(TaskTypeFormCompletionTick, s.handler.HandleFormCompletionTick)
+	mux.HandleFunc(TaskTypeAutomationDateTick, s.handler.HandleAutomationDateTick)
+	mux.HandleFunc(TaskTypeAutomationSegmentTick, s.handler.HandleAutomationSegmentTick)
 
 	// Register task handlers
 	mux.HandleFunc(TaskTypeEmailSend, s.handler.HandleEmailSend)

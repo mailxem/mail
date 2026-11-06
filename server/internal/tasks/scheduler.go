@@ -61,6 +61,12 @@ func (s *Scheduler) registerTasks() error {
 	if _, err := s.scheduler.Register("@every 1m", asynq.NewTask(TaskTypeNewsletterTick, nil), asynq.Queue(QueueDefault), asynq.Unique(50*time.Second)); err != nil {
 		return err
 	}
+	if _, err := s.scheduler.Register("@every 5m", asynq.NewTask(TaskTypeAutomationSegmentTick, nil), asynq.Queue(QueueDefault), asynq.Unique(4*time.Minute)); err != nil {
+		return err
+	}
+	if _, err := s.scheduler.Register("@every 1h", asynq.NewTask(TaskTypeAutomationDateTick, nil), asynq.Queue(QueueDefault), asynq.Unique(50*time.Minute)); err != nil {
+		return err
+	}
 	// // Campaign scheduling (every minute)
 	// entryID, err := s.scheduler.Register("*/1 * * * *", asynq.NewTask(
 	// 	TaskTypeCampaignSchedule,

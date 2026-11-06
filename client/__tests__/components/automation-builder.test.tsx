@@ -152,3 +152,65 @@ test("published workflows disable step additions and configuration", async () =>
   ).toHaveProperty("disabled", true);
   expect(container.querySelector("fieldset")).toHaveProperty("disabled", true);
 });
+function change(element: HTMLInputElement | HTMLSelectElement, value: string) {
+  const proto =
+    element instanceof HTMLSelectElement
+      ? HTMLSelectElement.prototype
+      : HTMLInputElement.prototype;
+  Object.getOwnPropertyDescriptor(proto, "value")!.set!.call(element, value);
+  element.dispatchEvent(new Event("change", { bubbles: true }));
+}
+test("date triggers save the field, signed day offset and yearly repeat", async () => {
+  await act(async () =>
+    root.render(
+      <AutomationBuilder
+        initial={{
+          ...flow,
+          triggerEvent: "date.reached",
+          nodes: flow.nodes.map((n) =>
+            n.id === "start"
+              ? { ...n, data: { field: "birthday", offsetDays: -3, yearly: true } }
+              : n,
+          ),
+        }}
+        close={() => {}}
+      />,
+    ),
+  );
+  await click("start");
+  const when = Array.from(container.querySelectorAll("select")).find((s) =>
+    s.querySelector('option[value="before"]'),
+  )!;
+  expect(when.value).toBe("before");
+  await act(async () => change(when, "after"));
+  const field = container.querySelector(
+    'input[list="date-trigger-fields"]',
+  ) as HTMLInputElement;
+  await act(async () => change(field, "renewal_date"));
+  await click("Save draft");
+  const payload = mockRequest.mock.calls[0][2];
+  expect(payload.triggerEvent).toBe("date.reached");
+  expect(payload.nodes.find((n: any) => n.type === "START").data).toMatchObject(
+    { field: "renewal_date", offsetDays: 3, yearly: true },
+  );
+});
+test("event triggers save the event name", async () => {
+  await act(async () =>
+    root.render(
+      <AutomationBuilder
+        initial={{ ...flow, triggerEvent: "event.received" }}
+        close={() => {}}
+      />,
+    ),
+  );
+  await click("start");
+  const name = container.querySelector(
+    'input[placeholder="trial_started"]',
+  ) as HTMLInputElement;
+  await act(async () => change(name, "order_placed"));
+  await click("Save draft");
+  const start = mockRequest.mock.calls[0][2].nodes.find(
+    (n: any) => n.type === "START",
+  );
+  expect(start.data.eventName).toBe("order_placed");
+});

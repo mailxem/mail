@@ -32,6 +32,7 @@ type TaskHandler struct {
 	storageHandler *utils.StorageHandler
 	cfg            *config.Config
 	engine         interface{} // Will be set to *automation.Engine to avoid circular dependency
+	triggers       AutomationTriggers
 }
 
 // NewTaskHandler creates a new TaskHandler

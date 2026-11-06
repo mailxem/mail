@@ -65,6 +65,7 @@ import { toast } from "sonner";
 import {
   ActionSettings,
   ConditionSettings,
+  DateTriggerSettings,
   WaitSettings,
 } from "./automation-settings";
 const icons: Record<string, typeof Zap> = {
@@ -97,6 +98,11 @@ const triggerLabels: Record<string, string> = {
   "email.opened": "Email opened",
   "email.clicked": "Email link clicked",
   "form.completed": "Form completed",
+  "contact.tag_added": "Tag added to a contact",
+  "list.subscriber_added": "Contact joins a list",
+  "segment.entered": "Contact enters a segment",
+  "date.reached": "A contact date comes round",
+  "event.received": "Event from your app",
 };
 const stepDescriptions: Record<string, string> = {
   EMAIL: "Template, sender and subject",
@@ -371,12 +377,19 @@ export function AutomationBuilder({
 }) {
   const options = useMarketingQuery<Options>("marketing/options");
   const forms = useMarketingQuery<LeadForm[]>("marketing/forms");
+  const [trigger, setTrigger] = useState(initial.triggerEvent || "manual");
+  const tags = useMarketingQuery<{ id: string; name: string }[]>(
+    "marketing/tags",
+    trigger === "contact.tag_added",
+  );
+  const segments = useMarketingQuery<{
+    data: { id: string; name: string; isDynamic: boolean }[];
+  }>("segments?limit=100", trigger === "segment.entered");
   const { request, refresh } = useMarketing();
   const [id, setID] = useState(initial.id);
   const [name, setName] = useState(initial.name);
   const [description, setDescription] = useState(initial.description || "");
   const [stepSearch, setStepSearch] = useState("");
-  const [trigger, setTrigger] = useState(initial.triggerEvent || "manual");
   const [active, setActive] = useState(initial.isActive);
   const [selected, setSelected] = useState(
     initial.nodes?.find((n) => n.type === "START")?.id || "",
@@ -915,6 +928,77 @@ export function AutomationBuilder({
                         </option>
                       ))}
                     </select>
+                  </Field>
+                )}
+                {trigger === "contact.tag_added" && (
+                  <Field
+                    label="Which tag?"
+                    hint="Starts when this tag is newly added, by hand, by a workflow step or with a new contact."
+                  >
+                    <select
+                      value={String(config.tagId || "")}
+                      onChange={(e) => update({ tagId: e.target.value })}
+                    >
+                      <option value="">Choose a tag</option>
+                      {tags.data?.map((tag) => (
+                        <option key={tag.id} value={tag.id}>
+                          {tag.name}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                )}
+                {trigger === "list.subscriber_added" && (
+                  <Field
+                    label="Which list?"
+                    hint="Starts for new contacts in this list, imports included, and contacts moved into it."
+                  >
+                    <select
+                      value={String(config.listId || "")}
+                      onChange={(e) => update({ listId: e.target.value })}
+                    >
+                      <option value="">Choose a list</option>
+                      {options.data?.lists.map((list) => (
+                        <option key={list.id} value={list.id}>
+                          {list.name}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                )}
+                {trigger === "segment.entered" && (
+                  <Field
+                    label="Which segment?"
+                    hint="Segments are checked every 5 minutes. Only people who newly match after you turn this on start."
+                  >
+                    <select
+                      value={String(config.segmentId || "")}
+                      onChange={(e) => update({ segmentId: e.target.value })}
+                    >
+                      <option value="">Choose a segment</option>
+                      {segments.data?.data?.map((segment) => (
+                        <option key={segment.id} value={segment.id}>
+                          {segment.name}
+                          {segment.isDynamic ? "" : " (static)"}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                )}
+                {trigger === "date.reached" && (
+                  <DateTriggerSettings config={config} update={update} />
+                )}
+                {trigger === "event.received" && (
+                  <Field
+                    label="Event name"
+                    hint="Send it with POST /api/v1/events. Each property is available to conditions and emails as {{event_<name>}}, e.g. {{event_plan}}."
+                  >
+                    <input
+                      maxLength={100}
+                      placeholder="trial_started"
+                      value={String(config.eventName || "")}
+                      onChange={(e) => update({ eventName: e.target.value })}
+                    />
                   </Field>
                 )}
                 <p className={workspaceClassName("inspector-help")}>

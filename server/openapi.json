@@ -2077,6 +2077,86 @@
         },
         "security": []
       }
+    },
+    "/api/v1/events": {
+      "post": {
+        "summary": "Record a contact event",
+        "description": "Records something a contact did in your app, such as `trial_started` or `order_placed`, on the contact's event history. Every active automation whose trigger is \"Event from your app\" with this event name (matched without regard to case) starts for that contact. Each string, number or boolean property is available to conditions and email merge tags as `{{event_<name>}}`, for example `{{event_plan}}`; nested objects are stored but not exposed as variables.\n\nIdentify the contact by `contactId`, or by `email`. With `listId`, the contact is looked up in that list and, when no contact there has the email, added to it first (suppressed addresses are refused). Requires the `contacts:create` permission. Limited to 20 requests per second per workspace, with bursts of 100.",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          },
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/internal_handlers.ContactEventInput"
+              },
+              "example": {
+                "email": "ada@example.com",
+                "event": "trial_started",
+                "properties": {
+                  "plan": "pro",
+                  "seats": 5
+                },
+                "listId": "6b0b6c1e-5f4e-4c43-9a59-2f1f4c3f6d10"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Event recorded; matching automations are queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "contactId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "contactCreated": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid event, email, contactId, listId or properties"
+          },
+          "401": {
+            "description": "Missing or invalid API key"
+          },
+          "403": {
+            "description": "The API key lacks contacts:create"
+          },
+          "404": {
+            "description": "Contact not found (send listId to add them), or list not found"
+          },
+          "422": {
+            "description": "The address is suppressed, so no contact was added"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -4695,6 +4775,40 @@
           "Minute",
           "Hour"
         ]
+      },
+      "internal_handlers.ContactEventInput": {
+        "type": "object",
+        "required": [
+          "event"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "The contact's address. Send this or contactId."
+          },
+          "contactId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The contact's ID. Send this or email."
+          },
+          "event": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Event name, 1–100 characters."
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": true,
+            "maxProperties": 100,
+            "description": "Details of the event. Scalars become {{event_<name>}} variables."
+          },
+          "listId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Look the email up in this list and add the contact to it if missing."
+          }
+        }
       }
     }
   },

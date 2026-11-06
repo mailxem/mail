@@ -113,6 +113,17 @@ type Contact struct {
 	ImportID       string           `gorm:"type:uuid;default:NULL;" json:"importId" validate:"omitempty,uuid"`
 	Import         *ContactImport   `json:"import,omitempty"`
 	Status         SubscriberStatus `gorm:"not null;default:'ACTIVE'" json:"status" validate:"required,oneof=ACTIVE UNSUBSCRIBED BOUNCED COMPLAINED"`
+	previousListID string
+}
+
+// ContactEvent is something a contact did in the customer's own app, sent to
+// POST /api/v1/events. It starts automations triggered by that event name.
+type ContactEvent struct {
+	Base
+	TeamID     string         `gorm:"type:uuid;not null;index:idx_contact_events_contact" json:"teamId"`
+	ContactID  string         `gorm:"type:uuid;not null;index:idx_contact_events_contact" json:"contactId"`
+	Name       string         `gorm:"not null;index" json:"name"`
+	Properties datatypes.JSON `gorm:"type:jsonb;default:'{}'" json:"properties"`
 }
 
 type ContactImport struct {

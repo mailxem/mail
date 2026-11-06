@@ -184,6 +184,8 @@ func (c *BaseController[T]) Update(ctx echo.Context) error {
 	// Keep an existing write-only password only for the same login endpoint.
 	// Otherwise changing a hostname could transmit it to a different server.
 	switch input := any(&entity).(type) {
+	case *models.Contact:
+		input.ID = id // lets the update hooks see a move to another list
 	case *models.SMTPConfig:
 		if input.Password == "" {
 			stored, err := c.service.Get(ctx.Request().Context(), id)
