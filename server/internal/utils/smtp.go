@@ -19,6 +19,7 @@ import (
 
 	"kori/internal/utils/logger"
 
+	"golang.org/x/time/rate"
 	"gopkg.in/gomail.v2"
 )
 
@@ -258,43 +259,55 @@ func sendCloudflareEmail(email *models.Email, message *gomail.Message, html stri
 	return result.Status(), nil
 }
 
-// SendBatchEmails sends multiple emails in parallel with rate limiting
+// maxSendWorkers caps how many emails one batch sends at once.
+const maxSendWorkers = 50
+
+// SendBatchEmails sends multiple emails in parallel, at most MaxSendRate per
+// second and at most MaxSendRate (capped at maxSendWorkers) at a time.
 func (h *EmailHandler) SendBatchEmails(emails []*models.Email, smtpConfig *models.SMTPConfig) []BatchEmailResult {
-	results := make([]BatchEmailResult, len(emails))
-	var wg sync.WaitGroup
-
 	h.logger.Info("📤 Starting to send batch emails, total: %d", len(emails))
-
-	safeBatchSize := min(len(emails), validSendRate(smtpConfig.MaxSendRate))
-
-	for i := 0; i < len(emails); i += safeBatchSize {
-		end := min(i+safeBatchSize, len(emails))
-		batchEmails := emails[i:end]
-
-		for offset, email := range batchEmails {
-			index := i + offset
-			wg.Add(1)
-			go func(index int, e *models.Email) {
-				defer wg.Done()
-				h.logger.Info("📧 Sending email to: %s", e.To)
-				e.SMTPConfig = smtpConfig
-				err := h.SendEmail(e)
-				if err != nil {
-					h.logger.Error("❌ Failed to send email, error: %v", err)
-				} else {
-					h.logger.Success("✅ Email sent successfully to: %s", e.To)
-				}
-				results[index] = BatchEmailResult{
-					Email: e,
-					Error: err,
-				}
-				time.Sleep(time.Second * 1)
-			}(index, email)
+	sendRate := validSendRate(smtpConfig.MaxSendRate)
+	// ponytail: one SMTP connection per email (sendSecureSMTP dials each time);
+	// reuse per worker if connection setup dominates.
+	results := sendPooled(emails, min(sendRate, maxSendWorkers), rate.NewLimiter(rate.Limit(sendRate), 1), func(e *models.Email) error {
+		h.logger.Info("📧 Sending email to: %s", e.To)
+		e.SMTPConfig = smtpConfig
+		err := h.SendEmail(e)
+		if err != nil {
+			h.logger.Error("❌ Failed to send email, error: %v", err)
+		} else {
+			h.logger.Success("✅ Email sent successfully to: %s", e.To)
 		}
-	}
-
-	wg.Wait()
+		return err
+	})
 	h.logger.Info("✅ Finished sending batch emails")
+	return results
+}
+
+// sendPooled sends emails with a fixed number of workers, each waiting on the
+// limiter before every send. Results keep the order of emails.
+func sendPooled(emails []*models.Email, workers int, limiter interface{ Wait(context.Context) error }, send func(*models.Email) error) []BatchEmailResult {
+	results := make([]BatchEmailResult, len(emails))
+	next := make(chan int)
+	var wg sync.WaitGroup
+	for range max(workers, 1) {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for i := range next {
+				err := limiter.Wait(context.Background())
+				if err == nil {
+					err = send(emails[i])
+				}
+				results[i] = BatchEmailResult{Email: emails[i], Error: err}
+			}
+		}()
+	}
+	for i := range emails {
+		next <- i
+	}
+	close(next)
+	wg.Wait()
 	return results
 }
 

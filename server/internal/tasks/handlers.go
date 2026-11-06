@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 	"github.com/google/uuid"
 	"kori/internal/config"
@@ -156,20 +157,16 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 	}
 
 	// Get the campaign's email list
-	emailList, contactCount, err := models.GetEmailListByID(campaign.ListID, h.db)
+	emailList, _, err := models.GetEmailListByID(campaign.ListID, h.db)
 	if err != nil {
 		return h.logger.Error("❌ failed to get email list: %w", err)
 	}
 
-	// already processed contacts
-	alreadyProcessedEmails, err := models.GetEmailsByCampaignID(campaign.ID, h.db)
-	if err != nil {
-		return h.logger.Error("❌ failed to get already processed emails: %w", err)
-	}
-
-	alreadyProcessedContacts := make([]string, len(alreadyProcessedEmails))
-	for i, email := range alreadyProcessedEmails {
-		alreadyProcessedContacts[i] = email.ContactID
+	// Contacts already emailed for this campaign, by an earlier stage or an
+	// interrupted run.
+	var processed int64
+	if err := h.db.Model(&models.Email{}).Where("campaign_id = ? AND is_deleted = false", campaign.ID).Count(&processed).Error; err != nil {
+		return h.logger.Error("❌ failed to count already processed emails: %w", err)
 	}
 
 	// Staged sending: check the results so far, then send only up to the
@@ -178,10 +175,10 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 	if err := h.db.Model(&models.Contact{}).Where("list_id = ? AND status = ?", emailList.ID, models.SubscriberStatusActive).Count(&activeContacts).Error; err != nil {
 		return h.logger.Error("❌ failed to count contacts: %w", err)
 	}
-	sentSoFar := len(alreadyProcessedEmails)
+	sentSoFar := int(processed)
 	total := max(int(activeContacts), sentSoFar) // sent contacts are still active
 	staged := useStages(h.db, campaign, total)
-	stageLimit, lastStage := contactCount, true
+	stageLimit, lastStage := -1, true // -1: everyone left
 	if staged {
 		if sentSoFar > 0 {
 			sent, failed, complained, err := campaignResults(h.db, campaign.ID)
@@ -212,56 +209,24 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		stageLimit = target - sentSoFar
 	}
 
-	// Get contacts for this batch, ordered by last email sent date
-	var contacts []models.Contact
-	query := h.db.Table("contacts").
-		Select("contacts.*").
-		Joins("LEFT JOIN emails ON emails.contact_id = contacts.id AND emails.campaign_id = ?", campaign.ID).
-		Where("contacts.list_id = ? AND contacts.status = ?", emailList.ID, models.SubscriberStatusActive).
-		Where("contacts.status != ?", models.SubscriberStatusUnsubscribed)
-
-	if len(alreadyProcessedContacts) > 0 {
-		query = query.Where("contacts.id NOT IN (?)", alreadyProcessedContacts)
-	}
-
-	if staged {
-		// Longest-standing contacts first; earlier stages are already excluded.
-		query = query.Group("contacts.id").Order("contacts.created_at ASC").Limit(stageLimit)
-	} else {
-		query = query.Group("contacts.id").
-			Order("MAX(emails.sent_at) ASC NULLS FIRST"). // Contacts with no emails come first
-			Offset(campaign.Processed).
-			Limit(contactCount)
-	}
-	if err := query.Find(&contacts).Error; err != nil {
-		return h.logger.Error("❌ failed to get contacts: %w", err)
-	}
-
-	// If no contacts in this batch, we're done
-	if len(contacts) == 0 {
-		h.logger.Info("✅ No more contacts to process for campaign %s", campaign.ID)
-		campaign.Status = models.CampaignStatusCompleted
-		if err := h.db.Save(campaign).Error; err != nil {
-			return h.logger.Error("❌ failed to update campaign status: %w", err)
+	// Fetched on first use, so a list with no one left completes without it.
+	var htmlFromTemplate string
+	// Builds one contact's email; the pages below call it for each contact.
+	build := func(contact models.Contact) (*models.Email, error) {
+		if htmlFromTemplate == "" {
+			htmlFromTemplate = campaign.Template.HTMLBody
+			if htmlFromTemplate == "" {
+				if campaign.Template.HtmlFile == nil {
+					return nil, fmt.Errorf("template has no HTML")
+				}
+				html, err := utils.GetHTMLFromURL(campaign.Template.HtmlFile.SignedURL)
+				if err != nil {
+					return nil, h.logger.Error("❌ failed to get html from template: %w", err)
+				}
+				htmlFromTemplate = html
+			}
 		}
-		return nil
-	}
 
-	// Get HTML content outside transaction since it's an external operation
-	htmlFromTemplate := campaign.Template.HTMLBody
-	if htmlFromTemplate == "" {
-		if campaign.Template.HtmlFile == nil {
-			return fmt.Errorf("template has no HTML")
-		}
-		htmlFromTemplate, err = utils.GetHTMLFromURL(campaign.Template.HtmlFile.SignedURL)
-	}
-	if err != nil {
-		return h.logger.Error("❌ failed to get html from template: %w", err)
-	}
-
-	// Create emails for each contact
-	emails := make([]*models.Email, len(contacts))
-	for i, contact := range contacts {
 		// default variables
 		defaultVariables := make(map[string]string)
 		defaultVariables["email"] = contact.Email
@@ -288,7 +253,7 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		// read data from campaign.Data
 		data, err := utils.JSONToMap(campaign.Data)
 		if err != nil {
-			return h.logger.Error("❌ failed to convert campaign data to map: %w", err)
+			return nil, h.logger.Error("❌ failed to convert campaign data to map: %w", err)
 		}
 		maps.Copy(variables, data)
 
@@ -298,17 +263,17 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 
 		parsedSubject, err = base64.DecodeFromBase64(parsedSubject)
 		if err != nil {
-			return h.logger.Error("❌ failed to decode subject: %w", err)
+			return nil, h.logger.Error("❌ failed to decode subject: %w", err)
 		}
 
 		jsonData, err := utils.MapToJSON(variables)
 
 		if err != nil {
-			return h.logger.Error("❌ failed to convert variables to json: %w", err)
+			return nil, h.logger.Error("❌ failed to convert variables to json: %w", err)
 		}
 
 		tracked := true
-		email := &models.Email{
+		return &models.Email{
 			Base: models.Base{ID: messageID}, ClickTrackingEnabled: &tracked,
 			From:         smtpConfig.FromEmail,
 			To:           contact.Email,
@@ -322,28 +287,30 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 			SMTPConfigID: smtpConfig.ID,
 			CategoryID:   campaign.Template.CategoryID,
 			CampaignID:   campaign.ID,
-		}
-		emails[i] = email
+		}, nil
 	}
 
-	// Save all emails in a transaction
-	if err := h.db.Transaction(func(tx *gorm.DB) error {
-		for _, email := range emails {
-			if err := tx.Create(email).Error; err != nil {
-				return err
-			}
+	campaign.Processed = sentSoFar
+	send := func(emails []*models.Email) error {
+		h.mailHandler.SendCampaignEmails(emails, task.BatchSize, time.Duration(campaign.BatchDelay), smtpConfig)
+		campaign.Processed += len(emails)
+		return h.db.Model(campaign).UpdateColumn("processed", campaign.Processed).Error
+	}
+	sent, err := sendCampaignPages(h.db, campaign.ID, emailList.ID, campaignPageSize(), stageLimit, build, send)
+	if err != nil {
+		return h.logger.Error("❌ failed to send campaign emails: %w", err)
+	}
+
+	// If there was no one left to email, we're done
+	if sent == 0 {
+		h.logger.Info("✅ No more contacts to process for campaign %s", campaign.ID)
+		campaign.Status = models.CampaignStatusCompleted
+		if err := h.db.Save(campaign).Error; err != nil {
+			return h.logger.Error("❌ failed to update campaign status: %w", err)
 		}
 		return nil
-	}); err != nil {
-		return h.logger.Error("❌ failed to create emails: %w", err)
 	}
 
-	h.mailHandler.SendCampaignEmails(emails, task.BatchSize, time.Duration(campaign.BatchDelay), smtpConfig)
-
-	campaign.Processed += contactCount
-	if staged {
-		campaign.Processed = sentSoFar + len(contacts)
-	}
 	if staged && !lastStage {
 		if err := h.db.Save(campaign).Error; err != nil {
 			return h.logger.Error("❌ failed to update campaign processed: %w", err)
@@ -373,6 +340,66 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 	}
 
 	return nil
+}
+
+// campaignInsertBatch is how many campaign emails go in one INSERT.
+const campaignInsertBatch = 500
+
+// campaignPageSize is how many contacts a campaign loads at a time
+// (CAMPAIGN_PAGE_SIZE; default 1000).
+func campaignPageSize() int {
+	if n, err := strconv.Atoi(os.Getenv("CAMPAIGN_PAGE_SIZE")); err == nil && n > 0 {
+		return n
+	}
+	return 1000
+}
+
+// sendCampaignPages emails up to limit (or, when limit < 0, every) active
+// contact on the list one page at a time, so only one page is in memory.
+// Contacts that already have an email for the campaign are skipped, so a
+// retried task carries on where the last one stopped. It returns how many
+// emails it created.
+func sendCampaignPages(db *gorm.DB, campaignID, listID string, pageSize, limit int, build func(models.Contact) (*models.Email, error), send func([]*models.Email) error) (int, error) {
+	done, after := 0, ""
+	for limit < 0 || done < limit {
+		size := pageSize
+		if limit >= 0 {
+			size = min(size, limit-done)
+		}
+		query := db.Where("contacts.list_id = ? AND contacts.status = ?", listID, models.SubscriberStatusActive).
+			Where("NOT EXISTS (SELECT 1 FROM emails WHERE emails.campaign_id = ? AND emails.contact_id = contacts.id)", campaignID)
+		if after != "" {
+			query = query.Where("contacts.id > ?", after)
+		}
+		var contacts []models.Contact
+		if err := query.Order("contacts.id").Limit(size).Find(&contacts).Error; err != nil {
+			return done, err
+		}
+		if len(contacts) == 0 {
+			break
+		}
+		after = contacts[len(contacts)-1].ID
+
+		emails := make([]*models.Email, len(contacts))
+		for i, contact := range contacts {
+			email, err := build(contact)
+			if err != nil {
+				return done, err
+			}
+			emails[i] = email
+		}
+		if err := db.CreateInBatches(emails, campaignInsertBatch).Error; err != nil {
+			return done, err
+		}
+		done += len(emails)
+		if err := send(emails); err != nil {
+			return done, err
+		}
+		if len(contacts) < size {
+			break
+		}
+	}
+	return done, nil
 }
 
 // HandleWebhookDelivery processes a webhook delivery task
