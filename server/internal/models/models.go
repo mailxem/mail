@@ -574,6 +574,11 @@ type Automation struct {
 	Nodes        []AutomationNode     `gorm:"foreignKey:AutomationID" json:"nodes,omitempty"`
 	Edges        []AutomationNodeEdge `gorm:"foreignKey:AutomationID" json:"edges,omitempty"`
 	IsActive     bool                 `gorm:"not null;default:false" json:"isActive"`
+	// ReentryMode is "once", "after_finish" or "after_days"; empty (older workflows) behaves as "after_finish".
+	ReentryMode string `json:"reentryMode"`
+	ReentryDays int    `gorm:"not null;default:0" json:"reentryDays"`
+	// ExitOnGoal makes a contact leave when they reach one of the workflow's goals; nil means yes.
+	ExitOnGoal *bool `json:"exitOnGoal"`
 }
 
 type Model struct {
@@ -630,7 +635,7 @@ type AutomationExecution struct {
 	Base
 	AutomationID  string          `gorm:"type:uuid;not null" json:"automationId"`
 	Automation    *Automation     `json:"automation,omitempty"`
-	ContactID     string          `gorm:"type:uuid;not null" json:"contactId"`
+	ContactID     string          `gorm:"type:uuid;not null;index" json:"contactId"`
 	Contact       *Contact        `json:"contact,omitempty"`
 	Status        ExecutionStatus `gorm:"not null;default:'RUNNING'" json:"status"`
 	CurrentNodeID string          `gorm:"type:uuid" json:"currentNodeId"`
@@ -642,6 +647,9 @@ type AutomationExecution struct {
 	Error         string          `json:"error"`
 	TriggerType   string          `json:"triggerType"`
 	TriggerData   datatypes.JSON  `gorm:"type:jsonb;default:'{}'" json:"triggerData"`
+	ExitReason    string          `json:"exitReason"`
+	// ResumeNodeID is the step the last finished wait continued to; only that resume may run or retry.
+	ResumeNodeID string `json:"-"`
 }
 
 type AIOptimization struct {

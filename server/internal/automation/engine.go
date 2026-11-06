@@ -3,6 +3,7 @@ package automation
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"kori/internal/events"
 	"kori/internal/models"
@@ -12,7 +13,6 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 var engineLog = logger.New("AUTOMATION_ENGINE")
@@ -63,6 +63,9 @@ func (e *Engine) Execute(ctx context.Context, automationID, contactID string, tr
 	// Load contact
 	var contact models.Contact
 	if err := e.db.WithContext(ctx).Where("id = ? AND team_id = ? AND is_deleted = ?", contactID, automation.TeamID, false).First(&contact).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) && currentNodeID != "" {
+			return e.exit(ctx, "contact_deleted", "automation_id = ? AND contact_id = ?", automationID, contactID)
+		}
 		return fmt.Errorf("failed to load contact: %w", err)
 	}
 
@@ -72,8 +75,13 @@ func (e *Engine) Execute(ctx context.Context, automationID, contactID string, tr
 		return fmt.Errorf("failed to get execution: %w", err)
 	}
 
-	if execution.Status == models.ExecutionStatusCompleted || (execution.Status == models.ExecutionStatusWaiting && currentNodeID == "") {
+	if execution == nil || execution.Status == models.ExecutionStatusCompleted || execution.Status == models.ExecutionStatusExited || (execution.Status == models.ExecutionStatusWaiting && currentNodeID == "") {
 		return nil
+	}
+	if currentNodeID != "" {
+		if ok, err := e.claimResume(ctx, execution, &automation, currentNodeID); err != nil || !ok {
+			return err
+		}
 	}
 
 	// Create execution context
@@ -109,7 +117,11 @@ func (e *Engine) Execute(ctx context.Context, automationID, contactID string, tr
 	}
 
 	// Execute the workflow
-	if err := e.executeWorkflow(ctx, execCtx, startNode, &automation); err != nil {
+	err = e.executeWorkflow(ctx, execCtx, startNode, &automation)
+	if errors.Is(err, errExited) {
+		return nil
+	}
+	if err != nil {
 		// Mark execution as failed
 		execution.Status = models.ExecutionStatusFailed
 		execution.Error = err.Error()
@@ -128,6 +140,20 @@ func (e *Engine) Execute(ctx context.Context, automationID, contactID string, tr
 func (e *Engine) executeWorkflow(ctx context.Context, execCtx *ExecutionContext, currentNode *models.AutomationNode, automation *models.Automation) error {
 	for currentNode != nil {
 		engineLog.Info("Processing node %s (type: %s)", currentNode.ID, currentNode.Type)
+
+		// Nothing is sent after a contact unsubscribes, even if the exit event was missed.
+		if currentNode.Type == models.NodeTypeEmail {
+			reason, err := e.contactExitReason(ctx, execCtx.ContactID)
+			if err != nil {
+				return err
+			}
+			if reason != "" {
+				if err := e.exit(ctx, reason, "id = ?", execCtx.Execution.ID); err != nil {
+					return err
+				}
+				return errExited
+			}
+		}
 
 		// Get processor for this node type
 		processor, exists := e.registry.Get(currentNode.Type)
@@ -247,16 +273,21 @@ func (e *Engine) getOrCreateExecution(ctx context.Context, automationID, contact
 		if err != nil {
 			return nil, false, err
 		}
-		execution = models.AutomationExecution{Base: models.Base{ID: id}, AutomationID: automationID, ContactID: contactID, Status: models.ExecutionStatusRunning, CurrentNodeID: currentNodeID, ExecutionLog: []byte("[]"), Variables: data, TriggerData: data, StartedAt: time.Now(), TriggerType: "event"}
-		result := e.db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(&execution)
-		if result.Error != nil {
-			return nil, false, result.Error
+		err = e.db.WithContext(ctx).Where("id = ?", id).First(&execution).Error
+		if err == nil {
+			if execution.AutomationID != automationID || execution.ContactID != contactID {
+				return nil, false, fmt.Errorf("execution belongs to another run")
+			}
+			return &execution, false, nil
 		}
-		created := result.RowsAffected > 0
-		if err := e.db.WithContext(ctx).Where("id = ? AND automation_id = ? AND contact_id = ?", id, automationID, contactID).First(&execution).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, false, err
 		}
-		return &execution, created, nil
+		execution = models.AutomationExecution{Base: models.Base{ID: id}, AutomationID: automationID, ContactID: contactID, Status: models.ExecutionStatusRunning, CurrentNodeID: currentNodeID, ExecutionLog: []byte("[]"), Variables: data, TriggerData: data, StartedAt: time.Now(), TriggerType: "event"}
+		if ok, err := e.admit(ctx, &execution); err != nil || !ok {
+			return nil, false, err
+		}
+		return &execution, true, nil
 	}
 	// Compatibility for callers created before durable execution IDs.
 	err := e.db.WithContext(ctx).
@@ -287,7 +318,7 @@ func (e *Engine) getOrCreateExecution(ctx context.Context, automationID, contact
 		TriggerData:   triggerDataJSON,
 	}
 
-	if err := e.db.WithContext(ctx).Create(&execution).Error; err != nil {
+	if ok, err := e.admit(ctx, &execution); err != nil || !ok {
 		return nil, false, err
 	}
 
@@ -325,7 +356,12 @@ func (e *Engine) saveExecution(ctx context.Context, execution *models.Automation
 	execution.ExecutionLog = logJSON
 	execution.UpdatedAt = time.Now()
 
-	return e.db.WithContext(ctx).Save(execution).Error
+	// A run that left the workflow meanwhile stays left.
+	res := e.db.WithContext(ctx).Model(execution).Where("status <> ?", models.ExecutionStatusExited).Select("*").Updates(execution)
+	if res.Error == nil && res.RowsAffected == 0 {
+		return errExited
+	}
+	return res.Error
 }
 
 // scheduleResume schedules a task to resume execution after a delay

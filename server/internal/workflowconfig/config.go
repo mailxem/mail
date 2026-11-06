@@ -24,6 +24,17 @@ type Wait struct {
 	Until    string `json:"until"`
 }
 
+// WaitUntil continues down the "happened" path as soon as Event occurs, or the "timeout" path after Timeout.
+type WaitUntil struct {
+	Event   string `json:"event"` // opened, clicked, tag_added, field_changed, app_event
+	URL     string `json:"url"`   // clicked: only this link, when set
+	Tag     string `json:"tag"`
+	Field   string `json:"field"`
+	Value   string `json:"value"`
+	Name    string `json:"name"` // app_event
+	Timeout string `json:"timeout"`
+}
+
 var ContactFields = map[string]bool{"first_name": true, "last_name": true, "company": true, "country": true, "city": true, "state": true, "zip": true, "address": true, "phone": true, "linkedin": true, "twitter": true, "facebook": true, "instagram": true}
 var variableName = regexp.MustCompile(`^workflow_[a-zA-Z][a-zA-Z0-9_]{0,63}$`)
 
@@ -70,6 +81,36 @@ func Validate(kind string, raw []byte) error {
 			if err != nil || d < time.Second || d > 365*24*time.Hour {
 				return fmt.Errorf("delay must be between one second and 365 days")
 			}
+		}
+	case "WAIT_UNTIL":
+		var w WaitUntil
+		if json.Unmarshal(raw, &w) != nil {
+			return fmt.Errorf("invalid wait configuration")
+		}
+		d, err := time.ParseDuration(w.Timeout)
+		if err != nil || d < time.Minute || d > 365*24*time.Hour {
+			return fmt.Errorf("wait at most between one minute and 365 days")
+		}
+		switch w.Event {
+		case "opened":
+		case "clicked":
+			if len(w.URL) > 2000 {
+				return fmt.Errorf("link is too long")
+			}
+		case "tag_added":
+			if strings.TrimSpace(w.Tag) == "" || len(w.Tag) > 80 {
+				return fmt.Errorf("choose a tag of 1–80 characters")
+			}
+		case "field_changed":
+			if !ContactFields[w.Field] || len(w.Value) > 1000 {
+				return fmt.Errorf("choose a contact field and a value")
+			}
+		case "app_event":
+			if strings.TrimSpace(w.Name) == "" || len(w.Name) > 100 {
+				return fmt.Errorf("name the app event, up to 100 characters")
+			}
+		default:
+			return fmt.Errorf("choose what to wait for")
 		}
 	case "TAG":
 		var c struct {

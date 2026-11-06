@@ -41,6 +41,7 @@ import {
   ContactRound,
   Shuffle,
   Variable,
+  Hourglass,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMarketing, useMarketingQuery } from "@/lib/marketing/api";
@@ -66,11 +67,14 @@ import {
   ActionSettings,
   ConditionSettings,
   WaitSettings,
+  WaitUntilSettings,
+  waitEvents,
 } from "./automation-settings";
 const icons: Record<string, typeof Zap> = {
   START: Zap,
   EMAIL: Mail,
   WAIT: Clock,
+  WAIT_UNTIL: Hourglass,
   CONDITION: GitBranch,
   EXIT: Flag,
   TAG: Tags,
@@ -83,6 +87,7 @@ const labels: Record<string, string> = {
   START: "Trigger",
   EMAIL: "Send an email",
   WAIT: "Wait for a while",
+  WAIT_UNTIL: "Wait until something happens",
   CONDITION: "Split into paths",
   EXIT: "Finish workflow",
   TAG: "Manage tags",
@@ -90,6 +95,12 @@ const labels: Record<string, string> = {
   UPDATE_SUBSCRIBER: "Update contact",
   PERCENTAGE_SPLIT: "Percentage split",
   SET_VARIABLE: "Set a variable",
+};
+// Steps with two labelled exits, and the labels of those exits.
+const branchPaths: Record<string, [string, string]> = {
+  CONDITION: ["true", "false"],
+  PERCENTAGE_SPLIT: ["A", "B"],
+  WAIT_UNTIL: ["happened", "timeout"],
 };
 const triggerLabels: Record<string, string> = {
   manual: "Started manually",
@@ -101,6 +112,7 @@ const triggerLabels: Record<string, string> = {
 const stepDescriptions: Record<string, string> = {
   EMAIL: "Template, sender and subject",
   WAIT: "Duration or a specific date",
+  WAIT_UNTIL: "An open, click, tag or event, or a time limit",
   CONDITION: "Match all or any rules",
   TAG: "Add or remove contact tags",
   ADD_TO_LIST: "Change the contact’s list",
@@ -144,19 +156,17 @@ function StepNode({
         <p>{data.summary || "Click to configure this step"}</p>
       </div>
       <ChevronRight size={15} className={workspaceClassName("step-chevron")} />
-      {["CONDITION", "PERCENTAGE_SPLIT"].includes(data.kind)
-        ? (data.kind === "CONDITION" ? ["true", "false"] : ["A", "B"]).map(
-            (path, index) => (
-              <Handle
-                key={path}
-                id={path}
-                type="source"
-                position={Position.Bottom}
-                style={{ left: index ? "75%" : "25%" }}
-                title={`Path ${path}`}
-              />
-            ),
-          )
+      {branchPaths[data.kind]
+        ? branchPaths[data.kind].map((path, index) => (
+            <Handle
+              key={path}
+              id={path}
+              type="source"
+              position={Position.Bottom}
+              style={{ left: index ? "75%" : "25%" }}
+              title={`Path ${path}`}
+            />
+          ))
         : data.kind !== "EXIT" && (
             <Handle type="source" position={Position.Bottom} />
           )}
@@ -378,6 +388,12 @@ export function AutomationBuilder({
   const [stepSearch, setStepSearch] = useState("");
   const [trigger, setTrigger] = useState(initial.triggerEvent || "manual");
   const [active, setActive] = useState(initial.isActive);
+  // Older workflows without a rule behave as "again after it finishes".
+  const [reentryMode, setReentryMode] = useState(
+    initial.reentryMode || (initial.id ? "after_finish" : "once"),
+  );
+  const [reentryDays, setReentryDays] = useState(initial.reentryDays || 30);
+  const [exitOnGoal, setExitOnGoal] = useState(initial.exitOnGoal !== false);
   const [selected, setSelected] = useState(
     initial.nodes?.find((n) => n.type === "START")?.id || "",
   );
@@ -434,6 +450,9 @@ export function AutomationBuilder({
     name,
     description,
     triggerEvent: trigger,
+    reentryMode,
+    reentryDays: reentryMode === "after_days" ? reentryDays : 0,
+    exitOnGoal,
     nodes: nodes.map((n) => {
       const { kind, label, summary, ...data } = n.data;
       return { id: n.id, type: kind, data: { ...data, position: n.position } };
@@ -516,6 +535,7 @@ export function AutomationBuilder({
         kind: type,
         label: labels[type],
         ...(type === "WAIT" ? { duration: "24h" } : {}),
+        ...(type === "WAIT_UNTIL" ? { event: "opened", timeout: "72h" } : {}),
         ...(type === "TAG" ? { action: "add", tags: [] } : {}),
         ...(type === "PERCENTAGE_SPLIT" ? { percentage: 50 } : {}),
         ...(type === "SET_VARIABLE"
@@ -548,7 +568,7 @@ export function AutomationBuilder({
       label: next?.label,
       type: "smoothstep",
     });
-    if (type === "CONDITION" || type === "PERCENTAGE_SPLIT") {
+    if (branchPaths[type]) {
       const falseID = crypto.randomUUID();
       newNodes.push({
         id: falseID,
@@ -560,7 +580,7 @@ export function AutomationBuilder({
         id: crypto.randomUUID(),
         source: nodeID,
         target: falseID,
-        label: type === "CONDITION" ? "false" : "B",
+        label: branchPaths[type][1],
         type: "smoothstep",
       });
       if (next)
@@ -568,7 +588,7 @@ export function AutomationBuilder({
           ...next,
           id: crypto.randomUUID(),
           source: nodeID,
-          label: type === "CONDITION" ? "true" : "A",
+          label: branchPaths[type][0],
         });
     } else if (next)
       newEdges.push({
@@ -615,20 +635,23 @@ export function AutomationBuilder({
               ? n.data.until
                 ? `Wait until ${new Date(String(n.data.until)).toLocaleString()}`
                 : `Pause for ${n.data.duration || "…"}`
-              : n.data.kind === "CONDITION"
-                ? `${(n.data.conditions as any[])?.length || 0} rules · ${n.data.operator === "OR" ? "match any" : "match all"}`
-                : n.data.kind === "PERCENTAGE_SPLIT"
-                  ? `A: ${n.data.percentage}% · B: ${100 - Number(n.data.percentage)}%`
-                  : n.data.kind === "TAG"
-                    ? `${n.data.action === "remove" ? "Remove" : "Add"}: ${((n.data.tags as string[]) || []).join(", ") || "choose tags"}`
-                    : n.data.kind === "ADD_TO_LIST"
-                      ? options.data?.lists.find((l) => l.id === n.data.listId)
-                          ?.name || "Choose a destination list"
-                      : n.data.kind === "UPDATE_SUBSCRIBER"
-                        ? `Update ${Object.keys(n.data.fields || {}).length} profile fields`
-                        : n.data.kind === "SET_VARIABLE"
-                          ? `${n.data.variable || "Choose a variable"} = ${n.data.value || "…"}`
-                          : "End this journey",
+              : n.data.kind === "WAIT_UNTIL"
+                ? `${waitEvents[String(n.data.event)] || "Choose an event"} · at most ${n.data.timeout || "…"}`
+                : n.data.kind === "CONDITION"
+                  ? `${(n.data.conditions as any[])?.length || 0} rules · ${n.data.operator === "OR" ? "match any" : "match all"}`
+                  : n.data.kind === "PERCENTAGE_SPLIT"
+                    ? `A: ${n.data.percentage}% · B: ${100 - Number(n.data.percentage)}%`
+                    : n.data.kind === "TAG"
+                      ? `${n.data.action === "remove" ? "Remove" : "Add"}: ${((n.data.tags as string[]) || []).join(", ") || "choose tags"}`
+                      : n.data.kind === "ADD_TO_LIST"
+                        ? options.data?.lists.find(
+                            (l) => l.id === n.data.listId,
+                          )?.name || "Choose a destination list"
+                        : n.data.kind === "UPDATE_SUBSCRIBER"
+                          ? `Update ${Object.keys(n.data.fields || {}).length} profile fields`
+                          : n.data.kind === "SET_VARIABLE"
+                            ? `${n.data.variable || "Choose a variable"} = ${n.data.value || "…"}`
+                            : "End this journey",
     },
   }));
   return (
@@ -790,9 +813,9 @@ export function AutomationBuilder({
             nodes={displayNodes}
             edges={edges.map((e) => ({
               ...e,
-              sourceHandle: ["CONDITION", "PERCENTAGE_SPLIT"].includes(
-                String(nodes.find((n) => n.id === e.source)?.data.kind),
-              )
+              sourceHandle: branchPaths[
+                String(nodes.find((n) => n.id === e.source)?.data.kind)
+              ]
                 ? String(e.label || "")
                 : undefined,
             }))}
@@ -921,6 +944,60 @@ export function AutomationBuilder({
                   Only matching events in your workspace will start this
                   workflow.
                 </p>
+                <Field
+                  label="Contacts can enter"
+                  hint="A contact is never in this workflow twice at the same time."
+                >
+                  <select
+                    value={reentryMode}
+                    onChange={(e) => {
+                      setReentryMode(e.target.value);
+                      setDirty(true);
+                    }}
+                  >
+                    <option value="once">Only once, ever</option>
+                    <option value="after_finish">
+                      Again after they finish
+                    </option>
+                    <option value="after_days">
+                      Again after a number of days
+                    </option>
+                  </select>
+                </Field>
+                {reentryMode === "after_days" && (
+                  <Field
+                    label="Days since they last entered"
+                    hint="Between 1 and 3650 days."
+                  >
+                    <input
+                      type="number"
+                      min={1}
+                      max={3650}
+                      value={reentryDays}
+                      onChange={(e) => {
+                        setReentryDays(Number(e.target.value));
+                        setDirty(true);
+                      }}
+                    />
+                  </Field>
+                )}
+                <label className="flex items-start gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={exitOnGoal}
+                    onChange={(e) => {
+                      setExitOnGoal(e.target.checked);
+                      setDirty(true);
+                    }}
+                  />
+                  <span>
+                    Leave when they reach a goal of this workflow
+                    <small className="block text-muted-foreground">
+                      Contacts always leave when they unsubscribe, bounce,
+                      complain, are suppressed or deleted.
+                    </small>
+                  </span>
+                </label>
               </>
             )}
             {kind === "EMAIL" && (
@@ -978,6 +1055,9 @@ export function AutomationBuilder({
             {kind === "WAIT" && (
               <WaitSettings config={config} update={update} />
             )}
+            {kind === "WAIT_UNTIL" && (
+              <WaitUntilSettings config={config} update={update} />
+            )}
             <ActionSettings
               kind={kind}
               config={config}
@@ -1003,7 +1083,7 @@ export function AutomationBuilder({
                   .map((n) => String(n.data.variable))}
               />
             )}
-            {["CONDITION", "PERCENTAGE_SPLIT"].includes(kind) && (
+            {branchPaths[kind] && (
               <>
                 {edges
                   .filter((e) => e.source === selected)
@@ -1030,6 +1110,11 @@ export function AutomationBuilder({
                           <>
                             <option value="true">Condition is true</option>
                             <option value="false">Condition is false</option>
+                          </>
+                        ) : kind === "WAIT_UNTIL" ? (
+                          <>
+                            <option value="happened">It happened</option>
+                            <option value="timeout">Time ran out</option>
                           </>
                         ) : (
                           <>
@@ -1079,6 +1164,14 @@ export function AutomationBuilder({
     </div>
   );
 }
+const exitReasons: Record<string, string> = {
+  unsubscribed: "Left: unsubscribed",
+  bounced: "Left: email bounced",
+  complained: "Left: marked as spam",
+  suppressed: "Left: on the do-not-email list",
+  contact_deleted: "Left: contact deleted",
+  goal_reached: "Left: reached the goal",
+};
 function RunHistory({ id, close }: { id: string; close: () => void }) {
   const q = useMarketingQuery<any[]>(`automations/${id}/executions`);
   return (
@@ -1137,6 +1230,9 @@ function RunHistory({ id, close }: { id: string; close: () => void }) {
               </td>
               <td>
                 <Status value={run.status} />
+                {run.exitReason && (
+                  <small>{exitReasons[run.exitReason] || run.exitReason}</small>
+                )}
               </td>
               <td>{new Date(run.startedAt).toLocaleString()}</td>
             </tr>

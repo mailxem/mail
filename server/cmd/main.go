@@ -269,6 +269,7 @@ func main() {
 	automationEngine.RegisterProcessor(processors.NewEmailProcessor(db_instance, taskClient, cfg))
 	automationEngine.RegisterProcessor(processors.NewExitProcessor(db_instance))
 	automationEngine.RegisterProcessor(processors.NewWaitProcessor(db_instance))
+	automationEngine.RegisterProcessor(processors.NewWaitUntilProcessor(db_instance))
 	automationEngine.RegisterProcessor(processors.NewConditionProcessor(db_instance))
 	automationEngine.RegisterProcessor(processors.NewAddToListProcessor(db_instance))
 	automationEngine.RegisterProcessor(processors.NewTagProcessor(db_instance))
@@ -304,6 +305,7 @@ func main() {
 
 	// Connect engine to task handler
 	taskHandler.SetAutomationEngine(automationEngine)
+	automationEngine.Listen()
 
 	// Initialize trigger manager for event-based automations
 	triggerManager := automation.NewTriggerManager(db_instance, taskClient)

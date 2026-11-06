@@ -123,6 +123,9 @@ export type Workflow = {
   description: string;
   triggerEvent: string;
   isActive: boolean;
+  reentryMode?: string;
+  reentryDays?: number;
+  exitOnGoal?: boolean | null;
   nodes: WorkflowNode[];
   edges: WorkflowEdge[];
   updatedAt: string;

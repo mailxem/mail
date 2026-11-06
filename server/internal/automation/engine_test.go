@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"kori/internal/events"
 	"kori/internal/models"
+	"kori/internal/sending"
 	"kori/internal/tasks"
 	"os"
 	"slices"
@@ -53,6 +54,11 @@ func setupTestDB(t *testing.T) *gorm.DB {
 		&models.Contact{},
 		&models.Team{},
 		&models.Tag{},
+		&models.Email{},
+		&models.SuppressionList{},
+		&sending.Suppression{},
+		&models.AutomationGoal{},
+		&models.GoalConversion{},
 	)
 	require.NoError(t, err)
 
