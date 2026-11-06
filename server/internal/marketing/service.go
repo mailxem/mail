@@ -220,17 +220,41 @@ func (s *Service) PrepareEdition(ctx context.Context, id string) error {
 		if !sender.SupportsTLS {
 			return fmt.Errorf("sender TLS is required")
 		}
-		var contacts []models.Contact
-		q := Scope(tx, c.TeamID).Where("list_id = ? AND status = ?", c.ListID, models.SubscriberStatusActive)
-		if c.AudienceCursor != "" {
-			q = q.Where("id > ?", c.AudienceCursor)
-		}
-		if c.AudienceCutoff != nil {
-			q = q.Where("created_at <= ?", *c.AudienceCutoff)
-		}
-		if err := q.Order("id").Limit(100).Find(&contacts).Error; err != nil {
+		limit, wait, err := Stage(tx, &c, sender.Provider == "MANAGED", time.Now())
+		if err != nil || c.Status == models.CampaignStatusPaused {
 			return err
 		}
+		staged := c.SendInStages != nil && *c.SendInStages
+		var contacts []models.Contact
+		if staged {
+			// Staged editions pick readers not yet emailed instead of walking a cursor.
+			old, fresh := Recipients(tx, &c)
+			if err := old.Order("id").Limit(100).Find(&contacts).Error; err != nil {
+				return err
+			}
+			if n := 100 - len(contacts); n > 0 && limit != 0 {
+				if limit > 0 {
+					n = min(n, limit)
+				}
+				var picked []models.Contact
+				if err := fresh.Order("RANDOM()").Limit(n).Find(&picked).Error; err != nil {
+					return err
+				}
+				contacts = append(contacts, picked...)
+			}
+		} else {
+			q := Scope(tx, c.TeamID).Where("list_id = ? AND status = ?", c.ListID, models.SubscriberStatusActive)
+			if c.AudienceCursor != "" {
+				q = q.Where("id > ?", c.AudienceCursor)
+			}
+			if c.AudienceCutoff != nil {
+				q = q.Where("created_at <= ?", *c.AudienceCutoff)
+			}
+			if err := q.Order("id").Limit(100).Find(&contacts).Error; err != nil {
+				return err
+			}
+		}
+		prepared := 0
 		for _, contact := range contacts {
 			key := c.ID + ":" + contact.ID
 			messageID := uuid.NewString()
@@ -239,16 +263,24 @@ func (s *Service) PrepareEdition(ctx context.Context, id string) error {
 			body = utils.TrackEmailHTML(body, messageID, s.PublicURL, s.Secret)
 			tracking := true
 			email := models.Email{Base: models.Base{ID: messageID}, ClickTrackingEnabled: &tracking, DeliveryKey: &key, UnsubscribeURL: unsub, From: sender.FromEmail, To: contact.Email, Subject: personalize(c.Subject, contact), Body: base64.StdEncoding.EncodeToString([]byte(body)), Status: models.EmailStatusPending, TeamID: c.TeamID, ContactID: contact.ID, TemplateID: c.TemplateID, SMTPConfigID: c.SMTPConfigID, CategoryID: tpl.CategoryID, CampaignID: c.ID}
-			if err := tx.Omit(clause.Associations).Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "delivery_key"}}, DoNothing: true}).Create(&email).Error; err != nil {
-				return err
+			created := tx.Omit(clause.Associations).Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "delivery_key"}}, DoNothing: true}).Create(&email)
+			if created.Error != nil {
+				return created.Error
 			}
-			c.AudienceCursor = contact.ID
+			prepared += int(created.RowsAffected)
+			if !staged {
+				c.AudienceCursor = contact.ID
+			}
+		}
+		done := len(contacts) < 100
+		if staged {
+			done = len(contacts) == 0 && wait == 0
 		}
 		status := models.CampaignStatusSending
-		if len(contacts) < 100 {
+		if done {
 			status = models.CampaignStatusCompleted
 		} // All messages are prepared; delivery status is tracked on each email.
-		return tx.Model(&c).Updates(map[string]interface{}{"audience_cursor": c.AudienceCursor, "status": status, "processed": gorm.Expr("processed + ?", len(contacts))}).Error
+		return tx.Model(&c).Updates(map[string]interface{}{"audience_cursor": c.AudienceCursor, "status": status, "processed": gorm.Expr("processed + ?", prepared)}).Error
 	})
 }
 

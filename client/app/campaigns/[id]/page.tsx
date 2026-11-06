@@ -160,6 +160,23 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
     }
   };
 
+  const handleCancel = async () => {
+    setResuming(true);
+    try {
+      const response = await apiFetch(`marketing/campaigns/${id}/cancel`, {
+        method: "POST",
+      });
+      if (!response.ok) throw new Error();
+      toast.success("Campaign cancelled. The rest of the list won’t be sent.");
+      await reloadCampaign();
+      refetch();
+    } catch {
+      toast.error("Couldn’t cancel this campaign. Please try again.");
+    } finally {
+      setResuming(false);
+    }
+  };
+
   const handleDelete = async () => {
     const response = await apiFetch("campaigns/" + id, {
       method: "DELETE",
@@ -231,7 +248,25 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
             >
               {resuming ? "Resuming…" : "Resume sending"}
             </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => void handleCancel()}
+              disabled={resuming}
+            >
+              Cancel the rest
+            </Button>
           </div>
+        )}
+        {campaign.status === "SENDING" && campaign.sendInStages && (
+          <p
+            role="status"
+            className="rounded-xl border border-border bg-muted/50 p-4 text-sm text-muted-foreground"
+          >
+            Sending in stages to readers you haven’t emailed before.
+            {campaign.nextStageAt &&
+              ` Next stage after ${new Date(campaign.nextStageAt).toLocaleTimeString()}, if bounces and complaints stay low.`}
+          </p>
         )}
         {/* Campaign Details Card */}
         <Card>

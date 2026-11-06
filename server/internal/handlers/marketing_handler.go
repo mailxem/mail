@@ -127,24 +127,41 @@ func (h *MarketingHandler) ResumeCampaign(c echo.Context) error {
 		return err
 	}
 	campaign.SendInStages, campaign.PauseReason, campaign.Status = &off, "", models.CampaignStatusSending
-	events.Emit("campaign.created", &campaign) // queues the send, as on launch
+	if campaign.NewsletterID == nil {
+		events.Emit("campaign.created", &campaign) // queues the send, as on launch
+	} // the newsletter tick picks editions up again
 	return c.JSON(200, map[string]string{"status": string(models.CampaignStatusSending)})
+}
+
+// CancelCampaign stops a paused campaign or edition: the rest is never sent.
+func (h *MarketingHandler) CancelCampaign(c echo.Context) error {
+	result := h.scoped(c).Model(&models.Campaign{}).Where("id = ? AND status = ?", c.Param("id"), models.CampaignStatusPaused).Update("status", models.CampaignStatusCompleted)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return missing()
+	}
+	return c.JSON(200, map[string]string{"status": string(models.CampaignStatusCompleted)})
 }
 func (h *MarketingHandler) NewsletterEditions(c echo.Context) error {
 	if !h.service.Owns(c.Request().Context(), &models.Newsletter{}, c.Param("id"), team(c)) {
 		return missing()
 	}
 	var rows []struct {
-		ID           string    `json:"id"`
-		Name         string    `json:"name"`
-		ScheduledFor time.Time `json:"scheduledFor"`
-		Status       string    `json:"status"`
-		Processed    int       `json:"processed"`
-		Sent         int64     `json:"sent"`
-		Failed       int64     `json:"failed"`
-		NeedsReview  int64     `json:"needsReview"`
+		ID           string     `json:"id"`
+		Name         string     `json:"name"`
+		ScheduledFor time.Time  `json:"scheduledFor"`
+		Status       string     `json:"status"`
+		Processed    int        `json:"processed"`
+		Sent         int64      `json:"sent"`
+		Failed       int64      `json:"failed"`
+		NeedsReview  int64      `json:"needsReview"`
+		SendInStages *bool      `json:"sendInStages"`
+		PauseReason  string     `json:"pauseReason"`
+		NextStageAt  *time.Time `json:"nextStageAt"`
 	}
-	err := h.service.DB.Table("campaigns c").Select("c.id,c.name,c.scheduled_for,c.status,c.processed,(SELECT count(*) FROM emails e WHERE e.campaign_id=c.id AND e.status='SENT') as sent,(SELECT count(*) FROM emails e WHERE e.campaign_id=c.id AND e.status='FAILED') as failed,(SELECT count(*) FROM emails e WHERE e.campaign_id=c.id AND e.status IN ('DELIVERY_UNKNOWN','SENDING')) as needs_review").Where("c.newsletter_id = ? AND c.team_id = ?", c.Param("id"), team(c)).Order("c.created_at DESC").Limit(50).Scan(&rows).Error
+	err := h.service.DB.Table("campaigns c").Select("c.id,c.name,c.scheduled_for,c.status,c.processed,(SELECT count(*) FROM emails e WHERE e.campaign_id=c.id AND e.status='SENT') as sent,(SELECT count(*) FROM emails e WHERE e.campaign_id=c.id AND e.status='FAILED') as failed,(SELECT count(*) FROM emails e WHERE e.campaign_id=c.id AND e.status IN ('DELIVERY_UNKNOWN','SENDING')) as needs_review,c.send_in_stages,c.pause_reason,c.next_stage_at").Where("c.newsletter_id = ? AND c.team_id = ?", c.Param("id"), team(c)).Order("c.created_at DESC").Limit(50).Scan(&rows).Error
 	if err != nil {
 		return err
 	}

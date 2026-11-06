@@ -5147,6 +5147,28 @@
   {
     "category": "Transactional",
     "collection": "Xem originals",
+    "description": "A campaign or newsletter edition to readers you hadn’t emailed before went out in stages, and its first stages bounced or drew spam complaints above safe limits. The rest of it was not sent. The reason is listed below.",
+    "designUrl": "/assets/template-starters/xem-sending_paused/design.json",
+    "editingMode": "blocks",
+    "key": "xem-sending_paused",
+    "marketing": false,
+    "name": "A send was paused to protect your reputation",
+    "preheader": "Check where this list came from and remove addresses you can’t vouch for. Then resume the send, or cancel it, from the campaign page.",
+    "previewUrl": "/assets/template-starters/xem-sending_paused/preview.html",
+    "reference": "",
+    "source": "xem-service-notifications",
+    "subject": "A send was paused to protect your reputation",
+    "tags": [
+      "account",
+      "security",
+      "sending alerts",
+      "xem"
+    ],
+    "version": 1
+  },
+  {
+    "category": "Transactional",
+    "collection": "Xem originals",
     "description": "A contact import in your workspace failed today, so its contacts were not added. The reason is listed below.",
     "designUrl": "/assets/template-starters/xem-import_failed/design.json",
     "editingMode": "blocks",

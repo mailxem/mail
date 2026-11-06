@@ -55,6 +55,7 @@ export function CampaignsList() {
           <p className="mt-1 text-muted-foreground">{campaign.pauseReason}</p>
           <Button size="sm" variant="outline" className="mt-3" disabled={busy === campaign.id} onClick={(e) => { e.preventDefault(); void resume(campaign.id); }}>Resume sending</Button>
         </div>}
+        {campaign.status === "SENDING" && campaign.sendInStages && <p role="status" className="mt-5 text-xs text-muted-foreground">Sending in stages to readers you haven’t emailed before.</p>}
         <div className="mt-5 grid grid-cols-2 gap-3">
           <div className="rounded-xl bg-muted p-3"><p className="text-xs text-muted-foreground">Schedule</p><p className="mt-2 text-xs font-medium">{campaign.scheduledFor ? format(new Date(campaign.scheduledFor), "MMM d, p") : campaign.schedule || "Not scheduled"}</p></div>
           <div className="rounded-xl bg-muted p-3"><p className="text-xs text-muted-foreground">Created</p><p className="mt-2 text-xs font-medium">{format(new Date(campaign.createdAt), "MMM d, yyyy")}</p></div>

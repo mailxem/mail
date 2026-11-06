@@ -5,11 +5,13 @@ import (
 	"context"
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"time"
 	"github.com/google/uuid"
 	"kori/internal/config"
+	"kori/internal/marketing"
 	"kori/internal/models"
 	"kori/internal/utils"
 	"kori/internal/utils/base64"
@@ -155,86 +157,43 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		return h.logger.Error("❌ failed to get smtp config: %w", fmt.Errorf("smtp config is nil"))
 	}
 
-	// Get the campaign's email list
-	emailList, contactCount, err := models.GetEmailListByID(campaign.ListID, h.db)
+	// Staged sending: readers emailed before go out now; never-emailed
+	// readers only as far as the current stage allows.
+	limit, wait, err := marketing.Stage(h.db, campaign, smtpConfig.Provider == "MANAGED", time.Now())
 	if err != nil {
-		return h.logger.Error("❌ failed to get email list: %w", err)
+		return h.logger.Error("❌ failed to plan staged sending: %w", err)
 	}
-
-	// already processed contacts
-	alreadyProcessedEmails, err := models.GetEmailsByCampaignID(campaign.ID, h.db)
-	if err != nil {
-		return h.logger.Error("❌ failed to get already processed emails: %w", err)
+	if campaign.Status == models.CampaignStatusPaused {
+		h.logger.Info("⏸️ Paused campaign %s: %s", campaign.ID, campaign.PauseReason)
+		return nil
 	}
-
-	alreadyProcessedContacts := make([]string, len(alreadyProcessedEmails))
-	for i, email := range alreadyProcessedEmails {
-		alreadyProcessedContacts[i] = email.ContactID
-	}
-
-	// Staged sending: check the results so far, then send only up to the
-	// next stage's target.
-	var activeContacts int64
-	if err := h.db.Model(&models.Contact{}).Where("list_id = ? AND status = ?", emailList.ID, models.SubscriberStatusActive).Count(&activeContacts).Error; err != nil {
-		return h.logger.Error("❌ failed to count contacts: %w", err)
-	}
-	sentSoFar := len(alreadyProcessedEmails)
-	total := max(int(activeContacts), sentSoFar) // sent contacts are still active
-	staged := useStages(h.db, campaign, total)
-	stageLimit, lastStage := contactCount, true
-	if staged {
-		if sentSoFar > 0 {
-			sent, failed, complained, err := campaignResults(h.db, campaign.ID)
-			if err != nil {
-				return h.logger.Error("❌ failed to check campaign results: %w", err)
-			}
-			// Judge a stage only once most of it has an outcome.
-			if waiting := int64(sentSoFar) - sent; waiting*10 > int64(sentSoFar) {
-				next := CampaignTask{CampaignID: campaign.ID, BatchSize: task.BatchSize, Stage: task.Stage + 1}
-				if err := h.taskClient.EnqueueCampaignTask(ctx, next, stageWait()); err != nil {
-					return h.logger.Error("❌ failed to queue the next stage: %w", err)
-				}
-				h.logger.Info("⏳ Campaign %s: %d emails still sending; checking again in %s", campaign.ID, waiting, stageWait())
-				return nil
-			}
-			if reason := stageHealth(sent, failed, complained); reason != "" {
-				campaign.Status = models.CampaignStatusPaused
-				campaign.PauseReason = reason
-				if err := h.db.Save(campaign).Error; err != nil {
-					return h.logger.Error("❌ failed to pause campaign: %w", err)
-				}
-				h.logger.Info("⏸️ Paused campaign %s: %s", campaign.ID, reason)
-				return nil
-			}
+	nextStage := func(wait time.Duration) error {
+		next := CampaignTask{CampaignID: campaign.ID, BatchSize: task.BatchSize, Stage: task.Stage + 1}
+		// A retry re-queues the same task ID, so it never runs twice.
+		if err := h.taskClient.EnqueueCampaignTask(ctx, next, wait); err != nil && !errors.Is(err, asynq.ErrTaskIDConflict) {
+			return h.logger.Error("❌ failed to queue the next stage: %w", err)
 		}
-		var target int
-		target, lastStage = stageTarget(total, sentSoFar)
-		stageLimit = target - sentSoFar
+		h.logger.Info("⏳ Campaign %s: next stage in %s", campaign.ID, wait)
+		return nil
 	}
 
-	// Get contacts for this batch, ordered by last email sent date
-	var contacts []models.Contact
-	query := h.db.Table("contacts").
-		Select("contacts.*").
-		Joins("LEFT JOIN emails ON emails.contact_id = contacts.id AND emails.campaign_id = ?", campaign.ID).
-		Where("contacts.list_id = ? AND contacts.status = ?", emailList.ID, models.SubscriberStatusActive).
-		Where("contacts.status != ?", models.SubscriberStatusUnsubscribed)
-
-	if len(alreadyProcessedContacts) > 0 {
-		query = query.Where("contacts.id NOT IN (?)", alreadyProcessedContacts)
-	}
-
-	if staged {
-		// Longest-standing contacts first; earlier stages are already excluded.
-		query = query.Group("contacts.id").Order("contacts.created_at ASC").Limit(stageLimit)
-	} else {
-		query = query.Group("contacts.id").
-			Order("MAX(emails.sent_at) ASC NULLS FIRST"). // Contacts with no emails come first
-			Offset(campaign.Processed).
-			Limit(contactCount)
-	}
-	if err := query.Find(&contacts).Error; err != nil {
+	old, fresh := marketing.Recipients(h.db, campaign)
+	var contacts, newContacts []models.Contact
+	if err := old.Order("created_at ASC").Find(&contacts).Error; err != nil {
 		return h.logger.Error("❌ failed to get contacts: %w", err)
+	}
+	if limit != 0 {
+		q := fresh.Order("RANDOM()")
+		if limit > 0 {
+			q = q.Limit(limit)
+		}
+		if err := q.Find(&newContacts).Error; err != nil {
+			return h.logger.Error("❌ failed to get contacts: %w", err)
+		}
+	}
+	contacts = append(contacts, newContacts...)
+	if len(contacts) == 0 && wait > 0 {
+		return nextStage(wait)
 	}
 
 	// If no contacts in this batch, we're done
@@ -340,20 +299,16 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 
 	h.mailHandler.SendCampaignEmails(emails, task.BatchSize, time.Duration(campaign.BatchDelay), smtpConfig)
 
-	campaign.Processed += contactCount
-	if staged {
-		campaign.Processed = sentSoFar + len(contacts)
+	campaign.Processed += len(contacts)
+	if err := h.db.Model(campaign).Update("processed", campaign.Processed).Error; err != nil {
+		return h.logger.Error("❌ failed to update campaign processed: %w", err)
 	}
-	if staged && !lastStage {
-		if err := h.db.Save(campaign).Error; err != nil {
-			return h.logger.Error("❌ failed to update campaign processed: %w", err)
+	// Starts the wait when this run finished a stage.
+	if _, wait, err := marketing.Stage(h.db, campaign, smtpConfig.Provider == "MANAGED", time.Now()); err != nil || wait > 0 {
+		if err != nil {
+			return h.logger.Error("❌ failed to plan staged sending: %w", err)
 		}
-		next := CampaignTask{CampaignID: campaign.ID, BatchSize: task.BatchSize, Stage: task.Stage + 1}
-		if err := h.taskClient.EnqueueCampaignTask(ctx, next, stageWait()); err != nil {
-			return h.logger.Error("❌ failed to queue the next stage: %w", err)
-		}
-		h.logger.Info("⏳ Campaign %s sent %d of %d; next stage in %s", campaign.ID, campaign.Processed, total, stageWait())
-		return nil
+		return nextStage(wait)
 	}
 	campaign.Status = models.CampaignStatusCompleted
 	if err := h.db.Save(campaign).Error; err != nil {

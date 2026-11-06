@@ -186,10 +186,12 @@ export interface Campaign {
   name: string;
   description?: string;
   status: "DRAFT" | "SCHEDULED" | "SENDING" | "COMPLETED" | "FAILED" | "PAUSED";
-  /** Unset: staged automatically for lists that have never been mailed. */
+  /** Unset: staged automatically for never-emailed readers on managed sending. */
   sendInStages?: boolean;
   /** Why staged sending paused the campaign. */
   pauseReason?: string;
+  /** When staged sending checks results and sends the next stage. */
+  nextStageAt?: string;
   templateId: string;
   listId: string;
   schedule?: string;

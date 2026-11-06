@@ -1241,17 +1241,19 @@ function NewCampaignForm() {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="auto">
-                            Automatically for new lists
+                            Automatically for new readers
                           </SelectItem>
                           <SelectItem value="on">Always</SelectItem>
                           <SelectItem value="off">Never</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Sends to 5% of the list first, then 25%, then everyone,
-                        an hour apart. If too many emails bounce or get reported
-                        as spam, sending pauses so you can check the list. Lists
-                        of 500 or fewer always send at once.
+                        Readers you’ve emailed before get it right away. Readers
+                        you’ve never emailed get it in stages: a random 2% first,
+                        then 5% more, then everyone else, 30 minutes apart. If
+                        too many bounce or report it as spam, sending pauses so
+                        you can check the list. Automatic staging applies to Xem
+                        managed sending when there are 500 or more new readers.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
