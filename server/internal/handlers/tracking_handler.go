@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"kori/internal/analytics"
 	"kori/internal/config"
+	"kori/internal/events"
 	"kori/internal/models"
 	"kori/internal/utils"
 	"kori/internal/utils/logger"
@@ -94,6 +95,14 @@ func (h *TrackingHandler) createTrackingEntry(c echo.Context, emailID string, ev
 		tracking.Region = geoData.Region
 	}
 
+	// Only the first open of an email starts automations and webhooks; image proxies and re-reads reload the pixel.
+	var earlierOpens int64
+	if event == models.EmailTrackingEventOpen {
+		if err := h.db.Model(&models.EmailTracking{}).Where("email_id = ? AND contact_id = ? AND event = ?", emailID, email.ContactID, event).Count(&earlierOpens).Error; err != nil {
+			return nil, err
+		}
+	}
+
 	// Save to database
 	if err := h.db.Create(tracking).Error; err != nil {
 		return nil, err
@@ -102,6 +111,12 @@ func (h *TrackingHandler) createTrackingEntry(c echo.Context, emailID string, ev
 		if err := flagClickBurst(h.db, tracking); err != nil {
 			return nil, err
 		}
+	}
+
+	if event == models.EmailTrackingEventClick {
+		events.Emit("email.clicked", tracking)
+	} else if earlierOpens == 0 {
+		events.Emit("email.opened", tracking)
 	}
 
 	return tracking, nil

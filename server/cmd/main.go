@@ -310,6 +310,7 @@ func main() {
 	if err := triggerManager.Initialize(context.Background()); err != nil {
 		log.Fatalf("Failed to initialize trigger manager: %v", err)
 	}
+	tasks.ListenWebhookEvents(db_instance, taskClient)
 
 	// Initialize task server
 	taskServer := tasks.NewServer(

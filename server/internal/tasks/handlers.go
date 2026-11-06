@@ -375,19 +375,6 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 	return nil
 }
 
-// HandleWebhookDelivery processes a webhook delivery task
-func (h *TaskHandler) HandleWebhookDelivery(ctx context.Context, t *asynq.Task) error {
-	var task WebhookDeliveryTask
-	if err := json.Unmarshal(t.Payload(), &task); err != nil {
-		return fmt.Errorf("failed to unmarshal webhook task: %w", asynq.SkipRetry)
-	}
-
-	h.logger.Info("processing webhook task %s with event %s and attempt %d", task.WebhookID, task.Event, task.AttemptNum)
-
-	// TODO: Implement webhook delivery logic
-	return nil
-}
-
 // HandleDomainVerification processes a domain verification task
 func (h *TaskHandler) HandleDomainVerification(ctx context.Context, t *asynq.Task) error {
 	var task DomainVerificationTask
