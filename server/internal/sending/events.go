@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"errors"
+	"log"
 	"fmt"
 	"io"
 	"net/http"
@@ -226,13 +227,16 @@ var statusRank = map[string]int{"QUEUED": 0, "SENDING": 0, "DELIVERY_UNKNOWN": 0
 
 func (s *Service) ApplyFeedback(ctx context.Context, eventID string, raw []byte) error {
 	var f Feedback
-	if e := json.Unmarshal(raw, &f); e != nil {
-		return e
+	ids, configs := []string(nil), []string(nil)
+	if json.Unmarshal(raw, &f) == nil {
+		ids, configs = f.Mail.Tags["xem_message"], f.Mail.Tags["ses:configuration-set"]
 	}
-	ids := f.Mail.Tags["xem_message"]
-	configs := f.Mail.Tags["ses:configuration-set"]
+	// Not an event about a Xem message (SES's "Successfully validated SNS topic"
+	// notice, or mail sent without Xem's tags): nothing to record, and retrying
+	// can't change that, so it's acknowledged instead of dead-lettered.
 	if len(ids) != 1 || len(configs) != 1 || f.Mail.MessageID == "" {
-		return errors.New("event has no Xem routing metadata")
+		log.Printf("SES notification %s is not about a Xem message; ignoring it", eventID)
+		return nil
 	}
 	state, ok := feedbackStates[f.EventType]
 	if !ok {

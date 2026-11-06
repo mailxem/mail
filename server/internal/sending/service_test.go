@@ -234,6 +234,18 @@ func TestFeedbackIdempotencyOrderingAndOwnership(t *testing.T) {
 	bad := strings.Replace(string(feedback(m, "Complaint")), tenant(team), tenant(uuid.NewString()), 1)
 	require.ErrorIs(t, s.ApplyFeedback(ctx, "wrong-tenant", []byte(bad)), ErrDenied)
 }
+// SES's topic validation notice and events without Xem's tags are acknowledged,
+// not retried until the queue dead-letters them or SNS gives up on the webhook.
+func TestFeedbackIgnoresNotificationsThatAreNotXemEvents(t *testing.T) {
+	s, _, _, _ := setup(t)
+	for _, raw := range []string{"Successfully validated SNS topic for Amazon SES event publishing.", `{"eventType":"Delivery","mail":{"messageId":"ses-1","tags":{}}}`} {
+		require.NoError(t, s.ApplyFeedback(context.Background(), uuid.NewString(), []byte(raw)))
+	}
+	var count int64
+	require.NoError(t, s.DB.Model(&Event{}).Count(&count).Error)
+	require.Zero(t, count)
+}
+
 func TestFeedbackEmitsLifecycleEventsOnce(t *testing.T) {
 	s, team, d, _ := setup(t)
 	ctx := context.Background()
