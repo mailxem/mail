@@ -13,13 +13,9 @@
     {
       "binding": "MAILBOX_DB",
       "database_name": "xem-cloudflare-mailbox",
-      "database_id": "replace-with-d1-database-id",
       "migrations_dir": "migrations"
     }
   ],
-  "vars": {
-    "MAILBOX_ADDRESS": "inbox@example.com"
-  },
   "triggers": {
     "crons": ["* * * * *"]
   },

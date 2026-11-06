@@ -1,0 +1,4 @@
+# The exact address Email Routing sends to this Worker, such as inbox@yourdomain.com.
+MAILBOX_ADDRESS=inbox@example.com
+# 32 or more random characters. Paste the same value into Xem. Generate one with: openssl rand -hex 32
+MAILBOX_API_SECRET=

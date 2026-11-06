@@ -1,204 +1,9 @@
-"""Individually briefed compositions, replacing repeated industry × layout reskins.
-Each line carries a distinct editorial premise. Compositions combine native blocks
-with different lead treatments, column proportions, reading order and density.
+"""Studio collection: lifecycle emails rebuilt from well-made real-world layouts.
+Each one follows the structure of a reference email (section order, spacing,
+colour blocking, type scale) but uses a fictional brand, our own copy and
+original illustrations from scripts/template_illustrations.mjs.
 """
 from copy import deepcopy
-
-# name | headline | deck. These are editable sample campaigns, never live claims.
-BRIEFS = {
-'culture': [
-('After Hours','The city belongs to the curious.','A midnight cinema, a listening bar, and a gallery that leaves the lights on.'),
-('The Small Screen','Short films. Long conversations.','Three independent films that make an ordinary evening feel a little bigger.'),
-('Off the Record','Listen all the way through.','An album-side ritual, a record-store conversation, and the joy of hearing something new.'),
-('The Reading Room','A book can change the temperature of a room.','Stories for the bedside table, the train ride, and the friend who always asks what to read.'),
-('In Good Taste','What makes a place worth returning to?','A neighborhood restaurant, a familiar table, and a menu that follows the season.'),
-('On the Wall','Art does not need to wait for an occasion.','A printmaker opens the studio and shows how a sketch becomes an edition.'),
-('Second Life','Old things. New conversations.','Repair shops, vintage finds, and people giving beautiful objects another chapter.'),
-('Local Frequency','Tune into your own neighborhood.','A small guide to the people and places making things happen close to home.'),
-('The Sunday Matinée','Make an afternoon of it.','A double feature, a favorite seat, and a good reason to leave the phone at home.'),
-('Soft Focus','Look a little longer.','A photographer finds unexpected stories in everyday streets and quiet corners.'),
-('The Index','Ten things worth keeping close.','An edited collection of books, records, objects, and ideas for the coming month.'),
-('Open Studio','Come in. The work is still wet.','A behind-the-scenes invitation to meet the artists before the opening night.'),
-('Night School','Learn something after the day is done.','Evening classes for curious people: ceramics, letterpress, and a little beginner courage.'),
-('The Good Seats','There is nothing quite like being there.','Small venues, live performances, and the people who bring a room to life.'),
-('Margin Notes','The best part might be in the margins.','A reader’s dispatch on underlined sentences, unfinished thoughts, and books passed between friends.')],
-'food': [
-('Market Morning','Cook what looks good today.','A basket-first approach to dinner, with seasonal produce and room to improvise.'),
-('The Pantry Letter','Good dinner starts on the shelf.','Beans, bright olive oil, and a few useful staples that make weeknight cooking easier.'),
-('Little Ferments','Give it time. Let it change.','A beginner-friendly look at pickles, sourdough, and the small experiments happening on the counter.'),
-('The Long Lunch','Clear the afternoon. Set another place.','A generous menu built for passing plates and staying a little longer.'),
-('Bitter Sweet','The beautiful balance in a good dessert.','Dark chocolate, toasted nuts, and the pinch of salt that brings everything together.'),
-('One Good Pan','Less washing up. More sitting down.','A flexible one-pan supper with crisp edges, seasonal vegetables, and a bright finish.'),
-('Coffee Compass','Follow the flavor back to the source.','A tasting guide to origin, process, and the choices behind your morning cup.'),
-('The Bread Club','A little flour. A little patience.','Notes from the bakery on a crackling crust, a slower rise, and sharing the first slice.'),
-('Fire & Table','Take the kitchen outside.','Cooking over coals, preparing ahead, and making dinner feel like a gathering.'),
-('The Citrus Issue','A bright idea for a gray day.','Sharp dressings, fragrant peel, and a simple cake that uses the whole fruit.'),
-('Midweek Supper','Dinner does not need a grand plan.','Three reliable meals built around what is already in the fridge.'),
-('No Proof Needed','A very good drink, without the alcohol.','Bitter botanicals, bubbles, and a grown-up approach to the afternoon spritz.'),
-('Kitchen Notes','The recipe is only the beginning.','A cook’s notebook of useful substitutions, happy accidents, and things worth repeating.'),
-('The Tomato Edit','Summer, sliced thick.','A celebration of ripe tomatoes: on toast, in the pot, and straight from the market bag.'),
-('Salt & Stories','Every family has a dish like this.','Recipes passed down, changed a little, and carried from one kitchen to another.')],
-'nature': [
-('Trailhead','Start where the pavement ends.','A short walk, a longer view, and a guide to finding your next nearby trail.'),
-('The Tidal Letter','Plan your day around the water.','Rock pools, coastal paths, and the quiet rhythm of a shoreline at low tide.'),
-('Birdsong','There is a whole world overhead.','An unhurried introduction to listening, looking, and noticing the birds around you.'),
-('The Weather Window','A little rain is part of the story.','Practical layers, flexible plans, and the pleasure of being outdoors in imperfect weather.'),
-('Rooted','Grow something you can look forward to.','A small-space planting plan for windowsills, balconies, and first-time gardeners.'),
-('Under Canvas','A room with no walls.','Simple camping comforts, a generous packing list, and breakfast in the open air.'),
-('The Forest Floor','Look down. There is more going on.','Moss, fungi, fallen leaves, and the tiny systems keeping a woodland alive.'),
-('Slow Miles','Go at the pace of a conversation.','A walking route with good stopping points and enough room to get pleasantly lost.'),
-('The Night Sky','Make a little room for wonder.','A beginner’s evening of stargazing, from choosing a dark spot to finding familiar shapes.'),
-('Waterline','Find your way back to the river.','Riverside trails, a picnic by the bank, and stories from the people caring for the water.'),
-('The Pocket Park','Nature does not have to be far away.','Small green spaces, everyday walks, and the value of a bench in the shade.'),
-('Wild Weekend','Two days. A different perspective.','A low-fuss escape with a trail, a cabin, and very little on the schedule.'),
-('The Seed Exchange','Good things grow when you share them.','Swap seeds, trade advice, and meet the neighbors growing something good.'),
-('Leave It Better','A small act belongs in every adventure.','Simple ways to care for a favorite place before you head home.'),
-('First Light','Catch the day before it gets busy.','An early walk, a warm flask, and a few reasons to set the alarm just once.')],
-'design': [
-('Grid & Grain','Order, with a little human texture.','A studio study in quiet grids, tactile materials, and the details that keep work from feeling cold.'),
-('Type Matters','Let the letters do the talking.','A typographic field trip through book covers, shop signs, and unexpected pairings.'),
-('The Color Study','One color can change the whole conversation.','A close look at a single shade, its surprising neighbors, and where it works best.'),
-('Working Model','Make it small enough to learn from.','Sketches, paper prototypes, and the experiments that answer a question before the build.'),
-('Form Follows Feeling','Useful can be beautiful, too.','Objects designed around everyday gestures, quiet comfort, and a little delight.'),
-('The Material Library','Touch is part of the idea.','A table of stone, paper, cloth, and timber—and the choices each material invites.'),
-('Negative Space','Make room for what matters.','A practical study in restraint, breathing room, and a clearer visual hierarchy.'),
-('The Rough Cut','Show the work before it feels ready.','A creative team shares the discarded directions that helped a project find its shape.'),
-('Small Systems','Consistency begins with a useful rule.','A designer’s guide to building a system that helps people rather than slowing them down.'),
-('The Poster Wall','Say one thing. Make it impossible to miss.','A collection of bold announcements, spare typography, and graphic ideas with a point of view.'),
-('Useful Objects','A better everyday is in the details.','A lamp, a notebook, and a chair that earn their place by being good at one thing.'),
-('The Studio Visit','Every workspace tells a story.','Inside a practice where sketches, prototypes, and a very well-used table share the room.'),
-('Print Practice','Ink makes the idea feel different.','An introduction to risograph textures, spot colors, and the happy limits of a print process.'),
-('The Design Crit','Ask a more useful question.','How to turn a review into a conversation that helps the next iteration.'),
-('Side Project','Give the idea a Saturday.','Small creative experiments for the projects that keep returning to your notebook.')],
-'work': [
-('The Build Log','A useful release starts with a real problem.','The decisions, tradeoffs, and small wins behind a product improvement.'),
-('Human Systems','Make the handoff easier for the next person.','Clear context, useful checklists, and a calmer way to work together.'),
-('Small Bets','Try the version you can learn from.','A field guide to experiments that are small enough to run and clear enough to evaluate.'),
-('The Decision Room','A good decision leaves a trail.','Write down the context, consider the options, and make the next conversation easier.'),
-('Open Source Sunday','Build something others can build on.','A maintainer’s view of welcoming contributions and keeping a project understandable.'),
-('The Product Desk','Listen before adding another feature.','A practical edition on customer conversations, support signals, and finding the problem underneath.'),
-('Focus Window','Protect a little uninterrupted time.','A working-day experiment in fewer pings, clearer priorities, and finishing one thing.'),
-('The Release Train','Small improvements. A steady rhythm.','A product roundup built around what changed, why it matters, and what to try next.'),
-('Better Questions','The brief is a place to get curious.','Five prompts that help a team move from assumptions to shared understanding.'),
-('The Research Shelf','Keep the evidence close to the work.','A lightweight approach to collecting insights without creating another forgotten repository.'),
-('Debug Diary','The bug was an invitation to understand.','A behind-the-scenes story about tracing a problem and making the system easier to reason about.'),
-('The Practical AI','Start with a task you can check.','A grounded guide to experimenting with assistants while keeping review in the workflow.'),
-('Team Rituals','A little structure can make more room.','Useful weekly habits for distributed teams that want fewer meetings and better context.'),
-('The Changelog Letter','Here is what your feedback changed.','An honest product note connecting recent improvements to the people who asked for them.'),
-('Build in Public','Let people see the middle.','A founder’s dispatch on prototypes, decisions, and sharing progress without a polished ending.')],
-'places': [
-('The Postcard Club','Wish you were here, slowly.','A local guide to a place best explored one street and one long lunch at a time.'),
-('The Window Seat','The journey deserves a chapter.','Rail routes, passing landscapes, and good reasons to take the longer way.'),
-('Somewhere Small','A smaller town can hold a bigger weekend.','Independent shops, a riverside walk, and a place to stay with a story.'),
-('The Architecture Walk','Read a city through its buildings.','Doorways, courtyards, and quiet details hiding in the route you usually rush through.'),
-('Out of Office','Put a little distance between you and the routine.','A thoughtful escape with flexible plans and a few very good recommendations.'),
-('The Island Letter','Let the water set the pace.','A ferry crossing, a coastal path, and a small table overlooking the harbor.'),
-('Room Service','Stay somewhere that feels like a place.','Independent hotels, thoughtful rooms, and hosts who know where breakfast should happen.'),
-('The Urban Rambler','Turn left where you usually turn right.','An afternoon route through hidden gardens, bookshops, and streets worth noticing.'),
-('Cabin Season','A simpler room. A wider view.','Wood fires, walks from the door, and the practical art of packing less.'),
-('The Local Table','Taste your way into a place.','Market stalls, family kitchens, and the stories a menu can tell.'),
-('Beyond the Guidebook','Ask someone who lives there.','A resident’s favorites, from an early coffee to the last good view of the evening.'),
-('Carry On','Bring less. Leave room for the unexpected.','A considered packing list and a few habits that make travel easier.'),
-('The Long Weekend','Three days can feel like a new chapter.','A loose itinerary with one good anchor for each day and time left open.'),
-('The Return Ticket','Some places are worth seeing twice.','A second visit, a different season, and everything you missed the first time.'),
-('No Fixed Agenda','Follow the interesting street.','An invitation to explore with a short list, comfortable shoes, and room to change your mind.')],
-'learning': [
-('The Notebook Club','Learn it by making it.','A short project, a useful constraint, and a place to put your new skill to work.'),
-('Tiny Lessons','One idea, well understood.','A five-minute lesson with an example you can try before the day gets away.'),
-('The Practice Room','Progress likes a regular appointment.','A gentle practice plan built around small repetitions and realistic expectations.'),
-('Curiosity Cabinet','Keep a place for the interesting things.','Questions, observations, and small discoveries collected through the week.'),
-('The Explainer','A complicated idea, in useful pieces.','A clear introduction that starts with something familiar and builds from there.'),
-('Learn by Doing','The first attempt is part of the lesson.','An invitation to try, notice, adjust, and make something a little better.'),
-('The Reading List','Follow a question through three books.','A focused reading path for a topic worth understanding from more than one angle.'),
-('Study Hall','Good company makes a hard thing easier.','A shared learning session with clear goals, a quiet hour, and time to compare notes.'),
-('The Field Guide','Take the lesson out into the world.','A practical observation exercise for noticing patterns in the things around you.'),
-('Unfinished Questions','Not knowing is a useful place to start.','A collection of open questions and the experiments that could help answer them.'),
-('The Mentor Note','A little perspective for the next step.','Advice from someone who remembers what the beginning felt like.'),
-('The Skill Swap','Teach one thing. Learn another.','An invitation to exchange practical knowledge with people in your community.'),
-('Five Minute Workshop','Make something before you overthink it.','A small creative prompt with just enough structure to help you begin.'),
-('The Learning Loop','Look back before moving on.','A short reflection on what worked, what surprised you, and what you want to try next.'),
-('Begin Again','You can be new at something at any age.','A warm welcome to the awkward, interesting, rewarding part of learning.')],
-'community': [
-('The Common Room','Pull up a chair. Bring your story.','A monthly gathering of member projects, generous ideas, and ways to get involved.'),
-('Neighbor Notes','Good things are happening nearby.','Meet the people turning a spare hour and a shared idea into something useful.'),
-('The Volunteer Dispatch','An hour can change someone’s afternoon.','Practical ways to contribute, with clear roles and a warm welcome for first-timers.'),
-('Together Again','The best part is who turns up.','An invitation to reconnect, share what you are making, and meet a few new faces.'),
-('The Member Spotlight','There is a person behind every good project.','A conversation about starting small, asking for help, and making something that matters.'),
-('The Giving Circle','A little from many goes a long way.','An update on the work your community supports and the next useful contribution.'),
-('The Noticeboard','Something to join. Something to share.','Local dates, member requests, and small opportunities that deserve a little space.'),
-('The Welcome Table','You do not need to know anyone yet.','A newcomer’s guide to showing up, finding your people, and feeling at home.'),
-('Common Ground','Start with what you share.','A community conversation about listening carefully and building something together.'),
-('The Makers Market','Meet the hands behind the things.','A weekend invitation to discover local makers and the stories behind their work.'),
-('Small Celebrations','Some good news deserves a whole email.','A collection of member milestones, first attempts, and quiet achievements.'),
-('The Exchange','What you know could help someone else.','A skills-and-resources edition built around useful offers and thoughtful requests.'),
-('The Community Map','Find your next point of connection.','A guide to groups, gatherings, and places where a shared interest becomes a friendship.'),
-('Open Invitation','There is room for you in this idea.','A project needs a few more hands, a fresh perspective, and people willing to begin.'),
-('The Thank You Note','This happened because people showed up.','A warm look back at a shared effort and the people who made it possible.')],
-'style': [
-('The Considered Edit','Fewer things. Better reasons.','An edited wardrobe built around good materials, everyday use, and your own point of view.'),
-('Wear & Repeat','The best outfit earns another day.','Simple combinations, useful layers, and clothes that feel more like you over time.'),
-('The Texture Issue','Let the material set the mood.','Linen, brushed wool, and the small details that make an everyday piece feel good.'),
-('Objects of Note','A few things with a point of view.','Thoughtful finds for your desk, your home, and the daily rituals in between.'),
-('The Maker’s Label','Know the story behind the seam.','A studio visit with the people cutting, stitching, and refining a small collection.'),
-('Quiet Luxury Letter','Good quality does not need to shout.','A closer look at construction, proportion, and the choices that help a piece last.'),
-('The Color Wardrobe','Try the shade you keep looking at.','A practical guide to adding a little color without replacing everything you own.'),
-('Everyday Uniform','Make getting dressed a smaller decision.','A useful foundation of pieces that work together and leave room for personality.'),
-('The Repair Edit','A little care keeps the story going.','Simple repairs, better storage, and ways to look after the things you already love.'),
-('A Good Pair','Find the thing that goes with everything.','Versatile companions for a favorite piece, chosen for comfort and everyday usefulness.'),
-('The Weekend Bag','Pack for the day you want to have.','A small selection of essentials for a market morning, a long walk, and a late lunch.'),
-('New Season Notes','A fresh feeling, without starting over.','A considered seasonal edit built around adding one or two useful pieces.'),
-('The Vintage Find','Some things get more interesting with time.','A guide to discovering, checking, and styling pieces with a previous chapter.'),
-('Made to Keep','Buy it for the years, not the moment.','A maker’s perspective on durable materials, repairable design, and lasting usefulness.'),
-('The Detail Study','The difference is in the small things.','Buttons, hems, handles, and finishes that reveal how much care went into an object.')],
-'wellbeing': [
-('The Slow Start','Begin the day at a human pace.','A few calm morning rituals to try, adapt, or leave behind according to what works for you.'),
-('Room to Breathe','Put a little space between the things.','A gentle reminder to pause, step outside, and make the next hour more manageable.'),
-('The Walking Club','A conversation with a little movement.','A simple invitation to take the long way with good company and no performance target.'),
-('Rest Notes','Recovery belongs on the calendar, too.','Practical ideas for making room to rest in the middle of a full week.'),
-('The Good Enough Day','An ordinary day can still be a good one.','A little permission to choose a realistic plan and notice what is already working.'),
-('Small Rituals','Care can look like something very simple.','A proper lunch, a favorite song, a cleared corner: small actions that change how a day feels.'),
-('Outside for Ten','The next break could have a view.','Easy ways to spend a little more time outdoors, even when the schedule is crowded.'),
-('The Evening Edit','Give the day a softer landing.','A loose evening routine with fewer demands and a little time to come back to yourself.'),
-('A Little Balance','Make room for more than getting things done.','A weekly reflection on energy, commitments, and the things that help you feel grounded.'),
-('The Personal Best','Define progress in your own terms.','A note on choosing goals that fit your life and leaving space to change your mind.'),
-('The Quiet Corner','Create one place that asks less of you.','A small home project in light, comfort, and keeping a few favorite things close.'),
-('Move Your Way','Find a kind of movement you look forward to.','An invitation to explore walking, stretching, dancing, or anything that feels right for you.'),
-('The Digital Pause','You can come back to it later.','A practical experiment in notifications, boundaries, and reclaiming a little attention.'),
-('Good Company','Sometimes the useful thing is a conversation.','A reminder to make time for the people who leave you feeling more like yourself.'),
-('The Reset Letter','Start again from where you are.','A simple plan for the week ahead, built around one manageable change.')],
-'science': [
-('The Curious Planet','A small world with big surprises.','A nature-led edition about remarkable adaptations and the questions they invite.'),
-('Lab Notes','Every discovery starts with a question.','A look at how a simple observation becomes an experiment worth trying.'),
-('The Ocean Issue','Most of the story is beneath the surface.','A beginner-friendly dive into coastal ecosystems and the people studying them.'),
-('Animal Fact Club','Small creature. Extraordinary trick.','Meet the pistol shrimp and explore the surprising physics of life underwater.'),
-('The Sky Report','There is always more to look up for.','A practical guide to a month of skywatching and the science behind what you see.'),
-('Everyday Physics','The ordinary world is full of experiments.','A few familiar objects, a clear question, and a different way to look at your surroundings.'),
-('The Pattern Finder','Nature has a few favorite ideas.','Spirals, branches, and the useful patterns that appear across very different scales.'),
-('The Climate Notebook','Understand the system one piece at a time.','A clear introduction to a climate concept, with useful context and places to learn more.'),
-('The Tiny World','Look closer than you usually would.','An introduction to the small organisms and structures hiding in everyday places.'),
-('Ask a Scientist','A good question is worth sending.','A reader-led edition where a researcher explains how they think about an interesting problem.'),
-('The Science Shelf','Three reads for a curious mind.','Books and explainers that make a complex topic welcoming without making it simplistic.'),
-('The Experiment Club','Try it. Observe it. Write it down.','A simple, low-risk observation exercise using things already around you.'),
-('Deep Time','The landscape remembers more than we do.','An approachable look at the layers, fossils, and processes that shape a place.'),
-('The Research Roundup','A closer look at the question behind the headline.','A digest focused on what a study asks, how it works, and what remains uncertain.'),
-('Wonder Works','Stay interested in the things you cannot explain yet.','A collection of surprising observations and good places to begin understanding them.')],
-'home': [
-('The Homebody','Make staying in feel like a choice.','A warm edit of books, small projects, and ways to enjoy the space you already have.'),
-('Room by Room','One corner is a good place to begin.','A small, achievable home refresh built around light, layout, and useful storage.'),
-('The Shelf Life','Keep the things that tell your story.','Books, found objects, and a thoughtful approach to arranging a shelf without making it precious.'),
-('Light Study','Follow the light through the day.','A practical guide to noticing natural light and making a room work with it.'),
-('The Small Space','A smaller footprint can hold a full life.','Flexible furniture, clear surfaces, and useful ideas for rooms that do more than one job.'),
-('Made at Home','Give your hands something to figure out.','A small weekend project with simple materials and room for a personal touch.'),
-('The Hosting Note','Make people comfortable. The rest can be simple.','An easy plan for having friends over without turning the evening into a production.'),
-('Soft Landing','Home can be the quieter part of the day.','Warm textures, good lighting, and a few changes that help a space feel welcoming.'),
-('The Plant Shelf','A little green changes the room.','A beginner’s guide to choosing plants for the light and time you actually have.'),
-('The Useful Drawer','Find a home for the everyday things.','A small organizing project that starts with what you reach for most often.'),
-('House Notes','Good homes are always a work in progress.','A monthly notebook of practical fixes, useful discoveries, and ideas to try when there is time.'),
-('The Window Box','A garden can start at the window.','A compact planting plan for color, herbs, and the pleasure of watching something grow.'),
-('The Sunday Reset','A little preparation for a gentler Monday.','A realistic home routine that leaves most of the weekend for living.'),
-('Old House Journal','Keep the character. Improve the everyday.','A thoughtful approach to caring for older spaces and working with what is already there.'),
-('The Gathering Place','A room is better with people in it.','A layout and hosting edit for making conversation feel easy.')],
-}
 
 # Art assets are selected by subject, independently from the layout recipe.
 EXTRA_PHOTOS = {
@@ -244,66 +49,6 @@ EXTRA_PHOTOS = {
  'volunteer':('photo-1559027615-cd4628902d4a','People contributing to their community'),
 }
 PHOTOS.update(EXTRA_PHOTOS)
-SUBJECT_PHOTOS = {
- 'culture':['city','library','vinyl','books','table','art','chair','street','event','city','books','art','writing','event','library'],
- 'food':['vegetables','berries','bread','table','berries','salad','coffee','bread','table','citrus','salad','citrus','kitchen','vegetables','kitchen'],
- 'nature':['walk','coast','forest','mist','plants','mountain','forest','meadow','stars','lake','flowers','mountain','plants','deer','mist'],
- 'design':['building','books','art','desk','chair','room','interior','art','screen','building','chair','desk','art','meeting','writing'],
- 'work':['laptop','team','desk','meeting','screen','laptop','writing','screen','meeting','journal','laptop','screen','team','desk','writing'],
- 'places':['street','train','building','building','travel','sea','room','street','mountain','table','city','travel','coast','lake','street'],
- 'learning':['journal','books','writing','art','library','desk','books','team','forest','journal','writing','meeting','art','journal','library'],
- 'community':['team','street','volunteer','event','writing','volunteer','city','table','meeting','art','event','team','street','volunteer','flowers'],
- 'style':['clothes','fashion','fabric','chair','fabric','fashion','clothes','fashion','fabric','shoes','travel','clothes','fabric','chair','shoes'],
- 'wellbeing':['coffee','sea','walk','room','flowers','journal','meadow','interior','stretch','walk','room','stretch','books','team','journal'],
- 'science':['deer','desk','sea','coast','stars','art','flowers','meadow','plants','writing','books','journal','mountain','screen','forest'],
- 'home':['room','interior','books','room','chair','art','table','room','plants','kitchen','interior','flowers','kitchen','building','table'],
-}
-from colorsys import rgb_to_hls,hls_to_rgb
-
-def edition_palette(group,index):
- ink,paper,accent,photo,font=ART[group]
- def shift(value,amount,lightness=None):
-  rgb=[int(value[i:i+2],16)/255 for i in (1,3,5)]
-  h,l,s=rgb_to_hls(*rgb)
-  rgb=hls_to_rgb((h+amount)%1,l if lightness is None else lightness,s)
-  return '#'+''.join(f'{round(c*255):02X}' for c in rgb)
- # A bespoke palette per composition; contrast remains stable as hues move.
- angle=[0,.06,-.08,.16,-.15,.28,-.24,.38,-.34,.46,-.43,.11,-.19,.32,-.04][index]
- return shift(ink,angle),shift(paper,angle,0.95-(index%4)*.018),shift(accent,angle,0.72),SUBJECT_PHOTOS[group][index],font
-
-# Contrasting art direction per subject; variations below also change layout and type.
-ART = {
- 'culture':('#202B40','#FAF6ED','#EF563A','interior',SERIF),
- 'food':('#49251E','#FFF3DD','#ED643A','coffee',SERIF),
- 'nature':('#203F2C','#EEF0DE','#D3EC62','forest',SERIF),
- 'design':('#251933','#F8E6F1','#DDFF48','interior',SANS),
- 'work':('#101E37','#EDF2FA','#76A4FF','work',SANS),
- 'places':('#12434E','#EAF2EA','#F6AB69','mountain',SERIF),
- 'learning':('#342654','#F2EBFA','#C1ACF2','work',MONO),
- 'community':('#632F2E','#FFF0DE','#F4BD43','event',SANS),
- 'style':('#332C27','#EDE7DB','#AA7860','fashion',SERIF),
- 'wellbeing':('#344A42','#F1F2E8','#BBD8B5','forest',SERIF),
- 'science':('#082F4B','#E1F4F4','#FFBC42','mountain',MONO),
- 'home':('#4D3B32','#F8EADB','#B7BD93','interior',SERIF),
-}
-
-# Every recipe names its own reading order. Numeric prefix selects a lead layout;
-# the suffix composes the middle and ending without a repeated family skeleton.
-RECIPES = [
-'0 letter pair pull links','1 feature checklist reply','2 brief quote photo cards','3 photo letter numbered','4 split pull checklist cta','5 index feature quote','6 poster pair links','7 tiles letter reply','8 quote photo numbered cta','9 agenda pair pull','10 sidebar cards links','11 cover checklist reply','12 letter feature pull cta','13 tiles brief links','14 index photo reply',
-'15 recipe pull pair','16 letter cards photo','17 feature checklist quote','18 photo recipe links','19 split letter pull','20 index numbered cta','21 poster recipe reply','22 tiles quote feature','23 quote checklist cards','24 agenda letter photo','25 sidebar recipe pull','26 cover pair links','27 letter numbered quote','28 tiles recipe cta','29 index feature reply',
-'30 field pull cards','31 feature photo checklist','32 brief field reply','33 photo pair numbered','34 split quote field','35 index checklist photo','0 poster field links','2 tiles pull reply','4 quote field pair','6 agenda photo numbered','8 sidebar letter cards','10 cover field checklist','12 letter quote photo','14 tiles checklist links','16 index field cta',
-'18 manifesto pair links','20 feature quote cards','22 brief poster reply','24 photo manifesto numbered','26 split checklist pull','28 index quote cta','30 poster letter cards','32 tiles feature links','34 quote manifesto pair','1 agenda checklist photo','3 sidebar pull cta','5 cover manifesto reply','7 letter poster cards','9 tiles quote numbered','11 index manifesto photo',
-'13 changelog pair pull','15 feature numbered reply','17 brief checklist links','19 photo changelog cards','21 split quote numbered','23 index feature checklist','25 poster changelog reply','27 tiles checklist pull','29 quote numbered links','31 agenda changelog photo','33 sidebar feature reply','35 cover checklist cards','2 letter changelog cta','5 tiles numbered photo','8 index checklist pull',
-'11 itinerary pair quote','14 feature itinerary links','17 brief photo numbered','20 photo itinerary reply','23 split letter cards','26 index pull cta','29 poster itinerary photo','32 tiles checklist quote','35 quote itinerary pair','3 agenda feature links','6 sidebar itinerary reply','9 cover pull cards','12 letter itinerary checklist','15 tiles photo links','18 index itinerary quote',
-'21 lesson pair pull','24 feature lesson reply','27 brief quote links','30 photo lesson cards','33 split numbered cta','1 index checklist pull','4 poster lesson photo','7 tiles letter numbered','10 quote lesson reply','13 agenda checklist links','16 sidebar lesson cards','19 cover feature quote','22 letter lesson cta','25 tiles pull checklist','28 index lesson photo',
-'31 people pair links','34 feature people quote','0 brief checklist photo','3 photo people reply','6 split pull numbered','9 index cards cta','12 poster people links','15 tiles quote checklist','18 quote people photo','21 agenda letter cards','24 sidebar people pull','27 cover numbered reply','30 letter people checklist','33 tiles brief cta','2 index people quote',
-'5 edit pair pull','8 feature edit reply','11 brief photo cards','14 photo edit links','17 split quote checklist','20 index numbered pull','23 poster edit cta','26 tiles letter quote','29 quote edit cards','32 agenda photo links','35 sidebar edit reply','4 cover checklist pull','7 letter edit photo','10 tiles numbered cta','13 index edit quote',
-'16 ritual pair links','19 feature ritual pull','22 brief quote checklist','25 photo ritual reply','28 split cards cta','31 index letter quote','34 poster ritual photo','0 tiles checklist pull','3 quote ritual numbered','6 agenda letter links','9 sidebar ritual cards','12 cover photo reply','15 letter ritual checklist','18 tiles pull cta','21 index ritual quote',
-'24 question pair photo','27 feature question links','30 brief numbered reply','33 photo question cards','1 split checklist quote','4 index pull cta','7 poster question links','10 tiles letter photo','13 quote question checklist','16 agenda numbered cards','19 sidebar question reply','22 cover photo pull','25 letter question cta','28 tiles checklist quote','31 index question cards',
-'34 room pair pull','0 feature room reply','3 brief photo links','6 photo room numbered','9 split quote cards','12 index checklist cta','15 poster room links','18 tiles letter pull','21 quote room photo','24 agenda checklist numbered','27 sidebar room reply','30 cover feature cards','33 letter room quote','2 tiles checklist photo','5 index room cta',
-]
-assert len(RECIPES)==180
 
 def weighted(cols, weights, bg, pad='12px 0px'):
  return {'columns':cols,'cells':weights,'bg':bg,'pad':pad}
@@ -315,108 +60,2328 @@ def picture(key, shape='wide', pad='0px'):
  b['values']['src']['url']=b['values']['src']['url'].replace('w=1200&h=660',f'w={w}&h={h}')
  return b
 
-def compose(brief, group, idx, recipe):
- name,headline,deck=brief; ink,paper,accent,photo,font=edition_palette(group,idx)
- # Adjacent editions use different paper/ink roles, type scales, and density.
- serif = font if idx%3 else SANS
- p=20+4*(idx%5); pad=f'14px {p}px'; align=['left','center','right'][idx%3]
- h=lambda s=headline,**kw:title(s,**{'size':46,'font':serif,'color':ink,'pad':pad,**kw})
- t=lambda s=deck,**kw:text(s,**{'size':16,'color':ink,'pad':pad,**kw})
- k=lambda s=name.upper(),**kw:label(s,**{'color':ink,'pad':pad,**kw})
- pic=lambda shape='wide',padding='0px':picture(photo,shape,padding)
- brand=lambda:row(k(),bg=paper,pad='6px 0px')
- cta=lambda s='Read this edition →':button(s,ink,align='left',ink=paper)
- n, *modules=recipe.split(); n=int(n)
- # Thirty-six genuinely different lead treatments, from folios to posters to grids.
- # Individual layouts continue with a unique sequence of content sections below.
- openings=[
- lambda:[brand(),row(h(),t(),bg=paper),row(pic('strip'))],
- lambda:[row(pic()),weighted([[k(),h(size=34)],[t(),cta()]],[1,1],paper)],
- lambda:[row(k(),bg=ink,pad='0px'),row(h(size=62,align='center'),bg=paper),row(t(align='center'),bg=accent)],
- lambda:[weighted([[pic('portrait')],[k(),h(size=32),t(size=14)]],[1,1],paper)],
- lambda:[weighted([[k(),h(size=40),cta()],[pic('portrait')]],[2,1],paper)],
- lambda:[row(k(),divider(ink),h(size=37),bg=paper),weighted([[label('IN THIS ISSUE',ink),t('01 / The story<br>02 / A closer look<br>03 / Try it yourself',size=13)],[pic('square')]],[1,2],paper)],
- lambda:[row(k(),h(size=68,color=paper),t(color=paper),bg=ink,pad='32px 0px'),row(label('AN EDITION FOR CURIOUS PEOPLE',ink,align='center'),bg=accent)],
- lambda:[weighted([[pic('square')],[k(),h(size=29)],[pic('square')]],[1,2,1],paper),row(t(),bg=paper)],
- lambda:[row(k(),title('“',size=110,color=ink,pad='0px 30px'),h(size=40,font=SERIF),bg=paper),row(pic('strip'))],
- lambda:[weighted([[title(f'{idx+1:02}',size=90,color=ink),label('THE EDITION',ink)],[k(),h(size=33),t(size=14)]],[1,2],paper)],
- lambda:[weighted([[k(),divider(ink),label('A SMALL<br>INDEPENDENT<br>DISPATCH',ink)],[h(size=42),pic('wide'),t()]],[1,3],paper)],
- lambda:[row(k(align='center'),pic(),bg=paper),row(h(size=42,align='center'),t(align='center'),bg=accent)],
- lambda:[row(k(),t('Dear {{first_name}},',font=SERIF,size=21),h(size=36,font=SERIF),t(font=SERIF),divider(ink),bg=paper)],
- lambda:[row(h(size=55,align='right'),bg=paper),weighted([[pic('square')],[k(),t(size=14),cta()]],[2,1],paper)],
- lambda:[row(k(),h(size=34),divider(ink),bg=paper),weighted([[title('01',size=60,color=ink)],[t(),pic('strip')]],[1,3],paper)],
- lambda:[row(k(align='center'),h(size=51,font=SERIF,align='center'),bg=paper),weighted([[pic('portrait')],[label('FROM THE NOTEBOOK',ink),t(),cta('Open the notebook →')]],[3,2],paper)],
- lambda:[row(pic('strip')),row(k(),h(size=52),t(),bg=ink),row(label('TAKE YOUR TIME WITH THIS ONE',ink,align='center'),bg=accent)],
- lambda:[weighted([[k(),h(size=38),t(size=14)],[title('↗',size=110,color=ink,align='center'),pic('square')]],[2,1],paper)],
- lambda:[row(k(),bg=paper),weighted([[pic('square')],[pic('portrait')]],[2,1],paper),row(h(size=40),t(),bg=paper)],
- lambda:[row(label('THE SHORT VERSION',ink,align='center'),bg=accent),row(k(),h(size=50,font=MONO),t(),bg=paper)],
- lambda:[row(k(),h(size=31),bg=paper),weighted([[title('01',size=52,color=ink),t(deck.split(',')[0],size=14)],[title('02',size=52,color=ink),t('A different perspective',size=14)],[title('03',size=52,color=ink),t('Something to try',size=14)]],[1,1,1],accent)],
- lambda:[row(k(),h(size=72,align='center'),divider(ink),t(size=19,align='center'),bg=paper,pad='28px 0px')],
- lambda:[weighted([[k(),h(size=30)],[pic('square')]],[1,1],paper),weighted([[pic('strip')],[t(size=14)]],[1,2],accent)],
- lambda:[row(k(),bg=paper),row(h(size=40,font=SERIF,align='center'),t(size=19,align='center'),bg=accent),row(pic('strip'))],
- lambda:[row(k(),divider(ink),bg=paper),weighted([[h(size=36),t(size=14)],[label('YOUR NEXT<br>GOOD READ',ink),divider(ink),cta()]],[3,2],paper)],
- lambda:[weighted([[pic('portrait')],[k(),h(size=28),divider(ink),t(size=14)]],[2,3],paper)],
- lambda:[row(k(align='right'),h(size=58,align='right'),bg=paper),weighted([[t()],[pic('square')]],[2,1],paper)],
- lambda:[row(k(),t(size=21,font=SERIF),divider(ink),h(size=48),bg=paper)],
- lambda:[row(pic('strip')),weighted([[h(size=38)],[k(),t(size=14)]],[3,2],accent)],
- lambda:[row(k(),h(size=42,font=MONO),bg=paper),weighted([[pic('square')],[t(size=15),cta()]],[1,1],paper)],
- lambda:[weighted([[k(),h(size=31),t(size=14)],[pic('portrait')],[label('FIELD<br>NOTES',ink),title(f'{idx+1:02}',size=46,color=ink)]],[3,2,1],paper)],
- lambda:[row(k(),h(size=55),bg=accent),row(t(),divider(ink),pic('strip'),bg=paper)],
- lambda:[row(k(),h(size=36),bg=paper),weighted([[t(size=14)],[pic('square')],[t('A small discovery. A fresh perspective. A good place to begin.',size=14)]],[1,1,1],paper)],
- lambda:[row(k(align='center'),pic('strip'),bg=ink),row(h(size=52,font=SERIF),t(),bg=paper)],
- lambda:[weighted([[title('✳',size=105,color=ink),k()],[h(size=37),t(size=14),cta()]],[1,3],accent)],
- lambda:[row(k(),bg=paper),weighted([[h(size=36),t(size=14)],[pic('square'),label('LOOK A LITTLE CLOSER',ink)]],[3,2],paper),row(divider(ink),bg=paper)],
- ]
- rows=openings[n]()
- # Fix foreground when a lead deliberately reverses paper and ink.
- for rr in rows:
-  if rr['bg']==ink:
-   for cc in rr['columns']:
-    for b in cc:
-     if b['type'] in ('text','heading'): b['values']['color']=paper
- # Each edition's secondary copy remains tied to its own premise.
- detail=f'Welcome to {name}. This week, we’re following the smaller details behind the story: the choices that shaped it, the people who care about it, and the ideas you can bring into your own day.'
- question=f'What would {name.lower()} look like in your everyday life? Start with the part of this story that caught your attention.'
- for position,mod in enumerate(modules):
-  bg=paper if position%2==0 else '#FFFFFF'
-  if mod in ('split','tiles','sidebar'):
-   rows.append(weighted([[pic('square','12px 20px')],[h('An inside look',size=27),t(detail,size=14)]],[1,2 if mod=='sidebar' else 1],bg))
-  elif mod in ('index','cover','agenda'):
-   rows.append(row(k('INSIDE '+name.upper()),h('Your guide to this edition',size=30),t(deck),divider(ink),cta('Explore the edition →'),bg=bg))
-  elif mod=='letter': rows.append(row(k('A NOTE FROM THE EDITOR'),t('Hi {{first_name}},<br><br>'+detail,font=SERIF),t('Thanks for making a little room for this.<br><strong>The editor</strong>',font=SERIF),bg=bg))
-  elif mod in ('feature','brief'): rows.append(row(k('THE STORY / '+name.upper()),h('The story behind '+name.lower(),size=29),t(detail),cta('Read the full story →'),bg=bg))
-  elif mod=='pair': rows.append(weighted([[h('Look a little closer.',size=24),t(deck,size=14)],[h('Bring it into your week.',size=24),t(question,size=14)]],[2+(idx%2),2],bg))
-  elif mod in ('pull','quote'): rows.append(row(title(deck.split(',')[0]+'.',size=34,font=SERIF,color=ink,align=align,pad='36px 40px'),label('A THOUGHT FROM '+name.upper(),ink,align=align),bg=accent))
-  elif mod=='photo': rows.append(row(pic(['wide','strip','square'][idx%3]),label(name.upper()+' / A CLOSER LOOK',ink),bg=bg))
-  elif mod in ('links','numbered'): rows.append(row(k('THREE THINGS TO TAKE AWAY'),h('01 / Notice the details.',size=22),t(deck,size=14),divider(ink),h('02 / Follow your curiosity.',size=22),t('Explore the people, places, and ideas behind '+name.lower()+'.',size=14),divider(ink),h('03 / Make it your own.',size=22),t(question,size=14),bg=bg))
-  elif mod=='checklist': rows.append(row(k('YOUR SMALL NEXT STEP'),t('✓ Choose one idea from this edition.<br><br>✓ Try it in a way that fits your day.<br><br>✓ Notice what changes—and what you want to explore next.'),cta('Keep this edition →'),bg=bg))
-  elif mod=='cards': rows.append(weighted([[pic('square','10px 18px'),h('The closer look',size=22),t(deck,size=14)],[h('A useful question',size=25),t(question,size=14),cta('Explore →')]],[1,1+(idx%2)],bg))
-  elif mod=='reply': rows.append(row(h('What caught your attention?',size=27),t('Reply with a thought, a question, or a recommendation for a future edition of '+name+'. We read every note.'),bg=bg))
-  elif mod=='cta': rows.append(row(h('Take the next small step.',size=28,color=paper),text(question,color=paper),button('Explore '+name,accent,ink=ink),bg=ink))
-  else:
-   sections={
-    'recipe':('FROM THE KITCHEN','Gather your ingredients. Read through once. Leave a little room for taste and instinct.'),
-    'field':('IN THE FIELD','Choose a nearby place. Slow your pace. Write down three things you would normally walk past.'),
-    'manifesto':('A WORKING PRINCIPLE','Make a clear choice. Give it room. Keep the details that help the idea and question the ones that do not.'),
-    'poster':('PIN THIS UP','A little reminder for the next time you need a fresh starting point.'),
-    'changelog':('THE USEFUL CHANGE','What changed · Why it matters · How to try it. Keep the explanation close to the work.'),
-    'itinerary':('A LOOSE PLAN','Morning / Start somewhere local.<br>Afternoon / Follow the interesting route.<br>Evening / Leave time for a long conversation.'),
-    'lesson':('TRY THIS EXERCISE','Pick one observation. Turn it into a question. Try a small experiment and write down what you learn.'),
-    'people':('MEET THE PEOPLE','The most useful part of a good idea is often the person willing to share how they made it happen.'),
-    'edit':('THE CONSIDERED CHOICE','Think about how you will use it, what it is made from, and whether you will still reach for it next year.'),
-    'ritual':('A SMALL RITUAL','Choose a moment you can make your own. Keep it simple enough to repeat and flexible enough to fit your life.'),
-    'question':('THE QUESTION TO KEEP','What do we know? How do we know it? What would help us understand a little more?'),
-    'room':('START WITH ONE CORNER','Notice the light. Clear what is not helping. Bring back the few things that make the space useful and welcoming.')}
-   kicker,body=sections[mod]
-   rows.append(weighted([[k(kicker),h(kicker.capitalize()+': '+name,size=26)],[t(body),divider(ink),t(question,size=14)]],[1+(idx%2),2],bg))
- return rows
 
-for group_index,(group,briefs) in enumerate(BRIEFS.items()):
- for idx,brief in enumerate(briefs):
-  recipe=RECIPES[group_index*15+idx]
-  name,headline,deck=brief
-  key=''.join(c if c.isalnum() else '-' for c in name.lower()).strip('-')
-  while '--' in key:key=key.replace('--','-')
-  key='edition-'+key
-  add(key,name,'Newsletters',deck,headline,deck,compose(brief,group,idx,recipe),bg=edition_palette(group,idx)[1],tags=[group,'editorial','composed',name.lower()])
-  TEMPLATES[-1]['collection']='Editorial collection'
+# Unlayer's built-in font list, beyond the generator's Arial/Georgia/Courier.
+BLACK = {'label': 'Arial Black', 'value': 'arial black,avant garde,arial'}
+TREB = {'label': 'Trebuchet MS', 'value': 'trebuchet ms,geneva'}
+HELV = {'label': 'Helvetica', 'value': 'helvetica,sans-serif'}
+
+def H(copy, c, size=34, font=SERIF, align='center', pad='10px 40px'):
+ return title(copy, size=size, color=c, font=font, align=align, pad=pad)
+def T(copy, c, size=16, font=None, align='center', pad='8px 48px'):
+ return text(copy, size, c, font, align, pad)
+def ill(name, alt, width='100%', pad='0px', align='center'):
+ return {'type': 'image', 'values': {'src': {'url': f'/assets/template-starters/illustrations/{name}.png', 'width': 1200, 'height': 600, 'autoWidth': False, 'maxWidth': width},
+  'altText': alt, 'textAlign': align, 'containerPadding': pad, 'action': {'name': 'web', 'values': {'href': '', 'target': '_blank'}}}}
+def pill(copy, bg, ink='#FFFFFF', align='center', outline=None, font=SANS, pad='16px 40px 28px', size='16px', inner='14px 32px'):
+ b = button(copy, bg, align=align, ink=ink)
+ b['values'].update(borderRadius='999px', containerPadding=pad, fontFamily=font, fontSize=size, padding=inner)
+ if outline: b['values']['border'] = {'borderTopWidth': '2px', 'borderTopStyle': 'solid', 'borderTopColor': outline, 'borderBottomWidth': '2px', 'borderBottomStyle': 'solid', 'borderBottomColor': outline, 'borderLeftWidth': '2px', 'borderLeftStyle': 'solid', 'borderLeftColor': outline, 'borderRightWidth': '2px', 'borderRightStyle': 'solid', 'borderRightColor': outline}
+ return b
+def foot(bg, c, *lines):
+ return row(*[T(l, c, 12, pad='4px 48px') for l in lines], T('<a href="https://xem.email" style="color:inherit">Built with Xem</a>', c, 12, pad='12px 48px 32px'), bg=bg, pad='24px 0px 0px')
+
+def studio(key, name, category, description, subject, preheader, rows, footer, bg, tags, marketing=True):
+ add('studio-'+key, name, category, description, subject, preheader, rows, bg=bg, marketing=marketing, tags=tags)
+ TEMPLATES[-1]['rows'][-1] = footer  # each design carries its own footer colours
+ TEMPLATES[-1]['collection'] = 'Studio collection'
+
+ADDRESS = 'Your company · 12 Example Street, Your City'
+WHY = 'You’re receiving this because you signed up at our website. <a href="https://example.com" style="color:inherit">Unsubscribe</a>'
+
+# Brands, people, dates and offers below are fictional samples to replace.
+
+# --- Welcome ---
+g, sage, cream = '#2F5D46', '#D9E1C6', '#FAF6EC'
+studio('while-you-wait', 'While You Wait', 'Welcome', 'A thank-you for an enquiry or lead form, with an illustrated header and one article to read in the meantime.',
+ 'Thanks, we’ll be in touch soon', 'Someone from our team will reply within a working day.', [
+ weighted([[H('Fernhouse', g, 32, align='left', pad='28px 12px 16px 40px')], [pill('VISIT FERNHOUSE', g, sage, align='right', pad='30px 40px 16px 12px', size='11px', inner='8px 16px')]], [3, 2], sage, '0px'),
+ row(divider(g), ill('gift-stack', 'A stack of wrapped parcels with a small bird sitting on top', pad='8px 0px 0px'), bg=sage, pad='0px'),
+ row(H('Thank you!', '#1E1E1E', 44, align='left', pad='40px 40px 8px'), T('We’ve got your details, and someone from our team will be in touch within a working day to talk through your gifting plans.', '#1E1E1E', 18, SERIF, 'left', '8px 40px 24px'), divider('#1E1E1E'),
+  H('While you wait…', '#1E1E1E', 38, align='left', pad='24px 40px 4px'), T('Here’s what we’ve been thinking about lately.', '#1E1E1E', 15, SERIF, 'left', '4px 40px 16px'), bg=cream),
+ weighted([[ill('tote-circle', 'A green tote bag with a parcel balanced on top', '220px', '20px 8px 20px 40px')],
+           [H('How we choose our gifts', '#1E1E1E', 26, align='left', pad='36px 40px 8px 12px'), T('The four things we look for before anything goes in a box.', '#1E1E1E', 14, SERIF, 'left', '4px 40px 8px 12px'), pill('READ MORE', '#1E1E1E', align='left', pad='8px 40px 24px 12px', size='12px', inner='10px 22px')]], [1, 1], '#EDE1C9', '0px'),
+], foot(cream, '#6B6B60', ADDRESS, WHY), '#E9E4F5', ['lead', 'thank you', 'illustrated'])
+
+ink, mist = '#1F5673', '#F2F4F3'
+studio('hi-there', 'Hi, There', 'Welcome', 'A short, friendly welcome with a mascot drawing, one button, and a fun fact that gives the brand a voice.',
+ 'Hi there, glad you stopped by', 'A quick hello, and a tortoise fact to go with it.', [
+ row(H('TORTOISE TEA CO.', ink, 22, BLACK, pad='20px 40px'), bg='#FFFFFF', pad='0px'),
+ row(ill('tortoise', 'A line drawing of a tortoise, the tea company’s mascot', '420px', '48px 40px 8px'), H('Hi, there.', ink, 40, HELV, pad='24px 40px 8px'),
+  T('Thanks for stopping by. We blend loose-leaf tea in small batches and post it the same week, so it’s still fresh when it reaches you.', '#2A2A2A', 16, HELV), pill('EXPLORE OUR TEA', ink, inner='14px 30px', pad='20px 40px 48px'), bg=mist, pad='0px'),
+ row(T('<strong>TORTOISE FACT #31</strong>', ink, 13, HELV, pad='36px 48px 8px'), T('Some tortoises live for more than 150 years. Our oldest blend is only twelve.', '#2A2A2A', 15, HELV, pad='0px 96px 36px'), bg='#FFFFFF', pad='0px'),
+], foot(mist, '#6B6B6B', 'hello@example.com', ADDRESS, '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), mist, ['welcome', 'mascot', 'brand voice'])
+
+lime, teal = '#E3F45A', '#18B3C8'
+studio('almost-there', 'You’re Almost There', 'Welcome', 'A bright sign-up nudge with a confirm button, three quick-reply choices, and a grid of what members get.',
+ 'One more step to your member discounts', 'Confirm your student status and you’re in.', [
+ row(H('CAMPUS CARD', '#111111', 26, BLACK, pad='22px 40px'), bg='#FFFFFF', pad='0px'),
+ row(ill('shapes-strip', 'A row of small triangles and diamonds', pad='12px 40px 0px'), H('You’re almost there!', '#111111', 34, TREB, pad='16px 40px 4px'),
+  T('Confirm your student status today and start using your discounts on books, travel, food and more.', '#111111', 15, TREB), pill('Confirm now', teal, '#111111', outline='#111111', font=TREB, inner='10px 28px', pad='16px 40px 40px'), bg=lime, pad='0px'),
+ row(H('Ready to start?', '#111111', 24, TREB, pad='32px 40px 8px'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('choice-yes', 'A phone with a tick on the screen', '90px', '8px 0px'), T('Yes<br><strong><a href="https://example.com" style="color:#111111;text-decoration:none">Confirm now ›</a></strong>', '#111111', 14, TREB, pad='4px 8px 24px')],
+           [ill('choice-maybe', 'A green square with a question mark', '90px', '8px 0px'), T('Maybe<br><strong><a href="https://example.com" style="color:#111111;text-decoration:none">Learn more ›</a></strong>', '#111111', 14, TREB, pad='4px 8px 24px')],
+           [ill('choice-no', 'A yellow circle with a cross', '90px', '8px 0px'), T('Not now<br><strong><a href="https://example.com" style="color:#111111;text-decoration:none">Tell us why ›</a></strong>', '#111111', 14, TREB, pad='4px 8px 24px')]], [1, 1, 1], '#FFFFFF', '0px'),
+ row(H('What you get', '#111111', 24, TREB, pad='32px 40px 4px'), T('Discounts all year round, in six categories.', '#111111', 14, TREB, pad='0px 48px 12px'), bg=teal, pad='0px'),
+ weighted([[T('<strong>Books</strong>', '#111111', 15, TREB, pad='22px 8px 22px 32px')], [T('<strong>Travel</strong>', '#111111', 15, TREB, pad='22px 8px')], [T('<strong>Food</strong>', '#111111', 15, TREB, pad='22px 32px 22px 8px')]], [1, 1, 1], '#FFFFFF', '0px'),
+ weighted([[T('<strong>Tech</strong>', '#111111', 15, TREB, pad='22px 8px 22px 32px')], [T('<strong>Fitness</strong>', '#111111', 15, TREB, pad='22px 8px')], [T('<strong>Fashion</strong>', '#111111', 15, TREB, pad='22px 32px 22px 8px')]], [1, 1, 1], teal, '0px'),
+], foot('#FFFFFF', '#555555', ADDRESS, WHY), '#F1F1F1', ['verification', 'student', 'choices'])
+
+# --- Transactional ---
+orange, dark = '#FF7A1A', '#3A3A3A'
+studio('verify-sleepy', 'Verify Your Email', 'Transactional', 'A warm, illustrated email-verification message with one clear button and a help line.',
+ 'Confirm your email address', 'One click and you’re ready for your first night.', [
+ row(H('<span style="color:#FF7A1A">●</span> driftwood', dark, 30, HELV, pad='40px 40px 16px'), ill('sleepy-sun', 'A sleepy sun with its eyes closed, setting behind a hill', '360px', '8px 40px'),
+  H('Confirm your<br>email address', dark, 40, HELV, pad='24px 40px 8px'), T('You’re nearly set up. Press the button below to confirm your email address. The link works for the next 24 hours.', dark, 16, HELV, pad='4px 64px'),
+  pill('Confirm my email', orange, pad='24px 40px 40px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#6B6B6B', 'Questions? Read our <a href="https://example.com" style="color:#FF7A1A">help pages</a> or reply to this email.', 'Driftwood · 12 Example Street, Your City'), '#F7F3EF', ['verification', 'account', 'illustrated'], marketing=False)
+
+studio('cancellation', 'Cancellation Confirmed', 'Transactional', 'A plain, kind cancellation confirmation: what happens now, when access ends, and how to come back.',
+ 'Your subscription is cancelled', 'You can keep listening until the end of your billing period.', [
+ row(H('<span style="color:#FF7A1A">●</span> driftwood', dark, 26, HELV, pad='40px 40px 8px'), H('Your cancellation<br>is confirmed', dark, 36, HELV, pad='16px 40px 16px'),
+  T('Hi {{first_name}},<br><br>We’ve cancelled your Driftwood subscription. You still have full access to every sleep story until <strong>27 October</strong>.<br><br>After that, the app will only play the free stories. If you change your mind, you can resubscribe in two taps.<br><br>If you asked for a refund, you may get a second cancellation email once it has gone through.<br><br>– The Driftwood team', dark, 16, HELV, pad='8px 64px 40px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#6B6B6B', 'Questions? Read our <a href="https://example.com" style="color:#FF7A1A">help pages</a> or reply to this email.', 'Driftwood · 12 Example Street, Your City'), '#F3F3F7', ['cancellation', 'subscription', 'account'], marketing=False)
+
+paper, black = '#EEEEE9', '#2B2B2B'
+studio('limit-reached', 'Limit Reached', 'Transactional', 'A usage-limit alert with a simple illustration, what has stopped, and the one setting that fixes it.',
+ 'You’ve used 100% of your monthly limit', 'New events are paused until your limit resets or you raise it.', [
+ row(H('graphwell', black, 24, BLACK, pad='20px 40px'), bg='#FFFFFF', pad='0px'),
+ row(ill('meter-full', 'A browser window with a progress bar filled to the end', '380px', '24px 40px 8px'), bg=paper, pad='0px'),
+ row(H('You’ve hit 100% of your<br>monthly limit', black, 30, HELV, pad='28px 40px 8px'), T('You set a limit of 1,000,000 events a month for the <strong>Storefront</strong> project, and you reached it today.', black, 16, HELV, pad='8px 56px'),
+  T('<strong>We’ve paused new events for this project until your limit resets on the 1st, or until you raise it.</strong> Nothing already collected is lost.', black, 16, HELV, pad='8px 56px'),
+  pill('Change your limit', '#F2A33A', black, outline=black, pad='20px 40px 40px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#777777', 'Graphwell · 12 Example Street, Your City', 'Sent because you’re an owner of this project.'), paper, ['usage', 'billing', 'alert'], marketing=False)
+
+# --- Retention ---
+forest, mint, oat = '#21382F', '#D4E9E2', '#F1EFEA'
+studio('challenge-progress', 'Halfway There', 'Retention', 'A loyalty challenge update with a scattered illustration, progress so far, an outlined button and an icon menu.',
+ 'You’re halfway through the challenge', '40 bonus stars collected. 35 to go.', [
+ row(T('ORDER AHEAD IN <a href="https://example.com" style="color:#21382F">THE APP</a>', forest, 13, HELV, pad='16px 40px'), bg=mint, pad='0px'),
+ row(H('COPPER CUP', '#FFFFFF', 30, BLACK, pad='36px 40px 2px'), T('R E W A R D S', '#FFFFFF', 14, HELV, pad='0px 40px 32px'), bg=forest, pad='0px'),
+ row(ill('breakfast-scatter', 'A scatter of drinks, pastries, toast and stars', '100%', '32px 24px 0px'), H('Nice going', forest, 40, SERIF, pad='16px 40px 8px'),
+  T('You’re halfway through the challenge. So far you’ve collected <strong>40 bonus stars</strong>. Keep going to get all 75.<br><br>Track your stars in the app. Bonus stars land in your account within three days of the challenge ending.', forest, 17, HELV, pad='8px 64px'),
+  pill('Order ahead', oat, forest, outline=forest, pad='24px 40px 48px', size='20px', inner='14px 40px'), bg=oat, pad='0px'),
+ weighted([[ill('icon-phone', 'App', '80px', '20px 0px 0px'), T('APP', forest, 13, HELV, pad='0px 4px 20px')], [ill('icon-cup', 'Order', '80px', '20px 0px 0px'), T('ORDER', forest, 13, HELV, pad='0px 4px 20px')],
+           [ill('icon-star', 'Offers', '80px', '20px 0px 0px'), T('OFFERS', forest, 13, HELV, pad='0px 4px 20px')], [ill('icon-gift', 'Rewards', '80px', '20px 0px 0px'), T('REWARDS', forest, 13, HELV, pad='0px 4px 20px')]], [1, 1, 1, 1], mint, '0px'),
+], foot('#FFFFFF', '#6B6B6B', 'Challenge runs 11–17 October at participating shops. Activate the offer in the app before your first order.', ADDRESS, WHY), '#FFFFFF', ['loyalty', 'progress', 'rewards'])
+
+blue = '#4F8DF7'
+studio('hundred', 'One Hundred', 'Retention', 'A milestone celebration for a customer or partner, with a big number illustration and a single button.',
+ 'You just made your 100th delivery', 'Thank you for a hundred trips across town.', [
+ row(H('Pedalpost', '#111111', 26, HELV, align='left', pad='22px 40px'), bg='#FFFFFF', pad='0px'),
+ row(H('A hundred deliveries.<br>Thank you.', '#111111', 40, HELV, align='left', pad='40px 40px 12px'),
+  T('Tien, you’ve just finished your 100th delivery with us. That’s a hundred parcels across town, in every kind of weather.<br><br>Thank you for every one of them.<br><br>Ride on.', '#111111', 17, HELV, 'left', '8px 40px'),
+  button('Keep going →', '#111111', align='left'), ill('milestone-100', 'A huge white number 100 with a bicycle and parcels around it', pad='16px 0px 0px'), bg=blue, pad='0px'),
+], row(T('<a href="https://example.com" style="color:#FFFFFF">Help</a> · <a href="https://example.com" style="color:#FFFFFF">Privacy</a> · <a href="https://example.com" style="color:#FFFFFF">Terms</a>', '#FFFFFF', 13, HELV, 'left', '32px 40px 8px'), T('Pedalpost · 12 Example Street, Your City', '#BBBBBB', 12, HELV, 'left', '4px 40px'), T('<a href="https://xem.email" style="color:#BBBBBB">Built with Xem</a>', '#BBBBBB', 12, HELV, 'left', '8px 40px 32px'), bg='#000000', pad='0px'),
+ '#FFFFFF', ['milestone', 'celebration', 'partners'])
+
+navy, violet, ivory = '#0E3E45', '#4B3BFF', '#FFFEF2'
+studio('travel-survey', 'Tell Us Your Plans', 'Retention', 'A member survey request with an illustration, why the answers matter, a prize line and one button.',
+ 'Where are you going next year?', 'Five minutes, a few questions, and a chance to win $200.', [
+ row(H('farefinder', violet, 30, TREB, pad='40px 40px 16px'), H('Tell us about your<br><span style="color:#4B3BFF">travel plans for next year</span>', navy, 26, HELV, pad='8px 40px'),
+  ill('calendar-ribbon', 'Two calendar pages with dates crossed off, joined by a ribbon, and a pen', pad='24px 24px 8px'),
+  T('Will you travel more or less than this year? Where are you hoping to go? How do you choose when to book?<br><br>Your answers help us decide which routes to watch, and they go into our yearly travel report.', navy, 16, HELV, pad='8px 56px'),
+  T('<strong>Finish the survey and you’ll be entered into a draw for $200.</strong>', navy, 16, HELV, pad='12px 56px'), pill('Take the survey', violet, pad='20px 40px 40px'), divider(navy), bg=ivory, pad='0px'),
+], foot(ivory, navy, 'Farefinder · 12 Example Street, Your City', 'Draw closes 30 November. Full rules on our website.', '<a href="https://example.com" style="color:inherit">Email preferences</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), ivory, ['survey', 'feedback', 'prize'])
+
+olive, chartreuse = '#2F3A12', '#D4E157'
+studio('five-stars', 'What Do You Think?', 'Retention', 'A playful review request with big serif type, a highlighted question and hand-drawn stars.',
+ 'Would you give us five stars?', 'If you’ve got a minute, we’d love a review.', [
+ weighted([[ill('doodle-burst', 'A small hand-drawn sparkle', '60px', '24px 0px 0px 24px', 'left')], [H('GOOD CRUMB', olive, 26, BLACK, pad='32px 8px 0px')], [ill('doodle-burst', 'A small hand-drawn sparkle', '50px', '30px 24px 0px 0px', 'right')]], [1, 3, 1], chartreuse, '0px'),
+ row(H('Five stars,<br>or fewer?', olive, 54, SERIF, pad='24px 40px 8px'), H('<span style="background:#F5EDDE;padding:2px 14px"><em>Be honest. We can take it.</em></span>', olive, 30, SERIF, pad='4px 40px 20px'),
+  ill('five-stars', 'Five hand-drawn stars', '420px', '8px 40px 16px'),
+  T('We’d really like to hear what you thought of your last order. If you’ve got a minute, leave us a review :-)<br><br>We’ll read every single one.', olive, 15, MONO, pad='12px 72px'),
+  pill('Leave a review', '#E7F06B', olive, outline=olive, font=MONO, pad='20px 40px 8px', inner='14px 64px'), ill('loaf', 'A loaf of bread', '150px', '8px 40px 24px', 'right'), bg=chartreuse, pad='0px'),
+], foot('#F5EDDE', olive, 'Good Crumb Bakery · 12 Example Street, Your City', WHY), chartreuse, ['review', 'feedback', 'playful'])
+
+# --- Product ---
+studio('feet-up', 'Feet Up', 'Product', 'A feature-education email in a light, joking voice, with a big illustration and inline links to each option.',
+ 'A good reason to take a break', 'Set up an experiment, then let the results come to you.', [
+ weighted([[H('graphwell', black, 24, BLACK, align='left', pad='24px 12px 20px 40px')], [T('<a href="https://example.com" style="color:#E8742C;font-weight:bold">Visit Graphwell</a>', black, 15, HELV, 'right', '28px 40px 20px 12px')]], [1, 1], '#E3E3DE', '0px'),
+ row(ill('desk-feet-up', 'A tidy desk with an open laptop, a mug, stacked books and a bin of paper balls', pad='8px 0px'), H('A good <s>excuse</s> reason to take a break', '#4A4A4A', 32, HELV, pad='16px 32px 8px'),
+  T('There are two good things about running experiments in Graphwell.<br><br>The first is that there are plenty to choose from. There are <a href="https://example.com" style="color:#E8742C">A/B tests</a>, of course, but also <a href="https://example.com" style="color:#E8742C">multivariate tests</a>, <a href="https://example.com" style="color:#E8742C">holdout groups</a> and <a href="https://example.com" style="color:#E8742C">redirect tests</a>.<br><br>The <em>other</em> good thing is that once you’ve set one up, you can get on with something else while the numbers come in. We call that delegating.', '#4A4A4A', 17, HELV, 'left', '8px 32px'),
+  pill('Start an experiment', '#111111', pad='20px 40px 32px', size='18px'), divider('#BDBDB6'), bg=paper, pad='0px'),
+], foot(paper, '#4A4A4A', 'We keep our emails few and far between, but you can still <a href="https://example.com" style="color:inherit">unsubscribe</a>.', 'Graphwell · 12 Example Street, Your City'), paper, ['feature', 'education', 'product'])
+
+ink2, warm = '#4A4458', '#FAF4EB'
+studio('first-lesson', 'Lesson One', 'Product', 'An onboarding lesson with a video still, then two illustrated questions and answers on a warm panel.',
+ 'Lesson one: learning to slow down', 'Five minutes, a comfortable chair, and no mountaintop required.', [
+ row(T('<span style="color:#E8742C">●</span> QUIET HOUR', '#E8742C', 13, HELV, pad='36px 40px 8px'), H('Learning to slow down', ink2, 38, HELV, pad='8px 40px'),
+  T('Meditation isn’t about becoming a different person. It’s practice at noticing what’s going on, and getting a bit of distance from it. This two-minute video explains how.', ink2, 15, HELV, pad='8px 64px 16px'),
+  ill('lesson-video', 'A video still: a play button between a cactus and a small round character on a hill', '440px', '8px 40px 32px'), bg='#FFFFFF', pad='0px'),
+ row(H('When should I practise?', ink2, 26, HELV, pad='40px 40px 8px'), ill('spot-sunrise', 'A sun rising over the horizon', '170px', '8px 40px'),
+  T('First thing in the morning works for most people: it’s quiet, and it’s easy to make a habit of. Any time is fine, though, as long as it’s roughly the same time each day.', ink2, 15, HELV, pad='8px 72px 24px'),
+  H('Where should I practise?', ink2, 26, HELV, pad='24px 40px 8px'), ill('spot-chair', 'A comfortable armchair', '170px', '8px 40px'),
+  T('No need to climb a mountain. Anywhere reasonably quiet where you won’t be interrupted for ten minutes is just right.', ink2, 15, HELV, pad='8px 72px 40px'), bg=warm, pad='0px'),
+], foot('#FFFFFF', '#777777', 'Questions? Reply to this email and a real person will answer.', 'Quiet Hour · 12 Example Street, Your City', WHY), '#F1F1F1', ['onboarding', 'lesson', 'education'])
+
+# --- Commerce ---
+deep, cream2, tomato = '#1F4D35', '#F7EFE3', '#F0532A'
+studio('kick-start', 'Kick Start', 'Commerce', 'A product promotion led by oversized two-colour type, with three illustrated ways to use it.',
+ 'Free hot sauce with breakfast this week', 'Add a sachet to any hot breakfast, on us.', [
+ row(H('MORNING PANTRY', deep, 18, BLACK, pad='40px 40px 0px'), T('Give your breakfast a', '#3B3B3B', 24, HELV, pad='24px 40px 0px'),
+  H('<span style="color:#F0532A">little</span><br>heat', deep, 96, SERIF, pad='0px 40px'), ill('sachets', 'Two hot sauce sachets, one green and one black', '520px', '0px 40px'),
+  T('This week, add a sachet of our green or smoky chilli sauce to any hot breakfast order. It’s on the house.', '#3B3B3B', 17, HELV, pad='12px 72px'),
+  pill('Try it now', deep, pad='20px 40px 36px'), H('Three ways to try it', deep, 28, SERIF, pad='16px 40px 16px'), bg=cream2, pad='0px'),
+ weighted([[ill('dish-eggs', 'Two fried eggs on a plate', '100%', '0px 8px 0px 24px'), T('<strong>Fried eggs</strong><br>A few drops on the yolk.', deep, 14, HELV, pad='8px 8px 32px 24px')],
+           [ill('dish-toast', 'Toast with smashed avocado', '100%', '0px 8px'), T('<strong>Avocado toast</strong><br>Stir it into the avocado.', deep, 14, HELV, pad='8px 8px 32px')],
+           [ill('dish-bowl', 'A noodle bowl with chopsticks', '100%', '0px 24px 0px 8px'), T('<strong>Noodle bowl</strong><br>A spoonful in the broth.', deep, 14, HELV, pad='8px 24px 32px 8px')]], [1, 1, 1], cream2, '0px'),
+], foot(cream2, '#6B6B6B', 'One free sachet per hot breakfast order, while stocks last, until Sunday.', ADDRESS, WHY), deep, ['promotion', 'product', 'typographic'])
+
+green, sky = '#58C24A', '#DDF1FF'
+studio('two-tests', 'Two For One', 'Commerce', 'An offer email built from rounded cards: an introduction, three reasons, and a bright offer block with a price.',
+ 'Hi Maria, two tests for $49 each', 'Book two English tests together and save $20.', [
+ row(H('fluentry', green, 30, TREB, pad='32px 40px 0px'), ill('parrot', 'A round green bird, the Fluentry mascot', '140px', '16px 40px 0px'), H('Hi Maria!', '#2B2B2B', 30, TREB, pad='8px 40px 0px'),
+  T('Planning to study somewhere English-speaking? The Fluentry English Test is a quick way to prove your level.', '#2B2B2B', 15, TREB, pad='8px 56px 24px'), bg='#FFFFFF', pad='0px'),
+ weighted([[T('<strong>The Fluentry English Test</strong><br><br>Take it from home in about an hour, and get your results in two days. Accepted by thousands of universities and employers.', '#2B2B2B', 15, TREB, 'left', '28px 12px 8px 40px'), pill('FIND OUT MORE', '#1CB0F6', align='left', pad='8px 12px 28px 40px', size='13px', inner='10px 20px')],
+           [ill('bubble-globe', 'A speech bubble and a small globe', '100%', '24px 40px 24px 0px')]], [3, 2], '#F6F6F6', '0px'),
+ row(H('Why take the Fluentry test?', '#2B2B2B', 20, TREB, pad='28px 40px 8px'),
+  T('<span style="color:#3E9E31"><strong>At home:</strong></span> take it when it suits you.<br><span style="color:#3E9E31"><strong>Good value:</strong></span> one test costs $59.<br><span style="color:#3E9E31"><strong>Widely accepted:</strong></span> by universities and employers worldwide.', '#2B2B2B', 15, TREB, 'left', '8px 72px 24px'), bg='#FFFFFF', pad='0px'),
+ row(H('Book two tests at $49 each', '#FFFFFF', 22, TREB, pad='32px 40px 8px'),
+  H('<span style="background:#FFFFFF;color:#2B2B2B;padding:10px 20px;border-radius:12px">2 tests · $49 each · <s>$118</s> $98</span>', '#2B2B2B', 20, TREB, pad='16px 40px 16px'),
+  pill('GET THE OFFER', '#FFFFFF', '#1CB0F6', pad='12px 40px 36px', size='14px'), bg=green, pad='0px'),
+], foot('#FFFFFF', '#777777', 'Offer ends 30 November. Both tests must be booked on the same account.', ADDRESS, WHY), sky, ['offer', 'pricing', 'education'])
+
+orange2, acid, lilac = '#FF5A28', '#EAF542', '#EFC6F0'
+studio('give-get', 'Give One, Get One', 'Commerce', 'A loud referral email in blocks of colour: a big headline band, a line-drawn illustration, and one button.',
+ 'Give a jar, get a jar', 'Share your link and you both get a free jar.', [
+ row(H('CHILLI CLUB', acid, 52, BLACK, pad='40px 40px'), bg=orange2, pad='0px'),
+ row(H('GIVE A JAR,<br>GET A JAR', orange2, 44, BLACK, align='left', pad='36px 64px'), bg=acid, pad='0px'),
+ row(ill('jar-swap', 'Two jars of chilli sauce being swapped over a table of line-drawn bowls and chopsticks'), bg=lilac, pad='0px'),
+ row(T('Thank you to everyone who told a friend, a flatmate or a fussy uncle about us. Now we’d like to give a little back.<br><br>For every friend you refer, you’ll get <strong style="color:#B0204A">ONE FREE JAR*</strong> on your next order, and so will they.<br><br>Press the button below to get your referral link.', orange2, 16, TREB, 'left', '40px 64px 8px'),
+  pill('REFER FRIENDS', acid, orange2, outline=orange2, font=BLACK, pad='20px 40px 4px', size='18px'), T('*worth $6 off your next order', orange2, 12, TREB, pad='4px 40px 36px'), bg='#F8F2DC', pad='0px'),
+], foot(orange2, '#FFFFFF', '<strong>CHILLICLUB.EXAMPLE</strong>', 'Chilli Club · 12 Example Street, Your City', WHY), '#A50C42', ['referral', 'bold', 'illustrated'])
+
+pink, indigo = '#F4B6C2', '#0B2A7A'
+studio('cheers', 'A Toast', 'Commerce', 'A cross-sell offer: a colour block with a big serif headline, short bullet points and a pill button, then a food photo.',
+ '$20 off your first wine box', 'Add a monthly wine box to your meal kit and save $20.', [
+ row(H('Supper Box', indigo, 22, SERIF, pad='28px 40px 0px'), H('A toast:<br>$20 off!*', indigo, 56, SERIF, pad='16px 40px 8px'),
+  T('<strong>Add our monthly wine box to your meal kit.</strong>', indigo, 16, HELV, pad='8px 64px 4px'),
+  T('• Six bottles of your choice each month<br>• Each bottle sized for two<br>• A pairing card for every recipe', indigo, 15, HELV, pad='4px 64px'), pill('Add the wine box', indigo, pad='20px 40px 32px', size='17px'), bg=pink, pad='0px'),
+ row(picture('table', 'wide'), bg=pink, pad='0px'),
+], row(T('GET THE <strong>SUPPER BOX</strong> APP', '#AFC4FF', 13, HELV, pad='32px 40px 8px'),
+  T('<a href="https://example.com" style="color:#FFFFFF;border:1px solid #FFFFFF;border-radius:999px;padding:10px 22px;text-decoration:none">iPhone app</a>&nbsp;&nbsp;&nbsp;<a href="https://example.com" style="color:#FFFFFF;border:1px solid #FFFFFF;border-radius:999px;padding:10px 22px;text-decoration:none">Android app</a>', '#FFFFFF', 14, HELV, pad='16px 40px 24px'),
+  T('*Wine box not available everywhere. For first-time wine subscribers only.', '#FFFFFF', 12, HELV, pad='8px 48px'), T('Supper Box · 12 Example Street, Your City · <a href="https://example.com" style="color:#FFFFFF">Unsubscribe</a>', '#FFFFFF', 12, HELV, pad='8px 48px'),
+  T('<a href="https://xem.email" style="color:#FFFFFF">Built with Xem</a>', '#FFFFFF', 12, HELV, pad='8px 48px 32px'), bg=indigo, pad='0px'),
+ '#FFFFFF', ['cross-sell', 'offer', 'subscription'])
+
+# --- Events ---
+studio('one-day-to-go', 'One Day to Go', 'Events', 'A day-before event reminder with a bold banner, the practical details as a short list, and a friendly sign-off.',
+ 'Tomorrow: your workshop starts at 10am', 'Here’s what you need to know before we go live.', [
+ row(H('Postwell', '#1A1A1A', 34, BLACK, pad='40px 40px 24px'), ill('one-day-banner', 'A red banner reading One day to go, with a lightning bolt, a heart and a globe', pad='0px 40px'),
+  T('Tomorrow’s the day. We’re going live with three social media managers from small shops to show you how they plan a month of posts in an afternoon.<br><br>Here’s what you need to know:', '#1A1A1A', 17, HELV, 'left', '32px 40px 8px'),
+  T('•&nbsp; The workshop starts at <strong>10am Pacific</strong>.<br>•&nbsp; It’s on a video call. We’ll email you the link an hour before.<br>•&nbsp; Bring one post you’d like feedback on.', '#1A1A1A', 17, HELV, 'left', '8px 56px'),
+  T('Know someone who’d find it useful? Send them <a href="https://example.com" style="color:#0E7C86">this link</a>. It’s not too late to join.<br><br>See you tomorrow!', '#1A1A1A', 17, HELV, 'left', '8px 40px 40px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#777777', 'Postwell · 12 Example Street, Your City', 'You’re getting this because you registered for the workshop.'), '#FFFFFF', ['reminder', 'workshop', 'webinar'])
+
+# --- Product updates and education ---
+studio('month-in-review', 'What’s New This Month', 'Product', 'A monthly product round-up: a centred header, a signed note from a person, then one large feature and two side-by-side ones.',
+ 'What’s new in Corkboard this April', 'Tables, templates and slides, plus a note from our product lead.', [
+ row(H('<span style="background:#FFD02F;padding:4px 10px;border-radius:6px">▦</span> corkboard', '#1A1A1A', 24, HELV, pad='32px 40px 8px'), T('April ’26', '#1A1A1A', 18, HELV, pad='16px 40px 0px'),
+  H('What’s New in Corkboard', '#1A1A1A', 34, HELV, pad='4px 40px 8px'), T('Tables, templates and slides. Three more ways to plan work, keep it moving and show it off.', '#1A1A1A', 15, HELV, pad='4px 72px'),
+  button('April round-up', '#3D5AFE', align='center'), bg='#F4F4F8', pad='0px'),
+ row(T('Hi {{first_name}},<br><br>It was a busy month. If you missed our launch week, <a href="https://example.com" style="color:#3D5AFE">here are the highlights</a>.<br><br>Now it’s time to use them. You can sort work in Tables, start a project from a template, and turn a board into slides without leaving the page.', '#1A1A1A', 15, HELV, 'left', '36px 40px 8px'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('avatar-1', 'Portrait of Jo Park', '72px', '12px 8px 28px 40px')], [T('Jo Park,<br>Head of Product', '#1A1A1A', 14, HELV, 'left', '24px 40px 28px 8px')]], [1, 4], '#FFFFFF', '0px'),
+ row(divider('#ECECF2'), ill('ui-table', 'A table view with rows, coloured status labels and a teammate’s cursor', pad='16px 40px'), H('Plan it, sort it, track it in Tables', '#1A1A1A', 26, HELV, 'left', '16px 40px 4px'),
+  T('Bring order to a busy board. Drop sticky notes or cards straight into a table, then switch to a timeline to see what’s due when.', '#1A1A1A', 15, HELV, 'left', '4px 40px'),
+  T('<a href="https://example.com" style="background:#E9E9F0;color:#1A1A1A;padding:12px 16px;text-decoration:none;font-weight:bold">See how Tables work</a>&nbsp;&nbsp;&nbsp;<a href="https://example.com" style="color:#1A1A1A;text-decoration:none;font-weight:bold">Create a table →</a>', '#1A1A1A', 14, HELV, 'left', '20px 40px 32px'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('ui-templates', 'A stack of board templates with a Template label', '100%', '24px 8px 24px 40px')],
+           [H('New project? Start from a template', '#1A1A1A', 20, HELV, 'left', '32px 40px 4px 12px'), T('✨ <em><strong>BETA</strong></em>', '#1A1A1A', 13, HELV, 'left', '4px 40px 4px 12px'), T('Skip the setup with ready-made spaces, complete with boards and tools.', '#1A1A1A', 14, HELV, 'left', '4px 40px 4px 12px'), T('<a href="https://example.com" style="color:#3D5AFE;font-weight:bold;text-decoration:none">Have a look →</a>', '#1A1A1A', 14, HELV, 'left', '4px 40px 24px 12px')]], [1, 1], '#FFFFFF', '0px'),
+ weighted([[H('Ready, set, present with Slides', '#1A1A1A', 20, HELV, 'left', '32px 12px 4px 40px'), T('✨ <em><strong>BETA</strong></em>', '#1A1A1A', 13, HELV, 'left', '4px 12px 4px 40px'), T('Turn any board into slides, with live widgets that keep everyone looking at the screen.', '#1A1A1A', 14, HELV, 'left', '4px 12px 4px 40px'), T('<a href="https://example.com" style="color:#3D5AFE;font-weight:bold;text-decoration:none">Try Slides →</a>', '#1A1A1A', 14, HELV, 'left', '4px 12px 32px 40px')],
+           [ill('ui-slides', 'A slide titled Our Spring Plan with a portrait drawing', '100%', '24px 40px 24px 8px')]], [1, 1], '#FFFFFF', '0px'),
+], foot('#F4F4F8', '#777777', 'Corkboard · 12 Example Street, Your City', WHY), '#3D5AFE', ['round-up', 'product update', 'features'])
+
+paperw, inkw = '#F9F7F2', '#1F1E1D'
+studio('try-it-on', 'Try It on Real Work', 'Product', 'A calm product nudge on warm paper: an illustration, two example uses in rounded cards, and one dark button.',
+ 'Try Marlowe on your own work', 'Point it at a folder or an inbox and see what comes back.', [
+ row(H('<span style="color:#D97757">✳</span> Marlowe', inkw, 26, SERIF, 'left', '32px 32px 16px'), H('Try Marlowe on your own work', inkw, 26, SERIF, 'left', '8px 32px 4px'),
+  T('The quickest way to see what it can do is to give it something real.', inkw, 15, SERIF, 'left', '4px 32px 16px'), ill('app-tiles', 'Rounded app tiles scattered on a sage background', pad='0px 32px'),
+  T('Pick whichever suits you:', inkw, 18, SERIF, 'left', '20px 32px 8px'), bg=paperw, pad='0px'),
+ weighted([[ill('icon-files', 'A stack of files', '56px', '28px 8px 28px 40px')], [H('From your files', inkw, 17, SERIF, 'left', '28px 40px 4px 8px'), T('<em>“Read everything in this folder. Tell me what’s there, flag anything urgent, and write it up as one tidy page.”</em>', inkw, 15, SERIF, 'left', '4px 40px 28px 8px')]], [1, 4], '#EFEBE3', '0px'),
+ row(text('', 4, inkw, pad='4px 0px'), bg=paperw, pad='0px'),
+ weighted([[ill('icon-inbox', 'An inbox', '56px', '28px 8px 28px 40px')], [H('From your email', inkw, 17, SERIF, 'left', '28px 40px 4px 8px'), T('<em>“Find everything from the past week that still needs an answer. Put the urgent ones first and draft replies.”</em>', inkw, 15, SERIF, 'left', '4px 40px 28px 8px')]], [1, 4], '#EFEBE3', '0px'),
+ row(T('Marlowe reads your files, email or messages, does the work, and hands back something finished.', inkw, 15, SERIF, 'left', '20px 32px 8px'), button('Try it now', '#141414', align='left'), bg=paperw, pad='0px'),
+], row(H('<span style="color:#D97757">✳</span> Marlowe', '#FFFFFF', 22, SERIF, 'left', '32px 32px 8px'), T('Marlowe · 12 Example Street, Your City · <a href="https://example.com" style="color:#BBBBBB">Unsubscribe</a>', '#BBBBBB', 12, HELV, 'left', '8px 32px'), T('<a href="https://xem.email" style="color:#BBBBBB">Built with Xem</a>', '#BBBBBB', 12, HELV, 'left', '4px 32px 32px'), bg='#141414', pad='0px'),
+ '#DADFD9', ['product', 'activation', 'examples'])
+
+studio('next-steps', 'Your Next Steps', 'Product', 'An advanced-features email: three white cards on warm grey, each with a line icon, a bold title, a sentence and an underlined link.',
+ 'Ready for the advanced features?', 'Search, citations and skills: three ways to get more from Marlowe.', [
+ row(H('<span style="color:#D97757">✳</span> Marlowe', inkw, 26, SERIF, 'left', '36px 40px 16px'), H('Go further with Marlowe', inkw, 28, HELV, 'left', '8px 40px 4px'),
+  T('You’ve got the basics. Here are three features that make the biggest difference once you’re building with it every day.', inkw, 17, HELV, 'left', '4px 40px 20px'), bg='#F0EEE6', pad='0px'),
+ weighted([[ill('icon-globe', 'A globe', '60px', '28px 8px 28px 48px')], [H('Look things up on the web', inkw, 18, HELV, 'left', '28px 48px 4px 8px'), T('Let it search the web for current answers, with links to every source it used.', inkw, 15, HELV, 'left', '4px 48px 4px 8px'), T('<a href="https://example.com" style="color:#1F1E1D;font-weight:bold">Turn on web search</a>', inkw, 15, HELV, 'left', '8px 48px 28px 8px')]], [1, 4], '#FAF9F5', '0px'),
+ row(text('', 4, inkw, pad='4px 0px'), bg='#F0EEE6', pad='0px'),
+ weighted([[ill('icon-pencil', 'A pencil', '60px', '28px 8px 28px 48px')], [H('Check where answers come from', inkw, 18, HELV, 'left', '28px 48px 4px 8px'), T('Every answer can point back to the exact passage in your documents. Upload them and the references come with it.', inkw, 15, HELV, 'left', '4px 48px 4px 8px'), T('<a href="https://example.com" style="color:#1F1E1D;font-weight:bold">Learn more</a>', inkw, 15, HELV, 'left', '8px 48px 28px 8px')]], [1, 4], '#FAF9F5', '0px'),
+ row(text('', 4, inkw, pad='4px 0px'), bg='#F0EEE6', pad='0px'),
+ weighted([[ill('icon-toolbox', 'A toolbox', '60px', '28px 8px 28px 48px')], [H('Teach it your way of working', inkw, 18, HELV, 'left', '28px 48px 4px 8px'), T('Skills are folders of instructions and examples it picks up when they’re relevant, so it does things the way your team does.', inkw, 15, HELV, 'left', '4px 48px 4px 8px'), T('<a href="https://example.com" style="color:#1F1E1D;font-weight:bold">Learn more</a>', inkw, 15, HELV, 'left', '8px 48px 28px 8px')]], [1, 4], '#FAF9F5', '0px'),
+ row(pill('Explore advanced features', '#141414', pad='28px 40px 40px', size='18px', inner='14px 48px'), bg='#F0EEE6', pad='0px'),
+], row(H('<span style="color:#D97757">✳</span> Marlowe', '#FFFFFF', 22, SERIF, 'left', '32px 40px 8px'), divider('#444444'), T('Marlowe · 12 Example Street, Your City. To stop these emails, <a href="https://example.com" style="color:#BBBBBB">unsubscribe</a>.', '#BBBBBB', 12, HELV, 'left', '8px 40px'), T('<a href="https://xem.email" style="color:#BBBBBB">Built with Xem</a>', '#BBBBBB', 12, HELV, 'left', '4px 40px 32px'), bg='#141414', pad='0px'),
+ '#FFFFFF', ['features', 'education', 'cards'])
+
+bl = '#2E5BFF'
+studio('three-reasons', 'Three Good Reasons', 'Product', 'An educational email: a blue illustrated banner, a bold headline, then three numbered points in blue circles.',
+ 'Three reasons to split your savings', 'One pot is fine. Three pots work harder.', [
+ row(H('ledgerly', bl, 26, HELV, 'left', '24px 40px'), bg='#FFFFFF', pad='0px'),
+ row(ill('savings-banner', 'A blue banner with a magnifying glass, notes, coins and sparkles'), bg=bl, pad='0px'),
+ row(H('Split your savings into pots', '#0B0B0B', 30, HELV, 'left', '36px 40px 12px'), T('Saving is easier to stick with when every pound has a job. Splitting your savings into a few pots can help you:', '#0B0B0B', 16, HELV, 'left', '4px 40px 16px'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('num-1', 'Number 1', '52px', '16px 0px 16px 40px')], [H('Cover the bills first', '#0B0B0B', 20, HELV, 'left', '16px 40px 2px 8px'), T('Set aside rent and bills on payday, so the rest of your account is yours to spend.', '#0B0B0B', 15, HELV, 'left', '2px 40px 16px 8px')]], [1, 5], '#FFFFFF', '0px'),
+ weighted([[ill('num-2', 'Number 2', '52px', '16px 0px 16px 40px')], [H('Build a cushion', '#0B0B0B', 20, HELV, 'left', '16px 40px 2px 8px'), T('A separate pot for the unexpected means a broken boiler doesn’t come out of your holiday.', '#0B0B0B', 15, HELV, 'left', '2px 40px 16px 8px')]], [1, 5], '#FFFFFF', '0px'),
+ weighted([[ill('num-3', 'Number 3', '52px', '16px 0px 16px 40px')], [H('Save for something fun', '#0B0B0B', 20, HELV, 'left', '16px 40px 2px 8px'), T('Name a pot after the thing you want. It’s easier to leave it alone when it says “Lisbon”.', '#0B0B0B', 15, HELV, 'left', '2px 40px 16px 8px')]], [1, 5], '#FFFFFF', '0px'),
+ row(pill('Set up your pots', bl, align='left', pad='20px 40px 40px', size='17px', inner='16px 36px'), bg='#FFFFFF', pad='0px'),
+], foot('#EEF0F4', '#5B6170', 'This email is general information, not financial advice.', 'Ledgerly · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Get in touch</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['education', 'numbered', 'finance'])
+
+blue2 = '#2F6FED'
+studio('join-your-team', 'Join Your Team', 'Welcome', 'A team invitation with a flat illustration, a full-width button and two short testimonials from other users.',
+ 'Sana invited you to Threadline', 'Your team is already talking. Join them in one click.', [
+ weighted([[H('<span style="color:#2F6FED">▰</span> threadline', blue2, 24, HELV, 'left', '28px 8px 8px 40px')], [T('<a href="https://example.com" style="color:#888888;text-decoration:none">Open Threadline</a>', '#888888', 15, HELV, 'right', '32px 40px 8px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ row(ill('team-parade', 'Two cheerful figures, one playing a horn and one waving a flag', '440px', '16px 40px'), H('Join your team’s conversations', '#333333', 24, HELV, 'left', '24px 40px 8px'),
+  T('<strong>Sana Iqbal</strong> invited you to join the <strong>Studio</strong> team on Threadline three days ago. Press the button to start working with them:', '#555555', 16, HELV, 'left', '4px 40px 16px'), bg='#FFFFFF', pad='0px'),
+ row(button('Join your team →', blue2, align='center'), bg='#FFFFFF', pad='0px'),
+ row(T('<strong>Not sure about Threadline?</strong> Here’s what other teams say:', '#555555', 16, HELV, 'left', '16px 40px 8px'),
+  T('<span style="display:block;border-left:3px solid #2F6FED;padding-left:16px">“We stopped losing decisions in chat. Threads keep each topic in one place, so I can catch up in ten minutes instead of an hour.”</span>', '#666666', 16, HELV, 'left', '8px 40px'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('avatar-2', 'Portrait of Dami Okafor', '48px', '4px 4px 12px 40px')], [T('<strong>— Dami Okafor</strong><br><span style="color:#888888">Operations Lead, Fernway</span>', '#333333', 13, HELV, 'left', '6px 40px 12px 4px')]], [1, 6], '#FFFFFF', '0px'),
+ row(T('<span style="display:block;border-left:3px solid #2F6FED;padding-left:16px">“Our inboxes are quieter. We spend less time searching for old messages and more time on the work.”</span>', '#666666', 16, HELV, 'left', '8px 40px'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('avatar-3', 'Portrait of Ellie Shaw', '48px', '4px 4px 12px 40px')], [T('<strong>— Ellie Shaw</strong><br><span style="color:#888888">Director, Northgate Coaching</span>', '#333333', 13, HELV, 'left', '6px 40px 12px 4px')]], [1, 6], '#FFFFFF', '0px'),
+ row(T('Our best,<br>The Threadline team', '#555555', 16, HELV, 'left', '16px 40px 36px'), bg='#FFFFFF', pad='0px'),
+ weighted([[T('<strong>Still not sure?</strong>', '#333333', 15, HELV, 'left', '20px 8px 20px 40px')], [T('<a href="https://example.com" style="color:#2F6FED;text-decoration:none">See what makes Threadline different →</a>', '#2F6FED', 15, HELV, 'right', '20px 40px 20px 8px')]], [2, 3], '#FFFFFF', '12px 0px 0px'),
+], foot('#F4F5F7', '#888888', '<a href="https://example.com" style="color:#2F6FED">Blog</a> · <a href="https://example.com" style="color:#2F6FED">Help centre</a> · <a href="https://example.com" style="color:#2F6FED">Unsubscribe from tips</a>'), '#F4F5F7', ['invitation', 'team', 'testimonials'])
+
+teal2 = '#0F3A40'
+studio('stay-connected', 'Stay Connected', 'Retention', 'A re-permission email asking subscribers to opt in again, with an illustrated hero and three reasons on a dark panel.',
+ 'Do you still want to hear from us?', 'Opt in to keep getting our news, offers and invitations.', [
+ row(H('◣ ◢', teal2, 28, BLACK, pad='28px 40px'), bg='#F2F0EE', pad='0px'),
+ weighted([[H('Stay<br>Connected', teal2, 40, HELV, 'left', '56px 8px 16px 40px'), button('Opt in now', '#5AA9BE', align='left')], [ill('clock-walker', 'A pocket watch with arms and legs, striding across a pink circle', '100%', '32px 40px 24px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ row(T('You’re getting this email from Deskwise because you told us you’d like to hear from us.<br><br>We’re tidying up our mailing list to protect your personal information, and we don’t want you to miss our product news, events and practical guides for support teams.<br><br><strong>Please <a href="https://example.com" style="color:#5AA9BE;text-decoration:none">opt in</a> to keep hearing from Deskwise.</strong>', teal2, 16, HELV, 'left', '16px 40px 40px'), bg='#FFFFFF', pad='0px'),
+ row(H('3 reasons to stay in touch:', '#FFFFFF', 26, HELV, pad='36px 40px 8px'), bg=teal2, pad='0px'),
+ weighted([[ill('icon-chart', 'A line chart', '70px', '8px 0px'), T('Guides and<br>industry insights', '#FFFFFF', 15, HELV, pad='8px 8px 36px')], [ill('icon-cake', 'A birthday cake', '70px', '8px 0px'), T('Offers made<br>for you', '#FFFFFF', 15, HELV, pad='8px 8px 36px')], [ill('icon-ticket', 'An event ticket', '70px', '8px 0px'), T('Invitations to<br>our events', '#FFFFFF', 15, HELV, pad='8px 8px 36px')]], [1, 1, 1], teal2, '0px'),
+], foot('#F2F0EE', teal2, '<strong>deskwise</strong>', 'Deskwise · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Privacy policy</a> · <a href="https://example.com" style="color:inherit">Manage preferences</a>'), '#F2F0EE', ['re-permission', 'opt in', 'gdpr'])
+
+ns = '#E9E7E2'
+studio('playbook', 'The Playbook', 'Product', 'A learning digest in white rounded cards: a tagged lead with a chart and two buttons, then image-and-text cards.',
+ 'The playbook: follow-ups that get replies', 'A short course, a masterclass and a live session.', [
+ row(H('<span style="color:#1A1A1A">✲</span> Northstar', '#1A1A1A', 24, HELV, 'left', '24px 32px 16px'), bg=ns, pad='0px'),
+ row(T('<span style="background:#E7F33A;padding:6px 14px;border-radius:999px;font-size:12px">THE PLAYBOOK</span>', '#1A1A1A', 12, HELV, pad='32px 32px 8px'), H('How to write follow-ups that get replies', '#1A1A1A', 24, HELV, pad='8px 32px 16px'),
+  ill('chart-card', 'A bar chart: 12% reply rate with no follow-ups, 38% with one, 61% with three', pad='0px 32px'),
+  T('Most replies come after the first email. In this short course you’ll learn when to follow up, what to say, and how to stop before it gets annoying.', '#444444', 14, HELV, pad='16px 48px 8px'),
+  T('<a href="https://example.com" style="background:#1F2A28;color:#FFFFFF;padding:12px 18px;border-radius:6px;text-decoration:none">Watch now</a>&nbsp;&nbsp;<a href="https://example.com" style="border:1px solid #1A1A1A;color:#1A1A1A;padding:11px 17px;border-radius:6px;text-decoration:none">Build a sequence</a>', '#1A1A1A', 14, HELV, pad='16px 32px 36px'), bg='#FFFFFF', pad='0px'),
+ row(text('', 4, '#1A1A1A', pad='6px 0px'), bg=ns, pad='0px'),
+ weighted([[ill('list-card', 'A card ranking four subject lines by open rate, with a speaker portrait', '100%', '28px 8px 28px 28px')], [H('Seven parts of a good first email', '#1A1A1A', 22, HELV, 'left', '40px 32px 8px 12px'), T('Rosa Lind has written outreach for twenty years. In this guide she breaks down the seven things her best-performing emails have in common.', '#444444', 14, HELV, 'left', '4px 32px 8px 12px'), T('<a href="https://example.com" style="border:1px solid #1A1A1A;color:#1A1A1A;padding:11px 17px;border-radius:6px;text-decoration:none">Learn more</a>', '#1A1A1A', 14, HELV, 'left', '16px 32px 28px 12px')]], [1, 1], '#FFFFFF', '0px'),
+ row(text('', 4, '#1A1A1A', pad='6px 0px'), bg=ns, pad='0px'),
+ weighted([[H('Closing bigger deals with more people in the room', '#1A1A1A', 22, HELV, 'left', '40px 12px 8px 32px'), T('A live session on keeping five decision-makers aligned without twenty extra meetings.', '#444444', 14, HELV, 'left', '4px 12px 8px 32px'), T('<a href="https://example.com" style="border:1px solid #1A1A1A;color:#1A1A1A;padding:11px 17px;border-radius:6px;text-decoration:none">Save your seat</a>', '#1A1A1A', 14, HELV, 'left', '16px 12px 28px 32px')], [ill('deals-card', 'A pink gradient card with a play button and a Live tag', '100%', '28px 28px 28px 8px')]], [1, 1], '#FFFFFF', '0px'),
+], foot(ns, '#666666', 'Northstar · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Manage preferences</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), ns, ['digest', 'education', 'cards'])
+
+night, yellow = '#0F1716', '#FFF02B'
+SPONSORS = ['Lumen', 'Orbitly', 'Kitewire', 'Fieldnote', 'Parcelly', 'Brightfork', 'Tidepool', 'Quarry']
+def sponsor_rows(names):
+ cell = lambda n: [T(f'<span style="display:block;border:1px solid #3A4644;border-radius:8px;padding:14px 4px">{n}</span>', '#D6DAD8', 13, HELV, pad='4px 6px')]
+ return [weighted([cell(n) for n in names[i:i+4]], [1]*len(names[i:i+4]), night, '0px') for i in range(0, len(names), 4)]
+
+studio('last-chance', 'Last Chance', 'Events', 'A dark conference email for the last day of early pricing: gradient banner, details, a bulleted lineup and a sponsor grid.',
+ 'Last chance for $79 Northstar Live tickets', 'Early prices end at midnight. Here’s who you’ll see.', [
+ row(H('✲ Northstar', '#FFFFFF', 22, HELV, pad='28px 40px 16px'), ill('event-gradient', 'A bright gradient banner reading Northstar Live, with a Register now button', pad='0px 32px'),
+  H('Last chance for $79 tickets. The sale ends at midnight.', '#FFFFFF', 26, HELV, 'left', '24px 40px 8px'),
+  T('<strong>Today is the last day to get Northstar Live tickets for $79, before the price goes up to $199.</strong>', '#FFFFFF', 15, HELV, 'left', '4px 40px'),
+  T('On 30 September, sales leaders from forty companies are getting together in one room to share what’s working, and what they’ve stopped doing.', '#D6DAD8', 15, HELV, 'left', '4px 40px'),
+  T('<strong style="color:#FFFFFF">Northstar Live</strong><br><span style="color:#8E9895">Date:</span> Wednesday 30 September<br><span style="color:#8E9895">Venue:</span> The Assembly Rooms, Your City<br><span style="color:#8E9895">Time:</span> Doors 8am, first talk 9:15', '#D6DAD8', 15, HELV, 'left', '8px 40px'),
+  button('Register now for $79', yellow, align='left', ink='#111111'), T('The <a href="https://example.com" style="color:#FFF02B">full agenda</a> and <a href="https://example.com" style="color:#FFF02B">speaker list</a> are out now.', '#D6DAD8', 15, HELV, 'left', '0px 40px 16px'), divider('#2A3533'),
+  H('Here’s what’s on the programme:', '#FFFFFF', 24, HELV, 'left', '16px 40px 8px'),
+  T('<span style="color:#7BE0A6">●</span> <strong style="color:#FFFFFF">Opening keynote:</strong> what our customers changed this year, and what it did to their numbers.<br><br><span style="color:#FF7AB8">●</span> <strong style="color:#FFFFFF">Building on new tools:</strong> a panel on fitting AI into a sales team without breaking what works.<br><br><span style="color:#B48CFF">●</span> <strong style="color:#FFFFFF">Customer panel:</strong> four sales leaders on hiring, outbound and where human judgement still wins.<br><br><span style="color:#7BE0A6">●</span> <strong style="color:#FFFFFF">Breakout sessions:</strong> hands-on workshops, from writing sequences to running forecasts.', '#D6DAD8', 15, HELV, 'left', '8px 40px'),
+  button('Register now for $79', yellow, align='left', ink='#111111'), T('<strong style="color:#FFFFFF">Book your travel early:</strong> hotels near the venue fill up fast in September.', '#D6DAD8', 15, HELV, 'left', '0px 40px 16px'),
+  H('Partners and sponsors', '#C9CFCD', 20, SERIF, pad='16px 40px 8px'), bg=night, pad='0px'),
+ *sponsor_rows(SPONSORS),
+ row(T('See you there,<br><strong style="color:#FFFFFF">The Northstar team</strong>', '#D6DAD8', 16, HELV, 'left', '28px 40px 24px'), bg=night, pad='0px'),
+], foot(night, '#8E9895', '<a href="https://example.com" style="color:inherit">Manage preferences</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>', 'Northstar · 12 Example Street, Your City'), night, ['conference', 'tickets', 'dark'])
+
+studio('two-days-left', 'Two Days Left', 'Events', 'A dark event email built around the speakers: a gradient banner, a portrait strip, and a programme listed by session.',
+ '2 days left for $99 Northstar Live tickets', 'Meet the speakers before prices go up.', [
+ row(H('✲ Northstar', '#FFFFFF', 22, HELV, pad='28px 40px 16px'), ill('event-gradient', 'A bright gradient banner reading Northstar Live', pad='0px 32px'),
+  H('Two days left: Northstar Live tickets for $99', '#FFFFFF', 24, HELV, 'left', '24px 40px 4px'), T('In person on 30 September at The Assembly Rooms, Your City', '#8E9895', 13, HELV, 'left', '0px 40px 8px'),
+  T('We’d love to see you there. <strong style="color:#FFFFFF">You’ve got two days to book at $99 before the price goes up to $199.</strong>', '#D6DAD8', 15, HELV, 'left', '4px 40px'),
+  pill('Register now', yellow, '#111111', align='left', pad='12px 40px 24px', size='14px', inner='12px 20px'), divider('#2A3533'),
+  ill('speaker-strip', 'A row of six illustrated speaker portraits on bright colours', pad='16px 0px'),
+  H('Who’s speaking', '#FFFFFF', 24, HELV, 'left', '8px 40px 4px'), T('Sales and revenue leaders from Lumen, Orbitly, Kitewire and more, with a comedian hosting between sessions.', '#D6DAD8', 15, HELV, 'left', '4px 40px'),
+  pill('See the speakers', yellow, '#111111', align='left', pad='12px 40px 24px', size='14px', inner='12px 20px'), divider('#2A3533'),
+  H('Main stage', '#FFFFFF', 24, HELV, 'left', '16px 40px 4px'),
+  T('<strong style="color:#AEB7B4">Opening keynote</strong><br>The year in numbers, and the product we’ve been building quietly.<br><br><strong style="color:#AEB7B4">Customer panel</strong><br>Four leaders on hiring, outbound and when to trust the data.<br><br><strong style="color:#AEB7B4">In conversation</strong><br>A founder on growing from five customers to five hundred.', '#D6DAD8', 15, HELV, 'left', '4px 40px 16px'),
+  H('Workshops', '#FFFFFF', 24, HELV, 'left', '8px 40px 4px'),
+  T('<strong style="color:#AEB7B4">Writing a sequence that gets replies</strong><br>Bring a draft; leave with a better one.<br><br><strong style="color:#AEB7B4">Forecasting without guesswork</strong><br>A practical session with real pipeline data.', '#D6DAD8', 15, HELV, 'left', '4px 40px'),
+  pill('See the full agenda', yellow, '#111111', align='left', pad='12px 40px 24px', size='14px', inner='12px 20px'), H('Partners and sponsors', '#C9CFCD', 20, SERIF, pad='16px 40px 8px'), bg=night, pad='0px'),
+ *sponsor_rows(SPONSORS[:8][::-1]),
+ row(T('<strong style="color:#FFFFFF">Prices go up to $199 in two days.</strong> <a href="https://example.com" style="color:#FFF02B">Book yours today</a> for $99.<br><br>See you there,<br><strong style="color:#FFFFFF">The Northstar team</strong>', '#D6DAD8', 15, HELV, 'left', '24px 40px 24px'), bg=night, pad='0px'),
+], foot(night, '#8E9895', '<a href="https://example.com" style="color:inherit">Manage preferences</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>', 'Northstar · 12 Example Street, Your City'), night, ['conference', 'speakers', 'dark'])
+
+# --- Batch two: more layouts modelled on reference emails ---
+PHOTOS.update({
+ 'cat': ('photo-1514888286974-6c03e2ca1dba', 'A black and white cat peering over a ledge'),
+ 'collie': ('photo-1587300003388-59208cc962cb', 'A happy dog on a beach'),
+ 'beagle': ('photo-1543466835-00a7907e9de1', 'A smiling beagle'),
+ 'parrot2': ('photo-1452570053594-1b985d6ea890', 'A blue and yellow macaw'),
+ 'wave': ('photo-1559827260-dc66d52bef19', 'A wave breaking at sunset'),
+ 'gingercat': ('photo-1511044568932-338cba0ad803', 'A ginger cat stretching'),
+ 'pourover': ('photo-1442512595331-e89e73853f31', 'Coffee being brewed by hand at a café counter'),
+ 'beans': ('photo-1447933601403-0c6688de566e', 'Roasted coffee beans'),
+ 'bowls': ('photo-1504674900247-0877df9cc836', 'Bowls of food on a wooden table'),
+ 'redrock': ('photo-1500530855697-b586d89ba3ee', 'A desert road through red rock'),
+ 'valley': ('photo-1469474968028-56623f02e42e', 'Sunlight across a green valley'),
+ 'peaks': ('photo-1506905925346-21bda4d32df4', 'Mountain peaks above the clouds'),
+ 'laptops': ('photo-1522202176988-66273c2fd55f', 'Friends working together at laptops'),
+ 'hall': ('photo-1531058020387-3be344556be6', 'An audience in a large hall'),
+ 'house': ('photo-1505843513577-22bb7d21e455', 'A large house at dusk'),
+ 'papers': ('photo-1504711434969-e33886168f5c', 'A stack of newspapers'),
+ 'cyclists': ('photo-1517649763962-0c623066013b', 'A group of road cyclists racing'),
+ 'crowd': ('photo-1501386761578-eac5c94b800a', 'A cheering crowd'),
+ 'face1': ('photo-1494790108377-be9c29b29330', 'Portrait of a smiling woman'),
+ 'face2': ('photo-1500648767791-00dcc994a43e', 'Portrait of a man'),
+ 'face3': ('photo-1438761681033-6461ffad8d80', 'Portrait of a woman by a lake'),
+ 'face4': ('photo-1472099645785-5658abf4ff4e', 'Portrait of an older man'),
+ 'doglick': ('photo-1518717758536-85ae29035b6d', 'A dog licking its nose'),
+ 'hamster': ('photo-1425082661705-1834bfd09dca', 'A small hamster'),
+})
+def lk(copy, c, href='https://example.com', bold=False): return f'<a href="{href}" style="color:{c};{"font-weight:bold;" if bold else ""}">{copy}</a>'
+def ul(items): return '<br>'.join('•&nbsp; '+i for i in items)
+def P(key, shape='wide', pad='0px'): return picture(key, shape, pad)
+
+# Webinar letter: colour-block header with a dithered portrait, then a plain letter.
+lime2, plum = '#E3EA4A', '#7A3CC2'
+studio('four-ways', 'Four Ways It Breaks', 'Events', 'A webinar invitation written as a plain letter, under a bright header with a pixel-art portrait.',
+ 'The four ways support teams break as they grow', 'Join us live on Thursday 27 August at 11am Pacific.', [
+ weighted([[H('■ Relay', '#111111', 20, BLACK, 'left', '28px 8px 8px 40px'), H('The Four Ways<br>Support Teams<br>Break', '#111111', 38, HELV, 'left', '8px 8px 28px 40px')], [ill('pixel-portrait', 'A pixel-art portrait of someone at a laptop, in yellow on purple', '100%', '28px 40px 28px 8px')]], [3, 2], lime2, '0px'),
+ row(T('Hi {{first_name}},<br><br>Support teams don’t get harder in one big way as they grow. They get harder in four particular ways, and most teams are living with at least one of them without a name for it.<br><br>' + lk('<strong>Join us on Thursday 27 August at 11am Pacific</strong>', '#2F55D4') + ' to go through all four. You’ll probably recognise one:<br><br><strong>The Lost Thread.</strong> By the time a question reaches someone who can answer it, the background is gone.<br><br><strong>The Bottleneck.</strong> Everything goes through one person, and they can’t take a holiday.<br><br><strong>The Reinventor.</strong> The same problems get solved from scratch every quarter.<br><br><strong>The Stretched Lead.</strong> Volume is up, the team isn’t, and quality is fraying.<br><br>You’ll leave knowing which one is yours, and what a team built to avoid it looks like.', '#1A1A1A', 16, HELV, 'left', '36px 48px 8px'),
+  pill('Save your seat →', plum, pad='20px 40px 24px'), T('Cheers,<br>Maya at Relay', '#1A1A1A', 16, HELV, 'left', '8px 48px 32px'), divider('#E2E2E2'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#777777', 'Relay · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a> · <a href="https://example.com" style="color:inherit">Manage preferences</a>'), '#F2F2F2', ['webinar', 'letter', 'invitation'])
+
+# Developer guide: gradient banner, three icon-led sections, a callout and a help line.
+violet2, ink3 = '#3A2A8C', '#2B2B33'
+def guide_section(icon, alt, level, title, body):
+ return weighted([[ill(icon, alt, '64px', '24px 4px 8px 40px')], [T(level, '#8A8A95', 12, HELV, 'left', '24px 40px 0px 8px'), H(title, ink3, 20, HELV, 'left', '4px 40px 4px 8px'), T(body, ink3, 14, HELV, 'left', '4px 40px 24px 8px')]], [1, 5], '#FFFFFF', '0px')
+studio('make-it-yours', 'Make It Yours', 'Product', 'A developer guide with a gradient banner, three icon-led sections with links, a bordered callout and a help line.',
+ 'Three ways to make the editor your own', 'Themes, feature switches and custom blocks.', [
+ row(H('<span style="color:#7B4DFF">◆</span> blockwise <span style="font-weight:normal;color:#8A8A95">SDK</span>', ink3, 24, HELV, pad='24px 40px'), bg='#FFFFFF', pad='0px'),
+ weighted([[H('Make the<br><span style="color:#7BE0A6">Blockwise</span><br>editor your own', '#FFFFFF', 30, HELV, 'left', '36px 8px 36px 40px')], [ill('ui-editor', 'An editor window with an image block and a stack of content blocks', '100%', '16px 24px 16px 0px')]], [1, 1], violet2, '0px'),
+ row(T('<strong>Hi there,</strong><br><br>Customers often tell us the best thing about Blockwise is how far they can change it. Here are a few ways to make the editor <strong>look and feel like part of your product</strong>:', ink3, 15, HELV, 'left', '28px 40px 16px'), bg='#FFFFFF', pad='0px'),
+ guide_section('icon-brush', 'A paintbrush', 'Level: beginner', 'Match the editor to your brand', 'People shouldn’t feel they’ve left your product to use it.<br><br>Use ' + lk('themes', '#7B4DFF') + ' for your colours and fonts, or ' + lk('custom CSS', '#7B4DFF') + ' for full control over the look.'),
+ row(divider('#E6E6EC'), bg='#FFFFFF', pad='0px'),
+ guide_section('icon-toggles', 'A list of switches', 'Level: intermediate', 'Choose which features to switch on (or off)', 'Want ' + lk('mobile editing', '#7B4DFF') + '? Don’t want people pasting raw HTML? Tick a box in the ' + lk('developer console', '#7B4DFF') + '.<br><br>Language, sidebar position and much more live in your ' + lk('config file', '#7B4DFF') + '.'),
+ row(divider('#E6E6EC'), bg='#FFFFFF', pad='0px'),
+ guide_section('icon-blocks', 'Coloured building blocks', 'Level: advanced', 'Build your own content blocks', 'Custom blocks let people pull in content from your own product: a catalogue item, an event ticket, a booking link.<br><br>' + lk('More about custom blocks →', '#7B4DFF')),
+ row(T('<span style="display:block;border:1px solid #CFC6F2;border-left:4px solid #7B4DFF;border-radius:10px;padding:20px 24px"><strong style="font-size:19px;color:#3A2A8C">Create an app, then customise it</strong><br><br>Start in the ' + lk('developer console', '#7B4DFF') + ' and press Activate. That one step unlocks the builders, and the ' + lk('quickstart guides', '#7B4DFF') + ' take it from there.</span>', ink3, 14, HELV, 'left', '12px 32px'),
+  bg='#FFFFFF', pad='0px'),
+ weighted([[ill('icon-chat', 'A chat bubble', '36px', '20px 4px 8px 40px')], [T('Need help making the editor fit? Our team is here.<br>' + lk('Book a call', '#7B4DFF') + ' or ' + lk('reply to this email', '#7B4DFF') + '.', ink3, 14, HELV, 'left', '20px 40px 8px 8px')]], [1, 8], '#FFFFFF', '0px'),
+ row(T('Your partner in building,<br><strong>The Blockwise team</strong>', ink3, 15, HELV, 'left', '24px 40px 32px'), bg='#FFFFFF', pad='0px'),
+], foot('#F7F6FB', '#8A8A95', 'The embeddable editor for software teams.', 'Blockwise · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F7F6FB', ['developer', 'guide', 'customisation'])
+
+# Coffee guide: huge caps headline, brewer icons, then three colour blocks.
+coral, sun, sky2 = '#EF6448', '#F9C623', '#A9DCE8'
+studio('grind-guide', 'The Grind Guide', 'Commerce', 'A playful product guide in stacked colour blocks: a giant headline, tips, and a two-path choice at the end.',
+ 'How to pick the right grind size', 'Hint: it depends on how you brew.', [
+ row(H('<span style="color:#F2B233">DAY</span><span style="color:#5FB7D4">BREAK</span>', '#111111', 26, BLACK, pad='28px 40px 4px'), H('HOW TO PICK<br>THE RIGHT<br>GRIND SIZE', coral, 46, BLACK, pad='8px 40px 16px'),
+  ill('brewers', 'Five coffee brewers: a machine, a drip pot, a stovetop pot, a pour-over and a press', pad='0px 24px'), T('<em>Hint: it depends on how you brew.</em>', '#111111', 14, HELV, pad='12px 40px 28px'), bg='#FFFFFF', pad='0px'),
+ row(T('We know a thing or two about coffee, and here’s the short version: grind size matters. Whether you brew strong espresso or a slow cafetière, the size of your grounds can make or break the cup.<br><br>Get it right and your coffee tastes like it should. Get it wrong and it’s thin, bitter or just strange.<br><br>Our head roaster, Teo, wrote the full guide on our blog:', '#3A2A10', 14, TREB, pad='36px 56px 8px'), pill('GET THE FULL GRIND GUIDE', '#FFFFFF', coral, font=TREB, pad='16px 40px 40px', size='13px'), bg=sun, pad='0px'),
+ row(H('OUR TOP TIPS', '#2B2B2B', 40, BLACK, pad='40px 40px 0px'), H('For a better cup at home', '#2B2B2B', 17, TREB, pad='4px 40px 16px'),
+  T('<strong style="font-size:17px">Choose your brewer, then your grind.</strong><br>The brewer decides the grind. Espresso wants fine. Filter wants medium. A cafetière wants coarse.', '#2B2B2B', 14, TREB, 'left', '12px 56px'), divider('#7FB9C8'),
+  T('<strong style="font-size:17px">Grind just before you brew.</strong><br>Ground coffee goes stale in minutes. If you buy it ground, keep it airtight, cool and dark.', '#2B2B2B', 14, TREB, 'left', '12px 56px'), divider('#7FB9C8'),
+  T('<strong style="font-size:17px">Taste, then adjust.</strong><br>Watery or sour? Go finer. Harsh or bitter? Go coarser.', '#2B2B2B', 14, TREB, 'left', '12px 56px'),
+  pill('READ THE GRIND GUIDE', coral, font=TREB, pad='20px 40px 40px', size='13px'), bg=sky2, pad='0px'),
+ row(H('NO GRINDER?', '#FFFFFF', 40, BLACK, pad='40px 40px 0px'), T('<strong>We’ll take it from here.</strong>', '#FFFFFF', 16, TREB, pad='4px 40px 8px'), T('Do you want to buy a grinder?', '#FFFFFF', 16, TREB, pad='8px 40px 16px'), bg=coral, pad='0px'),
+ weighted([[T('Yes, let’s<br>do it ↓', '#FFFFFF', 16, TREB, pad='4px 8px 12px 40px'), T('<span style="display:block;background:#FADCD2;border-radius:12px;padding:18px 10px;color:#EF6448"><strong>Here are three we like:</strong></span>', coral, 15, TREB, pad='4px 8px 8px 40px'), T(ul(['Starter: a hand grinder (about $50)', 'Middle: an electric burr grinder (about $150)', 'Splurge: a flat-burr grinder (about $400)']), '#FFFFFF', 13, TREB, 'left', '8px 8px 24px 40px')],
+           [T('No, I’m<br>fine ↓', '#FFFFFF', 16, TREB, pad='4px 40px 12px 8px'), T('<span style="display:block;background:#FADCD2;border-radius:12px;padding:18px 10px;color:#EF6448"><strong>We’ll grind it for you.</strong></span>', coral, 15, TREB, pad='4px 40px 8px 8px'), T('Pick a grind size when you add a bag to your basket. We grind to order for every way of brewing.', '#FFFFFF', 13, TREB, pad='8px 40px 24px 8px')]], [1, 1], coral, '0px'),
+ row(pill('SHOP DAYBREAK COFFEE', '#FFFFFF', coral, font=TREB, pad='8px 40px 40px', size='13px'), bg=coral, pad='0px'),
+], foot('#FFFFFF', '#555555', 'Daybreak Roasters · 12 Example Street, Your City', WHY), '#FFFFFF', ['guide', 'coffee', 'colour blocks'])
+
+# Rent explainer: rounded photo, numbered benefits, a navy panel and a split card.
+blue3, navy3 = '#0D47D9', '#0B2A7A'
+def numbered(n, title, body): return weighted([[T(f'<span style="display:inline-block;width:22px;height:22px;border:2px solid #1E7D5A;border-radius:50%;color:#1E7D5A;font-size:12px;line-height:22px">{n}</span>', '#1E7D5A', 12, HELV, pad='4px 4px 12px 40px')], [T(f'<strong>{title}</strong><br>{body}', '#1A1A1A', 15, HELV, 'left', '4px 40px 12px 8px')]], [1, 7], '#FFFFFF', '0px')
+studio('pay-online', 'Pay Rent Online', 'Product', 'A feature explainer with a rounded photo, numbered benefits, a dark-blue prompt and a split promo card.',
+ 'Pay your rent online with Homestead', 'No fees by bank transfer, and on-time payments can help your credit.', [
+ row(H('⌂ Homestead Rentals', blue3, 24, HELV, 'left', '24px 40px'), P('room', 'wide', '0px 24px'), H('Pay your rent online', '#111111', 34, HELV, 'left', '28px 40px 8px'),
+  T('Once you’ve found your place, you can pay rent online in a couple of taps. Paying through Homestead can also help your credit history when you apply for your next home.', '#1A1A1A', 15, HELV, 'left', '4px 40px 8px'),
+  button('Learn more', blue3, align='left'), ill('house-dots', 'Three small houses', '90px', '8px 40px'), H('Why pay with Homestead', '#111111', 22, HELV, 'left', '8px 40px 12px'), bg='#FFFFFF', pad='0px'),
+ numbered(1, 'Build your credit', 'On-time payments can be reported to help your credit score.'),
+ numbered(2, 'No fees', 'Bank transfers are always free.'),
+ numbered(3, 'Never late', 'Turn on autopay and it’s handled.'),
+ numbered(4, 'Your details are safe', 'We use the same kind of encryption as most banks.'),
+ row(ill('icon-heart-house', 'A house with a heart', '48px', '36px 40px 8px', 'left'), H('Still looking for a place?', '#FFFFFF', 20, HELV, 'left', '8px 40px'), T('Use filters and keywords to find your next home faster.', '#FFFFFF', 15, HELV, 'left', '4px 40px'), T('<strong><a href="https://example.com" style="color:#FFFFFF;text-decoration:none">Start searching →</a></strong>', '#FFFFFF', 15, HELV, 'left', '8px 40px 36px'), bg=navy3, pad='24px 0px 0px'),
+ weighted([[H('Rent with<br><span style="color:#B8A6FF">peace of mind</span>', '#FFFFFF', 20, HELV, 'left', '32px 8px 8px 32px'), T('Renters insurance through Homestead takes five minutes.', '#FFFFFF', 14, HELV, 'left', '8px 8px 8px 32px'), pill('Get a quote', '#3A0F6E', outline='#FFFFFF', align='left', pad='12px 8px 32px 32px', size='14px', inner='10px 18px')], [P('kitchen', 'square')]], [1, 1], '#3A0F6E', '32px 24px'),
+], foot('#FFFFFF', '#555555', 'Homestead Rentals · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Privacy</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a> · <a href="https://example.com" style="color:inherit">Preferences</a>'), '#FFFFFF', ['explainer', 'numbered', 'rentals'])
+
+# Research report: banner, photo, three stat cards with text, a boxed summary.
+beige = '#ECEBDF'
+def stat_row(img, alt, title, body, bg='#FFFFFF'):
+ return weighted([[ill(img, alt, '100%', '24px 8px 24px 32px')], [H(title, '#1A1A1A', 22, SERIF, 'left', '28px 32px 8px 12px'), T(body, '#444444', 14, HELV, 'left', '4px 32px 8px 12px'), T('<a href="https://example.com" style="border:1px solid #1A1A1A;color:#1A1A1A;padding:10px 16px;border-radius:8px;text-decoration:none">Learn more</a>', '#1A1A1A', 14, HELV, 'left', '16px 32px 24px 12px')]], [2, 3], bg, '0px')
+studio('report-is-out', 'The Report Is Out', 'Product', 'A research-report launch: a photo, a serif headline, three big-number cards with commentary and a boxed summary.',
+ 'Our 2026 report on AI in sales is out', 'We asked 300 sales teams how they really use AI. Here’s what they said.', [
+ row(T('<a href="https://example.com" style="color:#FFFFFF">Save your seat</a> at Northstar Live this September →', '#FFFFFF', 13, HELV, pad='12px 32px'), bg='#2E4A2E', pad='0px'),
+ row(P('papers', 'wide', '24px 24px 0px'), H('Our 2026 report on AI in sales is here', '#1A1A1A', 30, SERIF, pad='24px 40px 8px'),
+  T('In case you missed it: we asked 300 sales and marketing teams how they’re actually using AI. Most said it’s already part of the job. Here’s some of what we found.', '#444444', 14, HELV, pad='4px 48px'), button('Download the report', '#1F1F1F'), divider('#E2E0D6'), bg='#FFFFFF', pad='0px'),
+ stat_row('stat-6', 'Card: 9% of teams think the tool could replace someone today', 'Almost nobody thinks it’s taking their job.', 'Most teams use it every week, but only 9% think it could replace a person on their team. They see it as help, not a substitute.'),
+ stat_row('stat-97', 'Card: 88% of teams have tried the tool at least once', 'Everyone’s tried it. Few have it working well.', 'Most teams are still experimenting. Only one in five say it’s fully part of how they work.'),
+ stat_row('stat-84', 'Card: 71% use it first for research and prep', 'Research comes first, by a long way.', '71% of teams use AI to research accounts before outreach, well ahead of writing emails or cleaning data.'),
+ row(T('<span style="display:block;border:1px solid #1A1A1A;border-radius:12px;padding:24px"><span style="font-family:georgia;font-size:22px">There’s more in the full report</span><br><br>Adoption is only half the story. Here’s a preview of what’s slowing teams down next.<br><br><strong>Only 5% fully trust the output.</strong> Most still check it before acting.<br><strong>Most use two to five tools.</strong> Few have a plan for connecting them.<br><strong>Automation tops next year’s list.</strong> It’s the most common priority.</span>', '#1A1A1A', 14, HELV, pad='24px 32px'), button('Download the report', '#1F1F1F'), T('✲ The Northstar team', '#1A1A1A', 15, HELV, 'left', '16px 40px 32px'), bg='#FFFFFF', pad='0px'),
+], foot(beige, '#555555', '<a href="https://example.com" style="color:inherit">Manage preferences</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>', 'Northstar · 12 Example Street, Your City'), beige, ['report', 'research', 'statistics'])
+
+# Integration launch: centred label and title, launch tiles, emoji rows, a signature.
+leaf, pine = '#A8E6A1', '#24413A'
+def emoji_row(img, alt, title, body): return weighted([[ill(img, alt, '56px', '16px 4px 8px 40px')], [T(f'<strong>{title}</strong><br>{body}', '#2B2B2B', 15, HELV, 'left', '16px 40px 12px 8px')]], [1, 6], '#FFFFFB', '0px')
+studio('now-connected', 'Now Connected', 'Product', 'An integration launch: a centred title over a two-tile illustration, three emoji-led benefits and a signed sign-off.',
+ 'Introducing: schedule your Notebook posts', 'Plan and schedule Notebook posts alongside everything else in Queueline.', [
+ row(H('≋ Queueline', '#24413A', 22, HELV, pad='28px 40px 16px'), bg='#F4F3EC', pad='0px'),
+ row(T('INTRODUCING', '#3F7A4A', 16, HELV, pad='32px 40px 0px'), H('Notebook posts', '#1A1A1A', 32, HELV, pad='4px 40px 16px'), ill('launch-tiles', 'Two app tiles joined by a dotted line on a peach gradient', pad='0px 40px'),
+  T('Good news if you write on Notebook: you can now plan and schedule your posts alongside your other channels in Queueline.', '#2B2B2B', 16, HELV, 'left', '20px 40px 8px'), pill('Connect a Notebook account →', leaf, '#1F3A2A', pad='12px 40px 16px'), divider('#E2E2DA'), bg='#FFFFFB', pad='0px'),
+ emoji_row('emoji-recycle', 'A recycling sign', 'Turn one post into many', 'Share a Notebook post to your other channels at the same time.'),
+ emoji_row('emoji-chart', 'A rising chart', 'See which posts bring in readers', 'Track new subscribers, views and follows for each post.'),
+ emoji_row('emoji-shake', 'A handshake', 'Built with the Notebook team', 'Schedule text, images, links and video, with analytics for every post.'),
+ row(divider('#E2E2DA'), T('Already on Notebook, or just curious? Now’s a good time to start. Head to your channels to ' + lk('connect and queue your first post', '#3F7A4A') + '.', '#2B2B2B', 16, HELV, 'left', '8px 40px'), pill('Learn more about Notebook →', leaf, '#1F3A2A', pad='16px 40px 16px'), bg='#FFFFFB', pad='0px'),
+ weighted([[ill('avatar-4', 'Portrait of Femi', '90px', '8px 8px 32px 40px')], [T('Femi<br><em style="color:#777777;font-size:14px">Product Marketing</em>', '#1A1A1A', 18, HELV, 'left', '30px 40px 32px 8px')]], [1, 3], '#FFFFFB', '0px'),
+], foot(pine, '#FFFFFF', 'Sent by the team at Queueline · 12 Example Street, Your City', 'You’re getting this because you signed up for product updates.', '<a href="https://example.com" style="color:inherit">Manage subscriptions</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F4F3EC', ['launch', 'integration', 'product'])
+
+# Travel promo: big headline, a photo in a thick bright frame, one wide button.
+studio('shoulder-season', 'Shoulder Season', 'Commerce', 'A short travel promotion: a big centred headline, a photo in a thick bright frame, two lines and one wide button.',
+ 'Travel this shoulder season', 'Quieter places, kinder weather and better prices.', [
+ row(H('◉◉ Roamwell', '#0B2A1E', 26, HELV, pad='28px 40px 8px'), H('Take a trip this<br>shoulder season', '#0B2A1E', 44, HELV, pad='8px 40px 20px'), bg='#FFFFFF', pad='0px'),
+ row(P('valley', 'wide', '20px'), bg='#22E36A', pad='0px'),
+ row(T('Fewer crowds, milder weather, better prices: there are plenty of reasons to travel between seasons. We’ve picked some lovely places (and prices) to get you started.', '#0B2A1E', 19, HELV, pad='24px 48px 8px'), T('<a href="https://example.com" style="display:block;background:#0B2A1E;color:#FFFFFF;padding:16px;border-radius:999px;text-decoration:none;font-weight:bold">Browse stays</a>', '#FFFFFF', 16, HELV, pad='16px 40px 40px'), bg='#FFFFFF', pad='0px'),
+], row(H('◉◉ Roamwell', '#0B2A1E', 20, HELV, 'left', '24px 40px 8px'), T('Please don’t reply to this email; this address isn’t monitored. For help, visit our ' + lk('help centre', '#0B2A1E') + '.<br><br>Roamwell · 12 Example Street, Your City<br><br>Prices shown are a guide and can change. Room types vary.', '#0B2A1E', 12, HELV, 'left', '8px 40px'), T('<strong>' + lk('Go to Roamwell', '#0B2A1E') + ' · ' + lk('Unsubscribe', '#0B2A1E') + ' · ' + lk('Privacy', '#0B2A1E') + '</strong><br><br><a href="https://xem.email" style="color:#0B2A1E">Built with Xem</a>', '#0B2A1E', 12, HELV, 'left', '8px 40px 32px'), bg='#FFFFFF', pad='0px'),
+ '#FFFFFF', ['travel', 'promotion', 'photo'])
+
+# Account notice: soft gradient greeting, bordered boxes for what changes and what to do.
+red2, cream3 = '#E8473C', '#FFF8F3'
+studio('heads-up', 'A Heads-up', 'Transactional', 'An important account notice: a warm greeting, a bordered box for what’s changing, a checklist box for what to do, and a timeline.',
+ 'Action needed: a change to how we connect to your CRM', 'Your CRM is tightening its security rules. Here’s what to do before it does.', [
+ row(H('✉ Inkwell Studio', '#1A1A1A', 22, HELV, pad='28px 40px'), bg='#F5F5F5', pad='0px'),
+ row(H('Hi {{first_name}},', red2, 34, HELV, 'left', '32px 40px 8px'), T('Your CRM provider is introducing stricter security rules this year, and one of them could <strong>affect how Inkwell connects to your account</strong>. We wanted to tell you now so you know what to expect and what to do.', '#1A1A1A', 15, HELV, 'left', '4px 40px 16px'), bg='#FFF0EE', pad='0px'),
+ row(T('<span style="display:block;border:1px solid #1A1A1A;border-radius:10px;padding:20px 24px;background:#FFF8F3"><span style="font-size:22px">💬 <strong>What’s changing</strong></span><br><br>Your CRM is making an approved-address list compulsory. Once it’s on, <strong>only requests from approved addresses can sign in or use the API, and that includes Inkwell</strong>. It’s rolling out account by account, and your CRM will email you the date.<br><br>Separately, it will require stronger sign-in (a passkey or security key) for admins. That won’t affect the connection, but it will affect whoever manages your CRM admin.</span>', '#1A1A1A', 14, HELV, 'left', '16px 32px'),
+  H('What this means for you', '#1A1A1A', 24, HELV, 'left', '24px 40px 8px'), T('If you use Inkwell’s CRM connection, <strong>add Inkwell to your approved list before your date</strong>. If you don’t, syncing and publishing could stop without warning.', '#1A1A1A', 15, HELV, 'left', '4px 40px'),
+  ill('shield-mail', 'A shield with a tick, a document and an envelope', pad='8px 24px'),
+  T('<span style="display:block;border:1px solid #1A1A1A;border-radius:10px;padding:20px 24px;background:#FFF8F3"><span style="font-size:22px">☑ <strong>What to do</strong></span><br><br><span style="color:#E8473C">•</span> Ask your CRM admin to <strong>check the current approved list</strong>.<br><span style="color:#E8473C">•</span> <strong>Add Inkwell’s addresses</strong>: 203.0.113.10, 203.0.113.11 and 203.0.113.12.<br><span style="color:#E8473C">•</span> If you can, <strong>turn on monitoring mode first</strong> for a week to check nothing gets blocked.<br><span style="color:#E8473C">•</span> If your admin needs the new sign-in, <strong>set up a passkey early</strong>.</span>', '#1A1A1A', 14, HELV, 'left', '8px 32px'),
+  H('Timeline', '#1A1A1A', 24, HELV, 'left', '24px 40px 8px'), T('Your CRM is switching accounts over one at a time and will email you your date. If you haven’t heard yet, look out for it, and don’t wait to make the changes above.', '#1A1A1A', 15, HELV, 'left', '4px 40px 16px'), bg=cream3, pad='0px'),
+ weighted([[ill('icon-chat', 'A chat bubble', '56px', '24px 8px 24px 40px')], [T('<strong>Questions about your setup? ' + lk('Open a support request', red2) + ' and we’ll help you sort it.</strong><br><span style="color:#7B4DFF">The Inkwell team</span>', '#1A1A1A', 14, HELV, 'left', '24px 40px 24px 8px')]], [1, 5], '#F3EEFB', '0px'),
+], foot('#F5F5F5', '#777777', 'This is an account notice, not a marketing email. We send it to every customer with a CRM connection.', 'Inkwell Studio · 12 Example Street, Your City'), '#F5F5F5', ['notice', 'security', 'account'], marketing=False)
+
+# Long changelog: text-led, with UI shots, a code block and short testimonials.
+paper4, ink4 = '#F7F6F2', '#1F1E1D'
+CODE = 'font-family:courier new,monospace;font-size:12px;background:#1F1E1D;color:#E8E6DC;display:block;padding:14px 16px;border-radius:6px;white-space:pre'
+studio('the-changelog', 'Release Notes', 'Product', 'A long, text-led release email: two headline features with screenshots, a code block, quotes from users and a version list.',
+ 'Two new features in beta, and everything else that shipped', 'Projects, a desktop workspace, and twenty smaller fixes.', [
+ row(H('<span style="color:#D97757">✳</span> Tern', ink4, 22, SERIF, 'left', '28px 40px 8px'), T('Hey!<br><br>Two big features shipped in beta this month. <strong>Projects</strong> let you keep several sessions under one goal. And the desktop app now has a <strong>workspace</strong> where sessions, files and notes sit side by side.', ink4, 14, HELV, 'left', '8px 40px'), bg=paper4, pad='0px'),
+ row(H('Projects (beta)', ink4, 22, SERIF, 'left', '20px 40px 4px'), T('Group sessions under one goal so you can hand work over without losing the thread. Each project keeps its own files, instructions and history.', ink4, 14, HELV, 'left', '4px 40px 8px'), ill('ui-dark-sessions', 'A dark app window with a list of sessions and a welcome message', pad='8px 40px'),
+  T('<strong>' + lk('Read more about Projects →', ink4) + '</strong>', ink4, 14, HELV, 'left', '8px 40px 16px'), divider('#DDDAD0'), bg=paper4, pad='0px'),
+ row(H('Check your scripts before you ship', ink4, 22, SERIF, 'left', '16px 40px 4px'), T('Tern can now run a quick evaluation on your plugins and tell you which cases pass:', ink4, 14, HELV, 'left', '4px 40px 8px'),
+  T(f'<span style="{CODE}">$ tern eval ./plugins\n\nCASE            PASS   TIME\n01-setup        yes    0.4s\n02-import       yes    1.2s\n03-edge-cases   no     0.9s\n\n2 of 3 passed</span>', ink4, 12, MONO, 'left', '4px 40px'),
+  T('<strong>' + lk('Read more about evaluations →', ink4) + '</strong>', ink4, 14, HELV, 'left', '8px 40px 16px'), divider('#DDDAD0'), bg=paper4, pad='0px'),
+ row(H('How people use Tern', ink4, 22, SERIF, 'left', '16px 40px 8px'),
+  T('<span style="display:block;border-left:3px solid #D97757;padding-left:14px"><em>“I give it the boring migrations now. It writes the plan, I read it over coffee, and it’s done before lunch.”</em><br><span style="font-size:12px;color:#777777">— Priya, platform engineer</span></span>', ink4, 14, HELV, 'left', '4px 40px 12px'),
+  T('<span style="display:block;border-left:3px solid #D97757;padding-left:14px"><em>“The project notes mean whoever picks the work up next knows what was tried and why.”</em><br><span style="font-size:12px;color:#777777">— Sam, engineering lead</span></span>', ink4, 14, HELV, 'left', '4px 40px 16px'), divider('#DDDAD0'), bg=paper4, pad='0px'),
+ row(H('Other highlights', ink4, 20, SERIF, 'left', '16px 40px 8px'),
+  T('<span style="font-family:courier new;color:#777777">2.4.0</span>&nbsp; <strong>Faster start-up.</strong> Opening a large folder takes about half as long.<br><br><span style="font-family:courier new;color:#777777">2.3.2</span>&nbsp; <strong>Clearer errors</strong> when a connection drops halfway through a task.<br><br><span style="font-family:courier new;color:#777777">2.3.0</span>&nbsp; <strong>Keyboard shortcuts</strong> for switching between sessions.', ink4, 13, HELV, 'left', '4px 40px 16px'),
+  T('That’s it for this month. See the ' + lk('full changelog', ink4) + ' for everything else.<br><br>Happy building,<br>The Tern team', ink4, 14, HELV, 'left', '8px 40px 24px'), T('Was this email useful? &nbsp;' + lk('👍', ink4) + ' &nbsp;' + lk('👎', ink4), ink4, 14, HELV, pad='8px 40px 32px'), bg=paper4, pad='0px'),
+], row(H('<span style="color:#D97757">✳</span> Tern', '#FFFFFF', 20, SERIF, 'left', '28px 40px 8px'), T('Tern · 12 Example Street, Your City · <a href="https://example.com" style="color:#BBBBBB">Unsubscribe</a><br><a href="https://xem.email" style="color:#BBBBBB">Built with Xem</a>', '#BBBBBB', 12, HELV, 'left', '8px 40px 32px'), bg='#141414', pad='0px'),
+ '#EFEDE6', ['changelog', 'release notes', 'developer'])
+
+# Trade newsletter: dark header, alternating dark, white and blue sections.
+dark5, orange5, blue5 = '#0E0E0E', '#F05A28', '#1F4FD8'
+studio('the-navigator', 'The Navigator', 'Newsletters', 'A trade and policy newsletter in alternating dark, white and blue sections, with a big photo, a quote card and a story list.',
+ 'The Navigator: new rules for tracing shipments', 'This month’s policy changes, what they mean, and where to start.', [
+ row(H('◐ Meridian', '#FFFFFF', 22, HELV, 'left', '24px 40px 4px'), H('The Navigator', '#FFFFFF', 36, HELV, 'left', '4px 40px 8px'), T('Welcome to The Navigator. This month, two new rules make it harder to ship goods without knowing exactly where they came from. Here’s what changed and what it means for your team.', '#D8D8D8', 14, HELV, 'left', '4px 40px 24px'), P('train', 'wide'), bg=dark5, pad='0px'),
+ row(T('POLICY WATCH', orange5, 11, HELV, 'left', '28px 40px 4px'), H('Customs wants to see further into your supply chain', '#111111', 24, HELV, 'left', '4px 40px 8px'),
+  T('A proposal published this month would require importers to share more detail about suppliers, and earlier. Comments are open until 30 November.<br><br>The detail matters more than the date: it asks for records most teams don’t keep today.', '#333333', 14, HELV, 'left', '4px 40px'), button('See how Meridian can help →', orange5, align='center'), bg='#FFFFFF', pad='0px'),
+ row(H('◐ Meridian', '#FFFFFF', 44, HELV, pad='40px 40px 0px'), T('Trade Policy Radar · November', '#CCCCCC', 14, HELV, pad='4px 40px 36px'), bg=dark5, pad='0px'),
+ row(T('TRADE POLICY RADAR', orange5, 11, HELV, 'left', '28px 40px 4px'), T('The rules moving this month, and what they mean for keeping goods moving:<br><br>' + ul(['<strong>Origin data:</strong> new fields required on import filings from January.', '<strong>Supplier lists:</strong> a public register opens for comment in December.', '<strong>Spot checks:</strong> more random inspections at the three busiest ports.']), '#333333', 14, HELV, 'left', '4px 40px'), button('See where these touch your products →', orange5, align='center'), bg='#FFFFFF', pad='0px'),
+ weighted([[H('◐ Meridian', '#FFFFFF', 16, HELV, 'left', '28px 8px 4px 40px'), H('A new era for proof of origin', '#FFFFFF', 26, HELV, 'left', '8px 8px 4px 40px'), T('Our policy lead on the new playbook', '#D8E2FF', 14, HELV, 'left', '4px 8px 28px 40px')], [P('face3', 'square', '28px 40px 28px 8px')]], [3, 2], blue5, '0px'),
+ row(H('Ana Ruiz on the new trade-fraud playbook', '#111111', 20, HELV, 'left', '24px 40px 8px'), T('A new government playbook sets out how agencies plan to work together on trade fraud. Ana walks through the four parts that matter most for importers.', '#333333', 14, HELV, 'left', '4px 40px'),
+  T('<span style="display:block;background:#FFF6E8;border-radius:8px;padding:16px 20px"><em>“Proof of origin is moving from a paperwork exercise to a data one. The teams that can show their records quickly will be the ones that keep moving.”</em><br><span style="font-size:12px">— Ana Ruiz, Policy Lead</span></span>', '#333333', 13, SERIF, 'left', '12px 40px'), button('Read Ana’s take →', orange5, align='center'), bg='#FFFFFF', pad='0px'),
+ row(H('Recent news and analysis', '#111111', 18, HELV, 'left', '24px 40px 8px'), T('1. <strong>Trade and tech day:</strong> notes from our session with three port operators. ' + lk('Read the recap →', blue5) + '<br><br>2. <strong>Ten minutes with a customs broker</strong> on what’s changed this year. ' + lk('Listen →', blue5) + '<br><br>3. <strong>A supplier map in a day:</strong> how one importer found three hidden sub-suppliers. ' + lk('Read the story →', blue5), '#333333', 14, HELV, 'left', '4px 40px 24px'), bg='#FFFFFF', pad='0px'),
+ row(H('Contact Meridian', '#FFFFFF', 18, HELV, 'left', '28px 40px 4px'), T('Want to see what Meridian could do for your team? Our team will walk you through it.', '#D8D8D8', 14, HELV, 'left', '4px 40px'), pill('Get in touch →', '#2E9E5A', align='left', pad='12px 40px 28px', size='14px'), bg=dark5, pad='0px'),
+], foot(dark5, '#999999', 'Meridian · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a> · <a href="https://example.com" style="color:inherit">Manage preferences</a>'), '#E8E8E8', ['trade', 'policy', 'newsletter'])
+
+# Event recap: dark olive page, serif quotes, two-up photos.
+olive6, sand6 = '#2A2A1E', '#E9E4D2'
+def quote6(q): return H(f'“{q}”', sand6, 26, SERIF, pad='24px 48px')
+def two_up(a, b): return weighted([[P(a, 'portrait', '0px 4px 0px 24px')], [P(b, 'portrait', '0px 24px 0px 4px')]], [1, 1], olive6, '8px 0px')
+studio('the-gathering', 'The Gathering', 'Events', 'An event recap told through quotes and pairs of photos on a dark page, with a small line drawing at the top.',
+ 'Inside our flower-arranging afternoon', 'A guided session at a florist’s home studio, in pictures and her own words.', [
+ row(T('F E R N &nbsp; &amp; &nbsp; S T E M', sand6, 12, HELV, pad='28px 40px 8px'), ill('botanical', 'A line drawing of a branching plant', '120px', '8px 40px'), H('Last week, we spent an afternoon at florist Lena Moss’s home studio for a guided flower-arranging class.', sand6, 24, SERIF, pad='16px 48px'),
+  T('Lena has been a customer since our first year. She runs a small studio, teaches evening classes, and arranges flowers for a handful of local restaurants.', sand6, 13, SERIF, pad='4px 64px 8px'), quote6('I started arranging flowers as a break from a desk job. It was only meant to be for fun. Ten years later, it’s the job.'), bg=olive6, pad='0px'),
+ two_up('flowers', 'plants'),
+ row(quote6('Arranging isn’t about filling the vase. It’s about knowing which stem to leave out.'), T('“I keep my classes small. I want everyone to leave with something that looks like theirs, not like mine.”', sand6, 13, SERIF, pad='4px 64px 8px'), T('THE CLASS', '#8C8670', 12, HELV, pad='16px 40px'), bg=olive6, pad='0px'),
+ two_up('table', 'room'),
+ row(T('The afternoon started with a short breathing exercise and a playlist Lena made for the day. Each table had a vase, a pair of snips, some wire and a notebook for sketching.', sand6, 13, SERIF, pad='16px 64px'), quote6('It doesn’t have to be full. It doesn’t have to be symmetrical. It just has to feel right to you.'), bg=olive6, pad='0px'),
+ two_up('interior', 'chair'),
+ row(quote6('Start with the vase. Then build up, a few stems at a time, and stop sooner than you think.'), T('Afterwards, everyone washed up with our citrus hand wash and finished with the daily hand cream.', sand6, 13, SERIF, pad='4px 64px 24px'),
+  T('<span style="display:block;background:#4B5A2A;color:#E9E4D2;padding:14px;border-radius:6px">Free delivery on orders over $85</span>', sand6, 14, HELV, pad='8px 40px 24px'), T(lk('Shop Fern &amp; Stem', sand6) + '<br>' + lk('Read the journal', sand6), sand6, 13, HELV, pad='8px 40px'), bg=olive6, pad='0px'),
+], foot(olive6, '#A8A28C', 'hello@example.com', 'Fern &amp; Stem · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), olive6, ['recap', 'story', 'photography'])
+
+# --- Batch three ---
+blue7 = '#2A2AE0'
+studio('case-study', 'Case Study', 'Newsletters', 'A design-studio newsletter: one featured case study with large images and a pull quote, then a dark “more from” section.',
+ 'Case study: a football league that wanted a fresh start', 'Six clubs, one shared system, and no fake history.', [
+ row(H('The — Letterform', '#111111', 18, HELV, pad='32px 40px'), bg='#FFFFFF', pad='0px'),
+ row(T('CASE STUDY', '#111111', 11, HELV, pad='36px 40px 4px'), H('Club badges that don’t pretend to be a hundred years old', '#111111', 28, SERIF, pad='4px 48px 16px'), P('crowd', 'wide', '0px 40px'),
+  T('A new six-team league asked a small studio for badges that felt like real sports crests but looked like they belonged on the street, not in a museum. Each club got a monogram that locks into the others, and the same system runs across shirts, tickets and signage.', '#555555', 12, HELV, 'left', '16px 40px 8px'),
+  pill('CONTINUE READING', blue7, pad='12px 40px 32px', size='12px', inner='10px 22px'), P('cyclists', 'wide', '0px 40px'),
+  H('“A badge isn’t just a logo on a shirt. It becomes part of the whole kit language.”', '#888888', 24, SERIF, pad='24px 56px'), P('hall', 'wide', '0px 40px'),
+  T('Client: Northside Sevens<br>Design: Studio Kettle', '#888888', 11, SERIF, pad='12px 40px 8px'), pill('READ THE CASE STUDY', blue7, pad='8px 40px 24px', size='12px', inner='10px 22px'),
+  T(lk('GET FEATURED LIKE THIS ↗', blue7), blue7, 11, HELV, pad='8px 40px 40px'), bg='#F5F5F5', pad='0px'),
+ row(H('SEE MORE FROM<br>STUDIO KETTLE', '#FFFFFF', 26, HELV, pad='48px 40px 24px'), P('wave', 'wide', '0px 40px'), pill('READ THE CASE STUDY', blue7, pad='20px 40px 24px', size='12px', inner='10px 22px'),
+  P('redrock', 'wide', '0px 40px'), pill('READ THE CASE STUDY', blue7, pad='20px 40px 24px', size='12px', inner='10px 22px'), T(lk('GET FEATURED LIKE THIS ↗', '#FFFFFF'), '#FFFFFF', 11, HELV, pad='8px 40px 48px'), bg='#000000', pad='0px'),
+ row(H('T—L', '#111111', 120, HELV, pad='24px 40px 0px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#888888', 'The Letterform · 12 Example Street, Your City', '<a href="https://example.com" style="color:#2A2AE0">Unsubscribe</a> · <a href="https://example.com" style="color:#2A2AE0">Manage preferences</a>'), '#FFFFFF', ['case study', 'design', 'newsletter'])
+
+green8, lime8, cream8 = '#1F4D2E', '#E3EA4A', '#F7F5EF'
+def fact_header(date): return [weighted([[H('Wild Facts', lime8, 28, BLACK, 'left', '24px 8px 20px 40px')], [T(f'<strong>{date}</strong>', '#FFFFFF', 13, HELV, 'right', '30px 40px 20px 8px')]], [1, 1], green8, '0px'), row(ill('torn-stripe', 'A torn paper stripe in orange and yellow'), bg=green8, pad='0px')]
+def keep_exploring(items):
+ rows = [H('Keep exploring <span style="color:#1F4D2E">────────────</span>', green8, 19, HELV, 'left', '32px 40px 8px')]
+ for tag, colour, title in items:
+  rows += [T(f'<span style="color:{colour}">●</span> <strong style="font-size:11px">{tag}</strong>', '#1A1A1A', 11, HELV, 'left', '12px 40px 0px'), H(f'{title} <span style="float:right;color:#1F4D2E">→</span>', '#1A1A1A', 22, HELV, 'left', '4px 40px 8px'), divider('#E8E6DE')]
+ return row(*rows, bg='#FFFFFF', pad='0px 0px 16px')
+fact_footer = row(ill('fact-mark', 'The Wild Facts mark', '40px', '28px 40px 0px'), H('Wild Facts', lime8, 26, BLACK, pad='4px 40px 16px'), bg=green8, pad='0px')
+studio('fact-of-the-day', 'Fact of the Day', 'Newsletters', 'A daily fact newsletter in rounded cards: a tagged story with a photo, a multiple-choice question and a list of further reads.',
+ 'Parrots can learn to share', 'Today’s fact, a quick question, and three more things to read.', [
+ *fact_header('JULY 27, 2026'),
+ row(T('<span style="background:#E3EA4A;padding:4px 12px;border-radius:999px;font-size:11px">FACT OF THE DAY</span> &nbsp;<span style="color:#F2A33A">●</span> <span style="font-size:11px">BIRDS</span>', '#1A1A1A', 11, HELV, 'left', '32px 40px 8px'),
+  H('Some Parrots Will Share Their Food With a Friend', '#1A1A1A', 28, HELV, 'left', '4px 40px 4px'), T('By Wren Holloway', '#1A1A1A', 13, HELV, 'left', '0px 40px 16px'), P('parrot2', 'wide', '0px 40px'),
+  T('In experiments with tokens that can be swapped for food, some parrots chose to pass tokens to a neighbour, even when they got nothing back straight away. Researchers think this kind of sharing helps keep their flocks working together.<br><br>The birds were choosy: they shared more with partners they knew well. Strangers got less, which sounds familiar.', '#333333', 15, HELV, 'left', '20px 40px 8px'),
+  T(f'<strong>{lk("What else can parrots do?", green8)}</strong> &nbsp;<span style="display:inline-block;background:#1F4D2E;color:#FFFFFF;border-radius:50%;width:28px;height:28px;text-align:center;line-height:28px">→</span>', '#1A1A1A', 17, HELV, 'left', '12px 40px 32px'), bg='#FFFFFF', pad='16px 0px 0px'),
+ row(T('★ <strong style="font-size:12px;letter-spacing:1px">TODAY’S QUESTION</strong>', '#1A1A1A', 12, HELV, 'left', '28px 40px 4px'), H('Which of these can a parrot do?', '#1A1A1A', 22, HELV, 'left', '8px 40px 12px'), bg='#FFFFFF', pad='16px 0px 0px'),
+ weighted([[T('<a href="https://example.com" style="display:block;background:#EFEFEB;border:1px solid #DADAD4;border-radius:999px;padding:12px;color:#1A1A1A;text-decoration:none"><strong>COPY A SOUND</strong></a>', '#1A1A1A', 13, HELV, pad='6px 6px 6px 40px'), T('<a href="https://example.com" style="display:block;background:#EFEFEB;border:1px solid #DADAD4;border-radius:999px;padding:12px;color:#1A1A1A;text-decoration:none"><strong>USE A TOOL</strong></a>', '#1A1A1A', 13, HELV, pad='6px 6px 24px 40px')],
+           [T('<a href="https://example.com" style="display:block;background:#EFEFEB;border:1px solid #DADAD4;border-radius:999px;padding:12px;color:#1A1A1A;text-decoration:none"><strong>SOLVE A PUZZLE</strong></a>', '#1A1A1A', 13, HELV, pad='6px 40px 6px 6px'), T('<a href="https://example.com" style="display:block;background:#EFEFEB;border:1px solid #DADAD4;border-radius:999px;padding:12px;color:#1A1A1A;text-decoration:none"><strong>ALL OF THE ABOVE</strong></a>', '#1A1A1A', 13, HELV, pad='6px 40px 24px 6px')]], [1, 1], '#FFFFFF', '0px'),
+ keep_exploring([('BIRDS', '#F2A33A', 'How Do Birds Find Their Way Home?'), ('INSECTS', '#F2A33A', 'Beetles That Glow in the Dark'), ('ACROSS SPECIES', '#8B3A1E', '6 Animals That Came Back From the Brink')]),
+ fact_footer,
+], foot('#FFFFFF', '#888888', 'Was this email forwarded to you? <strong>' + lk('Sign up', '#1F4D2E') + '</strong>', 'Wild Facts · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), cream8, ['daily', 'quiz', 'facts'])
+
+studio('guess-the-animal', 'Guess the Animal', 'Newsletters', 'A variation of the daily fact email with a three-hint riddle in place of the multiple-choice question.',
+ 'Waves can tell a seal where its dinner is', 'Today’s fact, a three-clue riddle, and more to explore.', [
+ *fact_header('JULY 17, 2026'),
+ row(T('<span style="background:#E3EA4A;padding:4px 12px;border-radius:999px;font-size:11px">FACT OF THE DAY</span> &nbsp;<span style="color:#C9D94A">●</span> <span style="font-size:11px">MAMMALS</span>', '#1A1A1A', 11, HELV, 'left', '32px 40px 8px'),
+  H('Seals Can Follow a Fish by the Ripples It Leaves', '#1A1A1A', 28, HELV, 'left', '4px 40px 4px'), T('By Wren Holloway', '#1A1A1A', 13, HELV, 'left', '0px 40px 16px'), P('wave', 'wide', '0px 40px'),
+  T('A seal’s whiskers are so sensitive that they can pick up the tiny swirls of water left by a fish that swam past several seconds earlier. In murky water, that’s more useful than eyesight.<br><br>Each whisker has a wavy shape that keeps it steady as the seal swims, so it only feels the trail, not its own movement.', '#333333', 15, HELV, 'left', '20px 40px 8px'),
+  T(f'<strong>{lk("5 animals with surprising senses", green8)}</strong> &nbsp;<span style="display:inline-block;background:#1F4D2E;color:#FFFFFF;border-radius:50%;width:28px;height:28px;text-align:center;line-height:28px">→</span>', '#1A1A1A', 17, HELV, 'left', '12px 40px 32px'), bg='#FFFFFF', pad='16px 0px 0px'),
+ row(T('? <strong style="font-size:12px;letter-spacing:1px">GUESS THE ANIMAL</strong>', '#1A1A1A', 12, HELV, 'left', '28px 40px 4px'), H('What am I?', '#1A1A1A', 22, HELV, 'left', '8px 40px 8px'),
+  T('<span style="display:block;background:#F4F4F1;border:1px solid #E2E2DC;border-radius:12px;padding:16px 20px"><strong style="font-size:11px">HINT 1</strong><br>I can sleep standing up.<br><br><strong style="font-size:11px">HINT 2</strong><br>My teeth never stop growing.<br><br><strong style="font-size:11px">HINT 3</strong><br>I’ve been carrying people for thousands of years.</span>', '#1A1A1A', 14, HELV, 'left', '8px 40px'),
+  pill('See the answer', '#111111', align='left', pad='16px 40px 32px'), bg='#FFFFFF', pad='16px 0px 0px'),
+ keep_exploring([('MAMMALS', '#C9D94A', 'What Do Seals Eat?'), ('REPTILES', '#1F4D2E', 'Why Do Lizards Wave?'), ('ACROSS SPECIES', '#8B3A1E', '10 Days Out for Animal Lovers')]),
+ fact_footer,
+], foot('#FFFFFF', '#888888', 'Was this email forwarded to you? <strong>' + lk('Sign up', '#1F4D2E') + '</strong>', 'Wild Facts · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), cream8, ['daily', 'riddle', 'facts'])
+
+pine9 = '#0E3D2B'
+def latest_story(title, photo, body, bullets, cta):
+ return row(divider('#E6E4DE'), H(title, '#1A1A1A', 20, SERIF, 'left', '16px 32px 12px'), P(photo, 'wide', '0px 32px'), T(body + '<br><br>' + ul(bullets), '#333333', 13, HELV, 'left', '16px 32px 8px'), button(cta, pine9, align='center'), bg='#FFFFFF', pad='0px')
+studio('the-latest', 'The Latest', 'Newsletters', 'A company news digest under a big serif masthead: a lead feature, then stories each with a photo, short bullets and a button.',
+ 'The Latest: our ads library, a launch recap and 25 tips', 'Four stories from the team this month.', [
+ row(H('lumenly', '#1A1A1A', 22, HELV, 'left', '24px 32px 0px'), H('The Latest', '#1A1A1A', 56, SERIF, 'left', '0px 32px 16px'), bg='#E9E7E1', pad='0px'),
+ row(T('<strong>October 30</strong>', '#1A1A1A', 12, HELV, 'left', '12px 32px 8px'), P('laptops', 'wide', '0px 32px'),
+  T('<strong>See which brands are advertising in AI answers</strong><br>Ads are starting to appear in AI chat answers, but it’s hard to see who is running them. Our free library lets you search a brand or a website and see its ads, how often they ran, and what people asked.<br><br>' + ul(['Search by brand or website', 'See how often each ad appeared, and for which questions']), '#333333', 13, HELV, 'left', '16px 32px 8px'), button('Search the library', pine9, align='center'), bg='#FFFFFF', pad='0px'),
+ latest_story('Launch recap: why AI search runs on evidence', 'hall', 'At our London launch, our head of research showed how AI tools choose which brands to mention. In one example, almost all the evidence came from other people’s websites, not the brand’s own.', ['Most of the sources came from third parties', 'Each country had its own mix of sources'], 'Watch the keynote'),
+ latest_story('25 tips from our own ad tests', 'screen', 'We run our own ads and change one thing at a time. Here’s what helped, what didn’t, and how we decide what to stop. Results are early, so treat them as direction, not proof.', ['Describe the buyer’s situation, not keywords', 'Fund it as a test, not a budget shift'], 'Get the 25 tips'),
+ latest_story('Webinar: what the first wave of AI search taught us', 'face2', 'On 10 November, our CEO joins a panel to share what worked, what stalled, and how to adapt it country by country.', ['Map your market before choosing what to track', 'Turn measurement into action, not another dashboard'], 'Save your spot'),
+ row(H('Run a strategy that gets you found', '#1A1A1A', 24, SERIF, pad='36px 32px 8px'), T('We’ll help you make a plan, build it, and train your team.', '#333333', 13, HELV, pad='4px 32px'), button('Book a demo', pine9, align='center'), bg='#E9E7E1', pad='0px'),
+], foot('#FFFFFF', '#AAAAAA', 'Lumenly · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a> · <a href="https://example.com" style="color:inherit">Manage preferences</a>'), '#E9E7E1', ['digest', 'company news', 'stories'])
+
+def news_story(label, title, body, byline, photo):
+ return weighted([[T(f'<strong>{label}</strong>' if label else '', '#111111', 15, HELV, 'left', '16px 8px 4px 40px'), H(title, '#111111', 20, SERIF, 'left', '4px 8px 4px 40px'), T(body, '#333333', 15, HELV, 'left', '4px 8px 4px 40px'), T(byline, '#555555', 11, HELV, 'left', '4px 8px 4px 40px'), T('<strong>' + lk('Read more', '#111111') + '</strong> →', '#111111', 14, HELV, 'left', '8px 8px 20px 40px')], [P(photo, 'square', '20px 40px 0px 8px')]], [3, 2], '#FFFFFF', '0px')
+studio('behind-the-story', 'Behind the Story', 'Newsletters', 'A newsroom campaign email: a dark banner, a serif headline, three investigations with thumbnails and a subscription offer.',
+ 'The story is what you read. This is the work behind it.', 'Introducing our new series on how our reporting gets done.', [
+ row(H('The Harbour Courier', '#111111', 26, SERIF, pad='20px 40px'), bg='#FFFFFF', pad='0px'),
+ row(P('papers', 'wide', '16px 40px 0px'), H('The story is the part you read. This is the reporting behind it.', '#111111', 28, SERIF, 'left', '16px 40px 8px'),
+  T('Introducing Behind the Story, a series about the evidence, effort and stubbornness behind our journalism, starting with our investigation into how the city’s parking cameras were used.', '#333333', 15, HELV, 'left', '4px 40px'), pill('Learn more', '#111111', pad='12px 40px 24px'), H('Explore the stories', '#111111', 22, HELV, pad='8px 40px'), bg='#FFFFFF', pad='0px'),
+ news_story('Exclusive', 'How a camera network meant for traffic was used to follow people', 'Cameras installed to catch speeding drivers were searched thousands of times for reasons that had nothing to do with traffic.', 'By Jo Maddox and Sam Ferris', 'city'),
+ news_story('Exclusive', 'Nobody was checking the searches. So we did.', 'Our review of the search logs led to two officials being disciplined, and to new rules on who can see the footage.', 'By Sam Ferris and Jo Maddox', 'street'),
+ news_story('', 'The camera supplier promises changes after our report', 'The company says it will add audit logs and limits on searches after our reporting showed how easily the system could be misused.', 'By Jo Maddox, Sam Ferris and Lee Cho', 'building'),
+ row(T('<span style="display:block;background:#EFEFEF;padding:24px"><strong style="font-size:20px">Support journalism that changes things</strong><br><br>Subscribers pay for reporting like this. Support our work and get a year of unlimited access for $40.</span>', '#111111', 15, HELV, pad='16px 40px 0px'), pill('Read for $40', '#111111', pad='16px 40px 8px'), T('Billed $40 for the first year, then $140 a year. Cancel any time.', '#333333', 11, HELV, pad='4px 40px 32px'), bg='#FFFFFF', pad='0px'),
+], row(T('You’re getting this because you registered with The Harbour Courier or signed up for a newsletter.<br><br>' + lk('Unsubscribe', '#FFFFFF') + ' · ' + lk('Terms', '#FFFFFF') + ' · ' + lk('Privacy', '#FFFFFF'), '#FFFFFF', 12, HELV, 'left', '32px 40px 8px'), divider('#444444'), T('<strong style="font-size:20px;font-family:georgia">HC</strong> &nbsp; The Harbour Courier · 12 Example Street, Your City<br><a href="https://xem.email" style="color:#BBBBBB">Built with Xem</a>', '#BBBBBB', 12, HELV, 'left', '8px 40px 32px'), bg='#111111', pad='0px'),
+ '#FFFFFF', ['news', 'campaign', 'journalism'])
+
+red10 = '#E8473C'
+def numbered_box(n, title, body): return weighted([[H(f'{n:02}', red10, 24, HELV, 'left', '18px 4px 8px 32px')], [T(f'<span style="display:block;border:1px solid #1A1A1A;border-radius:6px;padding:14px 16px;background:#FFFBF5"><strong style="font-size:16px">{title}</strong><br><br>{body}</span>', '#1A1A1A', 13, HELV, 'left', '8px 32px 8px 4px')]], [1, 6], '#FFFFFF', '0px')
+studio('call-for-speakers', 'Call for Speakers', 'Events', 'A community event announcement with a dark illustrated header, a call for speakers in numbered boxes and a personal signature.',
+ 'Our conference has a date, and we want your talk', 'Dates, a venue, and four things to know about speaking.', [
+ row(H('✉ Good Mail Club', '#1A1A1A', 22, HELV, pad='28px 40px'), bg='#F4F4F4', pad='0px'),
+ row(ill('megaphone-city', 'A tall building with a red megaphone and two small clouds', pad='16px 0px 0px'), bg='#1A1A1A', pad='0px'),
+ row(H('Hey there, email people,', '#1A1A1A', 26, HELV, 'left', '24px 40px 4px'), H('📅 Our conference has a date and a place', '#1A1A1A', 17, HELV, 'left', '4px 40px 12px'),
+  T('If you haven’t been: Inbox Camp is a small, practitioner-only conference about email. No sales pitches, just people who send email helping each other out.<br><br><strong>Inbox Camp is on 3–5 May 2027</strong>, and we’re moving to <strong>a new venue in the city centre</strong>.<br><br>' + lk('Here’s the official site', red10) + ' (not much there yet). For now, <strong>you can join the waitlist</strong> to hear first when tickets go on sale.', '#1A1A1A', 14, HELV, 'left', '4px 40px'),
+  bg='#FFFFFF', pad='0px'),
+ weighted([[pill('Put me on the list', '#1A1A1A', align='left', pad='16px 8px 24px 40px', size='14px')], [ill('hand-ok', 'A hand making an OK sign, with a small heart', '100px', '0px 40px 0px 8px', 'right')]], [2, 1], '#FFFFFF', '0px'),
+ weighted([[H('Ever thought about giving a talk?', '#FFFFFF', 24, HELV, 'left', '28px 8px 28px 32px')], [ill('avatar-6', 'Portrait of Rosa', '80px', '24px 32px 24px 8px')]], [3, 1], '#1A1A1A', '24px 0px 0px'),
+ row(T('Our call for speakers is open. The ' + lk('submission form', red10) + ' has the details, but here are the four things you need to know:', '#1A1A1A', 14, HELV, 'left', '20px 32px 12px'), bg='#FFFFFF', pad='0px'),
+ numbered_box(1, 'We want practical talks from real experience.', 'Fixed a messy workflow? Run an interesting test? Built a system your team actually uses? Tell us. No product pitches, please.'),
+ numbered_box(2, 'We pay our speakers and cover the hotel.', 'You get a fee and travel money, and we book your hotel and most meals.'),
+ numbered_box(3, 'Never spoken on stage before? That’s fine.', 'We pick a mix of new and experienced speakers, and we’ll help you prepare.'),
+ numbered_box(4, 'Got an idea but not sure? Ask me first.', 'Reply to this email and I’ll give you some honest feedback before you submit.'),
+ row(pill('Pitch me your talk', '#1A1A1A', pad='20px 40px 16px'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('avatar-5', 'Portrait of Dev', '72px', '16px 4px 24px 40px')], [T('<span style="color:#E8473C;font-size:12px"><strong>I really hope to hear from you,</strong></span><br><span style="font-size:18px">Dev Okonjo</span><br><span style="font-size:12px">Community lead, Good Mail Club</span>', '#1A1A1A', 14, HELV, 'left', '16px 40px 24px 8px')]], [1, 4], '#FFFFFF', '0px'),
+], row(H('✉ Good Mail Club', '#FFFFFF', 20, HELV, pad='32px 40px 8px'), T('Good Mail Club · 12 Example Street, Your City · ' + lk('Unsubscribe', '#FFFFFF') + '<br><a href="https://xem.email" style="color:#BBBBBB">Built with Xem</a>', '#BBBBBB', 12, HELV, pad='8px 40px 32px'), bg='#1A1A1A', pad='0px'),
+ '#F4F4F4', ['conference', 'call for speakers', 'community'])
+
+def blurb(head, body, link): return T(f'<strong>{head}</strong> {body} {lk(link + " →", "#1A1A1A")}', '#1A1A1A', 12, HELV, 'left', '6px 32px 10px')
+studio('weekly-sequence', 'The Weekly Sequence', 'Newsletters', 'A dense culture newsletter: short items with bold leads, an interview card, a featured object and a reader question.',
+ 'Sequence 52: tiny libraries, giant posters, and a chair', 'Ten things worth knowing this week, plus an interview.', [
+ row(T('◎ PARLOUR', '#999999', 11, HELV, pad='24px 32px 0px'), H('SEQUENCE<sup>52</sup>', '#111111', 40, BLACK, pad='0px 32px 8px'), bg='#F2F2F2', pad='0px'),
+ weighted([[P('face1', 'square', '0px 3px 0px 120px')], [P('art', 'square', '0px 3px')], [P('face4', 'square', '0px 3px')], [P('flowers', 'square', '0px 120px 0px 3px')]], [1, 1, 1, 1], '#F2F2F2', '0px 0px 20px'),
+ row(T('<strong>Internet Microdoses</strong>', '#1A1A1A', 12, HELV, 'left', '24px 32px 8px'),
+  blurb('A three-hour concert film is selling out cinemas.', 'It made more on its opening weekend than any music documentary in twenty years. Bring snacks.', 'Get tickets'),
+  P('room', 'wide', '4px 32px'), blurb('A library the size of a phone box opened on a high street.', 'It holds 200 books and lends them on trust. So far, nothing has gone missing.', 'Visit it'),
+  blurb('A boat that sank 4,000 years ago turned up in a field.', 'Archaeologists found it while checking ground for a new road.', 'Dig in'),
+  blurb('A football club named its new font after a former captain.', 'It’s on the shirts, the tickets and the stadium signs.', 'See the font'),
+  blurb('Students are holding drawing classes in train stations.', 'Bring a pencil; stools are provided.', 'Find a class'), bg='#FFFFFF', pad='0px'),
+ row(P('books', 'wide', '16px 32px 8px'), T('<strong>Aesthetic Study · ' + lk('Turning the page', '#1A1A1A') + '</strong><br><br>Last year it was fashionable to be seen reading on the train. This year, the book itself is the accessory: tote bags with bookshelves printed on them, cafés with reading-only tables, book-club dinners that sell out in minutes.<br><br>Whatever the reason, more people are carrying books. Some are even reading them.', '#1A1A1A', 12, HELV, 'left', '8px 32px'),
+  pill('Judge a book by its cover', '#C8DBFA', '#1A1A1A', align='left', pad='12px 32px 24px', size='12px', inner='10px 18px'), bg='#FFFFFF', pad='0px'),
+ weighted([[T('A moment with', '#F4E6E6', 12, HELV, 'left', '24px 8px 4px 32px'), H('Ines Calder', '#FFFFFF', 30, BLACK, 'left', '4px 8px 4px 32px'), T('Founder of Calder &amp; Co.', '#F4E6E6', 11, HELV, 'left', '4px 8px 24px 32px')], [P('face3', 'square', '20px 32px 20px 8px')]], [3, 2], '#5A1414', '0px 32px'),
+ row(T('Ines Calder makes furniture from salvaged wood and wants every piece to look like it has a past. Her third collection launches this month.<br><br><strong>Where do your ideas come from?</strong><br>Old buildings, mostly. I keep a photo of every door I like.<br><br><strong>Three places that inspire you?</strong><br>1. A timber yard by the river<br>2. A library reading room<br>3. My grandmother’s kitchen<br><br><strong>Write us a fortune cookie.</strong><br>The thing you keep fixing is the thing you love.', '#1A1A1A', 12, HELV, 'left', '16px 32px'),
+  pill('Read the full interview', '#C8DBFA', '#1A1A1A', align='left', pad='8px 32px 24px', size='12px', inner='10px 18px'), bg='#FFFFFF', pad='0px'),
+ row(P('chair', 'wide', '8px 32px'), T('<strong>Object Love · ' + lk('The bent chair', '#1A1A1A') + '</strong><br><br>A chair bent from a single sheet of plywood, first made in the 1940s and still in production. It weighs about as much as a cat. Look closely and there isn’t a screw in it.', '#1A1A1A', 12, HELV, 'left', '8px 32px'),
+  T('<strong>Quick Hits</strong><br><br>Put a photo on your keychain with a ' + lk('tiny camera', '#1A1A1A') + '.<br>A museum is ' + lk('lit only by candles', '#1A1A1A') + ' for one night.<br>Discover a ' + lk('dictionary of words you can’t read', '#1A1A1A') + '.', '#1A1A1A', 12, HELV, 'left', '16px 32px'),
+  T('<strong>Reader Question</strong><br><br>Last week we asked: if you opened a tiny museum, what would be in it? Our favourite answer: <em>“Every key I’ve ever kept without knowing what it opens.”</em><br><br>This week: what’s the most useful thing you own that cost less than $5? Reply and tell us.<br><br>' + lk('All booked up', '#1A1A1A') + ',<br>Tom', '#1A1A1A', 12, HELV, 'left', '8px 32px 32px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#AAAAAA', 'Sent to you as a Parlour member · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['culture', 'digest', 'interview'])
+
+ink11, paper11 = '#3A2A20', '#F1ECE3'
+def brief_item(sec, title, body, link): return [T(sec, '#7A6A5A', 10, HELV, 'left', '20px 32px 4px'), H(title, ink11, 19, SERIF, 'left', '4px 32px 4px'), T(body, '#5A4A3A', 13, SERIF, 'left', '4px 32px 4px'), T(f'<span style="border-bottom:1px solid #3A2A20;letter-spacing:2px;font-size:10px">{link} →</span>', ink11, 10, HELV, 'left', '8px 32px 16px')]
+def city(letter, colour, place, title, body): return weighted([[T(f'<span style="display:block;background:{colour};width:44px;height:44px;line-height:44px;text-align:center;font-family:georgia;font-size:22px">{letter}</span>', ink11, 22, SERIF, pad='20px 4px 8px 32px')], [T(place, '#7A6A5A', 10, HELV, 'left', '18px 32px 2px 8px'), H(title, ink11, 18, SERIF, 'left', '2px 32px 4px 8px'), T(body, '#5A4A3A', 13, SERIF, 'left', '4px 32px 4px 8px'), T('<span style="border-bottom:1px solid #3A2A20;letter-spacing:2px;font-size:10px">DETAILS →</span>', ink11, 10, HELV, 'left', '6px 32px 16px 8px')]], [1, 6], paper11, '0px')
+studio('the-brief', 'The Brief', 'Newsletters', 'A quiet arts and design digest on warm paper: a numbered contents line, a boxed lead, short items and a city-by-city list.',
+ 'The Brief: a new museum, a public restoration, and five cities', 'Friday’s short read on art, design and what’s on.', [
+ row(H('The <em>Brief</em>', ink11, 44, SERIF, pad='36px 32px 4px'), T('FRIDAY, 30 OCTOBER 2026', '#7A6A5A', 10, HELV, pad='0px 32px 16px'), divider(ink11), T('01 THE LEAD &nbsp;&nbsp; 02 ART &nbsp;&nbsp; 03 DESIGN &nbsp;&nbsp; 04 IN THE CITIES', '#7A6A5A', 10, HELV, pad='4px 32px 16px'), T('01 &nbsp; THE LEAD', ink11, 10, HELV, 'left', '8px 32px 8px'), bg=paper11, pad='0px'),
+ row(H('A furniture museum takes shape in an old warehouse', ink11, 24, SERIF, 'left', '24px 24px 8px'), T('New drawings show a 1950s shoe warehouse turned into a museum around one long, top-lit hall.', '#5A4A3A', 13, SERIF, 'left', '4px 24px 8px'), T('<span style="border-bottom:1px solid #3A2A20;letter-spacing:2px;font-size:10px">READ MORE →</span>', ink11, 10, HELV, 'left', '8px 24px 24px'), bg='#FFFFFF', pad='0px 32px'),
+ row(*brief_item('02 &nbsp; ART', 'A museum will restore a group portrait in public', 'From December, conservators will clean a 400-year-old portrait in an open gallery, for about a year.', 'READ MORE'),
+  *brief_item('', 'A festival commissions a year of hand-made art', 'Seven exhibitions at seven universities, with more than a hundred artists taking part.', 'READ MORE'), divider('#D8CFC2'),
+  *brief_item('03 &nbsp; DESIGN', 'A new stadium with a garden on its roof', 'The 60,000-seat ground will have a planted roof and an open circle in the middle.', 'READ MORE'), divider('#D8CFC2'), T('04 &nbsp; IN THE CITIES', ink11, 10, HELV, 'left', '16px 32px 4px'), bg=paper11, pad='0px'),
+ city('N', '#E8B4A8', 'NEW YORK', 'A painter’s night skies come to town', 'Her 1990s paintings of stars are shown here for the first time, until 19 December.'),
+ city('L', '#B8D4BC', 'LONDON', 'A complete set of mountain prints', 'All forty-six prints in one room, until 17 January.'),
+ city('P', '#B8CCE0', 'PARIS', 'Torn posters as art', 'An artist who peeled posters off city walls, until 14 February.'),
+ city('T', '#D4C4E4', 'TOKYO', 'Three comic artists who changed the form', 'Original drawings from three pioneers, until 8 February.'),
+ city('M', '#F2D79C', 'MEXICO CITY', 'An old manuscript back home on loan', 'Free to see at the national museum until 6 December.'),
+ row(divider('#D8CFC2'), T('<em>Chosen this morning in the studio.<br>Reply any time; every note is read.</em>', '#7A6A5A', 13, SERIF, pad='16px 32px'), divider('#D8CFC2'), H('<em>thyme</em>', '#B08A3A', 30, SERIF, pad='16px 32px 0px'), bg=paper11, pad='0px'),
+], foot(paper11, '#9A8A7A', 'YOU SIGNED UP FOR THE BRIEF AT THYME.EXAMPLE', '12 EXAMPLE STREET, YOUR CITY', '<a href="https://example.com" style="color:inherit">UNSUBSCRIBE</a>'), '#E6DED2', ['arts', 'digest', 'editorial'])
+
+orange12 = '#D9620F'
+def btip(word, title, body, link): return [H(f'<span style="color:#D9620F">b</span>{word} <span style="color:#D9620F">|</span> {title}', '#5A5A5A', 24, SERIF, 'left', '20px 32px 4px'), T(f'{body} <strong>{lk(link + " &gt;", orange12)}</strong>', '#5A5A5A', 15, HELV, 'left', '4px 32px 12px')]
+studio('five-tips', 'Five Quick Tips', 'Newsletters', 'A care-tips email: a single warm photo, then five short sections each with a playful one-word lead and a link.',
+ 'Five things to know before the fireworks', 'Keeping pets calm, safe and well this season.', [
+ row(H('✚', orange12, 40, BLACK, pad='16px 32px'), bg='#F4F4F4', pad='0px'),
+ row(P('beagle', 'wide'), bg='#FFFFFF', pad='0px'),
+ row(*btip('safe', 'fireworks night is scary for pets', 'Bangs, flashes and visitors at the door can frighten dogs and cats. Here’s how to', 'keep your pet calm'),
+  *btip('fed', 'the truth about tummy troubles', 'Upset stomachs are one of the most common reasons pets visit the vet. Learn how to', 'help your pet’s digestion'),
+  *btip('ready', 'what to know before you adopt', 'A pet is a long-term friend, not a short-term project. Here are some', 'tips before you adopt'),
+  *btip('calm', 'helping an anxious pet', 'Holidays and house moves can unsettle pets. Here’s how to', 'help them settle'),
+  *btip('well', 'managing pain as they get older', 'Stiff joints don’t have to mean a smaller life. Learn about', 'easing your pet’s pain'), bg='#FFFFFF', pad='16px 0px 24px'),
+], foot('#F2F2F2', '#666666', 'Harbourside Vets · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Terms</a> · <a href="https://example.com" style="color:inherit">Privacy</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['tips', 'pets', 'care'])
+
+blue13, peach13 = '#2A2AE0', '#FDF0E4'
+def promo_block(bg, title, body, button_text, btn_bg, btn_ink, img, title_colour, text_colour):
+ return weighted([[P(img, 'square', '24px 8px 8px 24px')], [H(title, title_colour, 26, HELV, 'left', '24px 24px 4px 8px'), T(body, text_colour, 13, HELV, 'left', '4px 24px 8px 8px')]], [2, 3], bg, '0px'), row(button(button_text, btn_bg, align='center', ink=btn_ink), bg=bg, pad='0px 0px 16px')
+studio('animal-buzz', 'Animal Buzz', 'Newsletters', 'A charity supporter update in bold colour blocks: an adoption story, gift and shop promos, a wildlife feature and a fact.',
+ 'Adopt, don’t shop, and other good news', 'A rehoming story, a magazine for kids, and why seals are back.', [
+ row(T('Your update is here', '#333333', 10, HELV, 'left', '6px 24px'), bg='#FFFFFF', pad='0px'),
+ row(H('PAWS<span style="color:#F2D33A">&amp;</span>CO BUZZ', '#FFFFFF', 26, BLACK, 'left', '16px 24px'), bg=blue13, pad='0px'),
+ row(P('cat'), H('Adopt, don’t shop', blue13, 32, HELV, 'left', '20px 24px 8px'), T('When you adopt from us, our team helps find the right match, and every animal comes with a health check and ongoing support. It gives them a second chance at a loving home.', '#1A1A1A', 14, HELV, 'left', '4px 24px'), button('Find out how', blue13, align='center'), bg=peach13, pad='0px'),
+ *promo_block('#EE5A32', 'Share the love!', 'Give a young animal lover a year of our kids’ magazine: rescues, cute photos and fun facts, four issues for $12.', 'Subscribe today', '#FFFFFF', '#1A1A1A', 'collie', '#FFFFFF', '#FFFFFF'),
+ *promo_block('#A8DBF5', 'Dress to impress', 'Our clothing range is made from organic cotton and printed to order, so nothing goes to waste.', 'Explore now', blue13, '#FFFFFF', 'fabric', blue13, '#1A1A1A'),
+ row(P('wave', 'wide', '24px 24px 0px'), H('We love seals!', '#1A1A1A', 28, HELV, 'left', '16px 24px 8px'), T('Grey seals are coming back to the beaches to have their pups. Find out how they live, how to watch them safely, and how to tell the different kinds apart.', '#1A1A1A', 14, HELV, 'left', '4px 24px'), button('Learn about seals', '#2A1A6A', align='center'), bg='#E8E64A', pad='0px'),
+ row(ill('bulb', 'A lightbulb', '64px', '28px 24px 0px', 'left'), H('Cows have amazing noses', '#E8E64A', 20, HELV, 'left', '8px 24px 8px'), T('A cow can smell things several miles away, and every cow’s nose print is unique, like a fingerprint.', '#FFFFFF', 14, HELV, 'left', '4px 24px'), button('Find out about cows', '#E8E64A', align='center', ink='#1A1A1A'), bg=blue13, pad='0px 0px 16px'),
+ row(ill('critters', 'Silhouettes of a cat, dog, rabbit, deer, bird, fox and hen'), bg=peach13, pad='16px 0px 0px'),
+], foot(blue13, '#FFFFFF', '<strong style="font-size:22px">PAWS&amp;CO</strong>', 'Paws &amp; Co is a registered charity · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe from supporter updates</a>'), '#F5F5F5', ['charity', 'colour blocks', 'animals'])
+
+navy14, orange14, aqua14 = '#1E1A4A', '#EC5A24', '#B4E2E2'
+studio('get-out-there', 'Get Out There', 'Welcome', 'A destination welcome email: a photo with a huge stamped headline, a short welcome list, a second photo banner and a map prompt.',
+ 'Welcome to the high desert', 'Trip ideas, local events and road-trip guides are on their way.', [
+ row(T(lk('View in browser', orange14), orange14, 11, HELV, 'right', '8px 24px'), bg=navy14, pad='0px'),
+ row(H('✦ VISIT<br>HIGH DESERT ✦', navy14, 24, BLACK, pad='24px 40px'), bg=aqua14, pad='0px'),
+ row(P('redrock', 'wide'), H('GET A LITTLE<br>LOST OUT HERE.', orange14, 46, BLACK, 'left', '8px 40px 8px'), H('Welcome to the High Desert.', orange14, 28, HELV, 'left', '16px 40px 8px'),
+  T('Psst… you there. Fancy a wander?<br><br>The best trip ideas for the region are coming soon to your inbox:<br><br>☐ Tips from people who live here<br>☐ Local events and places you won’t find anywhere else<br>☐ Road-trip guides and two-day plans<br><br>Plus a whole lot more.', '#1A1A1A', 15, HELV, 'left', '4px 40px'),
+  T('<a href="https://example.com" style="background:#EC5A24;color:#FFFFFF;padding:12px 22px;border-radius:4px;text-decoration:none;font-weight:bold">GET FREE TRAVEL GUIDES</a>', '#FFFFFF', 15, HELV, pad='16px 40px 36px'), bg='#FFFFFF', pad='0px'),
+ row(P('valley', 'wide'), H('GO WHERE? FRESH AIR.<br>OUT THERE.', '#FFFFFF', 30, BLACK, 'left', '16px 40px 4px'), T('<span style="background:#EC5A24;padding:8px 16px;color:#FFFFFF;font-weight:bold">GET TRIP TIPS ▶</span>', '#FFFFFF', 13, HELV, 'left', '8px 40px 28px'), bg=navy14, pad='16px 0px 0px'),
+ weighted([[ill('map-outline', 'A folded map', '120px', '36px 8px 36px 40px')], [H('READY TO START PLANNING?', navy14, 30, BLACK, 'left', '36px 40px 8px 8px'), T('<strong>GET YOUR FREE GUIDE →</strong>', navy14, 16, HELV, 'left', '4px 40px 36px 8px')]], [1, 2], aqua14, '0px'),
+], foot(aqua14, navy14, 'Thanks for signing up for emails from Visit High Desert.', 'Got this from a friend? <strong>' + lk('Subscribe here', navy14) + '</strong>', 'Visit High Desert · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), navy14, ['welcome', 'travel', 'destination'])
+
+# --- Batch four ---
+studio('september-notes', 'September Notes', 'Product', 'A minimal product update: short bold-titled sections, each followed by a large rounded product image, and a bullet list of smaller changes.',
+ 'What’s new in Shapekit this September', 'Skills for the assistant, 3D transforms and list fields.', [
+ row(T('<span style="display:inline-block;background:#111111;color:#FFFFFF;border-radius:10px;width:40px;height:40px;line-height:40px;text-align:center;font-size:20px">◢</span>', '#111111', 20, HELV, 'left', '40px 40px 16px'),
+  T('This September we added skills for the assistant, editable 3D transforms, and list fields for repeating content. You’ll also find pinned projects, visitor stats for your templates, and twelve new lessons.', '#111111', 17, HELV, 'left', '8px 40px 24px'),
+  T('<strong>Skills</strong><br>Save instructions for the assistant once and reuse them, from your brand voice to how you lay out a page. ' + lk('Explore skills.', '#111111'), '#111111', 14, HELV, 'left', '16px 40px 16px'), ill('prompt-card', 'A dark prompt box over a bright gradient, asking the assistant to make a skill', pad='0px 40px'),
+  T('<strong>3D transforms</strong><br>Ask the assistant to add depth and perspective, then fine-tune the result yourself. Everything stays editable. ' + lk('Explore 3D transforms.', '#111111'), '#111111', 14, HELV, 'left', '36px 40px 16px'), ill('wire-shape', 'A wireframe 3D shape on black', pad='0px 40px'),
+  T('<strong>List fields</strong><br>Keep FAQs, features or steps in one list instead of separate numbered fields, then design one card and repeat it. ' + lk('Explore lists.', '#111111'), '#111111', 14, HELV, 'left', '36px 40px 16px'), ill('dark-table', 'A dark table of questions and answers', pad='0px 40px'),
+  T('<strong>Other improvements</strong><br>' + ul([lk('Pin your most-used projects', '#111111') + ' to the sidebar.', 'See visitors and views with ' + lk('template stats', '#111111') + '.', 'Try twelve new ' + lk('lessons', '#111111') + ' on working with the assistant.']), '#111111', 14, HELV, 'left', '36px 40px 16px'),
+  T('Tell us what you think by replying to this email.<br><br>' + lk('Jonas', '#111111'), '#111111', 14, HELV, 'left', '16px 40px 32px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#AAAAAA', 'You opted in to product updates from Shapekit.', 'Shapekit · 12 Example Street, Your City · <strong><a href="https://example.com" style="color:inherit">Unsubscribe</a></strong>'), '#FFFFFF', ['product update', 'minimal', 'features'])
+
+def card_row(photo, title, body, link, left=True):
+ txt = [H(title, '#111111', 18, HELV, 'left', '28px 40px 4px 16px' if left else '28px 16px 4px 40px'), T(body, '#333333', 13, HELV, 'left', '4px 40px 4px 16px' if left else '4px 16px 4px 40px'), T(f'<strong>{lk(link + " →", "#0D47D9")}</strong>', '#0D47D9', 13, HELV, 'left', '8px 40px 24px 16px' if left else '8px 16px 24px 40px')]
+ pic = [P(photo, 'square', '0px 0px 0px 40px' if left else '0px 40px 0px 0px')]
+ return weighted([pic, txt] if left else [txt, pic], [1, 1], '#FFFFFF', '8px 0px')
+studio('front-door', 'Front Door', 'Retention', 'A home and property digest: a rounded hero photo, a headline and button, then cards that alternate photo and text sides.',
+ 'Front door colours that sell', 'Plus the latest market outlook and a house worth daydreaming about.', [
+ row(H('⌂ Homestead', '#0D47D9', 22, HELV, 'left', '24px 40px'), P('house', 'wide', '0px 24px'), H('Front door colours that pay off', '#111111', 30, HELV, 'left', '24px 40px 8px'),
+  T('Ever walked past a front door and wanted to live behind it? Buyers feel the same, and some will pay more for it. See which colours help a house sell.', '#333333', 14, HELV, 'left', '4px 40px'), button('Get the list', '#0D47D9', align='left'), ill('house-dots', 'Three small houses', '80px', '8px 40px'), H('What’s trending', '#111111', 22, HELV, 'left', '8px 40px'), bg='#FFFFFF', pad='0px'),
+ card_row('street', 'Market update: room to breathe?', 'The latest outlook on prices, rents and rates could make your next move more predictable.', 'Read the report'),
+ card_row('laptops', 'When tastes collide', 'How to blend two people’s styles into one shared home.', 'Work it out', left=False),
+ row(ill('house-dots', 'Three small houses', '80px', '16px 40px'), H('This week’s favourite', '#111111', 22, HELV, 'left', '8px 40px'), bg='#FFFFFF', pad='0px'),
+ card_row('sea', 'Seaside retreat', 'Floor-to-ceiling windows and nothing but ocean in front of you.', 'Look inside'),
+ row(H('Your next place is waiting.', '#111111', 22, HELV, 'left', '24px 40px 8px'), T('<a href="https://example.com" style="display:inline-block;border:1px solid #0D47D9;color:#0D47D9;padding:10px 28px;border-radius:6px;text-decoration:none;font-weight:bold">Browse homes for sale</a>&nbsp;&nbsp;<a href="https://example.com" style="display:inline-block;border:1px solid #0D47D9;color:#0D47D9;padding:10px 28px;border-radius:6px;text-decoration:none;font-weight:bold">Browse rentals</a>', '#0D47D9', 13, HELV, pad='8px 40px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#555555', 'Homestead · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Privacy</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a> · <a href="https://example.com" style="color:inherit">Preferences</a>'), '#FFFFFF', ['digest', 'property', 'cards'])
+
+studio('founder-column', 'From the Founder', 'Newsletters', 'A founder’s weekly column: a stacked logo, a big serif masthead with a red dot, one underlined headline and a long, personal story.',
+ 'My five minutes on late-night TV', 'A comedy show used an old interview of mine. Here’s what I learned.', [
+ row(H('SUB<br>SCR<br>iBED', '#111111', 26, MONO, pad='40px 40px 0px'), T('from Tally &amp; Co', '#111111', 10, HELV, pad='0px 40px 16px'), T('We write about modern business.', '#111111', 13, HELV, pad='8px 40px 8px'),
+  H('Subscribed<br><span style="color:#FF4A2A">●</span>Weekly', '#111111', 60, SERIF, pad='8px 40px 16px'), divider('#111111'), H('<u>My Late-Night Moment</u>', '#111111', 34, SERIF, pad='8px 40px 16px'),
+  T('A late-night comedy show used a clip of me this week. Be careful what you wish for!<br><br>The segment was about subscriptions, and they dug up an old interview where I talked about fridges that reorder milk by themselves. The host called it “mildly terrifying.” Fair.<br><br>Honestly? I’m a fan, so being teased on TV felt like an honour. It was a good rant: printers that stop working when a trial ends, cancel buttons hidden three menus deep, monthly fees for heated seats.<br><br>Jokes aside, it was strange to see an idea this community spent years working on turn up in a comedy monologue. We went from a small billing company to a topic people argue about at dinner. That doesn’t happen often.', '#222222', 17, HELV, 'left', '8px 56px'),
+  pill('Keep reading', '#111111', pad='24px 40px 24px', size='14px'), divider('#111111'), H('⧉ TALLY &amp; CO', '#111111', 24, BLACK, pad='32px 40px 8px'), bg='#EEF2F6', pad='0px'),
+], foot('#EEF2F6', '#333333', 'Tally &amp; Co · 12 Example Street, Your City', 'Update your preferences in the <a href="https://example.com" style="color:#FF4A2A">subscriber portal</a>, or <a href="https://example.com" style="color:#FF4A2A">unsubscribe</a>.'), '#FFFFFF', ['column', 'founder', 'letter'])
+
+def honoree(name, body, link, photo, left, bg):
+ txt = [H(name, '#111111', 30, SERIF, 'left', '24px 24px 8px'), T(body, '#333333', 12, HELV, 'left', '4px 24px'), T(f'<strong><u>{link}</u></strong>', '#111111', 12, HELV, 'left', '12px 24px 24px')]
+ pic = [P(photo, 'square', '20px 20px')]
+ return weighted([txt, pic] if left else [pic, txt], [1, 1], bg, '8px 0px')
+studio('the-curious-list', 'The Curious List', 'Newsletters', 'An honours-list announcement: a colourful mosaic header, an intro and button, then honoree profiles with photos on alternating sides.',
+ 'Introducing the 2026 Curious List', 'One hundred people using curiosity to fix real problems. Meet a few.', [
+ row(H('◐ Fieldwork<br>Institute', '#FFFFFF', 14, HELV, 'left', '20px 32px 8px'), H('Introducing the<br>2026 Curious List', '#111111', 36, SERIF, 'left', '8px 32px 20px'), bg='#4A9AC8', pad='0px'),
+ row(ill('mosaic', 'A mosaic of coloured squares with flower and starburst shapes'), ill('big-year-digits', 'The year 2026 in big digits on coloured squares'), bg='#FFFFFF', pad='0px'),
+ row(T('Introducing the 2026 Curious List: a hundred designers, scientists, teachers and makers using curiosity to take on hard problems.', '#333333', 13, HELV, 'left', '24px 32px 8px'), T('<a href="https://example.com" style="display:inline-block;border:1px solid #111111;padding:10px 18px;color:#111111;text-decoration:none">See the list</a>', '#111111', 13, HELV, 'left', '8px 32px 28px'), bg='#FFFFFF', pad='0px'),
+ row(H('Meet the honourees', '#111111', 28, SERIF, 'left', '28px 32px 8px'), T('This year’s list covers a wide range of people. Meet a few below, or ' + lk('see the full list', '#111111') + '.', '#333333', 13, HELV, 'left', '4px 32px 24px'), bg='#DCEFEF', pad='0px'),
+ honoree('Amara Diallo', 'A marine biologist who trains local divers to map coral reefs, so the people who live beside them can track their recovery.', 'Dive deeper', 'face1', True, '#FFFFFF'),
+ honoree('Leon Varga', 'A sculptor who works with salvaged steel from closed factories, turning old machinery into public seating.', 'Learn more', 'face2', False, '#FFFBEE'),
+ honoree('Ruth Okafor', 'A product designer who spent twenty years making hearing aids smaller, cheaper and easier to fit.', 'Read more', 'face4', True, '#FFFFFF'),
+ row(H('Go beyond the list', '#111111', 18, HELV, 'left', '28px 32px 12px'), ill('mosaic', 'A mosaic of coloured squares', pad='0px 32px'), T('Follow more Curious List stories on our social channels.', '#333333', 12, HELV, 'left', '12px 32px 4px'), T('<strong><u>Let’s go</u></strong>', '#111111', 12, HELV, 'left', '8px 32px 28px'), bg='#FFFBEE', pad='16px 0px'),
+], row(T('<span style="color:#E8473C;font-size:30px">♥</span> &nbsp; © 2026 Fieldwork Institute', '#FFFFFF', 12, HELV, 'left', '24px 32px 8px'), T('Fieldwork Institute · 12 Example Street, Your City · ' + lk('Unsubscribe', '#BBBBBB') + '<br><a href="https://xem.email" style="color:#BBBBBB">Built with Xem</a>', '#BBBBBB', 12, HELV, 'left', '4px 32px 24px'), bg='#1F1F1A', pad='0px'),
+ '#F2F2F2', ['announcement', 'profiles', 'list'])
+
+studio('subject-lines', 'Subject Lines', 'Product', 'A sales-tips digest on warm grey: a compose-window illustration, a guide offer, two side-by-side stories and a discount panel.',
+ '50 sales subject lines that get opened', 'Copy them, plus the patterns behind them.', [
+ row(T('<a href="https://example.com" style="color:#FFFFFF">Save your seat</a> at Northstar Live on 30 September →', '#FFFFFF', 12, HELV, pad='10px 24px'), bg='#2E4A2E', pad='0px'),
+ row(H('✲ Northstar', '#1A1A1A', 22, HELV, pad='28px 40px 8px'), H('50 sales subject lines that actually get opened', '#1A1A1A', 26, HELV, pad='8px 48px 16px'), ill('compose-window', 'A new-message window with a subject line typed in', pad='0px 24px'),
+  T('Most people decide whether to open an email from the subject line alone. Take our 50 best, plus the patterns behind them, and get more replies and meetings.', '#444444', 13, HELV, pad='16px 48px 8px'), button('Get the subject lines', '#1F1F1F'), divider('#E2E0D6'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('stat-97', 'A gradient card', '100%', '20px 8px 20px 40px')], [H('How Quillpost reached 99% of its badge scans', '#1A1A1A', 20, HELV, 'left', '28px 40px 8px 12px'), T('Quillpost turns event badge scans into clean contact records in about three seconds, so reps can follow up while the conversation is still warm.', '#444444', 13, HELV, 'left', '4px 40px 8px 12px'), button('Read their story', '#1F1F1F', align='left')]], [2, 3], '#FFFFFF', '0px'),
+ row(divider('#E2E0D6'), bg='#FFFFFF', pad='0px'),
+ weighted([[H('Two assistants, head to head', '#1A1A1A', 20, HELV, 'left', '28px 12px 8px 40px'), T('Our team gave two AI assistants the same research, enrichment and follow-up tasks. See which came out on top.', '#444444', 13, HELV, 'left', '4px 12px 8px 40px'), button('Watch now', '#1F1F1F', align='left')], [ill('stat-6', 'A gradient card', '100%', '20px 40px 20px 8px')]], [3, 2], '#FFFFFF', '0px'),
+ row(T('<span style="display:block;background:#E9E7DC;border-radius:12px;padding:28px 24px"><span style="font-size:24px">Limited time: 50% off our CRM add-on</span><br><br>Find people in Northstar, close the deal in the CRM. Your data flows straight across, so you see every deal in one place.<br><br><s style="color:#888888">$20</s> <strong style="font-size:18px">$10</strong> per seat a month*</span>', '#1A1A1A', 13, HELV, pad='24px 32px 8px'), button('Claim your discount', '#1F1F1F'), T('*For eligible customers on a new add-on subscription. Terms apply.', '#777777', 10, HELV, pad='4px 40px 28px'), bg='#FFFFFF', pad='0px'),
+], foot('#ECEBDF', '#555555', '<a href="https://example.com" style="color:inherit">Manage preferences</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>', 'Northstar · 12 Example Street, Your City'), '#ECEBDF', ['tips', 'sales', 'digest'])
+
+y15, g15 = '#FFE14A', '#0E4A2A'
+def big_number(icon, alt, number, label, body, bg, ink):
+ return row(ill(icon, alt, '64px', '28px 40px 4px'), H(number, ink, 42, HELV, pad='4px 40px 4px'), T('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -', ink, 12, HELV, pad='0px 40px'), T(f'<strong style="font-size:10px">{label}</strong>', ink, 10, HELV, pad='4px 40px'), T(body, ink, 15, HELV, pad='4px 48px 28px'), bg=bg, pad='0px')
+def side_stat(icon, alt, value, label, title, body):
+ return weighted([[ill(icon, alt, '56px', '20px 8px 0px 40px'), H(value, '#111111', 32, HELV, pad='4px 8px 20px 40px')], [T(f'<strong style="font-size:10px">{label}</strong>', '#111111', 10, HELV, 'left', '28px 40px 4px 8px'), H(title, '#111111', 20, HELV, 'left', '4px 40px 4px 8px'), T(body, '#333333', 13, HELV, 'left', '4px 40px 20px 8px')]], [1, 1], '#FFFFFF', '0px')
+studio('year-in-numbers', 'Year in Numbers', 'Retention', 'A year-in-review email built from big numbers: an illustrated banner, bold full-width stats in colour blocks, then side-by-side stats.',
+ 'Your 2026 in numbers', 'What our customers did this year, and where to see your own stats.', [
+ weighted([[H('◕ Sparrowmail', '#111111', 18, BLACK, 'left', '20px 8px 20px 32px')], [T('<strong>Log in</strong>', '#111111', 13, HELV, 'right', '22px 32px 20px 8px')]], [1, 1], y15, '0px'),
+ row(ill('year-banner', 'A calendar reading 2026 in numbers, with a chart arrow and a badge saying a big year'), bg=g15, pad='0px'),
+ row(T('Our customers spent 2026 growing their audiences and their businesses. Here are the highlights, and your own dashboard is ready when you are.', '#333333', 15, HELV, pad='28px 48px 8px'), pill('See your dashboard', y15, '#111111', outline='#111111', pad='8px 40px 28px', size='13px', inner='8px 20px'), bg='#FFFFFF', pad='0px'),
+ big_number('yr-mail', 'An envelope', '1,204,881,930', 'TOTAL EMAILS SENT', 'Our customers reached readers in <strong>190 countries</strong> this year.', y15, '#111111'),
+ big_number('yr-chat', 'A chat bubble', '48,302,115', 'TOTAL TEXT MESSAGES SENT', 'More customers went international with text messages.', g15, '#FFFFFF'),
+ side_stat('yr-cart', 'A shopping cart', '$8,420', 'AVERAGE REVENUE', 'Sales went up', 'On average, each customer earned $8,420 from email this year.'),
+ side_stat('yr-dots', 'Small circles', '210M', 'AUDIENCE GROWTH', 'Lists got bigger', 'Customers added 210 million new contacts between them.'),
+ side_stat('yr-pie', 'A chart', '96,330', 'TESTS RUN', 'Testing took off', 'Customers ran 96,330 A/B tests on subject lines and content.'),
+ side_stat('yr-calendar', 'A calendar', 'November', 'BUSIEST MONTH', 'November was busiest', 'More emails went out in November than in any other month.'),
+ row(H('Don’t miss the big picture', '#FFFFFF', 22, HELV, pad='36px 40px 8px'), T('The full report, and the features behind it, can help you plan the year ahead.', '#FFFFFF', 13, HELV, pad='4px 56px'), pill('Explore your dashboard', g15, '#FFFFFF', outline='#FFFFFF', pad='16px 40px 36px', size='13px', inner='8px 20px'), bg=g15, pad='0px'),
+], foot('#FFFFFF', '#555555', 'These figures are illustrative samples. Replace them with your own before sending.', 'Sparrowmail · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F2F2F2', ['year in review', 'statistics', 'colour blocks'])
+
+slate16 = '#2F3E3A'
+studio('please-confirm', 'Please Confirm', 'Transactional', 'A double opt-in email: a small bell, a big headline, a solid button, a friendly illustration, then the same action as an outlined button.',
+ 'Please confirm your email address', 'One click and you’ll start getting our fortnightly insights.', [
+ weighted([[T('Please confirm your email address.', '#555555', 11, HELV, 'left', '16px 8px 16px 32px')], [T('Not displaying properly? ' + lk('View it in your browser', '#3A6A8A') + '.', '#555555', 11, HELV, 'right', '16px 32px 16px 8px')]], [1, 1], '#F7F7F7', '0px'),
+ row(H('GROUNDWORK<br>NETWORK', '#111111', 20, BLACK, pad='28px 40px 20px'), bg='#FFFFFF', pad='0px'),
+ row(text('', 4, '#111111', pad='2px 0px'), bg=slate16, pad='0px'),
+ row(ill('bell', 'A ringing bell', '64px', '36px 40px 8px'), H('Please confirm<br>your email address', slate16, 38, HELV, pad='8px 40px 16px'),
+  T('<a href="https://example.com" style="display:block;background:#2F3E3A;color:#FFFFFF;padding:16px;border-radius:999px;text-decoration:none;letter-spacing:2px;font-weight:bold;font-size:13px">CONFIRM MY EMAIL ADDRESS</a>', '#FFFFFF', 13, HELV, pad='8px 80px 16px'),
+  ill('envelope-rest', 'A person resting their arms on a large envelope, looking puzzled', '320px', '8px 40px'),
+  T('You’re one step away from fortnightly industry insights, plus news, research and ideas to help your business grow.<br><br>Please confirm your email address with the button below. Once you’ve opted in, you can choose what you’d like to hear about.', '#1A1A1A', 16, HELV, 'left', '16px 80px 8px'),
+  T('<a href="https://example.com" style="display:block;border:2px solid #2F3E3A;color:#2F3E3A;padding:14px;border-radius:999px;text-decoration:none;letter-spacing:2px;font-weight:bold;font-size:13px">CONFIRM MY EMAIL ADDRESS</a>', '#2F3E3A', 13, HELV, pad='16px 80px 16px'),
+  T('If you got this message by mistake, you can ignore it.<br><br>Need help? <strong>' + lk('Contact us', '#C48A4E') + '</strong>.', '#1A1A1A', 14, HELV, 'left', '8px 80px 32px'), bg='#FFFFFF', pad='0px'),
+], row(T('This email was sent from an address that doesn’t accept replies. To stop marketing emails, ' + lk('unsubscribe here', '#1A1A1A') + '.<br><br>Groundwork Network · 12 Example Street, Your City<br><a href="https://xem.email" style="color:#1A1A1A">Built with Xem</a>', '#1A1A1A', 11, HELV, 'left', '24px 40px'),
+  T('<span style="display:block;background:#2F3E3A;padding:14px 20px"><strong>' + lk('LOG IN', '#FFFFFF') + ' &nbsp;|&nbsp; ' + lk('PREFERENCES', '#FFFFFF') + ' &nbsp;|&nbsp; ' + lk('CONTACT US', '#FFFFFF') + '</strong></span>', '#FFFFFF', 12, HELV, 'left', '8px 0px 0px'), bg='#E6E8E7', pad='0px'),
+ '#F7F7F7', ['double opt-in', 'verification', 'illustrated'], marketing=False)
+
+def bordered(colour, title, body):
+ return row(T(f'<span style="display:block;border:1px solid #CCCCCC;border-left:12px solid {colour};border-radius:10px;padding:24px 28px"><strong style="font-size:20px">{title}</strong><br>{body}<br><br><strong style="color:#0D47D9">' + lk('Learn more →', '#0D47D9') + '</strong></span>', '#111111', 15, HELV, 'left', '8px 40px'), bg='#FFFFFF', pad='0px')
+studio('which-rate', 'Which Rate?', 'Product', 'A plain-English explainer: a topic strip, a big question, a side-by-side comparison illustration, two columns of notes and two accent-bordered cards.',
+ 'Fixed or variable: which is right for you?', 'A quick guide to the two main kinds of loan rate.', [
+ row(H('⌂ Homestead Loans', '#0D47D9', 22, HELV, 'left', '28px 40px'), bg='#FFFFFF', pad='0px'),
+ row(T('🎓 <strong>Loan basics:</strong> Types of interest rate', '#111111', 14, HELV, 'left', '16px 40px'), bg='#EEEEEE', pad='0px'),
+ row(H('Which rate is right for you?', '#111111', 32, HELV, 'left', '28px 40px 8px'), T('When you take out a home loan, you’ll usually choose between a fixed rate and a variable one. Here’s the difference:', '#111111', 16, HELV, 'left', '4px 40px 16px'), ill('rate-compare', 'Two houses: one with a flat line for a fixed rate, one with a zigzag for a variable rate', pad='8px 40px'), bg='#FFFFFF', pad='0px'),
+ weighted([[T('<strong>Fixed rate</strong><br>Steady and predictable<br><br>• Your rate stays the same for the whole term, so your payments do too.', '#111111', 15, HELV, 'left', '16px 8px 16px 40px')], [T('<strong>Variable rate</strong><br>Lower to start<br><br>• Usually cheaper for the first few years, then it follows the market up or down.', '#111111', 15, HELV, 'left', '16px 40px 16px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ row(H('How to choose', '#111111', 22, HELV, 'left', '16px 40px 8px'), bg='#FFFFFF', pad='0px'),
+ bordered('#1E6E5A', 'A long fixed term', 'If you plan to stay put for years and want a steady payment, this is the one.'),
+ bordered('#0D47D9', 'A variable rate', 'If you might move or switch within a few years, the lower starting rate could save you money.'),
+ row(H('Wondering what you can afford?', '#111111', 22, HELV, 'left', '32px 40px 8px'), T('Get a quick estimate online and see what you could borrow. It won’t affect your credit score.', '#111111', 15, HELV, 'left', '4px 40px'), T('<strong>' + lk('Get an estimate', '#0D47D9') + ' →</strong>', '#0D47D9', 15, HELV, 'left', '12px 40px 32px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#555555', 'This is general information, not financial advice. Rates and terms vary.', 'Homestead Loans · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Privacy</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['explainer', 'comparison', 'finance'])
+
+purple17 = '#7A2FC0'
+def ondemand(img, alt, title, body): return row(ill(img, alt, pad='8px 0px'), H(title, '#0E1A2A', 19, HELV, 'left', '12px 0px 4px'), T(body, '#333333', 13, HELV, 'left', '4px 0px 8px'), pill('Watch on demand', purple17, align='left', pad='8px 0px 28px', size='13px', inner='10px 18px'), bg='#FFFFFF', pad='0px 40px')
+studio('on-demand', 'On Demand', 'Events', 'A round-up of on-demand webinars: a purple pixel header, a short note, then four webinar cards each with a big graphic and a button.',
+ 'Our most-watched webinars of the year', 'All on demand. Pick one for the quiet week.', [
+ weighted([[H('■ Relay', '#FFFFFF', 16, BLACK, 'left', '24px 8px 4px 32px'), H('Level up your support in 2027', '#FFFFFF', 26, HELV, 'left', '8px 8px 24px 32px')], [ill('pixel-portrait', 'A pixel pattern', '100%', '16px 32px 16px 8px')]], [3, 1], '#6A2FB0', '0px'),
+ row(T('Hey {{first_name}},<br><br>As the year winds down, here’s the easy option: our most-watched and most-saved webinars of the year, all on demand. Put one on with a hot drink and your end-of-year numbers. Future you will be grateful.', '#1A1A1A', 14, HELV, 'left', '24px 40px 8px'), H('Top picks, in case you missed them:', '#0E1A2A', 18, HELV, 'left', '8px 40px'), bg='#FFFFFF', pad='0px'),
+ ondemand('webinar-tile-1', 'A webinar card reading Quick fixes are cheap. Lost customers aren’t.', 'Meet Autopilot: automation you stay in charge of', 'How to automate safely, keep your best customers happy and answer faster.'),
+ ondemand('webinar-tile-2', 'A webinar card reading Steady Hands', 'Steady Hands: automation with a person in charge', 'A first look at our quality-first approach and the new tools that help teams move faster.'),
+ ondemand('webinar-tile-3', 'A webinar card reading The state of customer expectations', 'The state of customer expectations', 'What customers want now, how they feel about automated help, and what to do about it.'),
+ row(T('Start the new year with ideas you can use straight away.<br><br>See you in January,<br>The Relay team', '#1A1A1A', 14, HELV, 'left', '8px 40px 28px'), divider('#E2E2E2'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#777777', 'Relay · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a> · <a href="https://example.com" style="color:inherit">Manage preferences</a>'), '#F2F2F2', ['webinars', 'on demand', 'round-up'])
+
+sky18 = '#3AA6F0'
+studio('creator-welcome', 'Creator Welcome', 'Welcome', 'A newsletter welcome: a bold illustrated banner, what to expect, a free guide in a grey card, a photo signature and a list of next steps.',
+ 'Welcome to the newsletter', 'What to expect, and a free guide to get you started.', [
+ row(H('Kiln', sky18, 40, BLACK, pad='32px 40px 16px'), ill('welcome-banner', 'Bold black text reading Welcome to our creator newsletter, with a paper plane and a target', pad='0px 24px'), bg='#FFFFFF', pad='0px'),
+ row(T('Hey there,<br><br>Welcome to a community of people who make things for a living, and who know the quiet hours, the doubts, and the push to make something that matters <em>and</em> reaches people.', '#1A1A1A', 14, HELV, 'left', '20px 24px 8px'), H('Here’s what you can expect:', '#1A1A1A', 19, HELV, 'left', '8px 24px'),
+  T(ul(['A newsletter every Tuesday with practical advice on reaching more people and selling without feeling salesy', 'A monthly note on new features that save you time']), '#1A1A1A', 14, HELV, 'left', '4px 40px 16px'), bg='#FFFFFF', pad='0px'),
+ row(T('<span style="background:#1A1A1A;color:#FFFFFF;padding:8px 14px;border-radius:6px;font-weight:bold">Free download</span>', '#FFFFFF', 13, HELV, 'left', '28px 32px 12px'), ill('guide-card', 'A green card reading Launch your newsletter in 7 days, next to an app screenshot', pad='8px 32px'),
+  T('We made this guide because so many creators get stuck planning. Inside are the steps that have helped thousands launch newsletters people actually read.', '#1A1A1A', 13, HELV, 'left', '8px 32px'), pill('Download your free guide', sky18, '#0E2A3A', align='left', pad='12px 32px 28px', size='14px', inner='10px 18px'), bg='#EEEBE5', pad='0px 24px'),
+ row(T('See you on Tuesday,', '#1A1A1A', 14, HELV, 'left', '20px 24px 8px'), bg='#FFFFFF', pad='0px'),
+ weighted([[P('face3', 'square', '8px 8px 20px 24px')], [T('<strong>Nell</strong><br><br>Marketing at Kiln', '#1A1A1A', 14, HELV, 'left', '40px 24px 20px 8px')]], [1, 2], '#FFFFFF', '0px'),
+ row(divider('#E2E2E2'), T('P.S. Can’t wait for the next one?<br><br>' + ul(['<strong>' + lk('See how Kiln works in 8 minutes', '#1A1A1A') + '</strong>: a quick video tour.', '<strong>' + lk('Hear how other creators run their business', '#1A1A1A') + '</strong>: our weekly interview show.', '<strong>' + lk('Start a 14-day free trial', '#1A1A1A') + '</strong>: reach your audience directly.']), '#1A1A1A', 13, HELV, 'left', '8px 24px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#1A1A1A', '<strong>' + lk('Unsubscribe', '#1A1A1A') + ' | ' + lk('Update your profile', '#1A1A1A') + '</strong> | Kiln · 12 Example Street, Your City'), '#EEEBE5', ['welcome', 'creator', 'guide'])
+
+# --- Batch five ---
+peri, mint19 = '#7B7FE8', '#8FE0CC'
+def product_row(img, alt, name, sub, body, was, now, left):
+ pic = [ill(img, alt, '100%', '12px 8px 12px 24px' if left else '12px 24px 12px 8px')]
+ txt = [H(name, '#1A1A1A', 20, HELV, 'left', '36px 24px 0px 12px'), T(sub, '#1A1A1A', 14, HELV, 'left', '0px 24px 12px 12px'), T(body, '#1A1A1A', 14, HELV, 'left', '4px 24px 8px 12px'),
+        T(f'<a href="https://example.com" style="display:block;background:#8FE0CC;border:1px solid #1A6A5A;border-radius:999px;padding:10px;text-align:center;color:#1A1A1A;text-decoration:none">SHOP NOW <s>{was}</s> {now}</a>', '#1A1A1A', 13, HELV, pad='8px 24px 24px 12px')]
+ return weighted([pic, txt] if left else [txt, pic], [1, 1], '#FFFFFF', '0px')
+studio('best-sale', 'Best Sale of the Year', 'Commerce', 'A big seasonal sale: a top announcement bar, a bold hero with a product shot, then products alternating left and right with price buttons.',
+ 'Our biggest sale of the year starts now', 'Up to 50% off everything. The discount is applied at checkout.', [
+ row(T('♥ <strong>BIGGEST SALE OF THE YEAR:</strong> up to 50% off, applied at checkout ♥', '#1A1A1A', 11, HELV, pad='8px 24px'), bg=mint19, pad='0px'),
+ row(H('FIZZ', '#1A1A1A', 30, BLACK, pad='16px 24px'), bg='#FFFFFF', pad='0px'),
+ row(H('Our Best Sale<br>of the Year', '#FFFFFF', 50, HELV, pad='36px 24px 8px'), T('Up to <strong>50% off everything</strong>, applied automatically at checkout.*', '#FFFFFF', 17, HELV, pad='4px 48px'), pill('SHOP THE SALE', mint19, '#1A1A1A', outline='#1A6A5A', pad='16px 40px 8px', size='13px'),
+  ill('sale-hero', 'A blue skincare bottle among mirrored balls'), H('We know it’s Monday.<br>We don’t care.', '#FFFFFF', 28, HELV, pad='28px 24px 8px'), T('<strong>THE SALE</strong> starts now. Up to <strong>50% off</strong> bestsellers and gift sets, applied at checkout.', '#FFFFFF', 15, HELV, pad='4px 48px 32px'), bg=peri, pad='0px'),
+ row(H('Big results. Bigger savings.', '#1A1A1A', 26, HELV, pad='32px 24px 16px'), bg='#FFFFFF', pad='0px'),
+ product_row('product-1', 'A cleansing oil bottle', 'FIRST STEP', 'Cleansing oil', 'A gentle oil that lifts make-up and sunscreen.', '$17', '$8.50', True),
+ product_row('product-2', 'An orange exfoliating mask', 'DEEP CLEAN', 'Weekly mask', 'A weekly mask that smooths rough patches.', '$18', '$9', False),
+ product_row('product-3', 'A yellow tube of sunscreen', 'PLUS ONE', 'Tinted sunscreen', 'A light mineral SPF with a soft, flattering tint.', '$19', '$9.50', True),
+ row(T('♥ <u>CATCH YOU FRIDAY</u> ♥', '#1A1A1A', 13, HELV, pad='16px 24px'), bg=mint19, pad='8px 0px'),
+ weighted([[T('<strong>FREE SHIPPING</strong><br>On orders over $39', '#1A1A1A', 10, HELV, pad='20px 4px')], [T('<strong>TEXT US</strong><br>Any time', '#1A1A1A', 10, HELV, pad='20px 4px')], [T('<strong>JOIN THE CLUB</strong><br>Perks and early drops', '#1A1A1A', 10, HELV, pad='20px 4px')]], [1, 1, 1], '#FFFFFF', '0px'),
+], foot('#F2F2F2', '#555555', 'hello@example.com · Fizz · 12 Example Street, Your City', '*Discount applies to selected products while stocks last.', '<a href="https://example.com" style="color:inherit">UNSUBSCRIBE</a>'), '#FFFFFF', ['sale', 'products', 'promotion'])
+
+green20 = '#13715A'
+studio('a-note-from-us', 'A Note From Us', 'Commerce', 'A seasonal letter from the founder in one colour block, with linked favourites, a white button, a perks row and a category menu.',
+ 'A note from our founder, and 25% off', 'Our biggest sale of the year, and a few of my favourite things.', [
+ row(ill('snow-strip', 'Snowflakes'), H('<span style="background:#FFFFFF;color:#13715A;padding:6px 14px;letter-spacing:4px">WAYFARE</span>', '#13715A', 20, HELV, pad='0px 40px 16px'),
+  T('Hi there,<br><br>This time of year always reminds me why we started: to make travelling a little easier, a little calmer, and a lot more enjoyable.<br><br>Whether you’re heading home, going somewhere new or just getting through the airport, thank you for bringing us along. Your stories and photos keep us going.<br><br>Our biggest sale of the year is on. <strong>Take 25% off everything, plus an extra 10% when you spend $750 or more.*</strong> A few of my favourites:<br><br>' + ul(['<strong>' + lk('The Metal Carry-On', '#FFFFFF') + '</strong>: makes even a short work trip feel nicer', '<strong>' + lk('The Kids’ Set', '#FFFFFF') + '</strong>: my two love pulling their own cases', '<strong>' + lk('The Weekender', '#FFFFFF') + '</strong>: the lightest bag we make']) + '<br><br>Here’s to easy journeys and full suitcases.<br><br>Warmly,<br>Maya Lund<br>Founder, Wayfare', '#FFFFFF', 16, HELV, 'left', '16px 48px'),
+  T('<a href="https://example.com" style="display:inline-block;background:#FFFFFF;color:#13715A;padding:18px 70px;text-decoration:none;font-weight:bold">SHOP NOW</a>', '#13715A', 16, HELV, 'left', '16px 48px 40px'), bg=green20, pad='0px'),
+ weighted([[ill('perk-truck', 'A delivery truck', '60px', '24px 4px 0px'), T('<strong>FREE SHIPPING<br>OVER $100**</strong>', '#1A1A1A', 12, HELV, pad='4px 4px 20px')], [ill('perk-case', 'A suitcase', '60px', '24px 4px 0px'), T('<strong>MADE TO<br>LAST</strong>', '#1A1A1A', 12, HELV, pad='4px 4px 20px')], [ill('perk-pin', 'A map pin', '60px', '24px 4px 0px'), T('<strong>FIND A<br>SHOP</strong>', '#1A1A1A', 12, HELV, pad='4px 4px 20px')]], [1, 1, 1], '#FFFFFF', '0px'),
+ row(divider('#DDDDDD'), H('NEW IN', '#1A1A1A', 18, HELV, 'left', '8px 48px'), divider('#DDDDDD'), H('LUGGAGE', '#1A1A1A', 18, HELV, 'left', '8px 48px'), divider('#DDDDDD'), H('BAGS', '#1A1A1A', 18, HELV, 'left', '8px 48px'), divider('#DDDDDD'), H('<span style="color:#E8401A">SALE</span>', '#E8401A', 18, HELV, 'left', '8px 48px'), divider('#DDDDDD'),
+  H('Questions?', '#1A1A1A', 18, HELV, 'left', '24px 48px 4px'), T('Read our <strong>' + lk('FAQs', '#1A1A1A') + '</strong> or send us a note <strong>' + lk('here', '#1A1A1A') + '</strong>.', '#1A1A1A', 14, HELV, 'left', '4px 48px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#999999', '*Offer valid while stocks last. **Free standard shipping on eligible orders over $100.', 'WAYFARE · 12 EXAMPLE STREET, YOUR CITY', '<a href="https://example.com" style="color:inherit">PRIVACY</a> · <a href="https://example.com" style="color:inherit">UNSUBSCRIBE</a>'), '#FFFFFF', ['founder letter', 'sale', 'holiday'])
+
+studio('new-episode', 'New Episode', 'Newsletters', 'A podcast episode announcement: a bright cover illustration, a centred title and summary, listen buttons and a pull-quote banner.',
+ 'New episode: how to negotiate when you’re let go', 'What to ask for, and how to ask for it.', [
+ weighted([[T('', '#555555', 1, HELV, pad='0px')], [T(lk('Get the app', '#555555'), '#555555', 13, HELV, 'right', '12px 40px')]], [1, 1], '#EEEEEE', '0px'),
+ row(H('’DOORWAY’', '#111111', 34, BLACK, pad='28px 40px 8px'), ill('podcast-cover', 'A green podcast cover reading The Quiet Desk, with a New episode tag and sound waves'), bg='#B784FF', pad='0px'),
+ row(H('Negotiating your exit after a layoff', '#111111', 32, HELV, pad='32px 48px 8px'), T('Being let go can leave you stunned and lost for words. So how do you go from shocked employee to calm negotiator? This week: what to ask for, what you’re entitled to, and how to say it.', '#222222', 16, HELV, pad='4px 56px 16px'),
+  T('<strong>LISTEN NOW</strong>', '#111111', 15, HELV, pad='12px 40px 8px'), T('<a href="https://example.com" style="display:inline-block;background:#111111;color:#FFFFFF;padding:12px 22px;border-radius:8px;text-decoration:none">▶ Listen on your podcast app</a>&nbsp;&nbsp;<a href="https://example.com" style="display:inline-block;background:#111111;color:#FFFFFF;padding:12px 22px;border-radius:8px;text-decoration:none">● Listen in the browser</a>', '#FFFFFF', 13, HELV, pad='8px 24px 32px'),
+  ill('quote-banner', 'An orange banner with a coffee mug and the quote: losing a job says nothing about how good you were at it', pad='0px 40px 32px'), divider('#111111'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#333333', 'Doorway · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Privacy</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a> · <a href="https://example.com" style="color:inherit">View in browser</a>'), '#EEEEEE', ['podcast', 'episode', 'announcement'])
+
+grape, sage21, coral21 = '#4A1A7A', '#A8D8AC', '#F0907E'
+studio('cosy-season', 'Cosy Season', 'Commerce', 'A playful seasonal recipe email: giant purple type on green, three recipe links and a button, then a coral block with a pony mascot.',
+ 'It’s cosy season. Three recipes to prove it', 'Blondies, energy bites and sticky apples, all with our nut butter.', [
+ row(H('<span style="border:3px solid #FFFFFF;border-radius:30px;padding:6px 18px;color:#FFFFFF">TROT</span>', '#FFFFFF', 26, BLACK, pad='32px 40px 16px'), H('It’s<br>C🍂SY<br>season!', grape, 70, BLACK, pad='8px 40px 16px'),
+  T('It’s finally here. Big jumpers, falling leaves and nut butter in… everything. So we’ve picked three easy autumn recipes to get you in the mood.<br><br>And soon it’ll be maple season. You know what that means.', grape, 17, HELV, 'left', '8px 56px'),
+  H(f'<u>{lk("Gooey Blondies", grape)}</u>', grape, 24, HELV, 'left', '16px 56px 0px'), T('Soft, chewy, and just underbaked enough.', grape, 16, HELV, 'left', '0px 56px'),
+  H(f'<u>{lk("Pumpkin Energy Bites", grape)}</u>', grape, 24, HELV, 'left', '16px 56px 0px'), T('A no-bake snack that tastes like pie.', grape, 16, HELV, 'left', '0px 56px'),
+  H(f'<u>{lk("Sticky Date Apples", grape)}</u>', grape, 24, HELV, 'left', '16px 56px 0px'), T('Naturally sweet and gloriously messy.', grape, 16, HELV, 'left', '0px 56px'),
+  T('<a href="https://example.com" style="display:inline-block;background:#4A1A7A;color:#FFFFFF;padding:16px 36px;text-decoration:none;font-weight:bold;letter-spacing:1px">GET COOKING!</a>', '#FFFFFF', 15, HELV, pad='24px 40px 32px'), bg=sage21, pad='0px'),
+ row(ill('pony', 'A cheerful white pony leaping', '260px', '32px 40px 8px'), ill('rope', 'A white rope border', pad='24px 0px'), bg=coral21, pad='0px'),
+], foot(coral21, '#5A2A3A', 'No longer want these emails? <strong>' + lk('Unsubscribe', grape) + '</strong>.', 'Trot · 12 Example Street, Your City'), '#8ED2DE', ['seasonal', 'recipes', 'playful'])
+
+red22 = '#E8201A'
+def book_item(n, img, alt, title, body):
+ return row(T(f'ITEM #{n}', '#111111', 10, HELV, pad='16px 24px 8px'), ill(img, alt, pad='0px 24px'), divider(red22), H(title, '#111111', 40, SERIF, pad='16px 24px'), divider(red22),
+  T(body, '#111111', 12, HELV, pad='12px 48px'), T('<a href="https://example.com" style="display:block;border:3px solid #E8201A;border-radius:999px;padding:12px;color:#111111;text-decoration:none;font-family:georgia;font-size:30px">Shop Now</a>', '#111111', 30, SERIF, pad='12px 24px 24px'), bg='#FFFFFF', pad='0px')
+studio('new-books', 'New Books In', 'Commerce', 'A bookshop new-arrivals email: a giant masthead, then each book as a black image, a big serif title between red rules, and a round Shop Now button.',
+ 'New in: three design books worth the shelf space', 'A design manifesto, a comics issue and an art fair catalogue.', [
+ row(T('INKWELL BOOKS', '#111111', 10, HELV, pad='16px 24px 0px'), H('Shelf', '#111111', 110, HELV, pad='0px 24px 8px'), divider(red22), bg='#FFFFFF', pad='0px'),
+ book_item(1, 'book-1', 'A grey book cover with pink squares', 'Statement and Counter-Statement', 'Ten years after their first book, a design studio returns with a second manifesto, tied to an exhibition of their work.'),
+ book_item(2, 'book-2', 'A green book cover', 'Line Work: a comics issue', 'An annual review of graphic design devotes a whole issue to comics, with interviews with six artists.'),
+ book_item(3, 'book-3', 'A yellow book cover reading Print Fair Now', 'Print Fair, Now', 'Organisers of independent print fairs around the world share how they run them and what they’re up against.'),
+], foot('#FFFFFF', '#555555', 'FOLLOW <u>@INKWELLBOOKS</u>', 'Inkwell Books · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['books', 'new arrivals', 'shop'])
+
+blue23 = '#4048F0'
+studio('agency-welcome', 'Agency Welcome', 'Welcome', 'A creative agency’s welcome email in stacked colour blocks: a team photo with stickers, what they do, recent work and a dark contact block.',
+ 'Welcome. We knew you were a good one', 'What to expect from us, and what we’ve been working on.', [
+ row(divider('#111111'), H('HARBOUR &amp; CO', '#111111', 30, BLACK, 'left', '8px 32px'), T('WELCOME NEWSLETTER', '#111111', 10, MONO, 'right', '0px 32px 8px'), divider('#111111'), H('We knew you were a good one', '#111111', 22, HELV, 'left', '8px 32px 8px'), P('team', 'wide', '0px 32px'),
+  T('You chose well and subscribed to everything Harbour &amp; Co (and more).<br><br>You’ll get the odd newsletter with recent projects, news and a bit of perspective from our team. For quicker updates, follow us on ' + lk('social media', '#2A5AD8') + '.<br><br>And if you’re ever thinking of us, drop us a line: ' + lk('hello@example.com', '#2A5AD8'), '#1A1A1A', 15, HELV, 'left', '16px 32px 24px'), bg='#FFF4E6', pad='0px'),
+ row(H('Did you know we do that?', '#111111', 24, HELV, 'left', '28px 32px 16px'), T('<span style="display:block;background:#4048F0;color:#FFFFFF;padding:90px 0;font-size:24px">H&amp;</span>', '#FFFFFF', 24, HELV, pad='0px 32px'),
+  T('We offer branding, creative, web development and marketing, from positioning to campaigns to social.', '#1A1A1A', 15, HELV, 'left', '16px 32px 8px'), T('<a href="https://example.com" style="background:#4048F0;color:#FFFFFF;padding:12px 16px;text-decoration:none">See all services →</a>', '#FFFFFF', 13, HELV, 'left', '12px 32px 32px'), bg='#E6E6FA', pad='0px'),
+ row(H('Good work, together.', '#111111', 24, HELV, 'left', '28px 32px 16px'), P('desk', 'wide', '0px 32px'), T('The work is what matters, so here it is. We regularly add new case studies about projects we’ve made with our clients.', '#1A1A1A', 15, HELV, 'left', '16px 32px 8px'), T('<a href="https://example.com" style="background:#4048F0;color:#FFFFFF;padding:12px 16px;text-decoration:none">See the case studies →</a>', '#FFFFFF', 13, HELV, 'left', '12px 32px 32px'), bg='#FFFFFF', pad='0px'),
+ row(H('Let’s get to work.', '#FFFFFF', 24, HELV, 'left', '28px 32px 8px'), T('Big project? Busy launch? Need more customers? That’s our kind of thing.<br><br>Get in touch and we’ll talk soon. And tell a friend: a good referral gets you lunch on us.', '#FFFFFF', 15, HELV, 'left', '4px 32px 8px'), T('<a href="https://example.com" style="background:#4048F0;color:#FFFFFF;padding:12px 16px;text-decoration:none">Get in touch →</a>', '#FFFFFF', 13, HELV, 'left', '12px 32px 16px'), ill('ribbon', 'A lilac ribbon reading Good work deserves a fan', '360px', '8px 0px 24px', 'right'), bg='#202020', pad='0px'),
+ row(H('HARBOUR &amp; CO', '#111111', 34, BLACK, pad='28px 32px 8px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#777777', 'Over it? <a href="https://example.com" style="color:#2A5AD8">Unsubscribe</a>.', 'Harbour &amp; Co · 12 Example Street, Your City'), '#F4F4F4', ['welcome', 'agency', 'colour blocks'])
+
+crimson = '#A31F3A'
+def profile_card(colour, photo, title, body, link):
+ return weighted([[P(photo, 'square', '12px 8px 12px 40px')], [H(title, '#1A1A1A', 20, SERIF, 'left', '16px 40px 8px 8px'), T(body, '#333333', 14, HELV, 'left', '4px 40px 8px 8px'), T(f'<strong>{lk(link + " →", crimson)}</strong>', crimson, 14, HELV, 'left', '4px 40px 16px 8px')]], [1, 1], '#FFFFFF', '8px 0px')
+studio('driven', 'Driven to Make a Difference', 'Newsletters', 'A university or nonprofit campaign email: a black-and-white photo with an overlapping white card, three bordered profile cards and a campaign close.',
+ 'Driven to make a difference', 'Stories of alumni, students and donors changing things for the better.', [
+ row(H('▣ Northfield', '#1A1A1A', 22, SERIF, pad='20px 40px 0px'), P('train', 'wide', '16px 0px 0px'), bg='#E0DED6', pad='0px'),
+ row(T('<span style="display:block;background:#FFFFFF;padding:28px 24px"><span style="font-family:georgia;font-size:28px">Driven to make a difference</span><br><br>In the 1970s, a group of Northfield graduates took a free health clinic on the road in a converted bus, reaching villages hours from the nearest doctor.<br><br><strong style="color:#A31F3A">Read more →</strong></span>', '#333333', 14, HELV, pad='0px 40px 32px'), bg='#E0DED6', pad='0px'),
+ row(text('', 4, '#1A1A1A', pad='8px 0px'), bg='#FFFFFF', pad='0px'),
+ profile_card('#A31F3A', 'face3', 'The life of a future-ready student', 'From classes to conferences, Lina Park, Class of 2026, is making the most of her time here. Read her story and watch a day in her life.', 'Read Lina’s Q&amp;A'),
+ profile_card('#E8B23A', 'face4', 'A scholarship for teachers’ families', '“I want students to choose the right university, not the cheapest one,” says the scholarship’s founder, a former teacher.', 'Read about the gift'),
+ profile_card('#2E6E3A', 'face1', 'Closing the health gap', 'A public health graduate is working towards a future where where you grow up doesn’t decide how healthy you are.', 'Read her vision'),
+ row(T('<span style="display:block;height:6px;background:linear-gradient(90deg,#A31F3A 25%,#E8B23A 25% 50%,#2E7A8A 50% 75%,#2E6E3A 75%)"></span>', '#1A1A1A', 1, HELV, pad='24px 40px 0px'), H('<span style="color:#A31F3A">Together.</span>', crimson, 40, SERIF, pad='24px 40px 0px'), T('The Northfield Campaign', crimson, 13, HELV, pad='0px 40px 16px'),
+  H('This is what Northfield can do.', '#1A1A1A', 28, SERIF, pad='8px 40px'), T('Our community has a long history of making change. We’re asking alumni, parents and friends to help keep that work going.', '#333333', 14, HELV, pad='4px 56px 16px'),
+  T(f'<strong>{lk("About the campaign →", crimson)} &nbsp;|&nbsp; {lk("Make a gift →", crimson)}</strong>', crimson, 13, HELV, pad='8px 40px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#555555', 'Northfield University · 12 Example Street, Your City', '<a href="https://example.com" style="color:#A31F3A">Manage your preferences or unsubscribe</a>'), '#FFFFFF', ['campaign', 'profiles', 'nonprofit'])
+
+def source_item(source, time, title, body):
+ return [T(f'<span style="background:#E8EBC0;border-radius:999px;padding:3px 10px;font-family:georgia;font-style:italic">{source}</span> &nbsp;<span style="font-size:11px">{time}</span>', '#1A1A1A', 12, HELV, 'left', '16px 32px 4px'), H(title, '#1A1A1A', 20, SERIF, 'left', '8px 32px 4px'), T(body + ' →', '#333333', 13, HELV, 'left', '4px 32px 16px'), divider('#E2E2DC')]
+studio('living-lightly', 'Living Lightly', 'Newsletters', 'A curated reading digest: a featured article card with a tag, then a list of links from other sites, each with a source pill and reading time.',
+ 'The washing setting that’s wearing out your clothes', 'Plus five good reads from around the web.', [
+ weighted([[H('Living Lightly', '#3A3A3A', 22, HELV, 'left', '20px 8px 20px 32px')], [T('<span style="background:#E2D8F2;border-radius:999px;padding:4px 12px">2026-11-04</span>', '#3A3A3A', 12, HELV, 'right', '22px 32px 20px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ row(T('◎ &nbsp;FEATURED ARTICLE', '#3A3A3A', 13, HELV, 'left', '28px 32px 12px'), P('clothes', 'wide', '0px 32px'), T('<span style="background:#E8EBC0;border-radius:999px;padding:3px 10px;font-family:georgia;font-style:italic">Better Home</span> &nbsp;<span style="font-size:11px">QUICK READ</span>', '#1A1A1A', 12, HELV, 'left', '16px 32px 4px'),
+  H('The washing machine setting that’s quietly wearing out your clothes', '#1A1A1A', 20, SERIF, 'left', '8px 32px 4px'), T('You think you’re looking after your clothes, but one common setting could be doing more harm than good.', '#333333', 13, HELV, 'left', '4px 32px 8px'), pill('READ MORE', '#2F3E3A', align='left', pad='8px 32px 28px', size='13px', inner='10px 18px'), bg='#FFFFFF', pad='16px 0px'),
+ row(T('))) &nbsp;MORE FROM THE WEB', '#3A3A3A', 13, HELV, 'left', '28px 32px 4px'), divider('#3A3A3A'),
+  *source_item('Old House Journal', 'MEDIUM READ', '6 old-fashioned design details worth bringing back', 'Classic features with plenty of life left in them'),
+  *source_item('Garden Weekly', 'MEDIUM READ', 'The right way to mow for a healthier lawn', 'Small changes that make a big difference'),
+  *source_item('Fix It Monthly', 'QUICK READ', 'Why you shouldn’t use gloss paint on walls', 'Experts say it shows every bump and patch'),
+  *source_item('The Food Desk', 'MEDIUM READ', 'What everyone gets wrong about gluten', 'An expert explains the science and the myths'),
+  T('<em>We sometimes share products we like and may earn a commission on sales.</em>', '#555555', 11, SERIF, 'left', '16px 32px 24px'), bg='#FFFFFF', pad='16px 0px'),
+ row(H('◎', '#3A3A3A', 30, HELV, pad='32px 40px 0px'), H('Live life a little lighter.', '#1A1A1A', 24, SERIF, pad='8px 40px'), T('Was this email forwarded to you?', '#1A1A1A', 14, HELV, pad='4px 40px'), pill('SUBSCRIBE TO LIVING LIGHTLY', '#D8CCF0', '#3A3A6A', pad='12px 40px 24px', size='13px'), bg='#F7F7F4', pad='0px'),
+], foot('#F7F7F4', '#777777', 'Living Lightly · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Fewer emails</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F2F2EE', ['digest', 'reading', 'curated'])
+
+navy24, plum24 = '#243042', '#8A2A4A'
+studio('kind-words', 'Kind Words', 'Retention', 'A gentle nonprofit email: an illustrated header with a big serif line, a button, three illustrated vases, a yellow strip, a quote with flowers and an app banner.',
+ 'The difference a kind message can make', 'A few words can mean a lot to someone going through a hard time.', [
+ row(H('<span style="color:#8A2A4A">♥</span> CARING CIRCLE', plum24, 22, HELV, 'left', '20px 40px 8px'), bg='#FFFFFF', pad='0px'),
+ weighted([[H('The difference a kind message can make', navy24, 38, SERIF, pad='48px 8px 16px 40px')], [ill('care-person', 'A woman holding a heart, with small hearts around her', '100%', '16px 40px 0px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ row(T('When someone you love is unwell, it’s hard to know how to help. One simple way is to leave them a message on their Caring Circle page. Short notes like <strong>“Thinking of you”</strong> or <strong>“You’re not on your own”</strong> can mean more than you’d expect.', '#1A1A1A', 16, HELV, 'left', '16px 40px 8px'), button('Leave a message', navy24),
+  ill('vases', 'Three vases of heart-shaped flowers in blue, plum and yellow', pad='40px 24px 8px'), H('Still not sure what to say?', navy24, 28, HELV, pad='16px 40px 8px'),
+  T('When someone is ill, they often feel cut off. <strong>Messages from friends and family are one of the things people say helps most.</strong> Here are some ideas to help you feel confident reaching out.', '#1A1A1A', 16, HELV, 'left', '4px 40px 8px'), button('Read more', navy24), bg='#FFFFFF', pad='0px'),
+ row(T('Could you or someone you love use one place to share health updates?<br><strong>' + lk('Start a Caring Circle page today.', navy24) + '</strong>', '#1A1A1A', 14, HELV, pad='16px 32px'), bg='#F0D57A', pad='0px'),
+ weighted([[H('“ —', navy24, 44, SERIF, 'left', '20px 8px 0px 40px'), T('“Being able to let people know what was happening, and reading their messages, really kept me going. The hospital days are long, and it can get lonely. It felt like company, without having to text everyone one by one.”', '#1A1A1A', 15, HELV, 'left', '4px 8px 8px 56px'), T('<strong>A Caring Circle member and carer</strong>', '#1A1A1A', 14, HELV, pad='8px 8px 24px 40px')], [ill('bouquet-hand', 'A hand holding a bunch of heart flowers', '100%', '40px 40px 24px 8px')]], [3, 1], '#FFFFFF', '0px'),
+ row(text('', 4, '#1A1A1A', pad='4px 0px'), bg='#A8BCDD', pad='0px'),
+ weighted([[H('Try the new Caring Circle app', '#FFFFFF', 26, SERIF, pad='28px 8px 28px 40px')], [T('<a href="https://example.com" style="display:inline-block;border:1px solid #FFFFFF;border-radius:8px;padding:12px 18px;color:#FFFFFF;text-decoration:none">Get the app</a>', '#FFFFFF', 14, HELV, pad='36px 40px 28px 8px')]], [2, 1], navy24, '0px'),
+], foot('#FFFFFF', '#333333', 'Caring Circle is a donor-supported nonprofit.', 'Caring Circle · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Privacy</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#EEEEEE', ['nonprofit', 'illustrated', 'community'])
+
+lav = '#C8A8F8'
+studio('small-but-seen', 'Small but Seen', 'Product', 'A short insight email: a bold headline and pill button, a story, a chart in a soft gradient frame, an arrow list of what worked and a second button.',
+ 'Size doesn’t matter. Being the clearest answer does.', 'How a small company keeps showing up next to giants in AI answers.', [
+ row(H('➶ BRIGHTLINE', '#111111', 18, BLACK, 'left', '32px 32px 4px'), H('Size doesn’t matter. Being the clearest answer does.', '#111111', 34, HELV, 'left', '16px 32px 12px'), pill('Build your visibility plan', lav, '#111111', align='left', pad='8px 32px 24px', size='14px', inner='12px 28px'),
+  T('Don’t count yourself out just because you’re up against bigger brands.<br><br>' + lk('Clipwise', '#3A5AD8') + ' isn’t the biggest name in video editing. But in AI answers, it shows up next to much larger brands, because it focuses on being the best answer for one specific kind of customer.', '#222222', 14, HELV, 'left', '8px 32px 16px'),
+  ill('line-chart-card', 'A chart comparing visibility scores for five sites', pad='0px 32px'), H('Here’s how they did it:', '#111111', 16, HELV, 'left', '24px 32px 8px'),
+  T('→ &nbsp;Narrowed their focus → podcast editing, not “all-in-one video”<br>→ &nbsp;Wrote genuinely helpful content → real questions, real answers<br>→ &nbsp;Built pages worth citing → comparisons and how-tos<br>→ &nbsp;Used real product screenshots → visuals AI can reuse<br>→ &nbsp;Got mentioned elsewhere → reviews, press and creators', '#222222', 14, HELV, 'left', '4px 32px 16px'),
+  T('When AI tools can understand, trust and cite your content, you can compete with companies ten times your size.', '#222222', 14, HELV, 'left', '4px 32px 8px'), pill('Check your visibility', lav, '#111111', align='left', pad='12px 32px 32px', size='14px', inner='12px 28px'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('icon-news', 'Newsroom', '32px', '24px 4px 4px'), T(lk('Newsroom', '#333333'), '#333333', 13, HELV, pad='4px 4px 24px')], [ill('icon-person', 'Partners', '32px', '24px 4px 4px'), T(lk('Become a partner', '#333333'), '#333333', 13, HELV, pad='4px 4px 24px')], [ill('icon-briefcase', 'Agencies', '32px', '24px 4px 4px'), T(lk('Hire an agency', '#333333'), '#333333', 13, HELV, pad='4px 4px 24px')]], [1, 1, 1], '#F2F3F5', '0px'),
+], foot('#F2F3F5', '#555555', 'Brightline · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['insight', 'strategy', 'chart'])
+
+# --- Batch six ---
+indigo25 = '#4A5AF0'
+def dot_section(title, img, alt, body, cta):
+ return row(H(f'● {title}', '#1A1A1A', 15, HELV, 'left', '20px 32px 8px'), ill(img, alt, pad='4px 32px'), T(body, '#333333', 13, HELV, 'left', '12px 32px 4px'), pill(cta, indigo25, pad='8px 32px 16px', size='13px', inner='10px 28px'), divider('#ECECF2'), bg='#FFFFFF', pad='0px')
+studio('the-messenger', 'The Messenger', 'Product', 'A monthly product update from a finance app: a short intro, then sections each with a dot heading, a product screenshot and a pill button.',
+ 'The Messenger: live insights, smarter categories and more', 'Four new features in your account this month.', [
+ row(T('<span style="border:1px solid #DADAE6;border-radius:999px;padding:8px 14px">◎ L E D G E W O R K S</span>', '#1A1A1A', 13, HELV, 'left', '28px 32px 16px'), T('Welcome to The Messenger, our monthly round-up of what’s new in Ledgeworks.<br><br>This month: live insights, a connection to your AI assistant, smarter categories, automatic invoice reminders and more.', '#1A1A1A', 13, HELV, 'left', '8px 32px 12px'), divider('#ECECF2'), bg='#FFFFFF', pad='0px'),
+ dot_section('Live financial insights, built in', 'ui-bars', 'A bar chart of monthly spending with a trend line', '<u>' + lk('Insights', indigo25) + '</u> are now in your dashboard, with a live view of your company’s money. Charts update as you go, so you can track trends, compare periods, and ask questions like “Why did software spending go up?”', 'See your insights'),
+ dot_section('Connect your AI assistant', 'ui-connect', 'Your account connected to an assistant by dotted lines', 'Connect your account securely to the AI assistant you already use. Ask about your finances and explore your data without exporting anything. Access is read-only and you can switch it off at any time.', 'Connect your account'),
+ dot_section('Transactions, sorted for you', 'ui-categories', 'A list of transactions with suggested categories', 'We now put your transactions into categories automatically, so you can see where your money goes. You’re always in control: review, approve or change any suggestion, and it learns as you go.', 'Learn more'),
+ dot_section('Automatic invoice reminders', 'ui-reminders', 'A card showing a reminder schedule for an invoice', 'Turn on payment reminders and we’ll nudge your customers on a simple schedule: a week before, a day before, a day after and a week after the due date.', 'Try it now'),
+ row(H('●● Plus member? Book time with our team', '#1A1A1A', 15, HELV, 'left', '20px 32px 8px'), T('Plus members can book a session with a specialist to set up their account, walk through key workflows and make sure everything is configured for how they work.', '#333333', 13, HELV, 'left', '4px 32px'), pill('Book now', indigo25, pad='8px 32px 16px', size='13px', inner='10px 28px'),
+  H('● Small improvements', '#1A1A1A', 15, HELV, 'left', '12px 32px 4px'), T(ul([lk('Transfer rules', indigo25) + ' can now have nicknames and a history.', 'Sign in faster with ' + lk('passkeys', indigo25) + ' on your phone.']) + '<br><br>See more in our ' + lk('monthly round-up', indigo25) + '.<br><br>Thanks,<br>The Ledgeworks team', '#333333', 13, HELV, 'left', '4px 32px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#777777', '<em>This email is an advertisement from Ledgeworks.</em>', 'Ledgeworks · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['product update', 'finance', 'screenshots'])
+
+navy26 = '#1F1A5A'
+def article_card(photo, kind, title, mins): return T(f'<span style="display:block;border:1px solid #E2E2EA;box-shadow:0 2px 6px rgba(0,0,0,.08)">' + f'<img src="https://images.unsplash.com/{PHOTOS[photo][0]}?auto=format&fit=crop&w=600&h=300&q=80" alt="{PHOTOS[photo][1]}" width="100%" style="display:block"><span style="display:block;padding:12px"><span style="font-size:9px;color:#888">{kind}</span><br><strong style="font-size:13px">{title}</strong><br><br><br><span style="font-size:9px;color:#888">{mins} minute read</span></span></span>', '#1A1A1A', 12, HELV, 'left', '16px 8px 16px 32px')
+studio('the-latest-news', 'The Latest News', 'Newsletters', 'A business bank’s content newsletter: a stamped photo header, article cards beside summaries, a loan panel, a video row and a dark resources banner.',
+ 'Practical ideas to keep your business moving', 'Invoicing, loans and accounts, explained in a few minutes each.', [
+ row(H('🌳 Oakmoor Bank', '#1A1A1A', 24, HELV, pad='24px 32px'), P('laptops', 'wide', '0px 32px'), H('<span style="border-left:8px solid #1F1A5A;padding-left:12px">THE LATEST OAKMOOR NEWS</span>', navy26, 34, BLACK, 'left', '16px 32px 8px'), bg='#FFFFFF', pad='0px'),
+ row(H('Practical ideas to help your business move forward', navy26, 22, HELV, 'left', '24px 32px 8px'), T('Running a business means balancing growth, cash and a hundred decisions. This week, a few quick reads to help you save time, understand your options and plan your next step.', '#333333', 14, HELV, 'left', '4px 32px 16px'), bg='#FFFFFF', pad='0px'),
+ weighted([[article_card('screen', 'Business banking', 'Automate your invoicing and get paid faster', 6)], [H('Spend less time on invoices, more on the business', navy26, 18, HELV, 'left', '20px 32px 8px 12px'), T('Manual invoicing slows you down and delays payment. Here’s how automation can cut errors and help you get paid faster.', '#333333', 14, HELV, 'left', '4px 32px 8px 12px'), T('<strong><u>' + lk('Explore invoice automation', navy26) + '</u></strong>', navy26, 14, HELV, 'left', '8px 32px 16px 12px')]], [1, 1], '#FFFFFF', '0px'),
+ weighted([[H('Small-business loans: myths and facts', navy26, 18, HELV, 'left', '20px 12px 8px 32px'), T('Loans can help you grow, but a few common myths put people off. We clear them up so you can decide with confidence.', '#333333', 14, HELV, 'left', '4px 12px 8px 32px'), T('<strong><u>' + lk('Read the full breakdown', navy26) + '</u></strong>', navy26, 14, HELV, 'left', '8px 12px 16px 32px')], [article_card('meeting', 'Finance your business', 'Separating fact from fiction about loans', 4)]], [1, 1], '#FFFFFF', '0px'),
+ row(H('Oakmoor Express small-business loans', navy26, 22, HELV, 'left', '28px 32px 8px'), T('When an opportunity comes up, timing matters. Express loans make the process quicker and simpler.<br><br><strong>' + ul(['For loans between $10,000 and $350,000*', 'A simple application and faster decisions', 'Terms that fit your business', 'No early repayment fees']) + '</strong><br><br><strong><u>' + lk('Start your loan enquiry', navy26) + '</u></strong>', navy26, 14, HELV, 'left', '4px 32px 28px'), bg='#F4F3FA', pad='0px'),
+ weighted([[P('face2', 'portrait', '24px 8px 24px 40px')], [H('Business current or savings account: do you need both?', navy26, 22, HELV, 'left', '32px 32px 8px 12px'), T('Not sure you have the right accounts? This short video explains how each one helps you manage cash and plan for growth.', '#333333', 14, HELV, 'left', '4px 32px 8px 12px'), T('<strong><u>' + lk('Watch the video', navy26) + '</u></strong>', navy26, 14, HELV, 'left', '8px 32px 24px 12px')]], [2, 3], '#FFFFFF', '0px'),
+ row(H('Want more practical guides?', '#FFFFFF', 18, HELV, pad='28px 32px 4px'), T('Our resource centre has quick, useful guides you can put to work today.', '#FFFFFF', 14, HELV, pad='4px 32px'), button('Explore resources', '#FFFFFF', ink=navy26), bg=navy26, pad='0px 0px 8px'),
+], foot('#FFFFFF', '#555555', '*Your rate, terms and timing depend on your credit history and business.', 'Oakmoor Bank · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a> · <a href="https://example.com" style="color:inherit">Manage preferences</a>'), '#F4F1EA', ['newsletter', 'banking', 'articles'])
+
+studio('youre-invited', 'You’re Invited', 'Events', 'A clean livestream invitation in rounded white cards on warm grey: a big headline, a short letter, bullet points and a full-width black button.',
+ 'You’re invited: how to run agents that actually help', 'A livestream on building agents your team can rely on.', [
+ row(H('<span style="color:#F2643A">◖</span> loam', '#1A1A1A', 30, HELV, 'left', '24px 24px'), bg='#FFFFFF', pad='0px'),
+ row(T('<strong>YOU’RE INVITED</strong>', '#1A1A1A', 12, HELV, 'left', '28px 16px 4px'), H('How to use agents to grow without the guesswork', '#1A1A1A', 30, HELV, 'left', '4px 16px 24px'), bg='#F3F1EE', pad='0px'),
+ row(H('Hey {{first_name}},', '#1A1A1A', 22, HELV, 'left', '24px 16px 16px'),
+  T('Our research agent has been run <strong>millions of times</strong>. Anyone can run an agent. Far fewer get results they can act on.<br><br>Good data, clear checks and steady infrastructure are what make the difference.', '#1A1A1A', 15, HELV, 'left', '8px 16px'),
+  T('<strong>Join us to learn:</strong><br>' + ul(['How to build agents that understand your business', 'A walkthrough of an agent that researches and scores accounts', 'How to test and tune results before you scale', 'How to write personal outreach at scale']), '#1A1A1A', 15, HELV, 'left', '8px 16px'),
+  T('◐ <strong>Livestream:</strong> Wednesday 1 July, 9:00am Pacific', '#1A1A1A', 15, HELV, 'left', '8px 16px 16px'),
+  T('<a href="https://example.com" style="display:block;background:#1F1F1F;color:#FFFFFF;padding:16px;border-radius:14px;text-decoration:none;font-weight:bold">Register now →</a>', '#FFFFFF', 15, HELV, pad='8px 16px 32px'), bg='#FFFFFF', pad='0px'),
+], row(H('<span style="color:#FFFFFF">◖</span> loam', '#FFFFFF', 34, HELV, 'left', '36px 32px 8px'), H('Grow with better data, and the means to act on it', '#FFFFFF', 22, HELV, 'left', '8px 32px 16px'), T('© 2026 Loam · 12 Example Street, Your City<br><br>Not interested? Unsubscribe ' + lk('here', '#BBBBBB') + '.<br><a href="https://xem.email" style="color:#BBBBBB">Built with Xem</a>', '#BBBBBB', 13, HELV, 'left', '8px 32px 36px'), bg='#1C1C1C', pad='0px'),
+ '#F3F1EE', ['invitation', 'livestream', 'minimal'])
+
+def thumb_item(img, alt, title, body, link):
+ return weighted([[ill(img, alt, '100%', '16px 8px 16px 32px')], [H(title, '#1A1A1A', 17, HELV, 'left', '16px 32px 4px 12px'), T(body, '#333333', 13, HELV, 'left', '4px 32px 4px 12px'), T('☐ <u>' + lk(link + ' →', '#1A1A1A') + '</u>', '#1A1A1A', 13, HELV, 'left', '8px 32px 16px 12px')]], [2, 3], '#FFFFFF', '0px')
+studio('whats-new-list', 'What’s New', 'Product', 'A “what’s new” email: a blue block header with a geometric tile, a short intro, then five updates each with a thumbnail, a sentence and a link.',
+ 'What’s new: session replays, skills and group chats', 'Five updates this month, plus a customer story.', [
+ weighted([[H('◗ Buildly', '#FFFFFF', 15, HELV, 'left', '24px 8px 8px 32px'), H('What’s<br>new', '#FFFFFF', 54, HELV, 'left', '4px 8px 24px 32px')], [ill('build-hero', 'An orange tile with a figure shape', '100%', '0px')]], [1, 1], '#3A5AE8', '0px'),
+ row(T('Hi there,<br><br>This month your apps get more to build on, and your assistant gets more done. Watch real user sessions, bring in a design, connect your data and teach your assistant new skills.<br><br>Here’s the rundown.', '#1A1A1A', 13, HELV, 'left', '24px 32px 16px'), divider('#1A1A1A'), bg='#FFFFFF', pad='0px'),
+ thumb_item('thumb-play', 'A session recording with a play bar', 'Watch your users in action', 'Session recordings are here. Watch real sessions, see the exact moment someone gets stuck, and fix what you saw, not what you guessed.', 'Turn on recordings'),
+ thumb_item('thumb-merge', 'A design being brought into the app', 'Bring a design into Buildly', 'That mock-up doesn’t have to stay a mock-up. Bring it in and it becomes a working app, ready to build on.', 'Import your design'),
+ thumb_item('thumb-data', 'Two data sources connected', 'Build on your own data', 'If your data lives in a warehouse, you can now build on it directly. Connect it once for the whole workspace.', 'Connect your data'),
+ thumb_item('thumb-chat', 'A group chat with messages', 'Your assistant joins the group chat', 'Add your assistant to a group chat and it answers questions and runs tasks right in the thread, for everyone in it.', 'Set up a group'),
+ thumb_item('thumb-skills', 'A list of assistant skills', 'Give your assistant new skills', 'Skills add ready-made know-how, so it does a job well with less prompting: build slides from a brief, plan a trip from your inbox, or track competitors.', 'Turn on a skill'),
+ row(divider('#1A1A1A'), H('Community spotlight', '#1A1A1A', 22, HELV, 'left', '16px 32px 4px'), T('See how people turn ideas into real businesses on Buildly.', '#333333', 13, HELV, 'left', '4px 32px'), bg='#FFFFFF', pad='0px'),
+ thumb_item('spotlight-logo', 'The tutr logo on black', 'Real revenue in weeks', 'Tutr is a marketplace for tutors, built entirely on Buildly: find a tutor, book a lesson and pay in one place. It’s already taking bookings.', 'See what they built'),
+ row(T('That’s it for this month. Go build something good.', '#1A1A1A', 13, HELV, 'left', '16px 32px'), button('Back to building', '#1F1F1F'), T('Keep building,<br>The Buildly team', '#1A1A1A', 13, HELV, 'left', '16px 32px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#EEEEEE', '#777777', 'You’re getting this because you signed up for updates.', 'Buildly · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a> · <a href="https://example.com" style="color:inherit">Manage preferences</a>'), '#EEEEEE', ['product update', 'whats new', 'list'])
+
+lime27, char27 = '#C8F59A', '#262626'
+def dark_card(badge, title, img, alt, body, cta):
+ return row(ill(badge, 'Number badge', '80px', '20px 0px 8px'), H(title, lime27, 22, HELV, pad='8px 32px 12px'), *( [ill(img, alt, pad='0px 32px')] if img else []), T(body, '#E8E8E8', 13, HELV, pad='12px 40px 8px'), T(f'<a href="https://example.com" style="display:inline-block;border:1px solid #C8F59A;border-radius:999px;padding:10px 26px;color:#C8F59A;text-decoration:none">{cta}</a>', lime27, 13, HELV, pad='12px 32px 28px'), bg=char27, pad='0px')
+studio('hey-there-dark', 'Hey There', 'Newsletters', 'A dark-mode newsletter of rounded cards: a cheeky intro with a numbered contents list, then three numbered stories with lime badges.',
+ 'New look, same us: three things this month', 'A fresh design, a reality check on values marketing, and a deliverability guide.', [
+ row(T('<span style="border:1px solid #C8F59A;border-radius:6px;padding:6px 14px">▣ sendloop</span>', lime27, 16, HELV, pad='32px 32px 8px'), H('Hey there,', lime27, 40, HELV, pad='8px 32px 8px'), T('Notice anything different? 👀<br><br>Yep, this newsletter has had a makeover. New look, fresh colours. Ten out of ten.<br><br>And you know what goes with it?<br><br>You, reading it.<br><br>Anyway, here’s what we’ve got this month:', '#E8E8E8', 13, HELV, pad='8px 40px'),
+  T('1. Why your campaigns aren’t landing (and how to fix it)<br>2. What happens when you stop marketing on gut feel<br>3. Your deliverability survival guide for 2027', lime27, 13, HELV, pad='8px 40px 28px'), bg=char27, pad='0px'),
+ row(text('', 4, '#FFFFFF', pad='8px 0px'), bg='#3A3A3A', pad='0px'),
+ dark_card('num-badge-1', 'Values marketing? People can tell when it’s just for one month', 'dark-report', 'A green report card with a bar chart', 'We asked 4,000 people how they feel about brands that change their logo for one month and then go quiet. The answer was clear: people notice whether you keep it up the rest of the year.', 'Read the report'),
+ row(text('', 4, '#FFFFFF', pad='8px 0px'), bg='#3A3A3A', pad='0px'),
+ dark_card('num-badge-2', 'What happens when you stop marketing on gut feel', None, None, 'A small snack company from the north knew exactly what they were making. Their email marketing? By their own admission, guesswork.<br><br>They switched to us and planned properly. A year later their open rates are up by a third, and text messages finally work for them.', 'Read their story'),
+ row(text('', 4, '#FFFFFF', pad='8px 0px'), bg='#3A3A3A', pad='0px'),
+ dark_card('num-badge-3', 'Your deliverability survival guide for 2027', 'dark-at', 'A glowing card with an @ sign', 'Ever sent a campaign and wondered if anyone got it? This guide is for that.<br><br>Twelve steps, the technical bits in plain English, and everything you need to stay out of spam.', 'Read the guide'),
+ row(text('', 4, '#FFFFFF', pad='8px 0px'), bg='#3A3A3A', pad='0px'),
+ row(T('You’ve got enough to worry about. Let email marketing be the easy part.', '#E8E8E8', 13, HELV, pad='32px 40px 8px'), pill('Join Sendloop now', lime27, '#111111', pad='8px 32px 8px', size='13px'), T('<em>– Ana and the Sendloop team</em>', '#AAAAAA', 12, HELV, pad='4px 32px 16px'), bg=char27, pad='0px'),
+], foot(char27, '#AAAAAA', 'Sendloop · 12 Example Street, Your City', '<a href="https://example.com" style="color:#C8F59A">Unsubscribe</a>'), '#3A3A3A', ['dark mode', 'newsletter', 'numbered'])
+
+pine28 = '#0B2A1E'
+def hotel(photo, place, name, body):
+ return row(P(photo, 'wide'), T('<span style="display:inline-block;background:#F7E8B0;border:2px solid #C8A030;border-radius:50%;width:30px;height:30px;line-height:30px">◉</span>', '#1A1A1A', 12, HELV, pad='8px 40px 0px'), T(place, '#333333', 13, HELV, pad='4px 40px 0px'), H(name, pine28, 26, HELV, pad='4px 40px 4px'), T(body, '#1A1A1A', 15, HELV, pad='4px 56px'), pill('Explore now', pine28, pad='12px 40px 24px', size='13px'), bg='#FFFFFF', pad='0px')
+studio('one-of-a-kind', 'One of a Kind', 'Commerce', 'A travel list of remarkable places to stay: a centred headline, then each hotel as a full-width photo, a location, a name, a line and a pill button.',
+ 'Hotels that are the whole trip', 'A palace on a lake, a treetop lodge and a lighthouse.', [
+ row(H('◉◉ Roamwell', pine28, 24, HELV, pad='24px 40px 8px'), T('Your next big trip', pine28, 16, HELV, pad='4px 40px 0px'), H('One-of-a-kind stays', pine28, 40, HELV, pad='4px 40px 16px'), P('lake', 'wide'),
+  T('Some hotels aren’t just somewhere to sleep, they <em>are</em> the trip. These stays are worth travelling for. Here’s how to make the most of each one.', '#1A1A1A', 16, HELV, pad='16px 56px 8px'), T('<a href="https://example.com" style="display:block;background:#0B2A1E;color:#FFFFFF;padding:14px;border-radius:999px;text-decoration:none;font-weight:bold">Meet the winners</a>', '#FFFFFF', 14, HELV, pad='8px 40px 24px'), bg='#FFFFFF', pad='0px'),
+ hotel('sea', 'The Lakes, North Region', 'The Island House', 'A former manor on its own island, reached only by boat. Expect marble floors and a lot of quiet.'),
+ hotel('forest', 'The Rainforest, South Coast', 'The Canopy Lodge', 'Rooms built at treetop height, with morning walks and evening river trips.'),
+ hotel('coast', 'The Harbour Town', 'The Lighthouse Rooms', 'Three suites inside a working lighthouse, with a bath that looks straight out to sea.'),
+ row(divider('#0B2A1E'), T('But wait, there’s more: a floating hotel on a loch, a suite on stilts in a vineyard, and a gloriously over-the-top retro hotel in the city.', '#1A1A1A', 16, HELV, pad='16px 56px 8px'), pill('See the full list', pine28, pad='8px 40px 32px', size='13px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#0B2A1E', 'Please don’t reply to this email. For help, visit our ' + lk('help centre', '#0B2A1E') + '.', 'Roamwell · 12 Example Street, Your City', '<strong>' + lk('Unsubscribe', '#0B2A1E') + ' · ' + lk('Privacy', '#0B2A1E') + '</strong>'), '#FFFFFF', ['travel', 'list', 'hotels'])
+
+trail29 = '#3A3A2A'
+def quote_photo(q, who, role, photo):
+ return weighted([[T(f'“{q}”', trail29, 12, HELV, 'left', '16px 8px 4px 40px'), T(f'<strong>{who}</strong><br><em style="font-size:10px">{role}</em>', trail29, 11, HELV, 'left', '8px 8px 4px 40px'), T('<strong><u>' + lk('See the full list →', trail29) + '</u></strong>', trail29, 10, HELV, 'left', '8px 8px 16px 40px')], [P(photo, 'square', '16px 40px 16px 8px')]], [1, 1], '#F3F1EA', '0px')
+studio('trail-notes', 'Trail Notes', 'Newsletters', 'An outdoors newsletter on warm paper: a script-style masthead, a short letter, stories with quotes and photos, a two-by-two grid and a gradient fact panel.',
+ 'Trail Notes: stories from the outdoors this month', 'Trails, people and a few places to visit this summer.', [
+ row(T(lk('Find a trail', trail29) + ' &nbsp; ' + lk('Saved', trail29) + ' &nbsp; ' + lk('Start a walk', trail29), trail29, 10, HELV, pad='8px 40px'), H('▲ Pathway', trail29, 20, HELV, pad='24px 40px 0px'), H('<em>Trail Notes</em>', '#C8803A', 56, SERIF, pad='0px 40px 16px'),
+  T('Dear {{first_name}},<br><br>The outdoors has a way of bringing people together. This month we’re sharing stories from people who make space for everyone on the trail, and a few of their favourite walks.<br><br>See you out there,<br>The Pathway team', trail29, 12, HELV, 'left', '16px 40px'), divider('#C8C2B0'), bg='#F3F1EA', pad='0px'),
+ row(T('Community month', trail29, 11, HELV, 'left', '8px 40px 4px'), H('Finding belonging outdoors: five walkers’ stories', trail29, 22, HELV, 'left', '4px 40px 8px'), T('Five walkers on what the outdoors means to them, and the trails they keep going back to.', trail29, 12, HELV, 'left', '4px 40px'), T('<span style="border:1px solid #3A3A2A;border-radius:999px;padding:8px 14px;font-size:11px">Read the full story</span>', trail29, 11, HELV, 'left', '16px 40px 8px'), bg='#F3F1EA', pad='0px'),
+ quote_photo('The trail gave me room to breathe. Nobody cared what I looked like, only whether I’d brought snacks.', 'Ro Hart', 'Founder of a walking group', 'peaks'),
+ quote_photo('Being outside makes me feel braver in the rest of my life. That’s why we bring other people along.', 'Jess and Tam Ode', 'Outdoor writers', 'mountain'),
+ row(divider('#C8C2B0'), H('A partnership worth walking for', trail29, 22, HELV, 'left', '16px 40px 8px'), bg='#F3F1EA', pad='0px'),
+ weighted([[T('We’ve worked with a local charity since 2022 that runs free group walks for people who’ve never hiked before. Last year they ran more than a hundred.', trail29, 12, HELV, 'left', '8px 8px 8px 40px'), T('<strong><u>' + lk('Learn more →', trail29) + '</u></strong>', trail29, 10, HELV, 'left', '4px 8px 16px 40px')], [P('walk', 'square', '8px 40px 16px 8px')]], [1, 1], '#F3F1EA', '0px'),
+ row(divider('#C8C2B0'), T('Trail highlights', trail29, 11, HELV, 'left', '8px 40px 4px'), H('Ideas for summer', trail29, 22, HELV, 'left', '4px 40px 8px'), bg='#F3F1EA', pad='0px'),
+ weighted([[P('meadow', 'square', '8px 6px 4px 40px'), T('<strong>Wildflower walks</strong><br>What’s in bloom near you<br><strong><u>See the list →</u></strong>', trail29, 11, HELV, 'left', '4px 6px 16px 40px')], [P('lake', 'square', '8px 40px 4px 6px'), T('<strong>The best waterfall trails</strong><br>Cool off on a summer walk<br><strong><u>See the list →</u></strong>', trail29, 11, HELV, 'left', '4px 40px 16px 6px')]], [1, 1], '#F3F1EA', '0px'),
+ weighted([[P('stars', 'square', '8px 6px 4px 40px'), T('<strong>Sunrise and sunset walks</strong><br>The best times to be out<br><strong><u>See the list →</u></strong>', trail29, 11, HELV, 'left', '4px 6px 16px 40px')], [P('valley', 'square', '8px 40px 4px 6px'), T('<strong>Walks near the city</strong><br>No car needed<br><strong><u>See the list →</u></strong>', trail29, 11, HELV, 'left', '4px 40px 16px 6px')]], [1, 1], '#F3F1EA', '0px'),
+ row(T('<span style="display:block;background:linear-gradient(135deg,#D8803A,#8AA0B0);padding:48px 32px;color:#FFFFFF"><span style="font-size:12px">Did you know?</span><br><br><span style="font-size:24px">The country’s longest marked walking trail is over 2,000 miles long, and most people walk it in sections.</span></span>', '#FFFFFF', 13, HELV, pad='24px 0px'), bg='#F3F1EA', pad='0px'),
+], foot('#FFFFFF', '#555555', 'Pathway · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Email preferences</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#DFE3DF', ['outdoors', 'newsletter', 'stories'])
+
+studio('tune-up', 'Tune Up', 'Events', 'A webinar reminder with a sticker-collage header, the date beside a calendar icon, a big headline, a boxed note and a red button.',
+ 'Reminder: the tune-up session is next week', 'Three real before-and-after emails, fixed live.', [
+ row(H('✉ Good Mail Studio', '#1A1A1A', 20, HELV, pad='24px 40px'), bg='#F2F2F2', pad='0px'),
+ row(ill('sticker-pair', 'A sticker collage of two cartoon faces and the words Tune Up, with a ribbon reading A friendly reminder'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('calendar-red', 'A calendar', '64px', '16px 4px 16px 0px', 'right')], [H('18 June | 9:00am PT / 12:00pm ET', '#1A1A1A', 20, HELV, 'left', '32px 40px 16px 8px')]], [1, 4], '#FFFFFF', '0px'),
+ row(H('Can your readers actually read your emails?', '#1A1A1A', 34, HELV, pad='8px 40px 16px'), T('<span style="display:block;background:#FFF8EE;border:1px solid #1A1A1A;border-radius:8px;padding:12px"><strong>Quick reminder: the tune-up is next week.</strong></span>', '#1A1A1A', 15, HELV, pad='4px 40px 16px'),
+  T('On <strong>18 June</strong>, we’re walking through three real before-and-after email makeovers: what was broken, how we fixed it, and what difference it made.<br><br>A university, a supplement brand and a skincare brand. Three industries, three makeovers, one session.<br><br>Our designer Yuna is joining to explain the decisions behind each one.<br><br><strong>If you’ve ever felt stuck between “fine” and “actually great”, this one’s for you.</strong>', '#1A1A1A', 16, HELV, 'left', '8px 40px'),
+  button('Count me in →', '#F0503A'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('calendar-red', 'A calendar', '64px', '16px 4px 32px 0px', 'right')], [H('18 June | 9:00am PT / 12:00pm ET', '#1A1A1A', 20, HELV, 'left', '32px 40px 32px 8px')]], [1, 4], '#FFF0EE', '0px'),
+], foot('#F2F2F2', '#555555', '<strong>Good Mail Studio.</strong> Where good emails get made.', 'Good Mail Studio · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F2F2F2', ['reminder', 'webinar', 'stickers'])
+
+def numbered_note(n, body): return weighted([[H(f'{n:02}.', '#F0503A', 30, HELV, 'left', '12px 4px 8px 40px')], [T(f'<span style="display:block;border:1px solid #1A1A1A;border-radius:6px;padding:12px 14px">{body}</span>', '#1A1A1A', 14, HELV, 'left', '8px 40px 8px 4px')]], [1, 5], '#FFFFFF', '0px')
+studio('now-one', 'Now One Place', 'Transactional', 'A merger or rebrand notice: a photo collage header, a personal letter, a bordered announcement box, numbered changes in boxes, and an FAQ link.',
+ 'Brushwork is now part of Good Mail Studio', 'What changes for you (very little) and what stays the same.', [
+ row(H('✉ Good Mail Studio', '#1A1A1A', 20, HELV, pad='24px 40px'), bg='#F2F2F2', pad='0px'),
+ row(ill('photo-collage', 'A collage of three team photos on a grid'), H('Hi {{first_name}},', '#F0503A', 24, HELV, 'left', '24px 40px 8px'),
+  T('When we joined forces, the goal was simple: <strong>close the gap between finding inspiration and making something.</strong><br><br>Since then you’ve had more chances to learn and connect, and your feedback has shaped what we built. Thank you ♥<br><br>But going from inspiration to building still meant two separate trips.<br><br><strong>So we changed that.</strong>', '#1A1A1A', 14, HELV, 'left', '8px 40px'), bg='#FFFFFF', pad='0px'),
+ weighted([[H('Brushwork is now<br>Good Mail Studio.', '#1A1A1A', 28, HELV, 'left', '24px 8px 24px 40px')], [ill('merge-icons', 'The two company marks side by side', '100%', '32px 40px 24px 8px')]], [3, 2], '#EEEEEE', '0px'),
+ row(T('<strong>Everything you’ve made in Brushwork now lives inside Good Mail Studio.</strong> You can move between finding inspiration and building emails in one place.<br><br>This is just the start. Some things, like logos and colours, are still changing, so you may spot a bit of the old name here and there.', '#1A1A1A', 14, HELV, 'left', '24px 40px 8px'), H('What this means for you:', '#1A1A1A', 24, HELV, 'left', '16px 40px 8px'), bg='#FFFFFF', pad='0px'),
+ numbered_note(1, 'Your account, designs, folders and team stay exactly as they are.'),
+ numbered_note(2, 'You can sign in at the ' + lk('new address', '#F0503A') + ' or the old one. We’ll send you to the right place.'),
+ numbered_note(3, '“Get inspired” in the sidebar takes you straight to the gallery.'),
+ numbered_note(4, 'You can now save emails from the gallery and come back to them later.'),
+ numbered_note(5, 'If you had both accounts with the same email address, they’re now linked.'),
+ numbered_note(6, 'You’ll start getting our newsletter twice a week. Change your ' + lk('email preferences', '#F0503A') + ' any time.'),
+ row(H('Got questions?', '#1A1A1A', 24, HELV, 'left', '24px 40px 8px'), T('Our FAQ covers what’s changed, what hasn’t and what’s next. ' + lk('Read the FAQ →', '#F0503A'), '#1A1A1A', 14, HELV, 'left', '4px 40px 32px'), bg='#FFFFFF', pad='0px'),
+], foot('#F2F2F2', '#555555', 'Brushwork is now Good Mail Studio. You’re getting this because you have an account.', 'Good Mail Studio · 12 Example Street, Your City'), '#F2F2F2', ['rebrand', 'notice', 'account'], marketing=False)
+
+def note_card(avatar, alt, name, body, img):
+ return row(T(f'<span style="display:block;border:1px solid #E2E2E2;border-radius:16px;padding:20px"><strong>{name}</strong> <span style="background:#EEEEEE;font-size:11px;padding:2px 6px;border-radius:4px">You follow</span> <span style="float:right;color:#888">2d</span><br>{body}<br><span style="color:#1A6AD8">Read more »</span></span>', '#1A1A1A', 15, HELV, 'left', '8px 40px 0px'), *([P(img, 'wide', '8px 40px 0px')] if img else []), T('♡ 3 &nbsp;&nbsp; 💬 &nbsp;&nbsp; ↻ &nbsp;&nbsp; ⇪', '#555555', 13, HELV, 'left', '8px 56px 16px'), bg='#FFFFFF', pad='0px')
+studio('new-notes', 'New Notes', 'Newsletters', 'A social activity digest: a headline naming who posted, then post cards with names, a short excerpt, images and reactions, and a bright app button.',
+ 'Two writers you follow posted new notes', 'Catch up on what people you follow are saying.', [
+ row(H('<span style="color:#FF6A1A">▤</span>', '#FF6A1A', 26, HELV, 'left', '24px 40px 4px'), H('Rowan Ellis and The Analytics Letter posted new notes', '#333333', 26, HELV, 'left', '8px 40px 16px'), bg='#FFFFFF', pad='0px'),
+ note_card('avatar-2', 'Rowan Ellis', 'Rowan Ellis', 'Stop charging for access, charge for results. This week I looked at three companies that changed how they price…', 'screen'),
+ note_card('avatar-5', 'The Analytics Letter', 'The Analytics Letter', 'New edition out! We wrote about this exact topic two weeks ago…', None),
+ row(T('<a href="https://example.com" style="display:block;background:#FF6A1A;color:#FFFFFF;padding:14px;border-radius:6px;text-decoration:none;font-weight:bold">See more notes in the app</a>', '#FFFFFF', 15, HELV, pad='16px 40px 16px'), T('<span style="border:1px solid #DDDDDD;border-radius:6px;padding:10px 20px;color:#FF6A1A">▤ Start writing</span>', '#FF6A1A', 14, HELV, pad='8px 40px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#777777', '© 2026 Notebook · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['notifications', 'social', 'digest'])
+
+# --- Batch seven ---
+forest30, mint30 = '#0E3A2E', '#E6F4E8'
+def good_to_know(icon, label, value): return T(f'<span style="display:inline-block;width:22px">{icon}</span> <strong>{label}:</strong> {value}', '#1A1A1A', 13, HELV, 'left', '6px 40px')
+studio('destination-guide', 'Destination Guide', 'Newsletters', 'A members’ destination guide: a rounded photo hero with the city name, a long story with a photo and a call-out box, a “good to know” list and recent deals.',
+ 'Going places: a long weekend on the coast', 'Where to stay, what to eat and the cheapest weeks to fly.', [
+ row(T('Going Places: Destinations', forest30, 13, SERIF, pad='16px 32px 0px'), T('Together with ' + lk('Harbourline', forest30), forest30, 11, HELV, pad='4px 32px 8px'), P('coast', 'wide', '8px 32px 0px'), H('Port Alma', '#FFFFFF', 46, HELV, pad='0px 32px 8px'), bg=forest30, pad='0px'),
+ row(T('Port Alma is a city where the old town walls meet the sea, painted houses lean over narrow streets, and every meal seems to involve fish caught that morning.<br><br>Off the main square, things get quieter: courtyards, small museums and cafés where nobody is in a hurry.', '#1A1A1A', 13, SERIF, 'left', '24px 40px 8px'),
+  T('<span style="display:block;background:#E6F4E8;border-radius:12px;padding:16px">Never been? Members have found return flights from <strong>$230</strong> this year, often more than half off the usual price.<br><br><a href="https://example.com" style="background:#0E3A2E;color:#FFFFFF;padding:8px 14px;border-radius:999px;text-decoration:none;font-size:12px">See the deals</a></span>', '#1A1A1A', 13, HELV, 'left', '8px 40px'),
+  P('street', 'wide', '16px 40px 8px'), H('How to see the old town without the crowds', forest30, 20, SERIF, 'left', '16px 40px 8px'),
+  T('Go early. By 9am the cruise groups arrive; before that the squares are yours.<br><br>' + ul(['Walk the city walls at sunrise', 'Have breakfast in the market', 'Save the museums for the afternoon heat']) + '<br><br><strong>Tip:</strong> the best views are from the fort on the hill, a 20-minute walk from the centre.', '#1A1A1A', 13, SERIF, 'left', '4px 40px 16px'), bg='#FFFFFF', pad='0px'),
+ row(H('Good to know', forest30, 20, HELV, 'left', '24px 40px 8px'),
+  good_to_know('💰', 'Budget', '$$'), good_to_know('✈', 'Main airport', 'PAL'), good_to_know('📅', 'Best time to go', 'April to June, or September'), good_to_know('🚶', 'Getting around', 'On foot in the old town; taxis for the beaches'), good_to_know('💬', 'Language', 'Spanish; some English in the centre'),
+  T('Planning a visit? Members get alerts for cheap flights to Port Alma and hundreds of other places.', '#1A1A1A', 13, HELV, 'left', '16px 40px 8px'), pill('Upgrade for every deal', forest30, align='left', pad='8px 40px 24px', size='13px'), bg=mint30, pad='0px'),
+ row(H('Recent deals we’ve sent', forest30, 20, HELV, 'left', '24px 40px 8px'),
+  T('<span style="display:block;background:#E6F4E8;border-radius:10px;padding:10px 14px"><strong>North City → Port Alma</strong> <span style="float:right;background:#0E3A2E;color:#FFFFFF;border-radius:6px;padding:2px 8px">$230</span></span>', '#1A1A1A', 13, HELV, 'left', '4px 40px'),
+  T('<span style="display:block;background:#E6F4E8;border-radius:10px;padding:10px 14px"><strong>Lakeside → Port Alma</strong> <span style="float:right;background:#0E3A2E;color:#FFFFFF;border-radius:6px;padding:2px 8px">$264</span></span>', '#1A1A1A', 13, HELV, 'left', '4px 40px'),
+  T('<span style="display:block;background:#E6F4E8;border-radius:10px;padding:10px 14px"><strong>East Bay → Port Alma</strong> <span style="float:right;background:#0E3A2E;color:#FFFFFF;border-radius:6px;padding:2px 8px">$298</span></span>', '#1A1A1A', 13, HELV, 'left', '4px 40px 24px'), bg='#FFFFFF', pad='0px'),
+], foot(forest30, '#FFFFFF', 'Prices are samples. Replace them with your own deals before sending.', 'Harbourline · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), forest30, ['travel', 'guide', 'members'])
+
+def mag_item(img, alt, title, body): return weighted([[ill(img, alt, '100%', '16px 8px 16px 40px')], [T(f'<strong><u>{title}</u></strong><br><span style="font-size:12px">{body}</span>', '#1A1A1A', 13, HELV, 'left', '16px 40px 16px 8px')]], [2, 3], '#FFFFFF', '0px')
+studio('the-weekly-magazine', 'The Weekly Magazine', 'Newsletters', 'A magazine newsletter: a bold illustrated hero, a short intro, a list of stories with thumbnails, a boxed reading list, a newsletter sign-up and a subscription offer.',
+ 'Why being the boss isn’t what it used to be', 'This week: middle managers, office life, and a lot of meetings.', [
+ row(H('The Ledger', '#FFFFFF', 30, HELV, 'left', '20px 32px'), bg='#000000', pad='0px'),
+ row(ill('office-figure', 'A cartoon office worker beside a chalkboard reading TGIF?'), T('Management is having a hard time. Fewer people want the top jobs, managers say they’re burnt out, and everyone is told software will do their job anyway. In this week’s magazine, we look at who wants to be in charge, who doesn’t, and what it means for the rest of us.<br><br><em>Missed our live Q&amp;A on managing in a changing office? <u>' + lk('Listen to the recording', '#1A1A1A') + '</u>.</em>', '#1A1A1A', 13, HELV, 'left', '20px 32px 16px'), divider('#1A1A1A'), bg='#FFFFFF', pad='0px'),
+ mag_item('thumb-chairs', 'An illustration of three office chairs', 'Why companies are cutting middle managers', 'What if your boss’s job goes before yours?'),
+ mag_item('thumb-frames', 'Framed portraits on a purple wall', 'The quiet decline of the corner office', 'Fewer people want to be in charge. Here’s why.'),
+ mag_item('thumb-clouds', 'A figure among clouds', 'Being the boss now means being on call', 'The top job has become a 24-hour one.'),
+ mag_item('thumb-duo', 'Two people sharing a desk', 'Inside the companies run by two people', 'Sharing the top job has a bad reputation. These pairs make it work.'),
+ row(T('<span style="display:block;border:1px solid #BBBBBB;border-radius:8px;padding:20px 28px"><strong style="font-size:20px">What else we’re reading:</strong><br><br>▪ A small fund that did well in a bad year ' + lk('has a new bet', '#1A1A1A') + '<br>▪ Why ' + lk('shoppers are heading back to stores', '#1A1A1A') + '<br>▪ How one firm ' + lk('grew by doing less', '#1A1A1A') + '</span>', '#1A1A1A', 13, HELV, 'left', '24px 32px'), bg='#FFFFFF', pad='0px'),
+ row(T('<span style="display:block;border:1px solid #BBBBBB;border-radius:8px;padding:20px 24px;background:#FFFFFF">Our Money newsletter has ideas and tools for doing more with what you’ve got.<br><br><a href="https://example.com" style="background:#000000;color:#FFFFFF;padding:10px 32px;text-decoration:none;font-weight:bold">Sign up</a></span>', '#1A1A1A', 13, HELV, 'left', '24px 32px'), bg='#EFEFEF', pad='0px'),
+ row(H('Read these stories and more. Half price for your first year.', '#1A1A1A', 20, HELV, 'left', '24px 32px 8px'), T('Unlimited reading on the website and app. Subscribe for <s>$300</s> $150 for your first year.', '#1A1A1A', 13, HELV, 'left', '4px 32px'), T('<a href="https://example.com" style="background:#000000;color:#FFFFFF;padding:12px 36px;text-decoration:none;font-weight:bold">Subscribe and save</a>', '#FFFFFF', 13, HELV, 'left', '16px 32px 8px'), T('Renews at $300 a year after the first year. Cancel any time.', '#555555', 11, HELV, 'left', '8px 32px 24px'), bg='#FFFFFF', pad='0px'),
+], row(T('Follow us', '#FFFFFF', 13, HELV, 'left', '28px 32px 8px'), divider('#555555'), H('Context is everything.', '#FFFFFF', 20, HELV, 'left', '16px 32px 4px'), H('The Ledger', '#FFFFFF', 30, HELV, 'left', '4px 32px 16px'), T('The Ledger · 12 Example Street, Your City · ' + lk('Unsubscribe', '#FFFFFF') + '<br><a href="https://xem.email" style="color:#FFFFFF">Built with Xem</a>', '#FFFFFF', 12, HELV, 'left', '8px 32px 32px'), bg='#000000', pad='0px'),
+ '#FFFFFF', ['magazine', 'newsletter', 'subscription'])
+
+blue31, pink31 = '#1E5AE8', '#E8209A'
+def signal(n, title, body): return weighted([[ill('ui-report', 'A profit and loss card', '100%', '8px 8px 8px 32px')], [T(f'<strong>{n}. {title}</strong><br>{body}', '#1A1A1A', 13, SERIF, 'left', '16px 32px 8px 8px')]], [1, 1], '#FFFFFF', '0px')
+studio('small-business', 'Small Business Simplified', 'Newsletters', 'A small-business newsletter: a scrapbook-style header, a profit-check feature with screenshots, a split article, a partner perk, tips and a customer spotlight.',
+ 'Your books are done. Is your business?', 'A ten-minute profit check, and why your bank balance can mislead you.', [
+ row(H('〰 tally <em>Small business</em> <span style="border:1px solid #1E5AE8;padding:2px 10px;font-family:georgia;font-style:italic">simplified</span>', blue31, 18, HELV, 'left', '20px 32px 4px'), T('YOUR BOOKS ARE DONE', blue31, 12, HELV, pad='4px 32px 0px'), H('Your business isn’t', '#1A1A1A', 30, SERIF, pad='0px 32px 16px'), bg='#EAF2FF', pad='0px'),
+ row(H('Hi {{first_name}},', '#1A1A1A', 22, SERIF, 'left', '20px 32px 8px'), T('Feeling in control of your money isn’t about doing more. It’s about having the right habits, quietly working in the background.<br><br>This monthly newsletter is your shortcut to simpler routines, fewer surprises, and more confidence in how your business is doing.', '#1A1A1A', 12, HELV, 'left', '4px 32px 8px'), ill('profit-hero', 'A banner reading 10-minute profit check, with a bar chart and a ring chart', pad='8px 32px'),
+  T('CHECK YOUR BUSINESS', pink31, 11, HELV, 'left', '16px 32px 0px'), H('Look at profit, not just revenue', '#1A1A1A', 20, SERIF, 'left', '4px 32px 4px'), T('Most owners judge how they’re doing by their bank balance or sales. Neither tells you whether the business is working. For that, you need one thing: profit.', '#1A1A1A', 12, HELV, 'left', '4px 32px 8px'), H('Start with your profit', '#1A1A1A', 18, SERIF, 'left', '8px 32px 4px'), bg='#FFFFFF', pad='0px'),
+ signal(1, 'Revenue vs. profit', 'If sales are growing but profit isn’t, your costs are growing faster.'),
+ signal(2, 'Your margin', 'Are you charging enough to cover what it costs to deliver?'),
+ signal(3, 'Your pay', 'If you’re not paying yourself, the profit isn’t real yet.'),
+ row(T('Knowing your profit is the first step. Knowing your cash flow is the next.<br><strong>A business can show a profit and still run out of cash.</strong>', '#1A1A1A', 12, HELV, 'left', '8px 32px'), pill('Take the 10-minute check', blue31, align='left', pad='8px 32px 24px', size='12px', inner='10px 18px'), bg='#FFFFFF', pad='0px'),
+ row(T('PROFIT SHOWS HOW YOUR BUSINESS IS DOING', pink31, 10, HELV, 'left', '24px 32px 0px'), H('Why your bank balance can mislead you', '#1A1A1A', 20, SERIF, 'left', '4px 32px 8px'), bg='#F7F4FA', pad='0px'),
+ weighted([[P('papers', 'square', '0px 8px 24px 32px')], [T('You can be in profit and still be short of cash.<br><br>It comes down to timing: when money is earned vs. when it actually arrives.<br><br><strong>' + lk('Learn why they don’t match', blue31) + '</strong>', '#1A1A1A', 12, HELV, 'left', '0px 32px 24px 8px')]], [1, 1], '#F7F4FA', '0px'),
+ weighted([[H('Partner perk for small businesses', '#1A1A1A', 18, SERIF, 'left', '24px 8px 4px 32px'), T('Insurance helps you plan for the unexpected without upsetting your cash flow. Get covered in minutes.', '#1A1A1A', 12, HELV, 'left', '4px 8px 8px 32px'), pill('Get a quote', blue31, align='left', pad='8px 8px 24px 32px', size='12px', inner='8px 16px')], [H('<span style="display:block;background:#1A2A6A;color:#FFFFFF;padding:28px 0;border-radius:12px">COVER<br>NOW</span>', '#FFFFFF', 22, BLACK, pad='24px 32px 24px 8px')]], [3, 2], '#DDF0F6', '0px'),
+ row(H('<em>Tally Tips</em>', blue31, 18, SERIF, 'right', '20px 32px 4px'), H('Make your reports easier to read', '#1A1A1A', 20, SERIF, 'left', '4px 32px 8px'), T('Your list of accounts is the table of contents for your finances. Tidying it up makes it easier to see where money goes and to get useful reports.', '#1A1A1A', 12, HELV, 'left', '4px 32px 16px'), bg='#A8CCF5', pad='0px'),
+ row(H('<em>Customer spotlight</em>', '#1A1A1A', 18, SERIF, 'left', '20px 32px 8px'), P('face4', 'wide', '0px 32px'), H('Meet Sol Rivera', '#1A1A1A', 20, SERIF, 'left', '16px 32px 4px'), T('Sol has run a martial arts school for 30 years. What’s kept it going isn’t just skill, it’s consistency: building a strong community and keeping a close eye on the numbers.', '#1A1A1A', 12, HELV, 'left', '4px 32px'), pill('Read Sol’s story', blue31, align='left', pad='8px 32px 24px', size='12px', inner='8px 16px'), bg='#C8B0F0', pad='0px'),
+], foot('#FFFFFF', '#555555', 'Tally · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Privacy</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#EAF2FF', ['small business', 'newsletter', 'finance'])
+
+red32 = '#C8102E'
+CODE2 = 'font-family:courier new,monospace;font-size:12px;background:#F4F4F4;display:block;padding:12px 14px;white-space:pre'
+def tip_box(img, alt, title, body): return weighted([[ill(img, alt, '60px', '16px 4px 8px 32px')], [T(f'<strong style="color:#C8102E">{title}</strong><br>{body}', '#1A1A1A', 12, HELV, 'left', '16px 32px 16px 8px')]], [1, 4], '#FFFFFF', '0px')
+studio('dark-mode-guide', 'Designing for Dark Mode', 'Newsletters', 'A practical email-design guide with a bold masthead, red sub-headings, tip boxes with icons, colour swatches and code snippets.',
+ 'How to design your brand colours for dark mode', 'A step-by-step guide, with code you can copy.', [
+ row(H('Type K:', '#1A1A1A', 46, HELV, 'left', '24px 32px 4px'), T('<span style="border:1px solid #C8102E;padding:4px 10px;color:#C8102E">How to design for dark mode</span>', red32, 12, HELV, 'left', '4px 32px 8px'), T('From the <em>Inbox Craft</em> newsletter', '#555555', 11, HELV, 'left', '4px 32px 16px'),
+  ill('half-circle', 'A circle half white, half red', '100px', '8px 32px', 'left'), H('Designing a dark-mode palette for your brand', red32, 20, HELV, 'left', '16px 32px 8px'),
+  T('An often-overlooked part of accessibility is dark mode. Even if you don’t have one on your website, your readers’ email apps may switch to it anyway. Here’s how I’d plan for it.', '#1A1A1A', 13, HELV, 'left', '4px 32px'),
+  H('Create a dark version of your main colours.', red32, 17, HELV, 'left', '16px 32px 4px'), T('Start with the background and text colours. These matter most, because they decide whether your email is readable at all.', '#1A1A1A', 13, HELV, 'left', '4px 32px'), bg='#FFFFFF', pad='0px'),
+ tip_box('bulb-outline', 'A lightbulb', 'Top tip: try off-white and near-black', 'Pure white on pure black can be harsh. A slightly softer pair, like #FAF7F2 and #1A1A1A, is easier on the eyes.'),
+ row(T('<span style="display:block;background:#FAF7F2;border:1px solid #DDD;padding:30px 0"></span>', '#1A1A1A', 1, HELV, pad='8px 32px 0px'), T('<em>Light background: #FAF7F2</em>', '#555555', 11, HELV, 'left', '4px 32px'), T('<span style="display:block;background:#1A1A1A;padding:30px 0"></span>', '#1A1A1A', 1, HELV, pad='8px 32px 0px'), T('<em>Dark background: #1A1A1A</em>', '#555555', 11, HELV, 'left', '4px 32px'),
+  H('Choose an accent colour.', red32, 17, HELV, 'left', '16px 32px 4px'), T('Pick one accent that works on both backgrounds. Check its contrast against each.', '#1A1A1A', 13, HELV, 'left', '4px 32px'), bg='#FFFFFF', pad='0px'),
+ tip_box('warning', 'A warning sign', 'Warning: test your accent’s contrast', 'Make sure it’s readable against both your light and dark backgrounds.'),
+ row(H('Add your dark-mode styles to your email.', red32, 17, HELV, 'left', '16px 32px 4px'), T('Put the dark versions of your colours inside a media query in the head of your email:', '#1A1A1A', 13, HELV, 'left', '4px 32px 8px'),
+  T(f'<span style="{CODE2}">@media (prefers-color-scheme: dark) {{\n  /* your dark styles here */\n}}</span>', '#1A1A1A', 12, MONO, 'left', '4px 32px 8px'), pill('Copy the example', red32, pad='8px 32px 16px', size='12px', inner='10px 18px'),
+  H('Tell email apps you support both.', red32, 17, HELV, 'left', '16px 32px 4px'), T(f'<span style="{CODE2}">&lt;meta name="color-scheme" content="light dark"&gt;</span>', '#1A1A1A', 12, MONO, 'left', '4px 32px 16px'), bg='#FFFFFF', pad='0px'),
+ tip_box('spark-question', 'A sparkle with a question mark', 'Quick question: what if an email app ignores my styles?', 'Some apps invert colours their own way. Design so your email still works if that happens.'),
+ row(H('Test the change.', red32, 17, HELV, 'left', '16px 32px 4px'), T('Once your styles are in, test in light and dark mode on the email apps your readers use most.', '#1A1A1A', 13, HELV, 'left', '4px 32px'),
+  T('<span style="display:block;border:1px solid #C8102E;padding:16px 20px"><strong style="color:#C8102E">In summary</strong><br>' + ul(['Create a dark palette', 'Add an accent colour', 'Add dark-mode styles', 'Tell email apps you support both', 'Test on real email apps']) + '</span>', '#1A1A1A', 13, HELV, 'left', '16px 32px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#555555', '<strong>Type K</strong> is written by an email designer and developer.', 'Inbox Craft · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['guide', 'tutorial', 'code'])
+
+green33 = '#1F6E4A'
+def card_pair(a, b):
+ cell = lambda img, alt, title, body, cta, side: [ill(img, alt, '100%', '8px 8px 8px 32px' if side else '8px 32px 8px 8px'), H(title, '#1A1A1A', 16, HELV, 'left', '8px 8px 4px 32px' if side else '8px 32px 4px 8px'), T(body, '#333333', 12, HELV, 'left', '4px 8px 8px 32px' if side else '4px 32px 8px 8px'), pill(cta, '#14302A', align='left', pad='8px 8px 24px 32px' if side else '8px 32px 24px 8px', size='12px', inner='10px 18px')]
+ return weighted([cell(*a, True), cell(*b, False)], [1, 1], '#EAF5F0', '0px')
+studio('the-monthly-test', 'The Monthly Test', 'Newsletters', 'A tech company newsletter: a letter-style intro, a dark lead image with announcement, then two-up card sections for webinars, product updates and articles, and a tip.',
+ 'The monthly test: fewer tools, better coverage', 'A new integration, two webinars and a testing tip.', [
+ weighted([[H('◬ Testwell', green33, 22, HELV, 'left', '24px 8px 8px 32px')], [T(lk('View in browser', green33), green33, 12, HELV, 'right', '28px 32px 8px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ row(H('The Monthly Test', '#1A1A1A', 22, HELV, 'left', '8px 32px 8px'), T('Your testing setup probably has one tool for mobile, another for web, a third for accessibility and a fourth for devices. Each is fine on its own, but together they mean duplicated work and a lot of switching.<br><br>Testing doesn’t have to be ' + lk('scattered across tools', green33) + '. Here’s how we’re making it simpler, faster and less fragmented.', '#1A1A1A', 13, HELV, 'left', '4px 32px 16px'), divider('#E2E2E2'),
+  ill('qa-hero', 'A cluster of green bars rising from a white platform', pad='16px 32px'), H('Testwell + Orchestra: test without switching tools', '#1A1A1A', 18, HELV, 'left', '8px 32px 4px'), T('Our device-testing agent now runs inside Orchestra’s workflows. No switching, just testing that fits in.', '#1A1A1A', 13, HELV, 'left', '4px 32px'), pill('See the announcement', '#3ADA8A', '#14302A', align='left', pad='12px 32px 28px', size='13px'), bg='#FFFFFF', pad='0px'),
+ row(H('Webinars', '#555555', 15, HELV, 'left', '24px 32px 4px'), bg='#EAF5F0', pad='0px'),
+ card_pair(('webinar-mini', 'A webinar card about visual checks', 'Beyond pass and fail: why visual checks matter', 'Your tests pass, but users still hit bugs. Learn why visual checks catch what others miss.', 'Register today'), ('webinar-mini', 'A webinar card', 'Mobile security as a growth driver', 'How one team turned security testing into a reason customers choose them.', 'Save your seat')),
+ row(H('Product updates', '#555555', 15, HELV, 'left', '16px 32px 4px'), bg='#FFFFFF', pad='0px'),
+ card_pair(('android-17', 'A card reading Test on OS 17', 'OS 17 testing now available', 'Test on real devices and catch problems before your users update.', 'See the details'), ('browser-bot', 'A blue browser icon with a robot face', 'Web OS testing, now in beta', 'Test your web apps on another widely used platform, without adding complexity.', 'Learn what’s new')),
+ row(H('Articles', '#555555', 15, HELV, 'left', '16px 32px 4px'), bg='#EAF5F0', pad='0px'),
+ card_pair(('coins-stack', 'A stack of gold coins', 'Too many tools is a real problem', 'Multiple tools mean multiple versions of the truth. Here’s why it matters now.', 'Read our analysis'), ('interview-card', 'An interview card with a portrait', 'Where testing goes next', 'Our head of marketing on how testing is changing, and what it means for teams.', 'Read the interview')),
+ row(H('💡 Testing tip of the month', '#1A1A1A', 20, HELV, 'left', '24px 32px 4px'), H('Match tests to what users actually do', '#1A1A1A', 15, HELV, 'left', '4px 32px 4px'), T('Teams often organise tests by code structure. Try organising them by the journeys that matter most to the business instead. Coverage decisions get clearer, and you stop over-testing the quiet corners.<br><br>Was this tip useful? 👍 👎', '#1A1A1A', 13, HELV, 'left', '4px 32px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#1A2A2A', '#FFFFFF', 'Testwell · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#EAF5F0', ['newsletter', 'cards', 'tech'])
+
+paper34 = '#F7F4EE'
+def log_section(label, title, body, img=None, alt=None, bg='#F2EEE6'):
+ return row(T(label, '#E8743C', 10, HELV, 'left', '24px 32px 4px'), H(title, '#1A1A1A', 18, HELV, 'left', '4px 32px 8px'), *( [ill(img, alt, pad='4px 32px 8px')] if img else []), T(body, '#333333', 12, HELV, 'left', '4px 32px 4px'), T('<strong>' + lk('Learn more →', '#1A1A1A') + '</strong>', '#1A1A1A', 11, HELV, 'left', '8px 32px 20px'), bg=bg, pad='0px')
+studio('two-month-changelog', 'Two-Month Changelog', 'Product', 'A changelog covering two months: a bold title over a gradient revenue chart, then alternating sections with orange labels, and a bright referral banner.',
+ 'Changelog: March and April', 'Payments, new integrations, warehouse data and more.', [
+ row(T('● Buildly', '#1A1A1A', 13, HELV, 'left', '20px 32px 8px'), H('Buildly changelog:<br><span style="color:#777777">March &amp; April 2026</span>', '#1A1A1A', 26, HELV, 'left', '16px 32px 12px'), ill('gradient-chart', 'A dark-to-pink gradient behind a revenue chart card', pad='0px 32px'),
+  T('A lot has shipped since our last email. ' + lk('Read the full release →', '#E8743C') + ' or keep scrolling for the highlights.', '#333333', 12, HELV, 'left', '12px 32px 16px'), bg=paper34, pad='0px'),
+ log_section('GET PAID', 'Payments, built into your app', 'Add subscriptions, one-off payments and membership tiers to any app with built-in checkout. We handle the account setup and payment events, and you can go live the same day.'),
+ log_section('CONNECT YOUR TOOLS', 'Email, calendar, docs and more', 'Your apps can now connect to the tools your team already uses, including email, calendars, documents and chat, through shared connectors.', bg=paper34),
+ log_section('USE YOUR DATA', 'Connect your data warehouse directly', 'Query your warehouse straight from your app, with no custom backend. Build dashboards and show the data your team already trusts.'),
+ log_section('LESS BUSYWORK', 'Run code. Export files. Keep moving.', 'Buildly can now run code and create downloadable files right in the chat. Analyse data, produce exports and send emails without leaving the app.', 'gradient-prompt', 'A prompt box over a purple and orange gradient', paper34),
+ log_section('SHIP WITH CONFIDENCE', 'Admin controls, built in', 'New controls give workspace admins what they need without slowing anyone down: groups, granular sharing, sign-in rules and searchable audit logs.'),
+ row(T('That’s the short version. For the full picture, see the release notes.', '#333333', 12, HELV, 'left', '20px 32px 8px'), button('Read the full release', '#1A1A1A', align='left'), T('Keep building,<br><br>The Buildly team', '#333333', 12, HELV, 'left', '8px 32px 24px'), bg=paper34, pad='0px'),
+ weighted([[H('Share Buildly', '#FFFFFF', 22, HELV, 'left', '32px 8px 32px 32px')], [T('<span style="background:#FFFFFF;padding:10px 16px;border-radius:6px;color:#1A1A1A">Refer now</span>', '#1A1A1A', 13, HELV, 'right', '34px 32px 32px 8px')]], [2, 1], '#E8208A', '16px 0px'),
+], foot('#FFFFFF', '#777777', 'We sent this because you signed up for Buildly.', 'Buildly · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['changelog', 'product', 'gradient'])
+
+green35, sun35 = '#2E6E3A', '#F5CC1A'
+def resource(title, body): return [T(f'<strong><em><u>{lk(title, green35)}</u></em></strong>', green35, 14, HELV, 'left', '12px 40px 0px'), T(body, '#1A1A1A', 14, HELV, 'left', '2px 40px 8px')]
+studio('parenting-letter', 'Parenting Letter', 'Newsletters', 'A warm parenting newsletter: a simple line icon, a short letter, lists of books and resources with green linked titles, an event and a yellow sign-off panel.',
+ 'Books, shows and support for families this month', 'Resources for talking with kids about how every brain works differently.', [
+ row(H('GROW<br>TOGETHER', '#1A1A1A', 24, BLACK, pad='20px 40px 4px'), T(lk('Home', '#555555') + ' &nbsp; ' + lk('Workshops', '#555555') + ' &nbsp; ' + lk('Reviews', '#555555') + ' &nbsp; ' + lk('Get started', '#555555'), '#555555', 12, HELV, pad='4px 40px 16px'), bg='#F7E8B8', pad='0px'),
+ row(ill('heart-puzzle', 'A heart outline with a puzzle piece', '90px', '24px 40px 8px'), H('Hi there,', '#1A1A1A', 30, HELV, 'left', '8px 40px 8px'),
+  T('This month we’re celebrating the many different ways kids think and move through the world.<br><br>Because belonging isn’t about changing who you are. It’s about being known, respected and welcomed <em>exactly as you are</em>.<br><br>Here are a few books, shows and resources to help your family talk about it with more understanding and more joy.', '#1A1A1A', 14, HELV, 'left', '4px 40px 16px'), divider('#DDD6C0'),
+  H('Books and shows to share with your kids', '#1A1A1A', 17, HELV, 'left', '16px 40px 4px'),
+  *resource('Finn’s Big Ideas (TV series)', 'A boy with a huge imagination uses it to make sense of the world. Gentle, funny and full of big feelings.'),
+  *resource('Many Ways to Say Hello', 'A picture book about a child who doesn’t speak much but has plenty to say, through gestures, drawings and play.'),
+  *resource('My Stripes', 'A child worries that one thing about him is all anyone sees, and learns it’s only one part of who he is.'),
+  divider('#DDD6C0'), H('New in the app', '#1A1A1A', 17, HELV, 'left', '16px 40px 4px'),
+  T('Members asked for more support here, so we worked with a child psychologist to create a new set of guides, <strong>now in the Grow Together app</strong>.', '#1A1A1A', 14, HELV, 'left', '4px 40px'),
+  *resource('When your family gets a new diagnosis', 'A guide for the first few weeks.'), *resource('Talking with your child and others', 'Where to start when you’re not sure what to say.'),
+  T('<a href="https://example.com" style="background:#F5CC1A;color:#1A1A1A;padding:14px 24px;border-radius:8px;text-decoration:none">LEARN MORE</a>', '#1A1A1A', 13, HELV, 'left', '16px 40px 24px'), divider('#DDD6C0'),
+  T('<span style="background:#F5CC1A;border-radius:999px;padding:6px 12px;font-family:courier new;font-size:11px">Support Circles</span>', '#1A1A1A', 11, HELV, 'left', '16px 40px 4px'), H('Parenting kids who think differently', '#1A1A1A', 17, HELV, 'left', '8px 40px 4px'), T('10 April · 12pm ET<br><br>A child psychologist is hosting a support circle this month. Bring your questions and meet other parents.', '#1A1A1A', 14, HELV, 'left', '4px 40px'),
+  T('<a href="https://example.com" style="background:#F5CC1A;color:#1A1A1A;padding:14px 24px;border-radius:8px;text-decoration:none">RSVP</a>', '#1A1A1A', 13, HELV, 'left', '16px 40px 28px'), bg='#FFFDF4', pad='0px'),
+ row(T('We hope this gives your family a few good ways to keep the conversation going.<br><br>It isn’t about helping kids fit in more neatly. It’s about leading with curiosity, so every child has room to be themselves.<br><br>The Grow Together team', '#1A1A1A', 14, HELV, 'left', '28px 40px'), bg=sun35, pad='0px'),
+], foot('#FFFFFF', '#555555', '<em>This is not medical advice. If you have concerns about your child, talk to a qualified professional.</em>', 'Grow Together · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Preferences</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFDF4', ['parenting', 'resources', 'newsletter'])
+
+studio('almost-time', 'Almost Time', 'Events', 'A conference save-the-date: a split header with type on black and a blue duotone crowd, then a short note with event details and one blue button.',
+ 'Registration opens next week', 'Weave Conf is 1–3 September. Tickets go on sale soon.', [
+ row(ill('conf-split', 'A split banner: Registration. Next week. on black beside a blue-tinted crowd'), bg='#FFFFFF', pad='0px'),
+ row(H('It’s almost time', '#111111', 40, HELV, 'left', '40px 56px 8px'), T('Tickets go on sale in a few days for our biggest conference yet, and if last year is anything to go by, you’ll want to be quick.', '#1A1A1A', 15, HELV, 'left', '8px 56px'),
+  T(ul(['<strong>What</strong>: Weave Conf ’26', '<strong>Where</strong>: Your City and online', '<strong>When</strong>: 1–3 September', '<strong>Tickets on sale</strong>: next week']), '#1A1A1A', 15, HELV, 'left', '8px 72px'),
+  T('We’ll email you and post on social media as soon as tickets are available.<br><br>Bigger venue, more sessions, more people. See you next week.', '#1A1A1A', 15, HELV, 'left', '8px 56px'), button('Learn more', '#2A6AF0', align='left'), bg='#FFFFFF', pad='0px 0px 24px'),
+], foot('#EFEFEF', '#777777', 'Weave · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe from Weave Conf emails</a>'), '#EFEFEF', ['save the date', 'conference', 'tickets'])
+
+blue36 = '#3A6AE8'
+def update_block(img, alt, title, body): return row(ill(img, alt, pad='16px 32px 8px'), H(title, '#1A1A1A', 16, HELV, 'left', '8px 32px 4px'), T(body, '#333333', 12, HELV, 'left', '4px 32px 16px'), bg='#FFFFFF', pad='0px')
+studio('busy-month', 'A Busy Month', 'Product', 'A friendly product update: three features each with a gradient screenshot, a list of smaller changes, an ambassador programme and community links.',
+ 'We’ve been busy: sharing, a CRM connection and new workflows', 'Plus an ambassador programme and ways to get involved.', [
+ row(H('▣ blockly', '#1A1A1A', 18, HELV, pad='24px 32px 8px'), T('Hi {{first_name}},<br><br>We’ve been busy making Blockly better.<br><br>Here’s what’s new 👇', '#1A1A1A', 12, HELV, 'left', '16px 32px 8px'), bg='#FFFFFF', pad='0px'),
+ update_block('ui-share', 'A share dialog listing collaborators and their roles', 'Share individual items', 'Share apps, databases and workflows with exactly the right people. We show you what’s connected, so sharing one thing shares everything it needs.'),
+ update_block('ui-crm', 'An app tile connected to a CRM tile', 'Connect your CRM', 'Your CRM is now available as a data source. Build client portals, dashboards and internal tools right on top of your CRM data.'),
+ update_block('ui-flow', 'An app tile branching to three other tools', 'New workflow connections', 'Bring files into your workflows, start a workflow when a form is submitted, and create customers and invoices in your accounting tool.'),
+ row(H('More updates', '#1A1A1A', 18, HELV, 'left', '16px 32px 4px'), T('<strong>App</strong><br>' + ul(['AI can now build apps from your database']) + '<br><br><strong>Workflow connections</strong><br>' + ul(['Documents', 'Task boards', 'Forms', 'New payment actions']), '#333333', 12, HELV, 'left', '4px 32px 16px'),
+  ill('ambassador-card', 'A card reading Become a Blockly Ambassador', pad='8px 32px'), H('Introducing the Blockly Ambassador programme', '#1A1A1A', 16, HELV, 'left', '8px 32px 4px'),
+  T('<strong>Applications are open</strong><br><br>If you’ve ever answered a question in the forum, shared a build or told a friend to try Blockly, this is for you. We’re picking a small group to host meetups, share what they’re building and help shape new features.<br><br>We read every application personally.', '#333333', 12, HELV, 'left', '4px 32px 8px'), button('See the details and apply', blue36, align='left'),
+  H('Help others find Blockly', '#1A1A1A', 15, HELV, 'left', '24px 32px 4px'), T('Your reviews help other builders decide. We’d love to hear what you think.<br>' + ul(['<strong>Review site one:</strong> ' + lk('example.com/reviews/blockly', blue36), '<strong>Review site two:</strong> ' + lk('example.com/blockly-reviews', blue36)]), '#333333', 12, HELV, 'left', '4px 32px 8px'),
+  H('Be part of the community', '#1A1A1A', 15, HELV, 'left', '16px 32px 4px'), T(ul(['Start learning at ' + lk('Blockly Academy', blue36), 'Need help? Work with ' + lk('an expert', blue36), 'Connect with other users in the ' + lk('community forum', blue36)]) + '<br><br>💬 <strong>Questions or tips? Just reply to this email.</strong>', '#333333', 12, HELV, 'left', '4px 32px 8px'), button('Open Blockly', blue36, align='left'), bg='#FFFFFF', pad='0px 0px 16px'),
+], foot('#FFFFFF', '#777777', 'Build business software with AI. No code needed.', 'Blockly · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F4F4F8', ['product update', 'community', 'features'])
+
+def story(n, title, body, faces):
+ return weighted([[H(str(n), '#555555', 18, HELV, 'left', '16px 4px 4px 32px')], [H(title, '#1A1A1A', 17, HELV, 'left', '16px 32px 4px 4px'), T(body, '#333333', 13, HELV, 'left', '4px 32px 4px 4px'), T(''.join(f'<span style="display:inline-block;width:22px;height:22px;border-radius:50%;background:{c};border:2px solid #FFFFFF;margin-left:-6px"></span>' for c in faces), '#333333', 11, HELV, 'left', '6px 32px 16px 10px')]], [1, 9], '#FFFFFF', '0px')
+studio('tech-digest', 'Today in Tech', 'Newsletters', 'A sparse, typographic tech digest: a top story with a large headline, numbered follow-ups with avatar stacks of who’s talking, and a “what they’re building” pick.',
+ 'Today in tech: a new model, a big hire and a fast-rising repo', 'What people in tech are paying attention to today.', [
+ row(T('Know someone who’d like this? <strong><u>' + lk('Share it.', '#1A6AA8') + '</u></strong>', '#555555', 12, HELV, 'left', '20px 32px 8px'), divider('#DDDDDD'), bg='#FFFFFF', pad='0px'),
+ weighted([[H('tickr', '#1A1A1A', 36, BLACK, 'left', '16px 8px 0px 32px')], [T('<strong>TODAY IN /TECH</strong>', '#1A6AA8', 11, MONO, 'right', '28px 32px 0px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ row(T('What people in tech are paying attention to.', '#555555', 14, HELV, 'left', '4px 32px 16px'), T('<strong>TOP STORY</strong>', '#1A6AA8', 11, MONO, 'left', '8px 32px 0px'), H('A new open model claims to match the big labs at a fraction of the cost', '#1A1A1A', 32, HELV, 'left', '4px 32px 8px'),
+  T('The company says its model reaches similar scores on common tests while using far less computing power. Researchers are impressed, but many want to see independent results first.', '#333333', 17, HELV, 'left', '4px 32px 8px'), T('<strong>ENGAGED · 28</strong>', '#555555', 11, MONO, 'left', '8px 32px 4px'), T(''.join(f'<span style="display:inline-block;width:28px;height:28px;border-radius:50%;background:{c};border:2px solid #FFFFFF;margin-left:-6px"></span>' for c in ['#C98E6B', '#3A6AD8', '#E8B48C', '#555555', '#8A5A3A']) + ' &nbsp;+ 23', '#555555', 11, HELV, 'left', '4px 40px 24px'), bg='#FFFFFF', pad='0px'),
+ story(2, 'A security test finds the new model spots bugs humans missed', 'Early testers say it found several real problems in widely used open-source code.', ['#3A3A3A', '#E8743C', '#C98E6B', '#8A8A8A']),
+ story(3, 'Researchers argue we can’t check how these models reason', 'A widely shared essay says today’s tools for inspecting models won’t keep up.', ['#5A7AA8', '#3A3A3A', '#C98E6B', '#1A1A1A']),
+ story(4, 'A former government adviser joins a major AI lab', 'They’ll lead the lab’s work with governments around the world.', ['#8A8A8A', '#C98E6B', '#E8E8E8', '#8A3A3A']),
+ row(T('<strong>◯ ON GITHUB</strong><br><strong>WHAT THEY’RE BUILDING</strong>', '#1A6AA8', 11, MONO, 'left', '20px 32px 4px'), T('<strong><u style="font-family:courier new">tinyhost/tinyhost</u></strong> <span style="color:#1A6AA8;font-family:courier new">+1 ★ 24h</span>', '#1A1A1A', 17, HELV, 'left', '8px 32px 4px'),
+  T('Deploys small web apps from a Git repo onto your own server, with a simple config file and automatic restarts.', '#333333', 14, HELV, 'left', '4px 32px 24px'), divider('#DDDDDD'), T('<strong>TICKR TECH · 2026-09-02</strong><br><br>Follow ' + lk('@tickr', '#1A1A1A') + ' for live updates between editions.', '#1A1A1A', 12, MONO, 'left', '16px 32px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#777777', 'Tickr · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['tech', 'digest', 'typographic'])
+
+# --- Batch eight ---
+ink37, orange37 = '#1A1A2A', '#F2763A'
+def res_cell(tag, title, body, side):
+ p = ('8px 8px 8px 32px', '8px 32px 8px 8px')[side]
+ return [T(f'<span style="background:#E2E6FA;color:#3A4AA8;padding:4px 10px;border-radius:4px;font-size:10px">{tag}</span>', ink37, 10, HELV, 'left', '16px ' + p.split()[1] + ' 4px ' + p.split()[3]), H(title, ink37, 14, HELV, 'left', p), T(body, '#333333', 12, HELV, 'left', p), T('<strong><u>' + lk('Read more →', ink37) + '</u></strong>', ink37, 12, HELV, 'left', p)]
+studio('amplified', 'Amplified', 'Newsletters', 'A B2B monthly newsletter: a pill-tagged header card, a lead story with a pill button, a two-by-two resource grid, a feature callout and two team stories.',
+ 'Amplified: why people trust some emails and not others', 'New research, a webinar, and four guides this month.', [
+ row(H('⫸ Signetry', ink37, 24, HELV, pad='24px 32px 16px'), ill('amp-header', 'A newsletter header card reading Signal Amplified, with pill tags'), bg='#FFFFFF', pad='0px 0px 8px'),
+ row(T('<strong>Hi {{first_name}},</strong><br><br>New research on how AI is changing trust in business email. Also this month: an accessibility webinar, and guides on click rates, tracking and campaign banners.', ink37, 12, HELV, 'left', '16px 32px 16px'), divider('#E2E2E2'),
+  H('People are less sure which business emails are real', ink37, 22, HELV, 'left', '16px 32px 8px'), T('Our new research found most adults now use AI to write messages, and many have doubted whether an email they received was genuine. Here’s what actually builds trust.', '#333333', 12, HELV, 'left', '4px 32px 8px'), pill('Read more →', orange37, align='left', pad='8px 32px 24px', size='12px', inner='10px 22px'), divider('#E2E2E2'),
+  H('Resources round-up', ink37, 22, HELV, 'left', '16px 32px 4px'), bg='#FFFFFF', pad='0px'),
+ weighted([res_cell('WEBINAR', 'Email accessibility: what the rules mean for you', 'Join our 17 September webinar on the accessibility rules that apply to your emails.', 0), res_cell('GUIDE', 'What’s a good click rate for a banner?', 'See benchmarks by industry, and what lifts clicks.', 1)], [1, 1], '#FFFFFF', '0px'),
+ weighted([res_cell('GUIDE', 'Stop losing clicks in your reports', 'Add tracking tags so every click shows up where it should.', 0), res_cell('GUIDE', 'Run campaigns from everyday emails', 'Turn routine emails into a channel with banners and tracking.', 1)], [1, 1], '#FFFFFF', '0px'),
+ row(divider('#E2E2E2'), H('Feature focus', ink37, 22, HELV, 'left', '16px 32px 8px'), T('<span style="display:block;background:#F2F0EC;border-radius:12px;padding:20px"><span style="background:#4A5AE8;color:#FFFFFF;padding:4px 10px;border-radius:4px;font-size:10px">STANDARD &amp; PRO PLANS</span><br><br><strong>Edit your details from your email app</strong><br><br>People can now update their pronouns, phone number and other approved fields without leaving their email app. Admins still decide which fields can be edited.<br><br><span style="border:1px solid #1A1A2A;border-radius:999px;padding:6px 14px">Learn more →</span></span>', ink37, 12, HELV, 'left', '4px 32px 16px'), divider('#E2E2E2'), H('Inside Signetry', ink37, 22, HELV, 'left', '16px 32px 4px'), bg='#FFFFFF', pad='0px'),
+ weighted([[P('face2', 'square', '8px 8px 4px 32px'), T('<span style="background:#F2F2F2;padding:4px 10px;border-radius:4px;font-size:10px">MEET THE TEAM</span>', ink37, 10, HELV, 'left', '16px 8px 4px 32px'), H('Meet our head of legal', ink37, 14, HELV, 'left', '8px 8px 8px 32px'), T('Four principles for clear communication, and why they reduce risk.', '#333333', 12, HELV, 'left', '8px 8px 8px 32px')],
+           [P('team', 'square', '8px 32px 4px 8px'), T('<span style="background:#F2F2F2;padding:4px 10px;border-radius:4px;font-size:10px">CUSTOMER SPOTLIGHT</span>', ink37, 10, HELV, 'left', '16px 32px 4px 8px'), H('How one supplier kept its brand consistent', ink37, 14, HELV, 'left', '8px 32px 8px 8px'), T('Thousands of staff in eight countries, one look.', '#333333', 12, HELV, 'left', '8px 32px 8px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ row(T('All the best,<br><strong>The Signetry team</strong>', ink37, 12, HELV, 'left', '24px 32px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#EDEAE4', '#555555', 'Signetry · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Personalise your emails</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#EDEAE4', ['newsletter', 'b2b', 'resources'])
+
+purple38, cream38 = '#5A3A8A', '#FBF8F0'
+studio('pulse-shorts', 'Pulse Shorts', 'Newsletters', 'A data-led brand newsletter: a purple halftone header, a chatty letter from the writer, a rounded “in this edition” box, then stories with charts.',
+ 'Where famous-founder brands go wrong', 'Plus: who’s buying reusable bottles, and a ring that’s catching on.', [
+ row(T(lk('View in browser', '#7A6AA8'), '#7A6AA8', 11, HELV, 'right', '8px 24px'), bg='#E8E2F5', pad='0px'),
+ row(ill('shorts-header', 'A purple header with halftone portraits, reading Where famous-founder brands go wrong'), bg=purple38, pad='0px'),
+ row(T('Hi {{first_name}},<br><br>I’ve just got back from my local film festival, where I try to see as many films as I can in a week. This year I managed nine, and my head feels better for it.<br><br>Working in brands, and just being a person, I think it matters to take in a wide range of things. When everyone’s inputs come from the same place, it’s easy to mistake copying for success.<br><br>I’ve been thinking about this since a drinks brand from a well-known founder ' + lk('announced it was closing', purple38) + ' less than two years after launch. Everything about it, from the packaging to the social media, felt familiar. It looked like a successful drinks brand. But was it?<br><br>Tell me what you think by replying to this email.<br><br>Happy reading,<br>Jo from Pulse ✌', '#1A1A1A', 13, HELV, 'left', '24px 40px'),
+  T('<span style="display:block;background:#E8E2F5;border-radius:16px;padding:20px 28px"><span style="font-size:22px;color:#5A3A8A">In this edition:</span><br><br>' + ul(['A founder-led drinks brand is closing. Our data shows how little it grew.', 'More people are carrying reusable bottles than ever.', 'A smart ring is quietly winning over new buyers.']) + '</span>', '#1A1A1A', 13, HELV, 'left', '8px 40px 24px'), bg=cream38, pad='0px'),
+ row(H('What went wrong with the drinks brand?', '#1A1A1A', 24, HELV, 'left', '8px 40px 8px'), P('vegetables', 'strip', '8px 40px'), T('“Wait,” someone said when I mentioned it, “they had a drinks brand?”<br><br>Exactly. In eighteen months, awareness barely moved from where it started. We get into the details, backed by our data, in the full article.', '#1A1A1A', 13, HELV, 'left', '8px 40px'), pill('Read the full article', purple38, pad='12px 40px 32px', size='13px'), bg=cream38, pad='0px'),
+ row(H('More people are carrying reusable bottles than ever', '#1A1A1A', 24, HELV, 'left', '32px 40px 8px'), T('Over the past year, awareness of one bottle brand among men doubled, and the number who’d consider buying it nearly doubled too. It turns out people like a bottle you can actually drink from. Who knew?', '#1A1A1A', 13, HELV, 'left', '4px 40px 8px'), ill('drink-chart', 'A line chart of a bottle brand’s funnel over time, with a bottle beside it', pad='8px 40px 32px'), bg='#C8B8E8', pad='0px'),
+ weighted([[P('face3', 'portrait', '24px 8px 24px 40px')], [H('A smart ring is quietly catching on', '#1A1A1A', 24, HELV, 'left', '60px 40px 8px 8px')]], [1, 1], cream38, '0px'),
+ row(T('If tracking your brand isn’t enough data for you, you can always track yourself. One smart ring has grown its awareness by half this year. I guess we all want to know ourselves a bit better.', '#1A1A1A', 13, HELV, 'left', '4px 40px 32px'), bg=cream38, pad='0px'),
+], row(T('<span style="background:#E8E2F5;color:#5A3A8A;padding:10px 24px;border-radius:999px;font-size:20px">Pulse</span>', '#5A3A8A', 20, HELV, pad='32px 40px 8px'), T('Simple, affordable brand tracking.<br><br>Pulse · 12 Example Street, Your City<br>' + lk('Unsubscribe', '#C8B8E8') + ' · ' + lk('Preferences', '#C8B8E8') + '<br><a href="https://xem.email" style="color:#C8B8E8">Built with Xem</a>', '#FFFFFF', 12, HELV, pad='8px 40px 32px'), bg=purple38, pad='0px'),
+ '#E8E2F5', ['newsletter', 'data', 'brands'])
+
+studio('the-essay', 'The Essay', 'Newsletters', 'A long-form essay newsletter: a centred serif title and byline, a stamp-framed illustration, a long piece with a linked list, a sponsor box and a reader poll.',
+ 'What does good work look like after automation?', 'We asked a hundred people who build things for their best guess.', [
+ row(H('E V E R Y D A Y', '#1A1A1A', 18, SERIF, 'left', '20px 32px 0px'), H('<em>Ē</em>', '#1A1A1A', 30, SERIF, pad='16px 32px 0px'), T('On Everyday', '#555555', 11, SERIF, pad='0px 32px 8px'), H('What Does Good Work Look Like After Automation?', '#1A1A1A', 24, SERIF, pad='8px 48px 4px'), T('A hundred people who build things share their predictions', '#777777', 13, SERIF, pad='4px 48px'), T('by Ada Moss', '#777777', 10, SERIF, pad='8px 32px 16px'), ill('bust-stamp', 'A postage-stamp illustration of four statue busts under the words Big Questions', pad='0px 32px'), T('Illustration by Everyday.', '#999999', 10, SERIF, pad='4px 32px 16px'), bg='#FFFFFF', pad='0px'),
+ row(T('<em>Was this forwarded to you? ' + lk('Sign up', '#1A1A1A') + ' to get it in your inbox.</em>', '#1A1A1A', 13, SERIF, 'left', '8px 32px 8px'), divider('#CCCCCC'),
+  T('When software can do more of the work, how will people spend their time? What skills will matter? What kinds of companies will we build, and where will we find meaning?<br><br>These are some of the most important questions of our time, and the usual places we look for answers don’t have them yet.<br><br>But a small group of people do have a head start: the ones already using these tools every day and applying them to real work.<br><br>So today we’re publishing <strong>Big Questions</strong>, a collection of specific, arguable predictions about work from a hundred builders and thinkers. The first twenty-five include:<br><br>' + ul([lk('The biggest problem will be design', '#1A1A1A') + ', by a product lead', lk('Your hardest problems will solve themselves', '#1A1A1A') + ', by a founder', lk('Answers will be cheap; good questions won’t', '#1A1A1A') + ', by a researcher', lk('Boring infrastructure will win', '#1A1A1A') + ', by an investor']) + '<br><br>The collection is a public record of what people expect, so we can come back later and see who was right.', '#1A1A1A', 14, SERIF, 'left', '16px 32px'), bg='#FFFFFF', pad='0px'),
+ row(T('<span style="display:block;background:#F4F4F4;padding:20px"><span style="font-size:22px;color:#1A3AB0">Make your app <strong>real-time.</strong></span><br><br><strong>Build workflows that actually scale</strong><br><br>Slow responses are costing you. Our sponsor handles retries, security and delivery, so you don’t have to.<br><br><a href="https://example.com" style="background:#1A1A1A;color:#FFFFFF;padding:10px 18px;text-decoration:none">Get started for free</a></span>', '#1A1A1A', 13, SERIF, 'left', '8px 32px'), T('<u>' + lk('Want to sponsor Everyday? Click here.', '#999999') + '</u>', '#999999', 11, SERIF, pad='4px 32px 16px'), bg='#FFFFFF', pad='0px'),
+ row(T('We’ll revisit these predictions in a year. Which held up? Which turned out more useful than expected? Which fell apart?<br><br>Read the collection. Find one that sharpens what you already think, or one that makes you want to argue. Then submit your own.', '#1A1A1A', 14, SERIF, 'left', '8px 32px'), button('Explore Big Questions', '#1A1A1A'),
+  T('<em><u>Ada Moss</u> is co-founder of Everyday, where she writes a weekly column.</em>', '#1A1A1A', 12, SERIF, 'left', '16px 32px'), button('Subscribe', '#1A1A1A'), T('<strong>What did you think of this post?</strong><br><br><span style="border:1px solid #CCC;padding:6px 12px">Great</span> <span style="border:1px solid #CCC;padding:6px 12px">Good</span> <span style="border:1px solid #CCC;padding:6px 12px">Meh</span> <span style="border:1px solid #CCC;padding:6px 12px">Bad</span>', '#1A1A1A', 12, HELV, pad='16px 32px 32px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#999999', 'You signed up for emails from Everyday. Need help? Visit our ' + lk('help centre', '#999999') + '.', 'Everyday · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#EFEFEF', ['essay', 'long form', 'newsletter'])
+
+green39 = '#0E5A4A'
+def insider_item(title, body, link): return [H(title, '#1E8A6A', 17, HELV, 'left', '20px 40px 4px'), T(body, '#1A1A1A', 15, HELV, 'left', '4px 40px 4px'), T(f'<u>{lk(link + " ↗", "#1A1A1A")}</u>', '#1A1A1A', 15, HELV, 'left', '4px 40px 16px')]
+studio('the-insider', 'The Insider', 'Newsletters', 'An industry briefing: a deep-green header with a tile map, a white section of three linked updates, an events panel and a green call to action.',
+ 'The Insider: new rules, new research and an event', 'This month in employee health benefits.', [
+ row(H('⋈ WELLMORE', green39, 24, HELV, pad='24px 32px 16px'), bg='#FFFFFF', pad='0px'),
+ row(H('<span style="font-size:14px">THE</span> Wellmore <em>Insider</em>', '#FFFFFF', 30, HELV, 'left', '28px 40px 8px'), divider('#3A8A7A'), T('BENEFITS INTELLIGENCE <span style="float:right">JULY 2026</span>', '#FFFFFF', 12, HELV, 'left', '4px 40px 16px'), ill('tile-map', 'A map made of coloured tiles', pad='0px 40px'),
+  T('New rules on fertility cover are spreading. To help you keep track, our new interactive map shows the rules in every region, so you can plan before they affect your benefits.', '#FFFFFF', 16, HELV, 'left', '24px 40px 8px'), T('<a href="https://example.com" style="display:inline-block;background:#FFFFFF;color:#0E5A4A;padding:12px 40px;border-radius:999px;text-decoration:none">Check your region</a>', '#0E5A4A', 14, HELV, pad='16px 40px 32px'), bg=green39, pad='0px'),
+ row(H('What’s new in family health', '#1A1A1A', 30, HELV, 'left', '32px 40px 8px'),
+  *insider_item('What benefits leaders need to know about the new rules', 'Our new FAQ answers the ten questions HR teams ask most about the changes.', 'Get the FAQ'),
+  *insider_item('New research: one approach cuts the average cost of care', 'How a benefit is designed, not just how much it covers, changes the care people choose.', 'Find out why'),
+  *insider_item('The policy changes reshaping employer benefits', 'Several changes at once are adding up to a cost problem. Our breakdown explains how.', 'Read the breakdown'), bg='#FFFFFF', pad='0px'),
+ weighted([[H('<span style="display:block;background:#0E5A4A;color:#FFFFFF;border-radius:10px;padding:14px 0">ON<br>WARD</span>', '#FFFFFF', 22, BLACK, pad='20px 8px 20px 40px')], [H('Onward 2026', '#1E8A6A', 18, HELV, 'left', '20px 40px 4px 8px'), T('Our first conference on the future of family health.', '#1A1A1A', 15, HELV, 'left', '4px 40px 4px 8px'), T('<u>' + lk('Apply to attend ↗', '#1A1A1A') + '</u>', '#1A1A1A', 15, HELV, 'left', '4px 40px 20px 8px')]], [1, 2], '#F2F2EE', '0px'),
+ row(T('Join hundreds of employers who’ve built family benefits around outcomes, not just coverage.', '#FFFFFF', 16, HELV, pad='32px 48px 8px'), T('<a href="https://example.com" style="display:inline-block;background:#FFFFFF;color:#0E5A4A;padding:12px 40px;border-radius:999px;text-decoration:none">Talk to an expert</a>', '#0E5A4A', 14, HELV, pad='16px 40px 32px'), bg=green39, pad='0px'),
+], foot('#FFFFFF', '#555555', 'Wellmore · 12 Example Street, Your City', 'Need help? Visit our ' + lk('help centre', '#555555') + '.', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#E8E8E8', ['briefing', 'industry', 'health'])
+
+def reader_card(title, img): return row(T(f'<span style="display:block;border:1px solid #E2E2E2;border-radius:6px;padding:14px"><span style="font-size:11px">🙂 <u>The Weekly Reader</u></span><br><strong><u>{title}</u></strong></span>', '#1A1A1A', 14, HELV, 'left', '16px 32px 8px'), bg='#FFFFFF', pad='0px')
+studio('the-weekly-reader', 'The Weekly Reader', 'Newsletters', 'A publication’s weekly digest: a cream intro with a subscribe button, a grid-paper banner, then story cards followed by short excerpts and a closing promo banner.',
+ 'Get the best stories delivered every week', 'Three reads from this week, picked by our editors.', [
+ row(H('Readwell', '#1A1A1A', 32, SERIF, pad='24px 32px'), bg='#FFFFFF', pad='0px'),
+ row(H('Get the best of Readwell every week', '#1A1A1A', 26, SERIF, 'left', '24px 32px 8px'), T('We hope you’re enjoying your first week. If you’re looking for writers to follow, try <strong><u>The Weekly Reader</u></strong>, our digest of the most interesting stories on the site.<br><br>Want to keep up with what people are reading?', '#1A1A1A', 15, SERIF, 'left', '4px 32px 8px'), pill('Subscribe', '#1A1A1A', pad='12px 32px 24px', size='14px', inner='12px 40px'), bg='#F7F2E6', pad='0px'),
+ row(ill('grid-banner', 'A grid-paper banner with a yellow label reading The Weekly Reader'), bg='#FFFFFF', pad='0px'),
+ reader_card('Everyone writes now. Will anyone read in five years?', 'writing'),
+ row(T('Look closely and the new tools are turning everyone into a writer. They all run on prompts, which is a fancy way of saying they do what you write. Being able to put what you see in your head into words is becoming one of the most useful skills there is.<br><br>Writing isn’t going away. Here are ' + lk('a few recent stories', '#1A1A1A') + ' about how writing and new tools are meeting.', '#1A1A1A', 15, HELV, 'left', '8px 32px 16px'), divider('#1A1A1A'), bg='#FFFFFF', pad='0px'),
+ reader_card('Seeing the whole planet from space, and what it does to people', 'stars'),
+ row(T('This month, a new photograph of the planet from far away reminded everyone how small we are. It was also a month when people wrote a lot of poems about it.<br><br>This issue looks at the link between ' + lk('pictures and poems', '#1A1A1A') + '.', '#1A1A1A', 15, HELV, 'left', '8px 32px 16px'), divider('#1A1A1A'), bg='#FFFFFF', pad='0px'),
+ reader_card('Legacies change as we get older', 'library'),
+ row(T('Legacies shift over time, and they’re usually more complicated than they look, from rethinking famous figures to seeing a parent differently as we age.<br><br>See how writers are ' + lk('thinking about legacy', '#1A1A1A') + '.', '#1A1A1A', 15, HELV, 'left', '8px 32px 24px'), bg='#FFFFFF', pad='0px'),
+ weighted([[H('<span style="background:#F7CC2A;padding:0 6px">Better</span><br><span style="background:#F7CC2A;padding:0 6px">reading</span>', '#1A1A1A', 40, HELV, 'left', '24px 8px 24px 32px')], [T('<span style="background:#F7CC2A;padding:2px 6px">Get The Weekly Reader every week.</span><br><br><span style="background:#1A1A1A;color:#FFFFFF;padding:8px 16px;border-radius:999px">Subscribe now</span>', '#1A1A1A', 14, HELV, 'left', '32px 32px 24px 8px')]], [1, 1], '#B8B8B8', '0px'),
+], foot('#FFFFFF', '#555555', 'Sent by Readwell · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe from this type of email</a>'), '#F2F2F2', ['digest', 'reading', 'publication'])
+
+navy40 = '#141436'
+studio('market-recap', 'Market Recap', 'Newsletters', 'A data company’s monthly recap: a dark rounded chart hero with a big number, an article with a wide button, then a lavender panel with a feature, a webinar and a podcast.',
+ 'March recap: demand is up, and the window is now', 'Bookings are running well ahead of last year. Here’s where.', [
+ weighted([[H('S T A Y D A T A', '#FFFFFF', 22, HELV, 'left', '24px 8px 24px 32px')], [T('<strong>April 2026</strong>', '#FFFFFF', 14, HELV, 'right', '28px 32px 24px 8px')]], [1, 1], '#5A5AF0', '0px'),
+ row(ill('big-lift', 'A dark chart with a rising arrow and the number +12.4%', pad='16px 24px'), H('March 2026 recap:', '#1A1A1A', 18, HELV, 'left', '16px 32px 4px'), H('Summer demand is rising, and the window is now', '#1A1A1A', 24, HELV, 'left', '8px 32px 8px'),
+  T('Summer bookings are already running 12.4% ahead of last year, with a big sporting event, school holidays and peak travel all landing in the same two months.<br><br>If you’ve been waiting, the timing is worth noting. Demand is rising, new supply is slowing, and occupancy on the coast and in cities is already going up.<br><br>Our full March report shows which markets are leading, and where the opportunity is strongest this summer.', '#1A1A1A', 14, HELV, 'left', '4px 32px 8px'),
+  T('<a href="https://example.com" style="display:block;background:#141436;color:#FFFFFF;padding:12px;border-radius:999px;text-decoration:none;font-weight:bold">Read the March report</a>', '#FFFFFF', 15, HELV, pad='16px 32px 24px'), bg='#FFFFFF', pad='0px'),
+ row(ill('filter-card', 'A filter panel over a coastal photo', pad='24px 24px 8px'), H('Where do summer travellers actually want to stay?', '#1A1A1A', 18, HELV, 'left', '16px 32px 4px'), T('Use our market filters to compare the coast, the mountains and the cities by revenue, occupancy and growth, so you invest where the data points.', '#1A1A1A', 14, HELV, 'left', '4px 32px 8px'), T('<a href="https://example.com" style="display:block;background:#141436;color:#FFFFFF;padding:12px;border-radius:999px;text-decoration:none;font-weight:bold">Find your market</a>', '#FFFFFF', 15, HELV, pad='8px 32px 24px'),
+  T('<span style="background:#8AF0C8;padding:6px 12px;border-radius:6px;font-size:22px">Webinar</span>', '#1A1A1A', 22, HELV, 'left', '8px 32px 8px'), H('How smart investors are finding good markets', '#1A1A1A', 18, HELV, 'left', '8px 32px 4px'), T('The old way of picking places doesn’t work any more. In this session, we show how data-led investors spot strong markets as they emerge.', '#1A1A1A', 14, HELV, 'left', '4px 32px 8px'), T('<a href="https://example.com" style="display:block;background:#141436;color:#FFFFFF;padding:12px;border-radius:999px;text-decoration:none;font-weight:bold">Watch the replay</a>', '#FFFFFF', 15, HELV, pad='8px 32px 16px'),
+  ill('podcast-card', 'A podcast card with a guest portrait and a sound wave', pad='8px 24px'), H('The next housing cycle is here, and investors should pay attention', '#1A1A1A', 18, HELV, 'left', '16px 32px 4px'), T('Our head of research talks to a leading economist about the biggest housing shift in years, and what it means for short-stay owners.', '#1A1A1A', 14, HELV, 'left', '4px 32px 8px'),
+  T('<a href="https://example.com" style="display:inline-block;background:#141436;color:#FFFFFF;padding:12px 40px;border-radius:999px;text-decoration:none;font-weight:bold">Listen</a>', '#FFFFFF', 15, HELV, pad='8px 32px 32px'), bg='#F4F2FD', pad='0px'),
+], foot('#FFFFFF', '#555555', 'StayData · 12 Example Street, Your City', '<a href="https://example.com" style="color:#3A5AE8">Unsubscribe</a> · <a href="https://example.com" style="color:#3A5AE8">Manage preferences</a>'), '#FFFFFF', ['recap', 'data', 'market'])
+
+brown41 = '#4A3A2E'
+studio('brain-weekly', 'Brain Weekly', 'Newsletters', 'A health science newsletter: a centred issue masthead, a long explainer with bold sub-headings and bullets, an “ask an expert” section with photo, and a news box.',
+ 'The deep dive: can you really reset your brain?', 'A closer look at a popular wellness trend, plus your questions answered.', [
+ row(H('✿ radiant', brown41, 22, HELV, pad='24px 32px 0px'), T('ISSUE 026', brown41, 9, HELV, pad='16px 32px 0px'), H('Radiant Weekly', brown41, 30, HELV, pad='4px 32px 0px'), T('Brain health, explained.', '#777777', 11, HELV, pad='4px 32px 8px'), divider('#DDDDDD'), bg='#FFFFFF', pad='0px'),
+ row(H('The deep dive: can you really “reset” your brain?', brown41, 22, HELV, 'left', '16px 32px 4px'), T('<em>A closer look at the science behind a popular wellness trend.</em>', '#777777', 13, HELV, 'left', '4px 32px 12px'), ill('brain-blob', 'A soft pink brain shape on a pale blue background', pad='0px 32px'),
+  T('Modern life is full of rewarding distractions: social media, streaming, snacks and endless notifications. When these become a big part of your day, other things can start to feel dull by comparison.<br><br>Enter the “brain reset”: the idea that stepping away from these for a while can restore your focus.<br><br>It’s a nice idea. The problem? That’s not quite how your brain works.<br><br><strong>First, what’s actually going on?</strong><br><br>The chemical people blame is often called the “pleasure chemical”, but it’s more closely linked to:<br><br>' + ul(['Motivation', 'Learning', 'Noticing rewards', 'Attention']) + '<br><br><strong>Can you actually reset it?</strong><br><br>Not really. Your brain needs it to work. What does change is what your brain <strong>learns to expect</strong>, which is why slow, deep activities can start to feel less engaging.<br><br><strong>So what should you do instead?</strong><br><br>Rather than a short “detox”, researchers suggest being more deliberate about where your attention goes over time:<br><br>' + ul(['Turn off notifications you don’t need', 'Make phone-free time in your day', 'Spend more time on slower things that pay off', 'Build habits around movement, people and hobbies']) + '<br><br><strong>The takeaway:</strong> resets make good social media posts, but they’re built on a misunderstanding. If you feel overstimulated, changing your daily habits will do more than a weekend off.', '#1A1A1A', 13, HELV, 'left', '16px 32px 8px'),
+  pill('Find support at Radiant', brown41, pad='8px 32px 24px', size='13px'), divider('#DDDDDD'), bg='#FFFFFF', pad='0px'),
+ weighted([[H('Ask an expert', brown41, 22, HELV, 'left', '20px 8px 4px 32px'), T('<em>Straight answers from people who deliver mental health care.</em><br><br><u>Dr Nia Hall</u> is a psychiatrist at Radiant.', '#555555', 12, HELV, 'left', '4px 8px 16px 32px')], [P('face3', 'square', '20px 32px 16px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ row(H('Q: I’m well paid, but I’m still burnt out. What keeps people motivated at work?', brown41, 20, HELV, 'left', '8px 32px 8px'), T('Good pay gets people in the door. But supportive managers, room to grow and flexible working are what keep them. When the only reason to stay is money, someone else can always offer more.', '#1A1A1A', 13, HELV, 'left', '4px 32px 8px'), pill('Discover more', brown41, pad='8px 32px 24px', size='13px'),
+  T('<span style="display:block;border:1px solid #E2E2E2;border-radius:12px;padding:20px"><span style="font-size:20px;color:#4A3A2E">The latest in brain health</span><br><em>What’s happening in mental health care.</em><br><br>🧠 Many people live with anxiety for years before recognising it. Here are ' + lk('the early signs', '#1A1A1A') + '.<br><br>💊 A new study is testing whether ' + lk('mindfulness and therapy work better together', '#1A1A1A') + '.</span>', '#1A1A1A', 13, HELV, 'left', '8px 32px 16px'),
+  T('<strong>If you’re in crisis, contact your local emergency number or a crisis line straight away.</strong>', '#555555', 12, HELV, pad='8px 40px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#777777', 'This newsletter is for information only and isn’t a substitute for professional medical advice.', 'Radiant · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F4F4F2', ['health', 'explainer', 'newsletter'])
+
+purple42, lime42 = '#5A5AE8', '#D8F55A'
+def section_pill(label): return T(f'<span style="background:{lime42 if "REALITY" in label else "#3ADA8A"};color:#1A1A3A;padding:6px 14px;border-radius:999px;font-size:10px;font-weight:bold">{label}</span>', '#1A1A3A', 10, HELV, 'left', '24px 32px 8px')
+def reality(n, title, body, link): return weighted([[H(f'{n:02}', '#1A1A3A', 24, HELV, 'left', '12px 4px 8px 32px')], [T(f'<span style="display:block;border:1px solid #DDDDE8;border-radius:8px;padding:12px 14px"><strong style="font-size:14px">{title}</strong><br><br>{body}<br><br><strong>{link} →</strong></span>', '#1A1A3A', 11, HELV, 'left', '8px 32px 8px 4px')]], [1, 6], '#FFFFF4', '0px')
+studio('subject-line-monthly', 'The Subject Line', 'Newsletters', 'A marketing-platform monthly: a pill-shaped typographic masthead, a dark intro, then labelled sections for product news, numbered insights, events and reads.',
+ 'Surprise and delight is a strategy', 'Pace your sends, why timing beats targeting, and three on-demand sessions.', [
+ row(ill('pill-masthead', 'A purple masthead spelling The Subject Line in pill shapes'), bg=purple42, pad='0px'),
+ row(H('Surprise and delight IS the strategy', '#FFFFFF', 22, HELV, 'left', '24px 32px 8px'), T('When did a brand last genuinely surprise you? Like, kicked-your-feet-up surprised?<br><br>One bakery we work with built a loyal following by sending small, unexpected treats at every step.<br><br>You can too. It comes down to paying attention, and knowing your customers well enough to show up at the right moment.', '#E8E8FA', 12, HELV, 'left', '4px 32px 28px'), bg='#1A1A3A', pad='0px'),
+ row(section_pill('◁ PRODUCT NEWS'), ill('ui-pacing', 'Two app screens showing a sending schedule', pad='8px 32px'), H('New in June: pace your biggest sends', '#1A1A3A', 17, HELV, 'left', '8px 32px 4px'), T('Choose how many people get the message each hour, see the projected finish time before you launch, and send at a steady pace instead of one big spike.', '#333333', 11, HELV, 'left', '4px 32px'), T('<strong>See what’s new →</strong>', '#1A1A3A', 11, HELV, 'left', '8px 32px 8px'), section_pill('✓ REALITY CHECK'), bg='#FFFFF4', pad='0px'),
+ reality(1, 'Email has moved beyond batch and blast', 'Inboxes are sorted by what people engage with. Big batch sends are judged on that history.', 'Get the breakdown'),
+ reality(2, 'Why timing beats targeting', 'Everyone personalises now. Showing up at the right moment is what stands out.', 'Learn why it matters'),
+ reality(3, 'Act when people are ready to buy', 'Readiness happens when someone is ready, on the channel they’re using. Standard reports don’t show you that.', 'See how to do it'),
+ row(section_pill('▣ EVENTS'), bg='#FFFFF4', pad='0px'),
+ weighted([[P('face2', 'square', '8px 8px 8px 32px')], [T('ON DEMAND', '#555555', 10, HELV, 'left', '12px 32px 0px 8px'), H('Thinking with a bakery founder', '#1A1A3A', 14, HELV, 'left', '4px 32px 4px 8px'), T('A founder on building one of the most loyal customer bases around, with no ads.', '#333333', 11, HELV, 'left', '4px 32px 4px 8px'), T('<strong>Watch it now →</strong>', '#1A1A3A', 11, HELV, 'left', '4px 32px 12px 8px')]], [1, 2], '#FFFFF4', '0px'),
+ row(H('Take us for a test drive', '#FFFFFF', 20, HELV, pad='32px 32px 8px'), pill('Explore the product tour', purple42, pad='8px 32px 32px', size='12px'), bg='#1A1A3A', pad='0px'),
+], foot('#FFFFFF', '#555555', 'If you no longer want these emails, <a href="https://example.com" style="color:inherit">unsubscribe here</a>.', 'Sendscape · 12 Example Street, Your City'), '#FFFFF4', ['newsletter', 'marketing', 'sections'])
+
+studio('studio-notes', 'Studio Notes', 'Newsletters', 'A design studio’s update in strict black and white: a framed abstract header, a greeting, then project write-ups with large images, thin rules and plain links.',
+ 'Studio notes: a robot with a soul, and what’s next', 'New work, case studies and partner news.', [
+ weighted([[H('●●', '#111111', 20, HELV, 'left', '16px 8px 8px 24px')], [T('studio.example', '#111111', 12, HELV, 'right', '20px 24px 8px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ row(ill('o-mark', 'Two large grey ovals with halftone texture', pad='0px 24px'), H('Hey there,', '#111111', 30, SERIF, 'left', '16px 24px 8px'), T('To make things that cut through online, you have to spend most of your time offline. At Ovo we like going places and finding sparks: lately that’s meant star clusters, old carvings, lo-fi graphics and science-fiction TV. The work does the talking.', '#111111', 13, HELV, 'left', '4px 24px 24px'), bg='#FFFFFF', pad='0px 0px 0px'),
+ row(H('What’s new', '#111111', 30, SERIF, 'left', '40px 24px 16px'), ill('robot-head', 'A friendly robot head with round camera eyes on a green background', pad='0px 24px'), H('So, can a robot have a soul?', '#111111', 20, SERIF, 'left', '16px 24px 4px'), T('We talked to a design magazine about building a robotics company’s identity, and why we chose close-ups over glossy renders and playful moments over tech clichés.', '#111111', 13, HELV, 'left', '4px 24px'), T(lk('Read the interview', '#111111'), '#111111', 12, HELV, 'left', '8px 24px 24px'), divider('#DDDDDD'), bg='#FFFFFF', pad='0px'),
+ row(H('Latest projects', '#111111', 30, SERIF, 'left', '24px 24px 16px'), P('building', 'wide', '0px 24px'), H('Making a hiring platform feel human', '#111111', 20, SERIF, 'left', '16px 24px 4px'), T('It starts with a hand reaching for another. For a platform that hires developers, we built a new visual world with carved-stone textures and bold layouts, a brand that feels nothing like the usual business software.', '#111111', 13, HELV, 'left', '4px 24px'), T(lk('Visit the site', '#111111'), '#111111', 12, HELV, 'left', '8px 24px 24px'),
+  P('stars', 'wide', '0px 24px'), H('What if the future was a galaxy far away?', '#111111', 20, SERIF, 'left', '16px 24px 4px'), T('A company that models possible futures needed to make that idea feel real. We built a universe with branching paths and distant galaxies, and a spaceship to explore it.', '#111111', 13, HELV, 'left', '4px 24px'), T(lk('Visit the site', '#111111'), '#111111', 12, HELV, 'left', '8px 24px 24px'), bg='#FFFFFF', pad='0px'),
+ row(H('Partners’ news', '#111111', 30, SERIF, 'left', '24px 24px 16px'), T('A robotics company we branded has raised new funding to grow its team, two months after its new identity launched.<br>' + lk('Read more', '#111111') + '<br><br>A drone company we worked with has announced a major new partnership.<br>' + lk('Read more', '#111111'), '#111111', 13, HELV, 'left', '4px 24px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#555555', 'Copyright © 2026 Ovo Studio. You’re getting this because you’re an Ovo partner or friend.', 'Ovo Studio · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['studio', 'minimal', 'portfolio'])
+
+navy43 = '#1A1A8A'
+def brunch_section(name, photo, lead, bullets):
+ return [row(T(f'<strong style="letter-spacing:3px">{name}</strong>', '#1A1A1A', 13, MONO, 'left', '20px 32px 8px'), bg='#E2E0F5', pad='0px'), weighted([[P(photo, 'square', '0px 8px 8px 32px')], [T(lead, '#1A1A1A', 12, HELV, 'left', '8px 32px 8px 8px')]], [2, 3], '#E2E0F5', '0px'), row(T(ul(bullets), '#1A1A1A', 12, HELV, 'left', '4px 32px 16px'), divider('#1A1A1A'), bg='#E2E0F5', pad='0px')]
+studio('culture-brunch', 'Culture Brunch', 'Newsletters', 'A culture roundup on lavender: an illustrated orb header, giant headline type, then themed sections each with a thumbnail, a lead item and short bullets.',
+ 'Culture Brunch: what everyone’s talking about', 'Web culture, entertainment, people and sport, in five minutes.', [
+ row(T('Trouble viewing this email? Go ' + lk('here', '#1A1A1A') + '.', '#1A1A1A', 10, MONO, pad='8px 32px'), ill('brunch-hero', 'A glowing orb with a slice of toast and a fried egg on a plate'), T('SEPTEMBER 9TH, 2026', navy43, 13, HELV, 'left', '8px 32px 0px'), H('CULTURE<br>BRUNCH', navy43, 56, BLACK, 'left', '4px 32px 8px'), H('<u>that’s a lot of popcorn</u>', navy43, 26, HELV, 'left', '8px 32px 0px'), bg='#E2E0F5', pad='0px'),
+ *brunch_section('WEB &amp; CULTURE', 'books', 'Younger people would now rather take recommendations from friends and family than from influencers.', ['Bringing back the ' + lk('portable cassette player', '#1A1A8A'), 'Reading scores for teenagers are at a ' + lk('twenty-year low', '#1A1A8A')]),
+ *brunch_section('ENTERTAINMENT', 'crowd', 'It was a record summer for cinemas, with box-office takings up on last year.', ['A long-running cartoon ' + lk('changed its name', '#1A1A8A') + ' for one episode', 'The makers of a hit romance series ' + lk('rewrote the rules', '#1A1A8A') + ' for indie TV']),
+ *brunch_section('PEOPLE', 'face4', 'A much-loved director is back behind the camera for the first time in twelve years.', ['The head of a national museum ' + lk('has stepped down', '#1A1A8A')]),
+ *brunch_section('SPORTS', 'cyclists', 'A late-night tennis match finally finished after 3am, and the underdog won.', ['A college league is debating ' + lk('a rule change', '#1A1A8A') + ' after a dispute this season']),
+ weighted([[T('<strong style="letter-spacing:3px">SPECIAL EVENTS</strong><br><br>The football season starts today', '#1A1A1A', 12, MONO, 'left', '20px 8px 20px 32px')], [T('<strong style="letter-spacing:3px">BIRTHDAYS</strong><br><br>Three actors and a chef', '#1A1A1A', 12, MONO, 'left', '20px 32px 20px 8px')]], [1, 1], '#E2E0F5', '0px'),
+ weighted([[H('Thanks for reading', '#1A1A1A', 30, HELV, 'left', '32px 8px 8px 32px'), T('<span style="background:#FFFFFF;border-radius:999px;padding:8px 14px">Share this →</span>', '#1A1A1A', 12, HELV, 'left', '8px 8px 32px 32px')], [ill('pane-orb', 'A glowing orb', '160px', '16px 32px 8px 8px'), T('Rosa Kim<br>Senior social strategist', '#1A1A1A', 11, HELV, 'left', '4px 32px 24px 8px')]], [1, 1], '#E2E0F5', '0px'),
+ row(H('BIG<br>ORBIT', '#1A1A1A', 64, BLACK, 'left', '16px 32px 16px'), bg='#E2E0F5', pad='0px'),
+], foot('#E2E0F5', '#1A1A1A', '<a href="https://example.com" style="color:inherit">Unsubscribe from this list</a> · <a href="https://example.com" style="color:inherit">Update your profile</a>', 'Big Orbit · 12 Example Street, Your City'), '#E2E0F5', ['culture', 'roundup', 'newsletter'])
+
+# --- Batch nine ---
+def news_block(kicker, title, photo, body, extra=''):
+ return row(T(f'<strong>{kicker}</strong>', '#C8402A', 10, HELV, 'left', '16px 32px 4px'), H(title, '#1A1A1A', 20, SERIF, 'left', '4px 32px 8px'), *( [P(photo, 'wide', '4px 32px 4px')] if photo else []), T(body + extra, '#1A1A1A', 12, HELV, 'left', '8px 32px 16px'), divider('#DDDDDD'), bg='#FFFFFF', pad='0px')
+studio('sunday-special', 'Sunday Special', 'Newsletters', 'A long weekend news digest: a dense masthead, then many short sections, each with a red kicker, a serif headline, an optional photo and a few paragraphs.',
+ 'Sunday Special: the season’s biggest stories in one place', 'Shopping, a heist, a comeback and a good list of links.', [
+ row(T('SUNDAY 2 NOVEMBER', '#555555', 10, HELV, 'left', '12px 32px 0px'), H('Sunday Special', '#1A1A1A', 40, SERIF, pad='4px 32px 4px'), T('THE DAILY BRIEF · <strong>WEEKEND EDITION</strong>', '#555555', 10, HELV, pad='0px 32px 12px'), divider('#1A1A1A'), bg='#FFFFFF', pad='0px'),
+ news_block('COVER STORY', 'Shoppers are starting the holidays early this year', 'crowd', 'Retailers say people began their holiday shopping weeks earlier than usual, spreading spending out to cope with higher prices.<br><br>' + ul(['Early deals made up a bigger share of sales than last year', 'Online orders grew faster than in-store visits']), '<br><br><strong>Why it matters:</strong> an early start can mean a quieter rush in December, or just a longer one.'),
+ news_block('MONEY', 'Gold is having its best year in decades', 'beans', 'Investors nervous about the economy have pushed gold to record prices. Jewellers say they’re seeing more people sell old pieces than buy new ones.'),
+ news_block('HISTORY', 'A museum robbery, solved by a library card', None, 'Police say a thief who took a set of antique coins was caught after leaving a borrowed book at the scene. The library confirmed it was overdue.'),
+ news_block('ON SCREEN', 'A cancelled show is back, by popular demand', 'hall', 'Fans ran a two-year campaign to bring back a cult comedy. This week, the first new episode drew its biggest audience yet.'),
+ news_block('FOOD', 'Everyone’s talking about a soup', 'bowls', 'A simple bean soup from a small café went viral after a customer posted the recipe card. The café now sells the card for $1, with proceeds going to a food bank.'),
+ row(H('A few good links', '#1A1A1A', 28, BLACK, pad='24px 32px 8px'), T(ul([lk('A map of every public bench', '#1A1A1A') + ' in one city', 'How ' + lk('one family saved their high street', '#1A1A1A'), 'The ' + lk('best photos of the week', '#1A1A1A'), 'A ' + lk('quiz', '#1A1A1A') + ' you will not get 10/10 on']), '#1A1A1A', 13, HELV, 'left', '8px 32px 24px'), bg='#F4F0E8', pad='0px'),
+ row(H('Refer a friend, get rewarded', '#1A1A1A', 20, HELV, pad='24px 32px 8px'), T('Share your link and get a free tote bag after three sign-ups.', '#1A1A1A', 12, HELV, pad='4px 32px 8px'), button('Get your link', '#C8402A'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#777777', 'The Daily Brief · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F2F2F2', ['news', 'digest', 'weekend'])
+
+def framed_story(img, alt, title, body, link, left):
+ pic = [ill(img, alt, '100%', '24px 8px 24px 40px' if left else '24px 40px 24px 8px')]
+ txt = [H(title, '#1A1A1A', 21, HELV, 'left', '28px 40px 8px 12px' if left else '28px 12px 8px 40px'), T(body, '#333333', 13, HELV, 'left', '4px 40px 8px 12px' if left else '4px 12px 8px 40px'), T(f'<u>{lk(link + " →", "#3A3A8A")}</u>', '#3A3A8A', 13, HELV, 'left', '8px 40px 24px 12px' if left else '8px 12px 24px 40px')]
+ return weighted([txt, pic] if not left else [pic, txt], [1, 1], '#FFFFFF', '8px 0px')
+studio('five-steps', 'Five Steps', 'Product', 'A product tutorial email: a rounded video still with a play button, two buttons, framed stories with screenshots, and a soft yellow upgrade panel.',
+ '5 steps to find your best-fit accounts', 'A three-minute video, a webinar and a customer story.', [
+ weighted([[H('✲ Northstar', '#1A1A1A', 24, HELV, 'left', '24px 8px 16px 32px')], [T('<u>' + lk('Log in', '#1A1A1A') + '</u>', '#1A1A1A', 14, HELV, 'right', '28px 32px 16px 8px')]], [1, 1], '#ECEBE6', '0px'),
+ row(ill('video-workflow', 'A workflow builder screen with a yellow play button', pad='0px 24px'), H('5 steps to find your best-fit accounts', '#1A1A1A', 24, HELV, 'left', '24px 32px 8px'), T('In three minutes, learn how to find companies that look like your best customers, and add them to a list that updates itself every week.', '#333333', 15, HELV, 'left', '4px 32px 8px'),
+  T('<a href="https://example.com" style="background:#1F2A28;color:#FFFFFF;padding:14px 20px;border-radius:6px;text-decoration:none">Watch now</a>&nbsp;&nbsp;<a href="https://example.com" style="border:1px solid #1A1A1A;color:#1A1A1A;padding:13px 19px;border-radius:6px;text-decoration:none">Upgrade to unlock</a>', '#1A1A1A', 15, HELV, 'left', '16px 32px 32px'), bg='#FFFFFF', pad='0px'),
+ row(text('', 4, '#1A1A1A', pad='8px 0px'), bg='#ECEBE6', pad='0px'),
+ framed_story('ui-deliver', 'A deliverability chart', 'On demand: the best cold email setup for 2027', 'Inbox rules are getting stricter. Learn how to protect your sending reputation, set up new domains, and take a tour of our deliverability tools.', 'Watch now', False),
+ framed_story('ui-team', 'A pink gradient card with two portraits', 'How one team cut costs by two-thirds', 'See how a growing company simplified its sales tools, improved team performance and built a habit of coaching, while spending less.', 'Read their story', True),
+ row(H('Save up to 20% on a paid plan', '#1A1A1A', 24, HELV, 'left', '28px 32px 8px'), T('Switch to annual billing and save up to 20%.* You’ll get more credits for contact details and sending, plus advanced search filters.', '#1A1A1A', 14, HELV, 'left', '4px 32px 8px'), button('View plans', '#1F2A28', align='left'), bg='#FAF7A8', pad='16px 0px'),
+], foot('#ECEBE6', '#555555', '*Annual plan required. Discount compared with paying monthly.', '<a href="https://example.com" style="color:inherit">Manage preferences</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a> · Northstar · 12 Example Street, Your City'), '#ECEBE6', ['tutorial', 'video', 'product'])
+
+studio('ten-minute-campaign', 'Ten-Minute Campaign', 'Product', 'A product video email: a three-panel product still with a presenter, a headline and two buttons, then framed customer and event stories and an upgrade panel.',
+ 'Launch a full outreach campaign in 10 minutes', 'A step-by-step video, a customer story and a live session.', [
+ weighted([[H('✲ Northstar', '#1A1A1A', 24, HELV, 'left', '24px 8px 16px 32px')], [T('<u>' + lk('Log in', '#1A1A1A') + '</u>', '#1A1A1A', 14, HELV, 'right', '28px 32px 16px 8px')]], [1, 1], '#ECEBE6', '0px'),
+ row(ill('video-assistant', 'A presenter, a contact list with a yellow play button, and an assistant panel', pad='0px 24px'), H('Launch an outreach campaign in 10 minutes', '#1A1A1A', 24, HELV, 'left', '24px 32px 8px'), T('In this step-by-step video, learn how to find the right companies, reach decision-makers by email, phone and social, and use the assistant to write messages that get replies.', '#333333', 15, HELV, 'left', '4px 32px 8px'),
+  T('<a href="https://example.com" style="background:#1F2A28;color:#FFFFFF;padding:14px 20px;border-radius:6px;text-decoration:none">Watch now</a>&nbsp;&nbsp;<a href="https://example.com" style="border:1px solid #1A1A1A;color:#1A1A1A;padding:13px 19px;border-radius:6px;text-decoration:none">Try your first prompt</a>', '#1A1A1A', 15, HELV, 'left', '16px 32px 32px'), bg='#FFFFFF', pad='0px'),
+ row(text('', 4, '#1A1A1A', pad='8px 0px'), bg='#ECEBE6', pad='0px'),
+ framed_story('ui-team', 'A pink gradient card with two portraits', 'How one sales team booked 20% more meetings', 'They replaced four separate tools with one workspace, and meetings went up.', 'Read their story', False),
+ framed_story('ui-deliver', 'A contact list with a host portrait', 'How the top 1% of users book meetings', 'Join our live session tomorrow to see how the most successful users set up their week.<br><br><strong>Time:</strong> 11am ET / 8am PT', 'Register now', True),
+ row(H('Save up to 20% on a paid plan', '#1A1A1A', 24, HELV, 'left', '28px 32px 8px'), T('Switch to annual billing and save up to 20%.*', '#1A1A1A', 14, HELV, 'left', '4px 32px 8px'), button('View plans', '#1F2A28', align='left'), T('Already on an annual plan? You’re all set.', '#555555', 12, HELV, 'left', '0px 32px 8px'), bg='#FAF7A8', pad='16px 0px'),
+], foot('#ECEBE6', '#555555', '*Annual plan required.', '<a href="https://example.com" style="color:inherit">Manage preferences</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a> · Northstar · 12 Example Street, Your City'), '#ECEBE6', ['video', 'product', 'stories'])
+
+wine44, sun44 = '#9A3A4A', '#F7E04A'
+def faq(q, body): return [divider('#DDD4C0'), H(q, '#1A1A1A', 15, HELV, 'left', '16px 32px 4px'), T(body, '#333333', 12, HELV, 'left', '4px 32px 12px')]
+studio('curious-questions', 'Curious Questions', 'Commerce', 'A product FAQ email: a photo header with oversized headline words, then questions answered with product photos, two yellow buttons and a help panel.',
+ 'Questions from the curious', 'Everything cat owners ask us, answered.', [
+ weighted([[H('WHISKERS', '#FFFFFF', 18, HELV, 'left', '24px 8px 4px 24px')], [T('<span style="background:#F7E04A;color:#1A1A1A;padding:8px 16px;border-radius:999px;font-size:12px">Get 50% off</span>', '#1A1A1A', 12, HELV, 'right', '24px 24px 4px 8px')]], [1, 1], wine44, '0px'),
+ row(H('Questions', sun44, 40, HELV, 'left', '8px 24px 0px'), H('from the', sun44, 40, HELV, 'right', '0px 24px 0px'), P('cat', 'wide'), H('cat-curious', sun44, 40, HELV, 'left', '8px 24px 8px'), T('<u>CAT HEALTH MONTH EDITION</u>', '#FFFFFF', 11, HELV, 'left', '4px 24px 20px'), bg=wine44, pad='0px'),
+ row(T('So you’re interested in Whiskers, but you have a few questions. Lucky for you, we have answers.<br><br>Here’s what cat owners ask us most.', '#333333', 12, HELV, 'left', '24px 32px 8px'), *faq('What’s the difference between fresh and tinned?', 'Lots of tinned food is heavily processed. Ours is gently cooked from real ingredients. You do the maths.'), bg='#F2EEE4', pad='0px'),
+ weighted([[ill('food-tub', 'A tub of fresh cat food', '100%', '4px 6px 12px 32px')], [ill('food-can', 'A stack of plain tins', '100%', '4px 32px 12px 6px')]], [1, 1], '#F2EEE4', '0px'),
+ row(*faq('How does it help my cat’s digestion?', 'Gently cooked, high-protein food is easier to digest, so your cat gets more from every meal.'), P('gingercat', 'wide', '4px 32px'), *faq('Why only subscriptions?', 'Regular meals are what make the difference. A subscription means food arrives before you run out. Changed your mind? Cancelling is easy.'),
+  T('<a href="https://example.com" style="display:block;background:#F7E04A;border:1px solid #1A1A1A;border-radius:999px;padding:12px;color:#1A1A1A;text-decoration:none;font-size:11px;letter-spacing:2px"><strong>50% OFF FRESH</strong></a>', '#1A1A1A', 11, HELV, pad='8px 32px 16px'), P('team', 'wide', '4px 32px'),
+  *faq('But will my cat actually eat it?', 'Most cats love it. We test every recipe for taste, because healthy food only helps if it gets eaten.'), P('cat', 'wide', '4px 32px'),
+  T('<a href="https://example.com" style="display:block;background:#F7E04A;border:1px solid #1A1A1A;border-radius:999px;padding:12px;color:#1A1A1A;text-decoration:none;font-size:11px;letter-spacing:2px"><strong>MAKE MEALTIME HEALTHIER</strong></a>', '#1A1A1A', 11, HELV, pad='16px 32px 24px'), bg='#F2EEE4', pad='0px'),
+ weighted([[ill('cat-sketch', 'A sketch of a cat holding a sign', '100%', '24px 8px 24px 32px')], [T('<strong>Got more questions?</strong><br><br>Our cat team is here to help.<br><br>' + lk('Text us', '#1A1A1A') + '<br>' + lk('Email us', '#1A1A1A') + '<br>' + lk('FAQ', '#1A1A1A'), '#1A1A1A', 12, HELV, 'center', '24px 32px 24px 8px')]], [1, 1], '#C8D4E8', '0px 24px'),
+], foot(sun44, '#1A1A1A', '<strong>WHISKERS</strong>', 'Whiskers · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">UNSUBSCRIBE</a>'), '#FFFFFF', ['faq', 'pets', 'subscription'])
+
+purple45 = '#2A1A6A'
+def stat_box(value, label, badge): return row(T(f'<span style="display:block;border:2px solid #1A1A1A;padding:20px"><span style="font-size:26px"><strong>{value}</strong></span><br><strong>{label}</strong><br><br><span style="background:#1A1A1A;color:#FFFFFF;padding:4px 10px;font-size:10px">{badge}</span></span>', '#1A1A1A', 13, HELV, pad='8px 40px'), bg='#FFFFFF', pad='0px')
+studio('month-in-motion', 'Month in Motion', 'Retention', 'A monthly usage recap: a serif title, bordered stat boxes, a coloured activity calendar, illustrated highlights, “trending” app rows and a team spotlight.',
+ 'Your October in motion', 'Your words, your best days and what’s new.', [
+ row(H('▥ Murmur', '#1A1A1A', 16, HELV, pad='20px 40px 0px'), H('Your October<br><em>in Motion</em>', '#1A1A1A', 34, SERIF, pad='8px 40px 8px'), T('Welcome to your monthly look at how you’ve been thinking faster, working smarter and getting through your day with Murmur.', '#1A1A1A', 11, HELV, pad='4px 48px 8px'), bg='#FFFFFF', pad='0px'),
+ stat_box('4,180', 'Words spoken this month', '↑ 7% on last month'), stat_box('#12', 'Your usage ranking*', '↑ 3 places'),
+ row(ill('voice-calendar', 'A calendar of October with your busiest days highlighted in purple', pad='16px 40px 8px'), T('<span style="background:#FFFFFF;border:1px solid #333;padding:0 6px">&nbsp;</span> Quiet &nbsp; <span style="background:#D8C8F8;padding:0 6px">&nbsp;</span> Active &nbsp; <span style="background:#7A5AE8;padding:0 6px">&nbsp;</span> Busiest', '#1A1A1A', 10, HELV, 'left', '4px 40px 16px'),
+  ill('hand-clock', 'A hand holding up a clock, with a rising line and ticked boxes', '260px', '8px 40px'), H('Words per minute: 131', '#1A1A1A', 18, HELV, 'left', '16px 40px 4px'), T('<strong>You averaged 131 words a minute</strong>, much faster than typing. You’re really getting the hang of it.', '#1A1A1A', 12, HELV, 'left', '4px 40px 16px'),
+  H('Trending with other fast talkers', '#1A1A1A', 16, HELV, 'left', '16px 40px 8px'), T('<strong>Drafts</strong> <span style="float:right;background:#1A1A1A;color:#FFFFFF;padding:2px 8px;font-size:10px">Used by 17%</span><br>The quickest place to capture a thought.<br><br><strong>Inbox</strong> <span style="float:right;background:#1A1A1A;color:#FFFFFF;padding:2px 8px;font-size:10px">Used by 15%</span><br>Reply to email by talking.<br><br><strong>Notes</strong> <span style="float:right;background:#1A1A1A;color:#FFFFFF;padding:2px 8px;font-size:10px">Used by 13%</span><br>Turn a long voice note into tidy bullet points.', '#1A1A1A', 12, HELV, 'left', '4px 40px 16px'), bg='#FFFFFF', pad='0px'),
+ row(T('<span style="display:inline-block;width:40px;height:40px;border-radius:50%;background:#C98E6B"></span>', '#1A1A1A', 12, HELV, 'left', '20px 40px 0px'), H('Meet the Murmur team', '#1A1A1A', 16, HELV, 'left', '8px 40px 4px'), T('Hi, I’m Ines, a linguist on the team. I make sure Murmur understands the way you actually talk, accents and all.', '#1A1A1A', 12, HELV, 'left', '4px 40px 20px'), bg='#F7A84A', pad='0px'),
+ row(H('Join our growing team', '#1A1A1A', 16, HELV, pad='24px 40px 8px'), P('team', 'wide', '0px 40px'), T('Help shape how people talk to their devices (and the occasional pumpkin-carving contest).<br><br><strong><u>' + lk('See open roles ↗', '#1A1A1A') + '</u></strong>', '#1A1A1A', 12, HELV, 'left', '8px 40px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#777777', '*Your ranking compares your usage with other people on the same plan.', 'Murmur · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['recap', 'usage', 'stats'])
+
+green46 = '#1E4A3A'
+studio('the-scroll', 'The Scroll', 'Newsletters', 'A creator newsletter: a grid-paper masthead with a script title, an issue contents list, a personal note with signature, a long deep-dive and a video pick.',
+ 'The Scroll: how I actually use AI to write', 'This week’s trends, a note from me, and a deep dive.', [
+ weighted([[T('February 6, 2026', '#1A1A1A', 11, HELV, 'left', '12px 8px 4px 32px')], [T(lk('Log in', '#1A1A1A') + ' | ' + lk('View online', '#1A1A1A'), '#1A1A1A', 11, HELV, 'right', '12px 32px 4px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ row(ill('scroll-masthead', 'A green grid-paper masthead reading The Weekly Scroll by Queueline', pad='8px 32px'), T('<strong>IN THIS ISSUE</strong> <span style="float:right">6-min read</span>', '#1A1A1A', 12, HELV, 'left', '16px 32px 8px'), divider('#1A1A1A'),
+  T('🎵 &nbsp;Trending sounds for February<br>📸 &nbsp;A photo app tests reordering posts<br>🤖 &nbsp;How I use AI as a creator<br>💼 &nbsp;Growing on a professional network', '#1A1A1A', 13, HELV, 'left', '8px 32px 16px'), divider('#1A1A1A'),
+  T('<strong>A NOTE FROM SAM</strong>', '#1A1A1A', 12, HELV, 'left', '16px 32px 4px'), T('Hey folks,<br><br>Have you ever explained something to someone and realised halfway through that you didn’t fully understand it yourself?<br><br>That happened to me this week. I was writing up how I use AI tools, and had to map out my whole workflow, step by step. It sounds simple. It wasn’t.<br><br>Writing it down showed me patterns I hadn’t noticed. AI wasn’t helping with the writing so much as with collecting ideas and editing. The writing is still me, for better or worse.<br><br>Have a lovely weekend, and I’ll see you next Friday!', '#1A1A1A', 13, HELV, 'left', '4px 32px 16px'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('avatar-4', 'Portrait of Sam', '80px', '8px 8px 16px 48px')], [T('<strong>Sam</strong><br><em style="color:#777">Senior content creator</em>', '#1A1A1A', 14, HELV, 'left', '24px 32px 16px 8px')]], [1, 3], '#FFFFFF', '0px'),
+ row(divider('#1A1A1A'), T('<strong>THE LATEST FROM THE BLOG</strong>', '#1A1A1A', 12, HELV, 'left', '16px 32px 4px'), T(ul([lk('Discover', '#1E7A4A') + ' the best time to post this month', lk('Learn', '#1E7A4A') + ' how I grew my following on a professional network', lk('Check out', '#1E7A4A') + ' this month’s trending sounds']), '#1A1A1A', 13, HELV, 'left', '4px 32px 16px'), divider('#1A1A1A'),
+  T('<strong>THE DEEP DIVE</strong>', '#1A1A1A', 12, HELV, 'left', '16px 32px 4px'), H('I use AI every day, but not the way you’d expect', '#1A1A1A', 18, HELV, 'left', '4px 32px 8px'),
+  T('Most people’s AI workflow looks like this: open a chatbot, ask it to write something, get something generic back, rewrite it all, and wonder what the point was. That was me a year ago.<br><br>What changed was working out where each tool fits in my process:<br><br>' + ul(['<strong>Better inputs beat better prompts.</strong> What you feed the tool matters more than how you ask.', '<strong>It’s a thinking partner, not a ghostwriter.</strong> I use it to find holes in my ideas.', '<strong>Your voice is the thing it can’t copy.</strong> I write drafts myself and use AI to edit.', '<strong>Automate the busywork, not the creative part.</strong>']) + '<br><br><strong>Bottom line:</strong> AI won’t fix weak content, but it will speed you up once you know what you’re making.', '#1A1A1A', 13, HELV, 'left', '4px 32px 8px'), pill('Dive deeper', '#A8E6A1', green46, pad='8px 32px 24px', size='13px'), divider('#1A1A1A'),
+  T('<strong>QUEUELINE ON VIDEO</strong>', '#1A1A1A', 12, HELV, 'left', '16px 32px 8px'), ill('video-thumb', 'A video thumbnail of a presenter beside the words Let’s tune up your profile', pad='0px 32px'), H('Profile tips that grew my audience', '#1A1A1A', 16, HELV, 'left', '12px 32px 4px'), T('A short, practical walk-through of the profile changes that made the biggest difference.', '#1A1A1A', 13, HELV, 'left', '4px 32px 8px'), pill('Watch video', '#A8E6A1', green46, pad='8px 32px 24px', size='13px'), bg='#FFFFFF', pad='0px'),
+ row(T('<span style="display:block;background:#E8F7E8;border:1px solid #A8E6A1;padding:20px"><strong>One last thing before you go</strong><br><br>What would you like more (or less) of in this newsletter? Reply and tell us.<br><br><u>' + lk('Take the survey →', green46) + '</u></span>', '#1A1A1A', 12, HELV, pad='8px 32px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#777777', 'Sent by the team at Queueline · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F4F4F0', ['creator', 'newsletter', 'personal'])
+
+def dev_card(img, alt, title, body):
+ return row(ill(img, alt, pad='16px 32px 0px'), T(f'<span style="display:block;background:#FFFFFF;border:1px solid #EEE;padding:16px"><strong style="font-size:16px">{title}</strong><br><br>{body}<br><br><strong><u>{lk("Learn more", "#5A1A7A")}</u> →</strong></span>', '#1A1A1A', 12, HELV, 'left', '0px 32px 24px'), bg='#FFFFFF', pad='0px')
+studio('dev-digest', 'Developer Digest', 'Product', 'A developer newsletter: a soft header, a chatty intro, feature cards with bold banners, a lilac livestream panel and a list of new features.',
+ 'February for developers: a helper bot, agents and a livestream', 'What shipped this month, and how to show us what you built.', [
+ row(H('<span style="color:#E8473C">■</span><span style="color:#F2C14E">■</span><span style="color:#3AB8E8">■</span><span style="color:#3AC46A">■</span> chatterbox', '#1A1A1A', 22, HELV, pad='24px 32px 16px'), bg='#F4EEFA', pad='0px'),
+ row(T('<strong>FEBRUARY 2026</strong>', '#1A1A1A', 11, HELV, 'left', '24px 32px 0px'), H('Hi {{first_name}},', '#1A1A1A', 24, HELV, 'left', '4px 32px 8px'), T('It’s February already. How? The new-year resolutions have settled down and everyone’s working out what’s actually worth keeping. We’re keeping something dependable: useful updates, good features and developer tools that make building a little easier.<br><br>Here’s what February brought.', '#1A1A1A', 12, HELV, 'left', '4px 32px 8px'), bg='#FFFFFF', pad='0px'),
+ dev_card('bot-face', 'A friendly square bot face beside the words Hello, Helper', 'Hello, Helper', 'Hey Helper, what can you do? Our new guide is full of practical prompts for everyday work: getting up to speed on code, finding the right expert, keeping track of what you promised.'),
+ dev_card('gears-banner', 'A blue banner with green gears reading Faster security reviews with Agents', 'Faster security reviews with agents', 'Our security team built a set of AI agents that work together to investigate alerts. Instead of one big prompt, separate agents gather facts, check each other’s work and report back.'),
+ row(T('<span style="display:block;background:#F4EEFA;padding:24px"><span style="font-size:18px"><strong>Dev Hour, episode 2: live</strong></span><br><br>Our next livestream is about building smarter workflows with branching logic. We’ll walk through how to build workflows that change based on input, with no code and live demos.<br><br><strong>Next episode: 19 February, 12pm PT</strong><br><br><strong><u>' + lk('Watch Dev Hour', '#5A1A7A') + '</u> →</strong></span>', '#1A1A1A', 12, HELV, 'left', '8px 32px 24px'), bg='#FFFFFF', pad='0px'),
+ row(H('Fresh features to start the year', '#1A1A1A', 18, HELV, 'left', '16px 32px 8px'), T(ul(['<strong>Custom search connectors</strong> are now available to everyone. Bring data from your own systems into search.', '<strong>Link to channel sections.</strong> Right-click a section and copy its link to share it anywhere.', '<strong>Helper is out early this year.</strong> It understands your messages, files and tools, and can answer questions and draft content.']), '#1A1A1A', 12, HELV, 'left', '4px 32px 16px'),
+  H('Show us what you’ve built', '#1A1A1A', 18, HELV, 'left', '16px 32px 8px'), T('Built something cool? We want to see it. Share your project at ' + lk('devs@example.com', '#5A1A7A') + ' and you might be featured next month.<br><br>– Jules', '#1A1A1A', 12, HELV, 'left', '4px 32px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#555555', '© 2026 Chatterbox · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Our blog</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['developer', 'newsletter', 'features'])
+
+green47 = '#1E3A2E'
+studio('modern-hiring', 'Modern Hiring', 'Newsletters', 'A recruiting newsletter: a dark-green masthead with an issue list, a report-led lead story, two article cards, a dark tips section and product panels.',
+ 'Modern Hiring: time to check IDs at the door', 'Fraud in hiring is rising. Here’s how teams are responding.', [
+ weighted([[T('▲ greenfield', '#C8E8C8', 13, HELV, 'left', '20px 8px 4px 32px'), H('Modern<br>Hiring', '#FFFFFF', 34, SERIF, 'left', '8px 8px 4px 32px'), T('February 5, 2026', '#C8E8C8', 11, HELV, 'left', '4px 8px 16px 32px')], [T('<strong>In this issue</strong><br>The 2026 hiring report<br>Rebuilding candidate trust<br>Fraud, spam and risk<br>AI in hiring', '#FFFFFF', 11, HELV, 'left', '28px 32px 16px 8px')]], [1, 1], green47, '0px'),
+ row(ill('recruiter-tablet', 'A tablet showing The 2026 Hiring Report'), bg=green47, pad='0px'),
+ row(H('Hiring teams: it’s time to check IDs at the door', '#1A1A1A', 26, SERIF, 'left', '28px 32px 8px'), T('AI and hiring were supposed to be a good match: faster screening, smoother processes, better signals.<br><br>But lately they’ve brought an uninvited guest: fraud. Our <strong>' + lk('2026 Hiring Report', '#1E7A4A') + '</strong> found that <strong>most recruiters have spotted, or suspect, candidates misrepresenting themselves in the past year.</strong><br><br>This edition looks at that trust gap, and how to close it without slowing hiring down.', '#1A1A1A', 13, HELV, 'left', '4px 32px 8px'), pill('Download the report', '#1E7A4A', align='left', pad='8px 32px 24px', size='12px'), bg='#FFFFFF', pad='0px'),
+ weighted([[P('laptops', 'square', '20px 8px 4px 32px'), T('<strong>Rebuilding trust in an AI-driven hiring world</strong><br><br>As automation grows, candidates are less sure what’s real. Clear process and quick feedback help.<br><br><u>' + lk('Get the advice', '#1E7A4A') + '</u>', '#1A1A1A', 12, HELV, 'left', '8px 8px 20px 32px')], [P('meeting', 'square', '20px 32px 4px 8px'), T('<strong>When AI floods the funnel, risk follows</strong><br><br>Automated applications make it harder to tell who’s real. Here’s what helps.<br><br><u>' + lk('Read the article', '#1E7A4A') + '</u>', '#1A1A1A', 12, HELV, 'left', '8px 32px 20px 8px')]], [1, 1], '#F4F4F2', '0px'),
+ row(H('The recruiter’s desk: four ways to manage risk', '#FFFFFF', 22, SERIF, 'left', '28px 32px 8px'), T('<strong>Tip 1: treat AI as input, not authority.</strong> Use it like a smart colleague’s opinion, not the final word.<br><br><strong>Tip 2: replace black boxes with glass boxes.</strong> Teams should be able to see how a tool reached its answer.<br><br><strong>Tip 3: check identity from start to finish.</strong> Verification shouldn’t stop at the application.<br><br><strong>Tip 4: ask for explanations.</strong> Audit trails and clear reasoning keep everyone honest.', '#E8F0E8', 12, HELV, 'left', '4px 32px 28px'), bg=green47, pad='0px'),
+ weighted([[ill('verify-panel', 'A panel with three verification steps', '100%', '0px')], [H('Designing safer hiring', '#1A1A1A', 16, HELV, 'left', '24px 32px 4px 16px'), T('Customers told us they were worried about fraud. So we built tools to verify identity and focus on real signals.<br><br><u>' + lk('Learn how it works', '#1E7A4A') + '</u>', '#1A1A1A', 12, HELV, 'left', '4px 32px 24px 16px')]], [1, 1], '#C8EAD8', '0px'),
+ weighted([[H('See verified hiring in action', '#1A1A1A', 16, HELV, 'left', '24px 16px 4px 32px'), T('Spot fraud, verify candidates and move faster with more confidence.<br><br><u>' + lk('Get in touch', '#1E7A4A') + '</u>', '#1A1A1A', 12, HELV, 'left', '4px 16px 24px 32px')], [ill('match-ui', 'A candidate matching table', '100%', '16px 32px 16px 0px')]], [1, 1], '#E8F5EE', '0px'),
+ row(H('Thank you', '#1A1A1A', 22, SERIF, 'left', '28px 32px 8px'), T('Thanks for reading this edition of Modern Hiring. Questions or ideas? Reply to this email.<br><br>Best,<br><strong>Tola Ade</strong><br>Content lead', '#1A1A1A', 13, HELV, 'left', '4px 32px 28px'), bg='#FFFFFF', pad='0px'),
+], foot(green47, '#C8E8C8', 'Greenfield · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F4F4F2', ['hiring', 'newsletter', 'b2b'])
+
+orange48 = '#F06A3A'
+def bill_section(img, alt, title, body, cta): return row(P(img, 'wide', '24px 24px 8px') if img in PHOTOS else ill(img, alt, pad='24px 24px 8px'), H(title, '#1A1A1A', 20, HELV, 'left', '8px 24px 4px'), T(body, '#333333', 12, HELV, 'left', '4px 24px 8px'), pill(cta, orange48, align='left', pad='8px 24px 16px', size='12px', inner='8px 16px'), bg='#FFFFFF', pad='0px')
+studio('kickoff-2027', 'Kicking Off 2027', 'Product', 'A long product-marketing roundup: a gradient year banner with a linked contents list, then stacked sections each with a bold banner, a headline and an orange button.',
+ 'How we’re kicking off the new year', 'Webinars, faster tax forms, a cash-flow calculator and an event.', [
+ row(H('pennywise', orange48, 26, HELV, pad='24px 24px 8px'), ill('big-year', 'An orange gradient banner reading 2027 with a New tools tag'), H('How we’re kicking off the new year', '#1A1A1A', 22, HELV, 'left', '20px 24px 8px'),
+  T(ul([lk('Contractor onboarding in 2027', '#3A5AE8'), lk('A simpler way to handle tax forms', '#3A5AE8'), lk('See your cash flow in minutes', '#3A5AE8'), lk('Meet us at the summit', '#3A5AE8')]), '#1A1A1A', 12, HELV, 'left', '4px 24px 16px'), bg='#FFFFFF', pad='0px'),
+ bill_section('video-thumb', 'A webinar video still', 'Webinar: contractor onboarding in 2027', 'The rules for contractors are changing. Join us on 20 January to see what’s new and how to keep onboarding simple and compliant.', 'Register now'),
+ bill_section('tool-card', 'A form-filing screen beside the words Forms without fuss', 'Collect, create and file tax forms with Pennywise', 'Collect forms, check details and file everything from one place, with clear tracking and reminders.', 'Get started'),
+ bill_section('ui-bars', 'A cash-flow chart', 'Your cash-flow calculator', 'Wondering how much cash your business really has? Our calculator shows you in under two minutes. No sign-up required.', 'Try the calculator'),
+ bill_section('hall', 'An audience at a conference', 'Meet Pennywise at the finance summit', 'We’ll be at the summit with demos and our partners. Book a session in advance and say hello at stand 12.', 'Learn more'),
+ row(H('See Pennywise in action', '#1A1A1A', 20, HELV, 'left', '24px 24px 4px'), T('Bring your bills, payments and spending together in one place. Book a quick demo and get a $50 gift card.', '#333333', 12, HELV, 'left', '4px 24px 8px'), pill('Get your gift card', orange48, align='left', pad='8px 24px 24px', size='12px', inner='8px 16px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#777777', 'Gift card offer for qualifying businesses that complete a demo. Terms apply.', 'Pennywise · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F2F2F2', ['roundup', 'product', 'finance'])
+
+gold49 = '#F7C83A'
+studio('your-key', 'Your Key Is Here', 'Commerce', 'A games publisher’s demo-key email: a pixel-art header in a gold frame, a playful letter, a chunky button, an interview excerpt and a dark footer with stacked buttons.',
+ 'Your key to the Glass Castle demo', 'You’re one of the first to play. Here’s your key.', [
+ row(H('🎩', '#1A1A1A', 30, HELV, pad='12px 32px'), bg=gold49, pad='0px'),
+ row(T('in partnership with', '#555555', 10, HELV, pad='16px 32px 0px'), H('◐ Lantern Games', '#C8A030', 16, SERIF, pad='4px 32px 8px'), H('The Castle<br>Welcomes You!', '#1A1A1A', 32, HELV, pad='8px 32px 4px'), T('Your early key for the <strong>Glass Castle</strong> demo is here.', '#1A1A1A', 14, SERIF, pad='4px 32px 16px'), ill('pixel-sign', 'A pixel-art sign reading Glass Castle beside a pixel character, in a gold frame', pad='0px 24px'),
+  T('Oh yes, hello {{first_name}},<br><br>Today you’re getting your key for the Glass Castle demo. It’s more exclusive than you might think: the game isn’t out yet, and won’t be for a little while.<br><br>You’re in the first group of players to try it, so feel free to brag. (And if your friends want a key, tell them to subscribe. We have plenty.)', '#1A1A1A', 12, SERIF, 'left', '16px 40px 8px'),
+  T('<a href="https://example.com" style="display:inline-block;background:#F7C83A;border:2px solid #1A1A1A;padding:12px 60px;color:#1A1A1A;text-decoration:none;font-family:georgia;font-weight:bold">claim your key!</a>', '#1A1A1A', 13, SERIF, pad='16px 32px 24px'),
+  H('An interview with the developer', '#1A1A1A', 24, HELV, 'left', '16px 40px 8px'), T('We asked the game’s creator a few questions this month. One answer stood out:', '#1A1A1A', 12, SERIF, 'left', '4px 40px 8px'),
+  T('<em>“You can inspect almost anything in the game and read a little description of it. On the battlefield they’re practical. Everywhere else they’re mostly jokes. The throne and the mop bucket have the same description. Almost nobody notices.”</em>', '#1A1A1A', 12, SERIF, 'left', '4px 40px 16px'), ill('pixel-creature', 'A pixel-art pink creature lying across a dark scene, in a gold frame', pad='0px 24px'),
+  T('<a href="https://example.com" style="display:inline-block;background:#F7C83A;border:2px solid #1A1A1A;padding:12px 40px;color:#1A1A1A;text-decoration:none;font-family:georgia;font-weight:bold">Read the full interview</a>', '#1A1A1A', 13, SERIF, pad='16px 32px 24px'),
+  H('That’s a wrap.', '#1A1A1A', 24, HELV, 'left', '8px 40px 8px'), T('That’s the end of this month’s partnership. Enjoy Glass Castle. Next month we’re teaming up with another small studio, so keep an eye out.<br><br>Until next time.<br><br><span style="color:#C8A030">lantern.</span>', '#1A1A1A', 12, SERIF, 'left', '4px 40px 32px'), bg='#F2F2F2', pad='0px'),
+], row(H('🎩 lantern', gold49, 32, SERIF, pad='32px 32px 16px'), *[T(f'<span style="display:block;background:#F7C83A;padding:10px;color:#1A1A1A;font-family:georgia;font-weight:bold">{t}</span>', '#1A1A1A', 13, SERIF, pad='6px 96px') for t in ['go premium', 'get our catalogue', 'join the chat']],
+  T('Lantern is an indie game label · 12 Example Street, Your City<br>' + lk('View in browser', '#FFFFFF') + ' | ' + lk('Unsubscribe', '#FFFFFF') + '<br><a href="https://xem.email" style="color:#FFFFFF">Built with Xem</a>', '#FFFFFF', 10, MONO, pad='16px 32px 32px'), bg='#1C1C1C', pad='0px'),
+ '#F2F2F2', ['games', 'key', 'playful'])
+
+# --- Batch ten ---
+studio('year-at-jotter', 'Our Year', 'Retention', 'A year-in-review letter: a playful illustrated card, a short note with bold highlights and bullets, a wide black button and a platform footer.',
+ 'Our year at Jotter, in a few lines', 'What we shipped this year, and what’s coming next.', [
+ row(H('<span style="color:#2AB85A">●</span> jotter', '#1A1A1A', 22, HELV, pad='24px 32px 16px'), ill('year-card', 'A tilted card reading 2026 at Jotter, with notes, a magnifier and a play button', pad='0px 16px'), bg='#FFFFFF', pad='0px'),
+ row(T('Hi there,<br><br>We take getting things done seriously, so we’re happy to say this was our busiest year yet. We shipped <strong>120 improvements</strong> to make Jotter faster, more reliable and easier to use.<br><br>In the summer we shared ' + lk('our mid-year update', '#3A5AE8') + '. Here are a few highlights since then:', '#333333', 15, HELV, 'left', '24px 32px 8px'),
+  T(ul(['<strong>Write faster</strong> with more shortcuts and a better insert menu.', '<strong>Stay focused</strong> with focus mode and quick calculations.', '<strong>Find things faster</strong> with clearer search results.', '<strong>A smoother app</strong> with multi-note selection on mobile.']), '#333333', 15, HELV, 'left', '4px 48px 8px'),
+  T('And we’re not stopping: our next big update is <strong>coming early next year</strong>, with three new assistant features: <strong>summaries, smarter search and meeting notes</strong>.<br><br>In our ' + lk('monthly recap video', '#3A5AE8') + ', our product lead shows the new features and explains what it’s taken to get them ready.', '#333333', 15, HELV, 'left', '8px 32px 16px'),
+  T('<a href="https://example.com" style="display:block;background:#111111;color:#FFFFFF;padding:16px;border-radius:6px;text-decoration:none">Read the blog post about our year</a>', '#FFFFFF', 15, HELV, pad='16px 24px 16px'), T('Thanks for being part of Jotter this year,<br><br>The Jotter team', '#333333', 15, HELV, 'left', '16px 32px 32px'), bg='#FFFFFF', pad='0px'),
+], row(divider('#DDDDDD'), T('Jotter works on all your devices', '#1A1A1A', 14, HELV, pad='16px 32px 8px'), T('<span style="display:inline-block;border:1px solid #CCC;border-radius:6px;padding:10px 20px">Phone</span> <span style="display:inline-block;border:1px solid #CCC;border-radius:6px;padding:10px 20px">Tablet</span> <span style="display:inline-block;border:1px solid #CCC;border-radius:6px;padding:10px 20px">Desktop</span> <span style="display:inline-block;border:1px solid #CCC;border-radius:6px;padding:10px 20px">Web</span>', '#1A1A1A', 13, HELV, pad='8px 24px 16px'), T('<strong>Jotter · 12 Example Street, Your City.</strong><br>' + lk('Unsubscribe', '#3A5AE8') + ' · <a href="https://xem.email" style="color:#3A5AE8">Built with Xem</a>', '#1A1A1A', 12, HELV, pad='8px 32px 32px'), bg='#EEEEEE', pad='0px'),
+ '#F4F6FB', ['year in review', 'letter', 'product'])
+
+orange51 = '#FF5A1A'
+studio('hackathon', 'Hackathon Results', 'Events', 'A short event invitation framed around results: a dark grid illustration of two connected tiles, a big headline, a ticked list and an orange pill.',
+ '41 workflows built in one afternoon. Come and see.', 'Our marketing team’s hackathon, shown live.', [
+ row(H('<span style="color:#FF5A1A">_</span>relay', '#1A1A1A', 26, HELV, 'left', '32px 40px 16px'), ill('grid-connect', 'Two tiles connected on a dark grid', pad='0px 40px'), H('41 workflows, tools and agents', '#1A1A1A', 32, HELV, 'left', '24px 40px 8px'),
+  T('60 marketers. One training session. One very productive afternoon.<br><br>Here’s what we built to run our own marketing:', '#333333', 15, HELV, 'left', '4px 40px 8px'),
+  T('✓ &nbsp;Weekly reports on our best-performing posts<br><br>✓ &nbsp;Tracking what competitors launch<br><br>✓ &nbsp;Campaign content for every channel<br><br>✓ &nbsp;The automations that never get engineering time', '#333333', 15, HELV, 'left', '8px 40px 8px'),
+  T('Our marketers are showing it all. Come and join us!', '#333333', 15, HELV, 'left', '8px 40px 8px'), pill('Save your spot', orange51, pad='16px 40px 40px', size='15px'), bg='#FFFEF6', pad='0px'),
+], row(H('<span style="color:#FF5A1A">_</span>relay', '#FFFFFF', 26, HELV, 'left', '32px 40px 8px'), T('Got a question? <strong><u>' + lk('Send us a message', '#FFFFFF') + '</u></strong>', '#FFFFFF', 13, HELV, 'left', '8px 40px 16px'), T('Relay · 12 Example Street, Your City<br><br>You’re getting this because you subscribed to event updates.<br>' + lk('Unsubscribe', '#FFFFFF') + ' · <a href="https://xem.email" style="color:#FFFFFF">Built with Xem</a>', '#FFFFFF', 12, HELV, 'left', '8px 40px 32px'), text('', 4, '#FF5A1A', pad='0px'), bg='#1E1414', pad='0px'),
+ '#F2FAD8', ['event', 'invitation', 'short'])
+
+def rn_feature(img, alt, title, body, link): return row(ill(img, alt, pad='16px 24px 0px'), H(title, '#111111', 20, HELV, 'left', '16px 32px 8px'), T(body, '#333333', 12, HELV, 'left', '4px 32px 8px'), T(f'<strong><u>{lk(link + " →", "#3A5AD8")}</u></strong>', '#3A5AD8', 12, HELV, 'left', '4px 32px 24px'), bg='#FFFFFF', pad='0px')
+def rn_small(img, alt, title, body, link): return weighted([[ill(img, alt, '56px', '16px 4px 8px 32px')], [H(title, '#111111', 15, HELV, 'left', '16px 32px 4px 8px'), T(body, '#333333', 12, HELV, 'left', '4px 32px 4px 8px'), T(f'<strong><u>{lk(link + " →", "#3A5AD8")}</u></strong>', '#3A5AD8', 12, HELV, 'left', '4px 32px 16px 8px')]], [1, 4], '#FFFFFF', '0px')
+studio('release-notes-design', 'Release Notes', 'Product', 'A design-tool release email: a graphic masthead, a playful intro, big features with screenshots, smaller icon-led updates and a speaker-grid event plug.',
+ 'Release notes: reusable parts, and AI on the canvas', 'Customise components without breaking them, and more.', [
+ row(ill('release-masthead', 'A masthead reading Release Notes with colourful pattern blocks'), T('Detach a component.<br><br>Did those words just send a shiver down your spine? Then good news: <strong><u>' + lk('parts are here', '#111111') + '</u></strong>! Customise components without detaching them or breaking your design system.<br><br>More on parts, plus other updates, below.', '#333333', 12, HELV, 'left', '16px 32px 16px'), bg='#FFFFFF', pad='0px'),
+ rn_feature('ui-slots', 'A card being edited with a menu of parts to add', 'Hello parts. Goodbye detaching.', 'Add content without breaking structure. Parts let you customise modals, cards and more inside a component, without detaching it.<br><br>Want best practices? Join our ' + lk('livestream', '#111111') + ' on 8 April.', 'Try it out'),
+ rn_feature('terminal-ui', 'A terminal window showing an assistant building a component', 'The canvas is open to AI assistants', 'Assistants can now design directly on the canvas with our new tool, in beta.<br><br>With <strong>skills</strong>, written as simple text files, you can guide them to use your existing components and conventions.', 'Explore now'),
+ row(H('New ways to work', '#111111', 20, HELV, 'left', '16px 32px 4px'), bg='#FFFFFF', pad='0px'),
+ rn_small('icon-image', 'An image icon', 'AI image tools across the whole app', 'Create and edit images in more places: extend backgrounds, remove objects or turn them into vectors.', 'Read more'),
+ rn_small('icon-dropper', 'A colour dropper', 'Pick colours from anywhere', 'Use the dropper to take colours from anywhere on your screen in the desktop app.', 'Get started'),
+ row(ill('speaker-grid', 'A green grid of six speaker portraits', pad='16px 24px 0px'), H('Meet our conference speakers', '#111111', 20, HELV, 'left', '16px 32px 8px'), T('This year’s line-up is live! <strong><u>' + lk('See the speakers', '#111111') + '</u></strong> and register for 23–25 June.<br><br>Tickets are going fast, or join online for free.', '#333333', 12, HELV, 'left', '4px 32px 8px'), T('<strong><u>' + lk('Register today →', '#3A5AD8') + '</u></strong>', '#3A5AD8', 12, HELV, 'left', '4px 32px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#999999', 'Shapekit is a design tool for teams who build products together.', 'Shapekit · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['release notes', 'design tool', 'features'])
+
+studio('release-notes-tools', 'Release Notes: Connectors', 'Product', 'A second release-notes layout: masthead, intro with a postscript, a big feature, two side-by-side features, icon-led updates and a ticket banner.',
+ 'Release notes: connect your tools, and new AI models', 'Plus early-bird tickets for our conference.', [
+ row(ill('release-masthead', 'A masthead reading Release Notes'), T('Good design needs the right building blocks: <strong><u>systems that scale</u></strong>, better context, and the right tools. Our latest updates help you put those blocks together.<br><br>P.S. Early birds get half-price conference tickets. <strong><u>' + lk('Register now', '#111111') + '</u></strong> and join us 23–25 June.', '#333333', 12, HELV, 'left', '16px 32px 16px'), bg='#FFFFFF', pad='0px'),
+ rn_feature('app-tiles', 'Rounded app tiles connected together', 'Connect your everyday tools', 'Use connectors to bring in context from other tools, like product specs and tasks, so your designs start from what you already know.', 'Explore now'),
+ weighted([[ill('prompt-card', 'An image prompt on a gradient', '100%', '8px 8px 8px 32px'), H('Generate images in your designs', '#111111', 15, HELV, 'left', '8px 8px 4px 32px'), T('Keep your style consistent as you make and edit images.', '#333333', 12, HELV, 'left', '4px 8px 4px 32px'), T('<strong><u>' + lk('Learn more →', '#3A5AD8') + '</u></strong>', '#3A5AD8', 12, HELV, 'left', '4px 8px 16px 32px')],
+           [ill('webinar-tile-2', 'A template preview', '100%', '8px 32px 8px 8px'), H('Templates, now with settings', '#111111', 15, HELV, 'left', '8px 32px 4px 8px'), T('Publish templates with settings so anyone can make on-brand assets.', '#333333', 12, HELV, 'left', '4px 32px 4px 8px'), T('<strong><u>' + lk('Get started →', '#3A5AD8') + '</u></strong>', '#3A5AD8', 12, HELV, 'left', '4px 32px 16px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ rn_small('icon-image', 'A sparkle icon', 'Try new AI models as they arrive', 'Test experimental models as soon as they’re available.', 'Learn more'),
+ rn_small('icon-dropper', 'An accessibility icon', '15+ accessibility improvements', 'Better keyboard controls, new toggles and an improved screen-reader experience.', 'Learn more'),
+ row(H('<span style="display:block;background:#111111;color:#FFFFFF;padding:28px 20px">Early-bird tickets <span style="color:#AAAAAA"><s>$899</s></span> $450<br><span style="font-size:13px">REGISTER AND SAVE · 23–25 JUNE · YOUR CITY</span></span>', '#FFFFFF', 26, HELV, 'left', '16px 24px 8px'), T('<strong><u>Tickets</u></strong> are on sale. Register now for early-bird pricing while it lasts.', '#333333', 12, HELV, 'left', '8px 32px'), T('<strong><u>' + lk('Register now →', '#3A5AD8') + '</u></strong>', '#3A5AD8', 12, HELV, 'left', '4px 32px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#999999', 'Shapekit · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['release notes', 'integrations', 'features'])
+
+paper52, rust52 = '#F7F2EA', '#C8503A'
+studio('food-as-care', 'Food as Care', 'Newsletters', 'A founder’s long essay on warm paper: a bold mixed-type headline, a story with linked research, photo grids, small section heads and a handwritten sign-off.',
+ 'Food as care: the most powerful habit is still dinner', 'A founder’s essay on cooking, spices and small daily rituals.', [
+ row(H('ROOTWELL', '#1A1A1A', 22, SERIF, pad='28px 32px 4px'), divider('#1A1A1A'), T('<span style="border:1px solid #1A1A1A;border-radius:999px;padding:4px 12px">KITCHEN NOTES</span> <span style="float:right">PART 03</span>', '#1A1A1A', 10, HELV, 'left', '12px 32px 8px'), H('Food 🌿 As Care', '#1A1A1A', 48, HELV, 'left', '8px 32px 16px'), bg=paper52, pad='0px'),
+ row(T('Hello friend,<br><br>Powders. Supplements. Gummies with a vitamin for everything.<br><br>But for all the clever new things, I think the most powerful daily habit might still be dinner.', '#1A1A1A', 13, HELV, 'left', '8px 32px'), H('What I <em>do</em> trust', '#1A1A1A', 24, HELV, 'left', '16px 32px 8px'),
+  T(lk('One of my favourite ideas in nutrition', rust52) + ' is simple: the good things in food work best together. When one ingredient is taken out of the food and put in a pill, it often doesn’t work as well.<br><br>Whole food arrives as a package: fibre, colour, and hundreds of compounds we still don’t fully understand.<br><br><strong>We can copy one ingredient. We still can’t copy an apple.</strong>', '#1A1A1A', 13, HELV, 'left', '4px 32px 16px'), ill('food-grid', 'A grid of colourful food textures', pad='0px 32px'),
+  H('The spice tin', '#1A1A1A', 24, HELV, 'left', '24px 32px 8px'), T('I grew up with a round metal spice tin in the kitchen. The lid slid open, and inside were small bowls of cumin, turmeric, coriander, chilli, salt and pepper. A pinch here. A pinch there. Dinner begins.<br><br>Years later, I learned that some of those pairings help each other work, like black pepper with turmeric. That tin had been doing clever things all along. Rituals that taste good tend to last.', '#1A1A1A', 13, HELV, 'left', '4px 32px 16px'), ill('spice-tin', 'A round spice tin full of coloured spices', pad='0px 32px'),
+  H('A small practice to try', '#1A1A1A', 24, HELV, 'left', '24px 32px 8px'), T('This week, try one simple experiment, and if you feel like it, <strong>send me a photo</strong> :)<br><br>Make one meal the way traditional kitchens always have: beans with spices, greens with olive oil and garlic, rice with something pickled. Nothing fancy. Just food that has quietly worked for a long time.', '#1A1A1A', 13, HELV, 'left', '4px 32px 16px'),
+  T('With love,<br><br><span style="font-family:georgia;font-style:italic;font-size:28px">Amaya</span><br>Founder', '#1A1A1A', 13, HELV, 'left', '8px 32px 32px'), bg=paper52, pad='0px'),
+], foot(paper52, '#555555', '<strong>ROOTWELL</strong> · Everyday food, done well.', 'Rootwell · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a> · <a href="https://example.com" style="color:inherit">Manage preferences</a>'), '#EFE8DC', ['essay', 'founder', 'food'])
+
+studio('check-before-you-click', 'Check Before You Click', 'Product', 'A friendly product tip: an illustrated hero, a story-led explanation, a screenshot of the feature in a rounded frame, quotes from customers and a P.S.',
+ 'Check where a short link goes before you click', 'Add one character and see the real destination.', [
+ row(H('shortly', '#F07A1A', 30, BLACK, 'left', '24px 32px 16px'), ill('link-hero', 'A cheerful person on a hexagon-pattern background, holding a note', pad='0px 24px'), H('How to check a short link before you click it', '#1A2A4A', 26, HELV, 'left', '24px 32px 8px'),
+  T('Short links are handy. But sometimes you’d like to know where one goes before you click, especially when it arrives from someone you don’t know.<br><br>Here’s the trick: copy any Shortly link, <strong>add a “+” to the end</strong>, and paste it into your browser.<br><br>For example:<br><br><strong>shrt.ly/garden-guide+</strong><br><br>Instead of going straight there, you’ll see a page like this:', '#1A2A4A', 14, HELV, 'left', '4px 32px 16px'),
+  ill('link-preview', 'A preview page showing a short link’s title and real destination', pad='0px 24px'),
+  T('It works with any Shortly link, any day of the year, so you can always see where you’re going first.<br><br><span style="display:block;text-align:center">* * *</span><br>Behind the scenes, we do a lot of work to keep links safe. After all, it’s not just our name people trust when they click, it’s yours.<br><br>Here’s what customers say:<br><br>' + ul(['“A name our customers trust to click on.” <em>- Priya S.</em>', '“The one I reach for every time.” <em>- Marcus O.</em>']) + '<br><br>P.S. Want links that look even more trustworthy? Use your own domain. ' + lk('See how custom domains work', '#2A6AD8') + '.', '#1A2A4A', 14, HELV, 'left', '16px 32px 32px'), bg='#FFFDF8', pad='0px'),
+], foot('#EAE7E0', '#555555', 'Shortly · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe from marketing emails</a>'), '#EAE7E0', ['tip', 'how-to', 'product'])
+
+red53 = '#DC382C'
+def event_tile(kind, title, when): return row(T(f'<span style="display:block;background:#0E1A24;border-radius:8px;padding:16px"><span style="font-family:courier new;font-size:10px;color:#9AAAB8;letter-spacing:2px">{kind}</span><br><strong style="color:#FFFFFF;font-size:15px">{title}</strong><br><span style="color:#FFFFFF;font-size:12px">{when} | <a href="https://example.com" style="color:#DC382C">Register now →</a></span></span>', '#FFFFFF', 12, HELV, 'left', '6px 24px'), bg='#FFFFFF', pad='0px')
+studio('the-terminal', 'The Terminal', 'Newsletters', 'A developer newsletter with a monospace banner, mono section labels over thin rules, link bullets, two illustrated features with red buttons and dark event tiles.',
+ 'The Terminal: context, memory and this month’s events', 'Five links, two features and three events for developers.', [
+ weighted([[H('Arcbase', red53, 26, SERIF, 'left', '20px 8px 12px 32px')], [T('MARCH 2026', '#1A1A1A', 12, MONO, 'right', '28px 32px 12px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ row(ill('terminal-banner', 'A dark banner with repeated mono text reading the terminal', pad='0px 24px'), T('WHAT’S NEW', '#1A1A1A', 10, MONO, 'left', '20px 32px 4px'), divider('#DDDDDD'),
+  T(ul([lk('Learn how', red53) + ' to move databases with zero downtime.', 'What it takes to ' + lk('build agents for finance', red53) + '.', 'How ' + lk('caching answers', red53) + ' can cut your bills.', 'Your complete ' + lk('guide to fraud detection', red53) + '.']), '#1A1A1A', 12, HELV, 'left', '8px 32px 16px'),
+  T('HOT TAKE', '#1A1A1A', 10, MONO, 'left', '16px 32px 4px'), divider('#DDDDDD'), H('Context is the real breakthrough.', '#1A1A1A', 22, HELV, 'left', '8px 32px 8px'), ill('context-art', 'A glass dome connected by a dotted line to a small globe', pad='0px 24px'),
+  T('Want assistants that stay consistent, learn over time and stop falling for tricky prompts? Start with memory.<br><br>That’s the focus of this piece from our head of product. He explains why the next leap isn’t about bigger models, but about remembering context and reusing what works.', '#1A1A1A', 12, HELV, 'left', '12px 32px 8px'), button('Read his take', red53, align='left'),
+  T('HOT TOPIC', '#1A1A1A', 10, MONO, 'left', '16px 32px 4px'), divider('#DDDDDD'), H('Turn your assistant into an Arcbase expert.', '#1A1A1A', 22, HELV, 'left', '8px 32px 8px'), ill('skill-art', 'A tilted card with clouds and a map pin on a lilac background', pad='0px 24px'),
+  T('Coding assistants can write working database code in seconds, but working isn’t the same as ready for production. With one command, our new skill gives your assistant up-to-date guidance, so it writes code the way experts would.', '#1A1A1A', 12, HELV, 'left', '12px 32px 8px'), button('Get the details', red53, align='left'),
+  T('EVENTS', '#1A1A1A', 10, MONO, 'left', '16px 32px 4px'), divider('#DDDDDD'), bg='#FFFFFF', pad='0px'),
+ event_tile('DEMO', 'Getting started with Arcbase for AI', '11 Mar | 10am PT'), event_tile('WEBINAR', 'Designing memory that scales', '12 Mar | 9am PT'), event_tile('IN PERSON', 'Lunch: scaling AI infrastructure', '18 Mar | 12pm PT'),
+ row(button('See all events', red53), bg='#FFFFFF', pad='8px 0px 16px'),
+], foot('#0E1A24', '#9AAAB8', 'Arcbase · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F2F2F2', ['developer', 'newsletter', 'mono'])
+
+studio('the-playbook-event', 'The New Playbook', 'Events', 'A virtual event invitation: a big black headline, a purple strip of speaker and product tiles, a short note with bold bullet points and an outlined button.',
+ 'The new playbook: join us live', 'A conversation with our CTO, three real playbooks and live sessions.', [
+ row(H('◢ Tablewise', '#1A1A1A', 24, HELV, 'left', '32px 40px 8px'), H('Tablewise 2026: The New Playbook', '#111111', 40, HELV, 'left', '16px 40px 24px'), ill('face-strip', 'A purple strip of speaker portraits and product screenshots'), bg='#FFFFFF', pad='0px'),
+ row(T('Hi {{first_name}},<br><br>Whether you’re building with AI for the first time or rolling out workflows across your team, <em>The New Playbook</em> will help you get further.<br><br>What you’ll get:', '#1A1A1A', 16, HELV, 'left', '28px 40px 8px'),
+  T(ul(['<strong>A conversation with our CTO</strong> on what’s next', '<strong>Three real playbooks</strong> you can borrow for your own work', '<strong>Practical examples</strong> from customers and experts', '<strong>Live sessions</strong> where you choose between a build-off and our own team at work']), '#1A1A1A', 16, HELV, 'left', '4px 56px 8px'),
+  T('<span style="border:2px solid #CCCCCC;border-radius:10px;padding:10px 22px">Register now</span>', '#1A1A1A', 16, HELV, 'left', '20px 40px 16px'), T('See you there,<br>The Tablewise team', '#1A1A1A', 16, HELV, 'left', '12px 40px 32px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#999999', '© 2026 Tablewise · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Help</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F7F7F7', ['event', 'invitation', 'virtual'])
+
+studio('november-edition', 'November Edition', 'Product', 'A product update for a media library: a script masthead with highlighter blocks, a big lead feature with a black button, a grey two-feature panel and a black “coming soon” box.',
+ 'What’s new: search by image, better sorting and more', 'Find the right file faster, and a peek at what’s next.', [
+ row(H('<em>Loop</em>', '#111111', 30, SERIF, pad='28px 32px 0px'), H('<em>What’s <span style="background:#F7F53A">new</span><br>on <span style="background:#3AE8F0">Loop</span></em>', '#111111', 52, SERIF, pad='4px 32px 16px'), H('November Edition', '#111111', 30, HELV, pad='8px 32px 4px'),
+  T('We’ve released a set of upgrades that make Loop faster and easier, especially when it comes to finding the right file and keeping things tidy. <strong>Here’s what’s new.</strong>', '#1A1A1A', 14, HELV, pad='4px 48px 16px'), ill('search-ui', 'A search panel with an image dropped in, over a grid of photos', pad='0px 24px'),
+  H('Search by image', '#111111', 30, HELV, 'left', '16px 32px 8px'), T('You can now search your library with a picture. Drop in an image and see similar shots, variations and duplicates straight away.', '#1A1A1A', 14, HELV, 'left', '4px 32px 8px'),
+  T('<a href="https://example.com" style="display:block;background:#111111;color:#FFFFFF;padding:12px;text-decoration:none;font-weight:bold">Try it out</a>', '#FFFFFF', 14, HELV, pad='12px 40px 24px'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('sort-ui', 'A sorting menu over boards', '100%', '24px 8px 8px 24px')], [H('Better sorting', '#111111', 20, HELV, 'left', '28px 24px 8px 8px'), T(ul(['<strong>With libraries</strong>, sort by your own order or drag and drop.', '<strong>Without libraries</strong>, sort boards alphabetically or by date.']), '#1A1A1A', 12, HELV, 'left', '4px 24px 8px 8px')]], [1, 1], '#F4F4F4', '0px'),
+ weighted([[ill('versions-ui', 'A list of file versions beside a preview', '100%', '8px 8px 24px 24px')], [H('Smoother versions', '#111111', 20, HELV, 'left', '16px 24px 8px 8px'), T('We’ve made working with file versions steadier:<br>' + ul(['Cleaner drag and drop', 'More accurate previews', 'Smoother animations']), '#1A1A1A', 12, HELV, 'left', '4px 24px 24px 8px')]], [1, 1], '#F4F4F4', '0px'),
+ row(T('<span style="display:block;background:#111111;border-radius:10px;padding:28px"><span style="font-size:24px;color:#FFFFFF">Coming soon</span><br><br><span style="color:#FFFFFF">' + ul(['<strong>Fill and enlarge:</strong> AI tools to tidy up, extend and sharpen images.', '<strong>Share several files at once</strong> with one simple link.', '<strong>Trim video</strong> right inside Loop.']) + '</span><br><br><a href="https://example.com" style="display:block;background:#2A8AF0;color:#FFFFFF;padding:12px;text-align:center;text-decoration:none">Go to my workspace →</a></span>', '#FFFFFF', 13, HELV, 'left', '24px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#555555', '<em>Getting too many emails? ' + lk('Manage your email preferences', '#3A6AD8') + '</em>', 'Loop · 12 Example Street, Your City'), '#FFFFFF', ['product update', 'whats new', 'features'])
+
+studio('two-step-plan', 'Two-Step Plan', 'Product', 'A short home-buying explainer: a topic strip, a small illustration, numbered steps in outlined circles, two accent-bordered checklist cards and a link.',
+ 'How to buy in today’s market', 'A simple two-step plan, and when it makes sense.', [
+ row(T('🎓 <strong>Loan basics:</strong> How rate changes can help you', '#111111', 14, HELV, 'left', '16px 40px'), bg='#EEEEEE', pad='0px'),
+ row(H('⌂ Homestead Loans', '#0D47D9', 22, HELV, 'left', '24px 40px 8px'), ill('house-heart', 'A small house with a heart above it', '120px', '8px 40px', 'left'), H('How to buy in this market', '#111111', 32, HELV, 'left', '16px 40px 8px'),
+  T('Understanding how refinancing works, even if you’re just looking, can help you buy with more confidence. Here’s a two-step plan:', '#111111', 16, HELV, 'left', '4px 40px 8px'), bg='#FFFFFF', pad='0px'),
+ numbered(1, 'Buy when you’re ready', ''), numbered(2, 'Refinance to lower your payments if rates fall', ''),
+ row(T('Buying now means you start building equity, even if the numbers aren’t perfect. If rates feel high, your loan adviser can show you how refinancing later might lower your payments.', '#111111', 16, HELV, 'left', '8px 40px 8px'), H('Your refinancing checklist', '#111111', 22, HELV, 'left', '16px 40px 8px'), bg='#FFFFFF', pad='0px'),
+ bordered('#1E6E5A', 'When refinancing makes sense:', ul(['Rates drop enough to meaningfully lower your payment', 'You want to change your term, say from 30 to 15 years', 'The long-term savings outweigh the fees'])),
+ bordered('#0D47D9', 'What to consider:', ul(['You’ll need to qualify again for the new loan', 'Your repayment schedule starts again', 'You’ll want to keep an eye on rates'])),
+ row(H('Wondering what you can afford?', '#111111', 22, HELV, 'left', '32px 40px 8px'), T('Get a quick estimate online. It won’t affect your credit score.', '#111111', 15, HELV, 'left', '4px 40px'), T('<strong>' + lk('Get an estimate', '#0D47D9') + ' →</strong>', '#0D47D9', 15, HELV, 'left', '12px 40px 32px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#555555', 'This is general information, not financial advice.', 'Homestead Loans · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['explainer', 'checklist', 'finance'])
+
+studio('welcome-in', 'Welcome In', 'Welcome', 'A community welcome: an illustrated header, a big two-colour title, two choice cards with buttons, a bordered founder letter and a closing call to action.',
+ 'Welcome to the Good Mail Club', 'You’re one of us now. Here’s where to start.', [
+ row(H('✉ Good Mail Club', '#1A1A1A', 20, HELV, pad='24px 32px'), bg='#F2F2F2', pad='0px'),
+ row(ill('welcome-trio', 'Three cheerful people with design cards and sparkles'), T('WELCOME TO', '#1A1A1A', 18, HELV, pad='16px 32px 0px'), H('Good Mail Club', '#F0503A', 38, HELV, pad='0px 32px 8px'),
+  T('You’re one of us now. Today you join a community of marketers, designers and teams who care about email. Find ideas, save favourites, learn, and make something worth sending.', '#1A1A1A', 14, HELV, 'left', '4px 32px 16px'), H('Ready to start your next campaign?', '#1A1A1A', 20, HELV, pad='16px 32px 8px'), bg='#FFFFFF', pad='0px'),
+ weighted([[T('<span style="display:block;border:1px solid #1A1A1A;border-radius:8px;padding:20px 12px;background:#FFF8F3">🔎<br><br>Browse thousands of real email designs.<br><br><span style="background:#1A1A1A;color:#FFFFFF;padding:10px 16px">Get inspired</span></span>', '#1A1A1A', 13, HELV, pad='8px 6px 16px 32px')],
+           [T('<span style="display:block;border:1px solid #1A1A1A;border-radius:8px;padding:20px 12px;background:#FFF8F3">✏️<br><br>Open the studio and start making.<br><br><span style="background:#F0503A;color:#FFFFFF;padding:10px 16px">Make it now</span></span>', '#1A1A1A', 13, HELV, pad='8px 32px 16px 6px')]], [1, 1], '#FFFFFF', '0px'),
+ row(T('<span style="display:block;border:1px solid #1A1A1A;border-radius:8px"><span style="display:block;background:#EEEEEE;padding:16px 20px;font-size:22px"><strong>Hey {{first_name}},</strong></span><span style="display:block;padding:16px 20px">I still get excited every time someone new joins, because I know what’s coming. <strong>You’re about to fall down a rabbit hole</strong>, in a good way.<br><br>Find the emails you love, work out why they work, then make something like it for your own brand. When you’re done looking for ideas, you’ll want to make something. (Trust me.)<br><br>That’s where ' + lk('the studio', '#F0503A') + ' comes in. It’s the making side of the club, so the gap between “I love this email” and “I made this email” disappears. <strong>Your ideas, your designs, your emails.</strong><br><br>Happy emailing,<br><br><strong style="font-size:20px">Remi Okafor</strong><br><em style="font-size:11px">Co-founder, <span style="color:#F0503A">Good Mail Club</span></em></span></span>', '#1A1A1A', 12, HELV, 'left', '16px 32px'), bg='#FFFFFF', pad='0px'),
+ row(H('Ok, now it’s time to make something really good.', '#1A1A1A', 28, HELV, pad='24px 40px 8px'), button('Let’s go', '#F0503A'), ill('studio-shots', 'A collage of email designs and a palette', pad='8px 0px 0px'), bg='#FFFFFF', pad='0px'),
+], row(H('✉ Good Mail Club', '#FFFFFF', 20, HELV, pad='28px 32px 8px'), T('<span style="border:1px solid #FFFFFF;border-radius:999px;padding:8px 16px">Try the studio</span> &nbsp;<span style="border:1px solid #FFFFFF;border-radius:999px;padding:8px 16px">Submit an email</span>', '#FFFFFF', 12, HELV, pad='8px 32px 16px'), T('Good Mail Club · 12 Example Street, Your City · ' + lk('Unsubscribe', '#FFFFFF') + '<br><a href="https://xem.email" style="color:#FFFFFF">Built with Xem</a>', '#BBBBBB', 11, HELV, pad='8px 32px 32px'), bg='#1A1A1A', pad='0px'),
+ '#F2F2F2', ['welcome', 'community', 'founder letter'])
+
+def hex_row(img, alt, text_): return weighted([[ill(img, alt, '80px', '8px 8px 8px 40px')], [T(text_, '#1A1A1A', 17, HELV, 'left', '28px 40px 8px 8px')]], [1, 3], '#FFFFFF', '0px')
+studio('best-places', 'Best Places', 'Product', 'A ranked-report announcement: a map hero with pinned cards and a badge, a headline, a wide dark pill, then icon rows and an outlined pill.',
+ 'Your favourite short-stay locations, ranked', 'This year’s Best Places report, sorted by why people travel.', [
+ row(H('S T A Y D A T A', '#2A3AA8', 26, HELV, pad='24px 32px 8px'), ill('pin-map', 'A map with pinned location cards and a Best places 2026 badge'), bg='#C8D0F8', pad='0px'),
+ row(H('Your dream locations, ranked', '#1A1A1A', 34, HELV, 'left', '28px 40px 8px'), T('This year’s Best Places report sorts the top locations by what brings visitors there.<br><br>From the coast to college towns, we rank places in eleven categories based on why people travel.', '#1A1A1A', 17, HELV, 'left', '4px 40px 8px'),
+  T('<a href="https://example.com" style="display:block;background:#222222;color:#FFFFFF;padding:14px;border-radius:999px;text-decoration:none;font-weight:bold">Read the report</a>', '#FFFFFF', 16, HELV, pad='12px 40px 16px'), divider('#1A1A1A'), H('Use what draws people in to:', '#1A1A1A', 24, HELV, 'left', '16px 40px 8px'), bg='#FFFFFF', pad='0px'),
+ hex_row('hex-icon-1', 'A chart icon', 'Find steady demand from nearby attractions'),
+ hex_row('hex-icon-2', 'A plane icon', 'Learn why travellers go somewhere, and who they are'),
+ hex_row('hex-icon-3', 'A palm tree icon', 'Invest somewhere you’ll love visiting, too'),
+ row(T('Find the new filters under Markets in the app.', '#1A1A1A', 17, HELV, 'left', '8px 40px 8px'), T('<a href="https://example.com" style="display:block;border:1px solid #1A1A1A;color:#1A1A1A;padding:12px;border-radius:999px;text-decoration:none;font-weight:bold">Explore the filters</a>', '#1A1A1A', 16, HELV, pad='8px 40px 32px'), bg='#FFFFFF', pad='0px'),
+], foot('#F4F4F8', '#555555', 'StayData · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a> · <a href="https://example.com" style="color:inherit">Manage preferences</a>'), '#F4F4F8', ['report', 'map', 'ranking'])
+
+studio('the-big-question', 'The Big Question', 'Newsletters', 'A magazine explainer: a black masthead, a bold illustrated hero, a long article with a black button, a boxed reading list, a newsletter sign-up and an offer.',
+ 'Where would experts put a million dollars?', 'What investors told us, and a few more good reads.', [
+ row(H('The Ledger', '#FFFFFF', 30, HELV, 'left', '20px 32px'), bg='#000000', pad='0px'),
+ row(ill('invest-hero', 'A night sky with stars and a big headline reading Where to put $1,000,000'), H('Experts share where they’d put a big sum today', '#1A1A1A', 30, HELV, 'left', '20px 32px 8px'),
+  T('Technology seems to be everything right now, at least if you look at which companies are leading the markets. But for people just trying to look after their savings, it’s hard to know what to do.<br><br>The experts we interviewed about ' + lk('where they’d put a million dollars', '#1A1A1A') + ' don’t dismiss the tech boom. They also look further afield: infrastructure, banks, healthcare and other areas that might do well if the mood changes.', '#1A1A1A', 13, HELV, 'left', '4px 32px 8px'),
+  T('<a href="https://example.com" style="display:inline-block;background:#000000;color:#FFFFFF;padding:12px 40px;text-decoration:none;font-weight:bold">Here’s what they said</a>', '#FFFFFF', 13, HELV, 'left', '8px 32px 24px'),
+  T('<span style="display:block;border:1px solid #BBBBBB;border-radius:8px;padding:20px 28px"><strong style="font-size:20px">Read more:</strong><br><br>▪ Where to invest when the ' + lk('weather affects the economy', '#1A1A1A') + '<br>▪ An app founder ' + lk('took credit for sales', '#1A1A1A') + ' it didn’t make<br>▪ The ' + lk('credit card trick', '#1A1A1A') + ' everyone is talking about</span>', '#1A1A1A', 13, HELV, 'left', '8px 32px 24px'), bg='#FFFFFF', pad='0px'),
+ row(T('<span style="display:block;border:1px solid #BBBBBB;border-radius:8px;padding:20px 24px;background:#FFFFFF">Get our Money newsletter for ideas and tools to do more with your money.<br><br><a href="https://example.com" style="background:#000000;color:#FFFFFF;padding:10px 32px;text-decoration:none;font-weight:bold">Sign up</a></span>', '#1A1A1A', 13, HELV, 'left', '24px 32px'), bg='#EFEFEF', pad='0px'),
+ row(H('Read these stories and more. Half price for your first year.', '#1A1A1A', 20, HELV, 'left', '24px 32px 8px'), T('Unlimited reading on the website and app. <s>$300</s> $150 for your first year.', '#1A1A1A', 13, HELV, 'left', '4px 32px'), T('<a href="https://example.com" style="background:#000000;color:#FFFFFF;padding:12px 36px;text-decoration:none;font-weight:bold">Subscribe and save</a>', '#FFFFFF', 13, HELV, 'left', '16px 32px 24px'), bg='#FFFFFF', pad='0px'),
+], row(H('The Ledger', '#FFFFFF', 30, HELV, 'left', '28px 32px 8px'), T('This is not financial advice. The Ledger · 12 Example Street, Your City · ' + lk('Unsubscribe', '#FFFFFF') + '<br><a href="https://xem.email" style="color:#FFFFFF">Built with Xem</a>', '#FFFFFF', 12, HELV, 'left', '8px 32px 32px'), bg='#000000', pad='0px'),
+ '#FFFFFF', ['magazine', 'explainer', 'finance'])
+
+# --- Batch eleven: welcome emails ---
+pink54 = '#F0285A'
+def alt_card(img, alt, title, body, link, left):
+ pic = [ill(img, alt, '100%', '16px 8px 16px 16px' if left else '16px 16px 16px 8px')]
+ txt = [H(title, '#1A1A1A', 17, HELV, pad='40px 16px 8px'), T(body, '#333333', 12, HELV, pad='4px 24px 8px'), T(lk(link + ' ›', pink54), pink54, 12, HELV, pad='8px 16px 24px')]
+ return weighted([pic, txt] if left else [txt, pic], [1, 1], '#F4F4F6', '0px')
+def gap(): return row(text('', 4, '#FFFFFF', pad='8px 0px'), bg='#FFFFFF', pad='0px')
+studio('so-much-more', 'So Much More', 'Welcome', 'A subscription welcome: a device hero, a bold centred headline and pill, then grey cards alternating artwork and text, a newsletter sign-up and a sign-off.',
+ 'Welcome: so much to read, play, hear and cook', 'Everything in your subscription, in one place.', [
+ weighted([[H('◖ Newsstand+', '#1A1A1A', 20, HELV, 'left', '20px 8px 12px 24px')], [T('<span style="display:inline-block;border:2px solid #1A1A1A;border-radius:50%;width:28px;height:28px;line-height:28px;text-align:center">N</span>', '#1A1A1A', 13, HELV, 'right', '18px 24px 12px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ row(ill('devices-hero', 'A tablet showing magazine covers beside a phone with a crossword'), H('So much to read, play, hear, cook and discover.', '#1A1A1A', 30, HELV, pad='16px 32px 8px'), T('Welcome to Newsstand+, your home for stories that inform, puzzles that challenge and recipes that inspire, all in one place.', '#333333', 13, HELV, pad='4px 48px'), pill('Explore your subscription', pink54, pad='16px 32px 24px', size='13px', inner='8px 20px'), bg='#FFFFFF', pad='0px'),
+ alt_card('cover-grid', 'A grid of magazine covers', 'Everything you want to read.', 'Hundreds of newspapers, magazines and digital titles, all in one place.', 'Find your favourites', True), gap(),
+ alt_card('puzzle-tiles', 'Four colourful puzzle icons', 'New puzzles, every day.', 'Daily word games, a crossword, a mini crossword and sudoku.', 'Have some fun', False), gap(),
+ alt_card('town-tiles', 'A grid of town and city scenes', 'Get more local.', 'Keep up with stories about your community.', 'Follow now', True), gap(),
+ alt_card('phone-recipe', 'A phone showing a herb chicken recipe', 'Cook something special.', 'Delicious recipes from our food titles, ready for tonight.', 'Find a recipe', False), gap(),
+ alt_card('audio-wave', 'A sound wave on teal', 'Stories worth a listen.', 'Narrated versions of the week’s most interesting articles.', 'Start listening', True), gap(),
+ alt_card('phone-sports', 'A phone showing sports scores', 'Follow your teams.', 'Live scores, highlights and analysis for the teams you love.', 'Explore sport', False),
+ row(divider('#DDDDDD'), H('Stay up to date with our emails.', '#1A1A1A', 28, HELV, pad='24px 32px 8px'), T('Get the best stories picked by our editors, plus others based on your interests.', '#333333', 13, HELV, pad='4px 48px'), pill('Sign up for the newsletter', pink54, pad='16px 32px 24px', size='13px', inner='8px 20px'), divider('#DDDDDD'),
+  T('A world of journalism.<br><span style="color:#F0285A">One trusted subscription.</span>', '#1A1A1A', 18, HELV, pad='24px 32px 8px'), T('<span style="display:inline-block;background:#F0285A;color:#FFFFFF;border-radius:12px;width:56px;height:56px;line-height:56px;font-size:28px">N</span>', '#FFFFFF', 28, HELV, pad='8px 32px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#F4F4F6', '#777777', 'Some content needs specific devices. Availability varies by country.', 'Newsstand+ · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F4F4F6', ['welcome', 'subscription', 'cards'])
+
+def prompt_row(n, img, title, body): return weighted([[ill(img, 'A chat box with a sample prompt', '100%', '16px 8px 16px 32px')], [H(f'{n}. {title}', '#1A1A1A', 20, HELV, 'left', '40px 32px 8px 8px'), T(body, '#1A1A1A', 16, HELV, 'left', '4px 32px 16px 8px')]], [1, 1], '#FFFFFF', '0px')
+studio('try-these-prompts', 'Try These Prompts', 'Welcome', 'An assistant welcome: a soft hero with photo tiles, a dark button, then three numbered prompt examples beside short explanations.',
+ 'Welcome to Helper. Try these three prompts', 'Organise, catch up and plan in a sentence each.', [
+ row(T(lk('View as a webpage', '#333333'), '#333333', 11, HELV, pad='8px 32px'), H('▦ Corvid', '#555555', 22, HELV, 'left', '16px 32px 16px'), bg='#FFFFFF', pad='0px'),
+ row(ill('copilot-hero', 'A soft gradient hero with people in skewed photo frames'), H('Welcome to <em>Helper</em>', '#1A1A1A', 40, SERIF, pad='16px 32px 8px'), T('With several AI models, easy tools and connections to the apps you already use, Helper is built to get things done.', '#1A1A1A', 15, HELV, pad='4px 64px 16px'), button('Chat with Helper', '#2A2A2A'), bg='#FFFFFF', pad='0px'),
+ row(H('Ready to get started?<br><em>Try these 3 prompts.</em>', '#1A1A1A', 34, HELV, pad='48px 32px 24px'), bg='#FFFFFF', pad='0px'),
+ prompt_row(1, 'prompt-box-1', 'Get organised', 'Turn a to-do list into a plan you can actually finish.'),
+ prompt_row(2, 'prompt-box-2', 'Catch up', 'Get a quick summary of what matters in your inbox.'),
+ prompt_row(3, 'prompt-box-3', 'Make a plan', 'Turn a big project into a few clear next steps.'),
+ row(button('Chat with Helper', '#2A2A2A'), bg='#FFFFFF', pad='16px 0px 32px'),
+], foot('#F2F2F4', '#777777', 'This is email 1 of 2 welcome messages.', 'Corvid · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Privacy</a>'), '#FFFFFF', ['welcome', 'ai', 'prompts'])
+
+violet55 = '#7A5AE8'
+studio('give-together', 'Give Together', 'Welcome', 'A nonprofit platform welcome: a soft lilac header with a mission line, a globe illustration with cause badges, a bold prompt and button, and a friendly sign-off.',
+ 'Welcome to Kindly, friend', 'Create your account and tell us what you care about.', [
+ row(H('♡ Kindly', '#1A1A1A', 26, HELV, pad='16px 32px'), bg='#FFFFFF', pad='0px'),
+ row(H('Welcome to Kindly, friend 👋', '#111111', 34, HELV, pad='40px 40px 16px'), T('<strong>Our mission is to make giving easier.</strong> ' + lk('Kindly', violet55) + ' is a free fundraising platform that helps nonprofits, companies and individuals raise more for the causes they care about.', '#1A1A1A', 15, HELV, pad='4px 48px 32px'), bg='#E8E0FA', pad='0px'),
+ row(ill('globe-badges', 'A globe with a heart, surrounded by round cause badges and small hearts'), T('<strong>Please ' + lk('press the button', violet55) + ' below to create an account and choose what best describes your interests. We’ll send you the most useful ideas and stories.</strong>', '#1A1A1A', 15, HELV, 'left', '16px 40px 8px'), button('Create an account', violet55), bg='#F4F2FA', pad='0px 0px 16px'),
+ row(T('<strong>Any questions?</strong> Reply to this email and one of our team will get back to you soon.<br><br>Let’s make an impact, together!<br>Team Kindly 💜', '#1A1A1A', 15, HELV, 'left', '24px 40px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#F4F2FA', '#555555', 'Kindly · 12 Example Street, Your City', '<a href="https://example.com" style="color:#7A5AE8">Unsubscribe</a> · <a href="https://example.com" style="color:#7A5AE8">Preferences</a>'), '#F2F2F2', ['welcome', 'nonprofit', 'illustrated'])
+
+def feature_icon(img, alt, title, body): return weighted([[ill(img, alt, '64px', '16px 4px 8px 24px')], [T(f'<u>{lk(title + " ›", violet55)}</u>', violet55, 15, HELV, 'left', '16px 24px 4px 8px'), T(body, '#333333', 13, HELV, 'left', '4px 24px 16px 8px')]], [1, 4], '#F7F6FB', '0px')
+studio('team-features', 'Team Features', 'Product', 'A product email about collaboration: a dark banner with comment bubbles, a short intro, a grey panel of four icon-led features and a help line.',
+ 'Collaboration features your users will love', 'Comments, co-editing, history and permissions.', [
+ row(H('<span style="color:#7B4DFF">◆</span> blockwise <span style="font-weight:normal;color:#8A8A95">SDK</span>', '#2B2B33', 24, HELV, pad='24px 32px'), bg='#FFFFFF', pad='0px'),
+ row(H('<span style="color:#7BE0A6">Collaboration features</span> your users will love', '#FFFFFF', 28, HELV, pad='28px 32px 8px'), ill('collab-banner', 'An email draft with comment bubbles from two teammates'), bg='#2A1060', pad='0px'),
+ row(H('Hi there,', '#1A1A1A', 18, HELV, 'left', '24px 32px 8px'), T('Once the editing basics are in place, the next questions are usually about working together.<br><br>If your customers share content, they expect to leave feedback in context, see what changed and try things without fear. That’s what separates a basic embedded editor from a great one.', '#333333', 13, HELV, 'left', '4px 32px 16px'), bg='#FFFFFF', pad='0px'),
+ row(H('With <span style="color:#7B4DFF">Blockwise</span>, you can add collaboration as your product grows.', '#2A1060', 20, HELV, 'left', '24px 24px 8px'), bg='#F7F6FB', pad='0px'),
+ feature_icon('icon-comment', 'A comment bubble', 'Comments', 'Let people leave feedback inside the editor, so reviews happen in context.'),
+ feature_icon('icon-coedit', 'Two user labels', 'Co-editing', 'Several people can work on the same message at once.'),
+ feature_icon('icon-history', 'A clock', 'Edit history', 'Undo, redo and version history take the worry out of shared work.'),
+ feature_icon('icon-roles', 'A group of people', 'Roles and permissions', 'Let your users decide who can do what in each project.'),
+ row(T('As your product matures, these features also make a natural basis for pricing tiers. You can ' + lk('choose which features', violet55) + ' each plan includes.<br><br>Many teams start simple and grow. The good news: <strong>you won’t need to rebuild your editor to add more later.</strong>', '#333333', 13, HELV, 'left', '24px 32px 16px'), divider('#E2E2EA'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('icon-chat', 'A chat bubble', '36px', '20px 4px 8px 32px')], [T('Want a personal walkthrough?<br>' + lk('Book a call', violet55) + ' or ' + lk('reply to this email', violet55) + '.', '#333333', 13, HELV, 'left', '20px 32px 8px 8px')]], [1, 8], '#FFFFFF', '0px'),
+ row(T('Happy building,<br><strong style="color:#2A1060">The Blockwise team</strong>', '#333333', 14, HELV, 'left', '24px 32px 32px'), bg='#FFFFFF', pad='0px'),
+], foot('#F7F6FB', '#8A8A95', 'The embeddable editor for software teams.', 'Blockwise · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F7F6FB', ['product', 'collaboration', 'features'])
+
+teal56, blue56 = '#1E8A6A', '#2E6AE8'
+studio('job-search', 'Your Job Search', 'Welcome', 'A job-board welcome: a rounded photo with action chips, a short intro, four bold-led bullets and a blue pill button.',
+ 'Your new home for finding a job', 'Search, apply faster and track every application.', [
+ row(H('greenline', teal56, 34, HELV, pad='32px 32px 16px'), bg='#F7F7F7', pad='0px'),
+ weighted([[P('face3', 'square', '0px')], [ill('action-chips', 'A list of actions: set a job alert, build my profile, fill in applications, save as dream job', '100%', '8px 0px')]], [1, 1], '#C8BEB4', '0px 24px'),
+ row(T('Hello,<br><br>Greenline is your new home for finding roles and following applications, so you can land your next job with less stress.<br><br>' + ul(['<strong>Find jobs</strong> that fit, like salary, part-time or remote-only.', '<strong>Apply faster</strong> with password-free sign-in and pre-filled applications.', '<strong>Get noticed</strong> by marking applications as dream jobs.', '<strong>Track your progress</strong> with every update in one place.']) + '<br><br>Your next role could be one search away.', '#1A2A2A', 16, HELV, 'left', '24px 48px 8px'), pill('Start your search', blue56, pad='16px 32px 32px', size='15px'), bg='#FFFFFF', pad='0px'),
+], foot('#F7F7F7', '#777777', '<a href="https://example.com" style="color:inherit">Update your email preferences</a>', '© 2026 Greenline · 12 Example Street, Your City'), '#F7F7F7', ['welcome', 'jobs', 'bullets'])
+
+navy57 = '#0E1A4A'
+def rent_row(img, alt, title, body, cta, left):
+ pic = [ill(img, alt, '100%', '16px 8px 16px 32px' if left else '16px 32px 16px 8px')]
+ txt = [H(title, navy57, 20, HELV, 'left', '24px 32px 8px 8px' if left else '24px 8px 8px 32px'), T(body, '#555555', 14, HELV, 'left', '4px 32px 8px 8px' if left else '4px 8px 8px 32px'), pill(cta, '#1E3AC8', align='left', pad='8px 32px 16px 8px' if left else '8px 8px 16px 32px', size='14px')]
+ return weighted([pic, txt] if left else [txt, pic], [1, 1], '#FFFFFF', '0px')
+studio('win-the-market', 'Win the Market', 'Welcome', 'A product-led welcome for a competitive market: a serif greeting, then four features alternating screenshot and text, each with a pill, and a rating line.',
+ 'Welcome. Here’s how you win this market', 'Every feature that puts you first in line.', [
+ row(H('⌂ Homehound', '#FFFFFF', 24, HELV, pad='24px 32px'), bg=navy57, pad='0px'),
+ row(H('Welcome. Here’s how you actually win this market.', navy57, 32, SERIF, 'left', '32px 32px 8px'), T('Renting in a busy city is tough. Here’s how Homehound tips it in your favour, feature by feature.', '#555555', 15, HELV, 'left', '4px 32px 16px'), bg='#FFFFFF', pad='0px'),
+ rent_row('rent-feed', 'A feed of rental listings beside a map', 'Everything in one feed', 'Instead of checking ten websites every morning, Homehound pulls listings from <strong>hundreds of sites</strong> into one feed.', 'Explore all listings', True),
+ rent_row('rent-alert', 'Match alerts beside a listing photo', 'Be first to apply', 'Good homes go in minutes, so we alert you <strong>within seconds</strong> of a match and let you apply on the spot.', 'See my matches', False),
+ rent_row('rent-message', 'A message template editor', 'Messages that get replies', 'Landlords ignore copy-paste messages, so our assistant writes a personal one in a click.', 'See the message', True),
+ rent_row('rent-apply', 'A listing card with an apply button', 'Apply in one click', 'Every listing means a new form. Homehound applies for you in <strong>one click</strong>.', 'Try one-click apply', False),
+ row(T('Felix<br><span style="color:#999999">Homehound</span>', navy57, 15, HELV, 'left', '24px 32px 16px'), divider('#E2E2EA'), T('<span style="color:#F2B233">★★★★★</span> <strong>4.5</strong> from thousands of renters', '#555555', 14, HELV, pad='8px 32px'), divider('#E2E2EA'), H('GET THE HOMEHOUND APP', navy57, 13, HELV, pad='16px 32px 4px'), T('New matches on your phone in seconds.', '#777777', 13, HELV, pad='4px 32px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#EEF2FA', '#777777', 'Homehound · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#EEF2FA', ['welcome', 'features', 'alternating'])
+
+green58, olive58 = '#1E4A3A', '#5A7A3A'
+studio('from-our-founder', 'From Our Founder', 'Welcome', 'A founder’s personal welcome for a small shop: a centred logo, a warm letter with a code, one wide pill button, and a round-photo signature.',
+ 'A personal hello from our founder', 'Thank you for joining us. Here’s 15% off your first order.', [
+ row(H('🌳 ROOTSTOCK', green58, 26, HELV, pad='48px 40px 24px'), T('Hi {{first_name}},<br><br>I’m Ruth, the founder of Rootstock, and I wanted to thank you personally for joining us.<br><br>Plants have been part of my life for as long as I can remember. Rootstock started as a small family nursery, where hard work and a love of growing things laid the foundation for everything we do.<br><br>We’ve grown since then, but we’ve kept the same values: healthy plants, honest advice and helping people feel closer to nature.<br><br>Now that you’re here, I hope we can help with your next garden project. You still have 15% off your first order with the code: <strong>WELCOME15</strong>', green58, 15, HELV, 'left', '8px 48px 16px'),
+  T('<a href="https://example.com" style="display:block;background:#5A7A3A;color:#FFFFFF;padding:14px;border-radius:999px;text-decoration:none;letter-spacing:2px;font-weight:bold">START YOUR NEXT PROJECT</a>', '#FFFFFF', 15, HELV, pad='16px 48px 16px'),
+  T('Every plant we send carries years of know-how from a team that really cares.<br><br>We’re glad to have you with us, and we hope Rootstock becomes part of your garden for years to come.<br><br>Happy planting,', green58, 15, HELV, 'left', '8px 48px 8px'), bg='#FFFFFF', pad='0px'),
+ weighted([[P('face3', 'square', '8px 8px 24px 64px')], [T('Ruth Hale<br>Founder', green58, 17, HELV, 'left', '48px 48px 24px 16px')]], [1, 2], '#FFFFFF', '0px'),
+], row(H('🌳 ROOTSTOCK', '#FFFFFF', 24, HELV, pad='32px 40px 16px'), T('No longer want these emails? <u>' + lk('Unsubscribe', '#FFFFFF') + '</u>.<br>Rootstock · 12 Example Street, Your City', '#FFFFFF', 13, HELV, pad='8px 40px'), divider('#3A6A5A'), T(lk('Terms', '#FFFFFF') + ' | ' + lk('Shipping', '#FFFFFF') + ' | ' + lk('Privacy', '#FFFFFF') + '<br><a href="https://xem.email" style="color:#FFFFFF">Built with Xem</a>', '#FFFFFF', 12, HELV, pad='8px 40px 32px'), bg='#1E4A3A', pad='0px'),
+ '#FFFFFF', ['welcome', 'founder', 'discount'])
+
+studio('thanks-for-signing-up', 'Thanks for Signing Up', 'Welcome', 'A developer-tool newsletter welcome: a dark hero with a code line, a short note, social chips and two contrasting buttons.',
+ 'Thanks for signing up 👋', 'You’ll be first to hear about new resources and features.', [
+ weighted([[H('<span style="color:#7A5AE8">✱</span>KIT', '#111111', 24, BLACK, 'left', '24px 8px 20px 32px')], [T('KIT.SUPPLY', '#777777', 11, MONO, 'right', '28px 32px 20px 8px')]], [1, 1], '#F4F4F4', '0px'),
+ row(divider('#DDDDDD'), ill('code-hero', 'A dark card reading Thanks for signing up with coloured cards below', pad='8px 12px'), T('Hi {{first_name}},<br><br>Welcome to a growing community of creative developers who love pushing what’s possible on the web.<br><br>You’ll be the first to hear about new resources, platform improvements and behind-the-scenes notes from our team. We’ll also share standout community projects and early looks at upcoming features.<br><br>Get ready for fresh ideas, clean code and plenty of inspiration.', '#1A1A1A', 14, HELV, 'left', '16px 32px 16px'), divider('#DDDDDD'), bg='#F4F4F4', pad='0px'),
+ row(T('<a href="https://example.com" style="background:#1A1A1A;color:#FFFFFF;padding:12px 20px;text-decoration:none">Website</a>&nbsp;&nbsp;<a href="https://example.com" style="background:#F2443A;color:#FFFFFF;padding:12px 24px;border-radius:999px;text-decoration:none">Log in</a>', '#FFFFFF', 15, HELV, pad='24px 32px 40px'),
+  T('DEV TOOLKIT &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ✱ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BUILT TO FLEX', '#555555', 10, MONO, pad='8px 32px 24px'), bg='#F4F4F4', pad='0px'),
+], foot('#E8E8E8', '#777777', '<a href="https://example.com" style="color:inherit">Unsubscribe</a> | <a href="https://example.com" style="color:inherit">Manage subscriptions</a>'), '#E8E8E8', ['welcome', 'developer', 'dark hero'])
+
+wine59, cream59 = '#6A1A1E', '#F4F2EC'
+studio('artist-welcome', 'Artist Welcome', 'Welcome', 'An artist’s personal welcome on a deep red page: a thin serif wordmark, a full-width photo, a warm letter, a handwritten signature and a monogram.',
+ 'Welcome, I’m so glad you’re here', 'A little about me and the work I make.', [
+ row(H('R O S A &nbsp; V E G A', '#555555', 26, SERIF, pad='32px 40px 24px'), divider('#1A1A1A'), P('room', 'wide'), bg=cream59, pad='0px'),
+ row(H('Welcome!', '#1A1A1A', 40, HELV, 'left', '32px 64px 8px'), T('I’m so glad you’re here.<br><br>I’m Rosa, an abstract painter making original work about home, balance and belonging. I use natural pigments, handmade paints and archival materials, so each piece brings a little warmth to a room.<br><br>Whether you’re a collector or just starting out, I hope my work gives you a moment to pause. From small framed pieces to large paintings, each one is made slowly and on purpose.<br><br>Thank you again for joining. I can’t wait to share more with you.<br><br>Warmly,<br>Rosa', '#1A1A1A', 15, HELV, 'left', '8px 64px 8px'), ill('signature', 'A handwritten signature', '180px', '8px 64px', 'left'), ill('monogram', 'A floral RV monogram', '110px', '16px 40px 32px'), bg=cream59, pad='0px'),
+], foot(wine59, '#FFFFFF', 'Rosa Vega Art · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), wine59, ['welcome', 'artist', 'personal'])
+
+lav60 = '#8AA0E8'
+studio('welcome-community', 'Welcome to the Community', 'Welcome', 'A founder welcome for a media brand: a portrait in a colour-block frame, an italic intro line, a short story, a periwinkle button and a frequency-choice panel.',
+ 'Welcome to our community', 'A note from our founder, and how to choose your emails.', [
+ row(H('〰 house &amp; hearth', '#E8473C', 26, HELV, pad='24px 32px 24px'), bg='#FFFFFF', pad='0px'),
+ row(ill('colour-frame', 'Colour blocks in blue, orange and pink framing a portrait'), bg='#FFFFFF', pad='0px'),
+ row(P('face2', 'wide', '0px 120px 0px 40px'), bg='#FFFFFF', pad='0px'),
+ row(T('<em>From our founder, Sam Ellery:</em>', '#1A1A1A', 15, HELV, 'left', '24px 56px 8px'), T('Thanks for joining us, and welcome to our community.<br><br>When I started House &amp; Hearth from an empty flat years ago, the mission was simple: help people make their homes more beautiful, organised and healthy. We still do that today.<br><br>We’re now a bigger team of editors, photographers and designers, all working to put out useful, inspiring writing every day.<br><br>We’re still building something special, and still trying to improve the world one room at a time.', '#555555', 15, HELV, 'left', '8px 56px 16px'), T('<a href="https://example.com" style="display:inline-block;background:#8AA0E8;border:1px solid #1A1A1A;padding:10px 24px;color:#1A1A1A;text-decoration:none;letter-spacing:2px">LEARN MORE</a>', '#1A1A1A', 15, HELV, pad='8px 40px 32px'), text('', 4, '#E890F0', pad='12px 0px'), bg='#FFFFFF', pad='0px'),
+ row(T('Prefer fewer emails? Switch to our weekly edition, or opt out of the daily one. You can also ' + lk('see all our newsletters', '#1A1A1A') + '.', '#1A1A1A', 13, HELV, pad='24px 48px 8px'), T('<span style="display:inline-block;border:1px solid #1A1A1A;padding:10px 24px;background:#FFFFFF;letter-spacing:2px">MOVE TO THE WEEKLY</span><br><br><span style="display:inline-block;border:1px solid #1A1A1A;padding:10px 24px;background:#FFFFFF;letter-spacing:2px">UNSUBSCRIBE FROM THE DAILY</span>', '#1A1A1A', 13, HELV, pad='8px 40px 24px'), bg='#DDE2CF', pad='0px'),
+], foot('#FFFFFF', '#555555', 'House &amp; Hearth · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe or manage your preferences</a>'), '#F4F1E8', ['welcome', 'founder', 'media'])
+
+blue61, sun61 = '#2A5AD8', '#F7D82A'
+studio('first-batch', 'First Batch', 'Welcome', 'A playful bakery welcome: a script logo, a photo with an overlaid headline and wavy button, a big discount code, a yellow quote panel and a patterned footer.',
+ 'Meet your new favourite biscuit', 'Here’s 20% off your first box.', [
+ row(ill('cookie-logo', 'A yellow flower-shaped Bright Batch logo', '140px', '24px 32px 8px'), P('bread', 'wide', '8px 24px 0px'), H('Meet your new favourite biscuit', '#3A2A1A', 30, SERIF, pad='16px 32px 8px'), bg='#FFFCF2', pad='0px'),
+ row(H('Here’s what you should know about us:', '#3A2A1A', 22, HELV, pad='16px 48px 8px'), T('We bake crisp oat biscuits from carefully sourced ingredients, using a family recipe that’s over a hundred years old. We’re not like other biscuits, and we’re glad you found us.', '#3A2A1A', 14, HELV, pad='4px 48px 16px'),
+  H('Use code', '#3A2A1A', 22, HELV, pad='8px 32px 0px'), H('FIRSTBITE', blue61, 46, HELV, pad='0px 32px 0px'), H('for 20% off your first box', '#3A2A1A', 22, HELV, pad='0px 32px 8px'), T('A small thank you for being here from the start.', '#3A2A1A', 14, HELV, pad='4px 32px 8px'), pill('Shop now', sun61, '#3A2A1A', pad='12px 32px 24px', size='14px', inner='10px 40px'), bg='#FFFCF2', pad='0px'),
+ row(T('<span style="display:block;background:#F7D82A;border-radius:14px;padding:60px 24px;font-size:22px;color:#3A2A1A">It’s the kind of biscuit that’s hard to stop at one, which is fine, because there are <u>14</u> in a box.</span>', '#3A2A1A', 22, HELV, pad='16px 24px'), ill('dot-strip', 'A blue patterned strip', pad='16px 24px'), bg='#FFFCF2', pad='0px'),
+ weighted([[ill('cookie-logo', 'The Bright Batch logo', '160px', '16px 8px 16px 24px')], [T('<u>' + lk('Order nationwide', blue61) + '</u><br><br><u>' + lk('Wholesale', blue61) + '</u><br><br><u>' + lk('Our story', blue61) + '</u><br><br><u>' + lk('FAQs', blue61) + '</u>', blue61, 15, HELV, pad='24px 24px 16px 8px')]], [1, 1], '#FFFCF2', '0px'),
+], foot('#FFFCF2', blue61, 'You’re getting this because you signed up on our website. <a href="https://example.com" style="color:inherit">Unsubscribe</a>', 'Bright Batch · 12 Example Street, Your City'), '#F7F3E8', ['welcome', 'food', 'discount'])
+
+studio('welcome-to-the-wild', 'Welcome to the Wild', 'Welcome', 'A daily-fact welcome and confirmation: a big two-colour headline block, a split illustration and photo, a short pitch and a dark confirm button.',
+ 'Welcome to Wild Facts. Please confirm your email', 'One more click and we’ll see you tomorrow.', [
+ weighted([[H('<span style="font-size:18px">WELCOME TO</span><br>Wild Facts', '#F2763A', 54, BLACK, 'left', '40px 8px 24px 40px')], [ill('torn-stripe', 'A torn colourful edge', '100%', '0px')]], [5, 1], '#1F4D2E', '0px'),
+ row(ill('elephants-split', 'A yellow block with a curl shape beside two elephants'), bg='#FFFFFF', pad='0px'),
+ row(H('There’s a lot going on out there. Let us show you.', '#1A1A1A', 28, HELV, 'left', '32px 40px 8px'), T('We bring you the wild-but-true stories of the animal world. Every day, learn something you never knew about the animals we share the planet with.<br><br>The bird that remembers faces. The fish that builds sculptures. The goat that climbs dams. Small stories about a big world, delivered daily.<br><br>Confirm your email below and we’ll see you tomorrow.', '#333333', 15, HELV, 'left', '4px 40px 8px'), pill('Confirm your email', '#1F4D2E', align='left', pad='16px 40px 8px', size='15px'), T('By clicking a link in this email, you agree to our ' + lk('Terms', '#1A1A1A') + ' and ' + lk('Privacy Policy', '#1A1A1A') + '.', '#333333', 11, HELV, 'left', '8px 40px 32px'), bg='#FFFFFF', pad='0px'),
+ row(text('', 4, '#1F4D2E', pad='8px 0px'), bg='#F7F5EF', pad='0px'), fact_footer,
+], foot('#FFFFFF', '#888888', 'Was this email forwarded to you? <strong>' + lk('Sign up', '#1F4D2E') + '</strong>', 'Wild Facts · 12 Example Street, Your City'), '#F7F5EF', ['welcome', 'confirm', 'facts'], marketing=False)
+
+studio('festival-welcome', 'Festival Welcome', 'Welcome', 'A festival’s welcome: a nav row, a bold yellow date banner, a rounded crowd photo, a warm note, a patterned strip and a video promo.',
+ 'Welcome! Here’s what’s coming for Soundwest 2027', 'News, line-up announcements and how to choose your emails.', [
+ row(T('<strong><u>' + lk('MUSIC', '#111111') + '</u> &nbsp;|&nbsp; <u>' + lk('FILM', '#111111') + '</u> &nbsp;|&nbsp; <u>' + lk('COMEDY', '#111111') + '</u> &nbsp;|&nbsp; <u>' + lk('TALKS', '#111111') + '</u></strong>', '#111111', 14, HELV, pad='20px 24px'), bg='#EEEEEE', pad='0px'),
+ row(ill('fest-banner', 'A yellow banner reading Soundwest 2027, March 15 to 21'), bg='#E8C43A', pad='0px'),
+ row(P('crowd', 'wide', '20px 20px 0px'), H('Welcome!', '#111111', 38, HELV, pad='20px 32px 8px'), T('Thank you for signing up to hear our news. Stay tuned for updates and announcements about Soundwest 2027.<br><br>Visit our ' + lk('email preferences', '#111111') + ' to choose what you’d like to hear about, and add us to your contacts so we land in your inbox.<br><br>Hope to see you soon!<br>Your friends at Soundwest', '#111111', 17, HELV, pad='8px 40px 24px'), ill('fest-strip', 'A patterned strip of half circles'), bg='#FFF0C0', pad='0px'),
+ weighted([[P('hall', 'square', '20px 8px 20px 20px')], [H('Soundwest on video', '#111111', 22, HELV, 'left', '24px 20px 4px 12px'), T('Catch up on talks, interviews and more on our ' + lk('video channel', '#111111') + '.', '#111111', 15, HELV, 'left', '4px 20px 8px 12px'), T('<span style="display:block;background:#FBD0B0;border-radius:8px;padding:12px;text-align:center;font-weight:bold">Start watching</span>', '#111111', 14, HELV, pad='8px 20px 20px 12px')]], [1, 1], '#FFFFFF', '0px'),
+ row(ill('fest-strip', 'A patterned strip of half circles'), T('<em>Photos are illustrative. Replace with your own festival photography and credits.</em>', '#333333', 11, HELV, pad='12px 32px'), bg='#FBD0B0', pad='0px'),
+], foot('#EEEEEE', '#555555', 'Soundwest · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a> · <a href="https://example.com" style="color:inherit">Manage preferences</a>'), '#EEEEEE', ['welcome', 'festival', 'events'])
+
+studio('newsletter-welcome-wordmark', 'Big Wordmark Welcome', 'Welcome', 'A personal newsletter welcome: a huge serif wordmark, a pill-shaped welcome banner with starbursts, a chatty letter, bullets and inbox tips.',
+ 'Welcome, friend', 'What to expect every Tuesday and Friday, and how to stay out of spam.', [
+ row(ill('big-wordmark', 'A large red serif wordmark on peach', pad='24px 16px 16px'), ill('welcome-pill', 'A white pill reading Welcome between two red starbursts', pad='0px 16px 8px'), bg='#FBF6F0', pad='0px'),
+ row(T('Hey friend,<br><br>Thanks for joining Marisol, a newsletter about life when you’re no longer young but definitely not old. New editions arrive every Tuesday and Friday morning. Our favourite thing is telling the stories of other women in this stage of life, but you’ll also get:<br><br>' + ul(['Shopping guides for coats, jeans, boots and more', 'Recommendations for your week, from shows to podcasts to recipes', 'Stories and essays by and for women over 35', 'And more!']) + '<br><br>Now that you’re here, a few easy ways to stop us landing in spam (we work hard on these and don’t want you to miss out):<br><br><strong>On a phone?</strong> Move us to your main inbox from the menu at the top.<br><strong>On a computer?</strong> Drag this email into your main inbox.<br><br>Can’t wait until Friday? Follow us on ' + lk('social media', '#E8A82A') + ' and read our ' + lk('archive', '#E8A82A') + '. See you Tuesday!<br><br>Team Marisol', '#1A1A1A', 15, HELV, 'left', '16px 24px 24px'), bg='#FBF6F0', pad='0px'),
+ row(text('', 4, '#E8B02A', pad='14px 0px'), bg='#E8B02A', pad='0px'),
+], foot('#E04A2A', '#FFFFFF', 'Update your email preferences or unsubscribe <strong>' + lk('here', '#FFFFFF') + '</strong>', '© 2026 Marisol · 12 Example Street, Your City'), '#FBF6F0', ['welcome', 'newsletter', 'personal'])
+
+lime62 = '#D8F23A'
+studio('connect-your-account', 'Connect Your Account', 'Welcome', 'A creator-tool welcome in a rounded white card: a short pitch, a grey box of what you’ll learn, lime pill buttons, and a dark community panel.',
+ 'Welcome to Growthline', 'Connect your account and get a personal growth report.', [
+ row(H('<span style="background:#D8F23A;padding:2px 8px;border-radius:8px">≡</span> Growthline', '#111111', 22, HELV, 'left', '32px 32px 8px'), H('Welcome to Growthline', '#111111', 30, HELV, 'left', '8px 32px 8px'),
+  T('Hi there,<br><br>You don’t need another list of generic creator tips. Growthline starts with your own account.<br><br>Go to your <strong><u>Profile</u></strong> and connect your video account. We’ll turn your data into a personal growth report: what’s working, where you stand and what to make next.', '#1A1A1A', 14, HELV, 'left', '4px 32px 8px'),
+  T('<span style="display:block;background:#F4F4EC;border-radius:12px;padding:20px"><strong>Once connected, your report shows:</strong><br><br>' + ul(['<strong>What’s actually working:</strong> your strengths, top videos and the patterns behind them.', '<strong>How you compare:</strong> benchmarks against similar creators, so you know where the gap is.', '<strong>What to make next:</strong> clear ideas based on your own numbers.']) + '</span>', '#1A1A1A', 13, HELV, 'left', '8px 32px'),
+  pill('Connect your account', lime62, '#111111', pad='16px 32px 16px', size='14px'), divider('#E2E2E2'),
+  H('Keep exploring', '#111111', 18, HELV, 'left', '16px 32px 4px'), T('After your report, you can go from plan to production:<br>' + ul(['Find popular ideas in your niche', 'Turn good videos into scripts', 'Make product videos and short clips']) + '<br><br>Less generic advice. More “here’s what to do next.”', '#555555', 13, HELV, 'left', '4px 32px 8px'), pill('Explore Growthline', lime62, '#111111', pad='16px 32px 32px', size='14px'), bg='#FFFFFF', pad='0px'),
+ row(T('<strong>💬 CREATOR COMMUNITY</strong>', '#AAAAAA', 11, HELV, pad='28px 32px 4px'), H('Get early features, tutorials and a community of creators like you.', '#FFFFFF', 18, HELV, pad='8px 40px 8px'), pill('Join the community', lime62, '#111111', pad='12px 32px 32px', size='14px'), bg='#0E0E12', pad='0px'),
+], foot('#F4F4EC', '#888888', 'You’re getting this because you signed up for Growthline.', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F4F4EC', ['welcome', 'creator', 'onboarding'])
+
+blue63 = '#1A4AF0'
+studio('first-reward', 'Your First Reward', 'Welcome', 'A fintech onboarding welcome: a bold geometric illustration, a headline, a pill button and stacked step cards showing progress.',
+ 'Get started and earn your first reward', 'A few steps to finish setting up your account.', [
+ row(H('pennyjar', blue63, 24, HELV, 'left', '20px 40px'), ill('reward-hero', 'A bold blue illustration of a map pin on a path with geometric shapes'), bg='#FFFFFF', pad='0px'),
+ row(H('It’s easy to get started and earn your first reward', '#111111', 26, HELV, 'left', '32px 40px 8px'), T('Welcome to Pennyjar. You’re a few steps from your first deposit and a welcome reward.<br><br>You’ll get a $20 bonus after you finish setting up your account and save your first $50.<sup>1</sup>', '#111111', 15, HELV, 'left', '4px 40px 8px'), pill('Verify your identity', blue63, align='left', pad='16px 40px 16px', size='15px'),
+  T('<span style="display:block;border:1px solid #DDDDDD;border-radius:14px;padding:20px"><span style="color:#1E8A4A">✔</span> <strong style="font-size:18px">Account created</strong></span>', '#111111', 15, HELV, 'left', '8px 40px'),
+  T('<span style="display:block;border:1px solid #DDDDDD;border-radius:14px;padding:20px"><span style="color:#1A4AF0">▤</span> <strong style="font-size:18px">Verify your identity</strong><br>Verify your identity to save and move money safely.<br><br><u>' + lk('Verify now', blue63) + '</u></span>', '#111111', 15, HELV, 'left', '8px 40px'),
+  H('Next step: confirm your identity', '#111111', 22, HELV, 'left', '16px 40px 8px'), T('To protect your account and follow the rules, we need to check your identity. You’ll need an ID and a recent bank statement. See our ' + lk('getting started guide', blue63) + '.', '#111111', 15, HELV, 'left', '4px 40px 32px'), bg='#FFFFFF', pad='0px'),
+], foot('#F6F7FA', '#555555', '<sup>1</sup>Bonus for new customers who save $50 or more. Terms apply. This is not financial advice.', 'Pennyjar · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['welcome', 'fintech', 'steps'])
+
+teal64 = '#0E4A44'
+def family_tile(photo, label): return [P(photo, 'square', '8px 8px 4px 24px'), T(f'<strong>{label}</strong> <span style="color:#2ED8C8">━━</span>', '#111111', 11, HELV, 'left', '4px 24px 16px 24px')]
+studio('glad-youre-here', 'Glad You’re Here', 'Welcome', 'An electronics brand welcome: a big headline over a photo, an offer pill, perk rows, dark and light story blocks, a two-by-two brand grid and a link menu.',
+ 'Welcome. Here’s 15% off your first order', 'Exclusive offers, product news and how-to tips, from today.', [
+ row(text('', 4, '#2ED8C8', pad='4px 0px'), H('Northgear', '#111111', 22, HELV, 'left', '16px 24px 0px'), H('Welcome', '#111111', 40, HELV, 'left', '0px 24px 8px'), P('laptops', 'wide', '0px 24px'), bg='#FFFFFF', pad='0px'),
+ row(H('We’re glad you’re here!', '#111111', 22, HELV, 'left', '20px 24px 4px'), T('As a subscriber, you’ll be first to hear about offers, new products, how-to tips and more.', '#333333', 12, HELV, 'left', '4px 24px 8px'), H('Get started with 15% off your first order.', '#111111', 17, HELV, 'left', '8px 24px 8px'), pill('ACTIVATE YOUR OFFER', '#2ED8C8', '#111111', align='left', pad='8px 24px 8px', size='11px'), T('Discount applied at checkout. Some exclusions apply.*', '#333333', 11, HELV, 'left', '4px 24px 16px'),
+  H('Reasons to buy from us', '#111111', 15, HELV, 'left', '8px 24px 8px'), T('🚚 &nbsp;<strong>FREE SHIPPING</strong><br><span style="font-size:11px">On orders over $29</span><br><br>↺ &nbsp;<strong>EASY RETURNS</strong><br><span style="font-size:11px">30-day money-back guarantee</span><br><br>💳 &nbsp;<strong>PAY LATER</strong><br><span style="font-size:11px">Spread the cost at checkout</span>', '#111111', 13, HELV, 'left', '4px 24px 24px'), bg='#FFFFFF', pad='0px'),
+ row(H('DESIGNING A BETTER FUTURE', '#FFFFFF', 20, HELV, 'left', '28px 24px 8px'), T('Making better products means solving big problems without creating new ones. See how we design for repair, recycling and a smaller footprint.', '#FFFFFF', 12, HELV, 'left', '4px 24px 8px'), T('<strong>LEARN MORE</strong> <span style="color:#2ED8C8">━━</span>', '#FFFFFF', 11, HELV, 'left', '8px 24px 16px'), P('walk', 'wide', '0px 24px 24px'), bg=teal64, pad='0px'),
+ row(H('PEOPLE', '#111111', 20, HELV, 'left', '28px 24px 8px'), T('We build a culture where people can keep learning, take on hard problems and make things that matter.', '#333333', 12, HELV, 'left', '4px 24px 8px'), T('<strong>LEARN MORE</strong> <span style="color:#2ED8C8">━━</span>', '#111111', 11, HELV, 'left', '8px 24px 16px'), P('team', 'wide', '0px 24px 24px'), bg='#F2EFEA', pad='0px'),
+ row(H('MEET THE FAMILY <span style="color:#2ED8C8">━━</span>', '#111111', 20, HELV, 'left', '24px 24px 8px'), bg='#FFFFFF', pad='0px'),
+ weighted([family_tile('screen', 'SHOP GAMING NOW'), family_tile('vinyl', 'SHOP AUDIO NOW')], [1, 1], '#FFFFFF', '0px'),
+ weighted([family_tile('hall', 'SHOP CAMERAS NOW'), family_tile('desk', 'SHOP DESK GEAR NOW')], [1, 1], '#FFFFFF', '0px'),
+ weighted([[T('<strong style="font-size:16px">Shop Northgear</strong><br><br>Mice<br>Keyboards<br>Webcams<br>Headsets', '#FFFFFF', 13, HELV, 'left', '24px 8px 24px 32px')], [T('<br><br>Sale<br>Best sellers<br>Gaming', '#FFFFFF', 13, HELV, 'left', '24px 32px 24px 8px')]], [1, 1], '#2A2A2A', '0px'),
+], foot('#FFFFFF', '#555555', '*Discount valid on your first order only. Excludes some products.', 'Northgear · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#EEEEEE', ['welcome', 'retail', 'brands'])
+
+studio('morning-briefing-welcome', 'Morning Briefing Welcome', 'Welcome', 'A news-newsletter welcome: a bold wordmark with a mascot, a short letter between rules, a black pill, and a yellow social strip.',
+ 'Welcome to The Daybreak', 'Your weekday morning news, starting soon.', [
+ row(H('The Daybreak', '#111111', 40, BLACK, pad='32px 24px 8px'), ill('news-mascot', 'A small yellow figure waving', '70px', '0px 24px 8px'), divider('#CCCCCC'),
+  T('Welcome to The Daybreak newsletter. We’re so glad you’re here!<br><br>The Daybreak is made to brighten your mornings, smooth out your day and make your inbox a little more fun. Every weekday we pick the morning’s top stories from trusted news sources.<br><br>Each edition also has a few treats: a horoscope, a word of the day and more.<br><br>Look out for your first edition soon. Until then, add us to your contacts so you never miss one.<br><br>— The Daybreak editors', '#1A1A1A', 15, HELV, 'left', '16px 40px 16px'), divider('#CCCCCC'),
+  T('<a href="https://example.com" style="display:inline-block;background:#111111;color:#FFFFFF;padding:14px 60px;border-radius:999px;text-decoration:none;font-weight:bold">See all the news</a>', '#FFFFFF', 16, HELV, pad='16px 24px 32px'), bg='#FFFFFF', pad='0px'),
+ row(T('<strong>Follow us on social media</strong>', '#111111', 14, HELV, pad='24px 24px'), bg='#F7C83A', pad='0px'),
+], foot('#FFFFFF', '#555555', '<strong>' + lk('Help', '#555555') + ' | ' + lk('Privacy', '#555555') + ' | ' + lk('Unsubscribe', '#555555') + '</strong>', '© 2026 The Daybreak · 12 Example Street, Your City'), '#F2F2F2', ['welcome', 'news', 'newsletter'])
+
+pink65, ink65 = '#F7B0D0', '#2A1A40'
+def why_row(img, alt, title, body): return weighted([[ill(img, alt, '50px', '8px 4px 8px 32px')], [T(f'<strong>{title}</strong><br>{body}', '#111111', 15, HELV, 'left', '10px 32px 12px 8px')]], [1, 6], '#FFFFFF', '0px')
+studio('pay-your-way', 'Pay Your Way', 'Welcome', 'A payments-app welcome: a pill logo, a bold headline and black pill, a dark review card with stars, three icon reasons and an app feature row.',
+ 'Welcome to Paylane', 'Pay over time, shop with buyer protection, and get help any time.', [
+ row(T('<span style="background:#F7B0D0;padding:8px 14px;border-radius:8px;font-weight:bold;font-size:20px">Paylane</span>', '#111111', 20, HELV, 'left', '24px 32px 16px'), H('Welcome to Paylane', '#111111', 28, BLACK, 'left', '8px 32px 4px'), T('You’ve just joined a big community of shoppers. Pay flexibly, shop with buyer protection and get help any time.', '#111111', 16, HELV, 'left', '4px 32px 8px'), pill('Learn more', '#111111', align='left', pad='8px 32px 24px', size='14px'),
+  ill('quote-stars', 'A dark review card quoting a customer, with five stars', pad='8px 32px'), H('Why Paylane is right for you', '#111111', 18, HELV, 'left', '24px 32px 8px'), bg='#FFFFFF', pad='0px'),
+ why_row('icon-wallet', 'A wallet', 'Flexible payments*', 'Choose how you pay: now, in four interest-free parts, or over time.'),
+ why_row('icon-shield', 'A shield', 'Buyer protection*', 'If something goes wrong with an order, we’ll pause your payment until it’s sorted.'),
+ why_row('icon-chat2', 'A chat bubble', 'Help any time', 'Chat with our assistant or a specialist, day or night.<br><strong>' + lk('Contact us', '#4A2AC8') + '</strong>'),
+ weighted([[ill('phone-dark', 'A phone showing payments due next week', '100%', '24px 8px 24px 32px')], [H('Stay on top of your spending', '#111111', 18, HELV, 'left', '32px 32px 4px 8px'), T('See everything in the app. Manage payments, set budgets and get reminders.', '#111111', 14, HELV, 'left', '4px 32px 8px 8px'), T('<span style="background:#EEEEEE;border-radius:999px;padding:8px 14px"><strong>Explore the app</strong></span>', '#111111', 13, HELV, 'left', '8px 32px 24px 8px')]], [1, 1], '#FFFFFF', '0px'),
+], foot('#FFFFFF', '#555555', '*Subject to approval and terms. Late fees may apply. This is a marketing email.', 'Paylane · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['welcome', 'fintech', 'features'])
+
+# --- Batch twelve: welcome set two ---
+coral66, ink66 = '#F0605A', '#0E3A3A'
+studio('hire-your-first-bot', 'Hire Your First Helper', 'Welcome', 'A playful product welcome in a rounded card: an illustrated team of helper bots, a bold headline, short copy, a coral pill and a signature card.',
+ 'Hire your first helper', 'Give it a name, a job title and a few skills.', [
+ row(H('<span style="color:#F0605A">◖</span> Helpbot', '#1A1A1A', 24, HELV, 'left', '28px 32px 16px'), ill('bot-team', 'A team of cheerful cartoon helper bots in front of a chat box', pad='0px 24px'),
+  H('Hire your first “Helper”', ink66, 32, HELV, 'left', '24px 32px 8px'), T('Helpbot creates AI teammates for your whole team. Make your first helper and give it a <strong>name, job title, chat handle and a set of skills</strong> so it works the way you want.<br><br>Make one helper or a whole team of specialists. They’ll work with you and each other in your team chat, or through the tools you connect.<br><br>Set up your first helper and teach it how you work.', '#1A1A1A', 15, HELV, 'left', '4px 32px 8px'), pill('Create a helper →', coral66, align='left', pad='16px 32px 32px', size='15px'), bg='#F7F9FC', pad='0px'),
+ weighted([[ill('bot-avatar', 'A helper bot avatar', '56px', '16px 4px 16px 40px')], [T('<strong>Helly Botsworth</strong><br><span style="color:#777">Head of Growth</span>', '#555555', 13, HELV, 'left', '20px 40px 16px 8px')]], [1, 5], '#FFFFFF', '8px 24px'),
+], foot('#F7F9FC', '#777777', '◖ Helpbot · Helpers for actual work', 'You’re getting this because you joined the Helpbot waitlist. <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F7F9FC', ['welcome', 'ai', 'mascot'])
+
+orange67 = '#FF5A1A'
+studio('describe-it', 'Just Describe It', 'Welcome', 'A short automation welcome: a product screenshot of a prompt box, a big headline, a friendly explanation and one orange button, with a dark footer.',
+ 'Just describe what you want to automate', 'Your assistant drafts the workflow for you.', [
+ weighted([[H('<span style="color:#FF5A1A">_</span>relay', '#1A1A1A', 26, HELV, 'left', '32px 8px 16px 40px')], [T('<span style="border:1px solid #1A1A1A;border-radius:10px;padding:8px 14px"><strong>Log in</strong></span>', '#1A1A1A', 13, HELV, 'right', '36px 40px 16px 8px')]], [1, 1], '#FFFDF8', '0px'),
+ row(ill('automate-panel', 'A prompt box asking what you would like to automate', pad='16px 40px'), H('Tell the assistant what to automate', '#1A1A1A', 30, HELV, pad='24px 40px 8px'),
+  T('<strong>Welcome to Relay!</strong> Getting started with automation can feel like a lot: triggers, actions, apps… where do you begin? Good news: you don’t have to work it out alone.<br><br><strong>With the assistant</strong>, describe what you want in plain words. It finds the right tools and drafts the workflow, so you can automate in minutes, not hours.<br><br>No guesswork. No setup stress.', '#1A1A1A', 15, HELV, 'left', '8px 40px 8px'), button('Talk to the assistant', orange67), bg='#FFFDF8', pad='0px 0px 32px'),
+], row(H('<span style="color:#FF5A1A">_</span>relay', '#FFFFFF', 26, HELV, 'left', '32px 40px 8px'), T('Got a question? <strong><u>' + lk('Ask in our community', '#FFFFFF') + '</u></strong>', '#FFFFFF', 13, HELV, 'left', '8px 40px'), T('Relay · 12 Example Street, Your City<br>' + lk('Unsubscribe', '#FFFFFF') + ' · <a href="https://xem.email" style="color:#FFFFFF">Built with Xem</a>', '#FFFFFF', 12, HELV, 'left', '8px 40px 32px'), bg='#1E1414', pad='0px'),
+ '#F2E8EE', ['welcome', 'automation', 'short'])
+
+green68, lemon68 = '#0E7A5A', '#F2E04A'
+studio('community-fund-welcome', 'Community Fund Welcome', 'Welcome', 'A nonprofit subscription confirmation in one green block: a huge serif “Welcome”, a short letter, a white pill and hand-drawn squiggles.',
+ 'Welcome. Please confirm your subscription', 'News and updates from the Harbour Community Fund.', [
+ weighted([[H('The <em>Harbour</em><br>Community Fund', '#1A1A1A', 22, SERIF, 'left', '20px 8px 16px 24px')], [T('July 1, 2026', '#1A1A1A', 14, HELV, 'right', '28px 24px 16px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ row(ill('squiggle', 'A yellow squiggle', '300px', '16px 0px 0px', 'right'), H('Welcome', '#FFFFFF', 80, SERIF, 'left', '8px 40px 8px'), H('News &amp; updates from the Fund', '#FFFFFF', 22, HELV, 'left', '4px 40px 16px'),
+  T('Dear new subscriber,<br><br>Thank you for signing up for news from the Harbour Community Fund. Please confirm your subscription below, and add us to your contacts so you get the emails you asked for.<br><br>If you have any questions, please ' + lk('get in touch', lemon68) + '.', '#FFFFFF', 16, HELV, 'left', '8px 40px'),
+  T('<a href="https://example.com" style="display:inline-block;background:#FFFFFF;color:#0E7A5A;padding:14px 28px;border-radius:999px;text-decoration:none;font-weight:bold">Confirm your email</a>', '#0E7A5A', 15, HELV, pad='24px 40px 8px'), ill('squiggle', 'A yellow squiggle', '420px', '8px 40px'),
+  H('Keep up with the Fund.<br>Find us on social media.', '#FFFFFF', 18, HELV, pad='16px 40px 8px'), T('<strong>' + lk('harbourfund.example', lemon68) + ' &nbsp;|&nbsp; (555) 010-0100</strong>', '#FFFFFF', 13, HELV, pad='8px 40px 32px'), bg=green68, pad='0px'),
+], foot('#FFFFFF', '#777777', '<a href="https://example.com" style="color:inherit">Manage your preferences</a> | <a href="https://example.com" style="color:inherit">Opt out</a>', 'Harbour Community Fund · 12 Example Street, Your City'), '#FFFFFF', ['welcome', 'confirm', 'nonprofit'], marketing=False)
+
+def icon_reason(img, alt, title, body): return [weighted([[ill(img, alt, '32px', '16px 4px 4px 48px')], [H(title, '#1A1A1A', 15, HELV, 'left', '20px 48px 4px 4px')]], [1, 9], '#FFFFFF', '0px'), row(T(body, '#333333', 14, HELV, 'left', '4px 48px 16px'), divider('#E2E2E2'), bg='#FFFFFF', pad='0px')]
+studio('reading-offer', 'Reading Offer', 'Commerce', 'A publishing-platform welcome offer: a bright illustrated banner, a pill tag, a serif headline, a letter, a dark pill and three icon-led reasons.',
+ 'Up to 30% off a year of reading', 'Your welcome offer, and what membership gets you.', [
+ row(H('Inkpot', '#1A1A1A', 30, SERIF, pad='24px 32px'), ill('sparkle-banner', 'An orange banner with sparkles reading Save on a year of curious reading'), bg='#FFFFFF', pad='0px'),
+ row(T('<span style="background:#F7C83A;border-radius:6px;padding:6px 12px;font-size:12px">Welcome offer</span>', '#1A1A1A', 12, HELV, pad='24px 32px 8px'), H('Read everything. Now up to 30% off.', '#1A1A1A', 26, SERIF, pad='8px 32px 8px'),
+  T('First off, well done. You’ve found a good corner of the internet.<br><br>Unlike most publishing sites, Inkpot doesn’t run ads. We’re supported by readers who believe good writing still matters.<br><br>Here you’ll find essays, practical advice and stories that change how you see things, written by experts, enthusiasts and new voices.', '#1A1A1A', 15, HELV, 'left', '4px 48px 8px'), pill('Become a member', '#2A2A2A', pad='12px 32px 16px', size='15px', inner='12px 48px'), bg='#FFFFFF', pad='0px'),
+ *icon_reason('icon-star-line', 'A sparkle', 'Read every single story', 'Unlimited reading. Other sites charge for every newsletter; you get our best writers from day one.'),
+ *icon_reason('icon-clap', 'Clapping hands', 'Fill your days with good ideas', 'Read on the go and use spare moments well, instead of endless scrolling.'),
+ *icon_reason('icon-speech', 'A speech bubble', 'Choose a kinder internet', 'Support a place with real standards, where our team keeps conversations respectful.'),
+ row(pill('Save now', '#2A2A2A', pad='16px 32px 32px', size='15px', inner='12px 64px'), bg='#FFFFFF', pad='0px'),
+], foot('#FFFFFF', '#555555', 'Sent by Inkpot · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a> · <a href="https://example.com" style="color:inherit">Help</a>'), '#F8F8F8', ['welcome', 'offer', 'subscription'])
+
+red69 = '#F0503A'
+def res_row(img, alt, body): return weighted([[ill(img, alt, '56px', '16px 4px 16px 40px')], [T(body, '#333333', 14, HELV, 'left', '18px 40px 16px 8px')]], [1, 4], '#FFFFFF', '0px')
+studio('studio-hello', 'Studio Hello', 'Welcome', 'A design-tool welcome: a big outlined illustration, a red greeting, a red button, a video card in a lilac panel and three resource rows with icons.',
+ 'Hi {{first_name}}, welcome to Good Mail Studio', 'A few resources to get you designing quickly.', [
+ row(H('✉ Good Mail Studio', '#1A1A1A', 20, HELV, pad='24px 32px'), bg='#F2F2F2', pad='0px'),
+ row(ill('desk-worker', 'A cheerful illustrated person working at a laptop with a target and sparkles'), H('Hi {{first_name}},', red69, 34, HELV, pad='16px 32px 4px'), H('Welcome to Good Mail Studio.', '#1A1A1A', 18, HELV, pad='4px 32px 12px'),
+  T('Today you join thousands of marketers, designers and teams who use the studio to make good emails.<br><br>Here are some of our best resources to help you start designing quickly.', '#333333', 15, HELV, 'left', '4px 40px 8px'), button('Explore the studio', red69), divider('#1A1A1A'), bg='#FFFFFF', pad='0px'),
+ row(H('Studio 101: <u style="color:#F0503A">finding your way around</u>', '#1A1A1A', 18, HELV, pad='20px 24px 8px'), ill('academy-card', 'A purple video card reading How to find your way around', pad='0px 24px 20px'), bg='#E8E0FA', pad='16px 24px'),
+ row(H('Resources to guide your creative journey:', '#1A1A1A', 24, HELV, 'left', '24px 40px 8px'), bg='#FFFFFF', pad='0px'),
+ res_row('res-icon-1', 'A pen icon', 'Get inspired and start designing in minutes with our ready-made email and page templates.'),
+ res_row('res-icon-2', 'A monitor icon', 'Explore our ' + lk('Academy', red69) + ' for free tutorials and real examples.'),
+ res_row('res-icon-3', 'A document icon', 'When in doubt, check our ' + lk('help centre', red69) + '.'),
+], foot('#F2F2F2', '#555555', '<strong>Good Mail Studio.</strong> Where good emails get made.', 'Good Mail Studio · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F2F2F2', ['welcome', 'illustrated', 'resources'])
+
+lime70, forest70 = '#D8F27A', '#1E3A28'
+def day_step(body, done=False): return weighted([[T('<span style="display:inline-block;width:24px;height:24px;border-radius:50%;background:' + ('#D8F27A' if done else '#EEEEEE') + ';text-align:center;line-height:24px">' + ('✓' if done else '') + '</span>', '#1A1A1A', 13, HELV, pad='24px 4px 8px 40px')], [T(f'<span style="display:block;background:#F2F2F2;border-radius:14px;padding:18px 20px">{body}</span>', '#1A1A1A', 14, HELV, 'left', '8px 40px 8px 4px')]], [1, 7], '#FFFFFF', '0px')
+studio('day-one', 'Day One', 'Welcome', 'A trial welcome: a soft lime-gradient headline, two buttons, a pro-tip box, a day-one checklist timeline, a sales card with photo and a dark resources panel.',
+ 'Welcome! Your 14-day trial has started', 'Here’s what to do on day one.', [
+ weighted([[H('◣◢<br><span style="font-size:14px">helpdesk</span>', '#111111', 26, HELV, 'left', '24px 8px 16px 40px')], [T('<u>' + lk('View plans', '#111111') + '</u>', '#111111', 15, HELV, 'right', '36px 40px 16px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ row(H('Welcome to Helpdesk!', '#111111', 40, HELV, 'left', '40px 40px 8px'), bg='#EEF8D8', pad='0px'),
+ row(T('You’ve unlocked our customer service suite. We’re giving you <strong>a free 14-day trial</strong> of our Professional plan, so you can see how much better support can be.', '#1A1A1A', 15, HELV, 'left', '8px 40px 8px'),
+  T('<a href="https://example.com" style="background:#D8F27A;color:#111111;padding:12px 28px;border-radius:999px;text-decoration:none;font-weight:bold">Get started</a>&nbsp;&nbsp;<a href="https://example.com" style="border:1px solid #111111;color:#111111;padding:11px 27px;border-radius:999px;text-decoration:none">View plans</a>', '#111111', 15, HELV, 'left', '16px 40px 16px'),
+  T('<span style="display:block;background:#F2F2F2;border-radius:14px;padding:18px 20px">💡 <strong>PRO TIP:</strong><br>Bookmark your workspace address, where you’ll sign in: <strong><u>yourteam.helpdesk.example</u></strong></span>', '#111111', 14, HELV, 'left', '8px 40px 16px'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('list-icon', 'A checklist icon', '56px', '8px 4px 8px 40px')], [H('Set up in minutes', '#111111', 28, HELV, 'left', '8px 40px 0px 8px'), T('Here’s what to do on day one:', '#111111', 14, HELV, 'left', '4px 40px 8px 8px')]], [1, 5], '#FFFFFF', '0px'),
+ day_step('Work together on customer issues: <strong><u>invite your team</u></strong>.'),
+ day_step('Create a help centre in minutes by answering a few questions: <strong><u>generate your FAQs</u></strong>.'),
+ day_step('Set up your AI agent: <strong><u>train and test it</u></strong> for instant replies.'),
+ day_step('Launch your agent on email: <strong><u>connect your inbox</u></strong>.', True),
+ weighted([[H('Talk to sales', '#111111', 26, HELV, 'left', '56px 8px 8px 40px'), T('Talk to our team about how Helpdesk can help your business.', '#111111', 15, HELV, 'left', '4px 8px 8px 40px'), T('<u>' + lk('Contact sales', '#111111') + '</u>', '#111111', 15, HELV, 'left', '8px 8px 24px 40px')], [P('face1', 'square', '16px 40px 16px 8px')]], [1, 1], '#F2F1EC', '16px 0px 0px'),
+ row(H('The best resources to get started', '#FFFFFF', 28, HELV, 'left', '40px 40px 16px'), T('<strong><u>' + lk('Beginner tutorial videos', '#FFFFFF') + '</u></strong><br>Learn the basics through short tutorials.<br><br><strong><u>' + lk('Help centre', '#FFFFFF') + '</u></strong><br>Find answers about how everything works.', '#FFFFFF', 15, HELV, 'left', '4px 40px 40px'), bg=forest70, pad='0px'),
+], foot('#FFFFFF', '#777777', 'Helpdesk · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Privacy</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['welcome', 'trial', 'checklist'])
+
+navy71 = '#1A1A3A'
+def form_cell(img, alt, title, body, cta, left): return [ill(img, alt, '100%', '8px 8px 4px 24px' if left else '8px 24px 4px 8px'), H(title, '#1A1A1A', 18, HELV, pad='8px 8px 4px'), T(body, '#333333', 12, HELV, pad='4px 16px 8px'), button(cta, navy71)]
+studio('forms-welcome', 'Forms Welcome', 'Welcome', 'A forms-tool welcome in white cards on grey: a high-five illustration, a two-by-two grid of colourful feature cards, a journey strip and two help cards.',
+ 'Welcome to Formly! Let’s build your first form', 'Resources to help you get started.', [
+ row(H('◆ formly', '#1A1A3A', 22, HELV, pad='28px 32px 16px'), bg='#F2F2F6', pad='0px'),
+ row(ill('high-five', 'Two hands meeting in a high five with confetti', '200px', '24px 32px 0px'), H('Welcome to Formly!', '#1A1A1A', 30, HELV, pad='8px 32px 8px'), T('Hey {{first_name}} 👋<br><br>Thanks for signing up. We’re glad to have you on board, and we’ll help you build your first form.', '#333333', 13, HELV, pad='4px 48px 8px'), button('Create your first form', navy71), bg='#FFFFFF', pad='0px 0px 16px'),
+ row(text('', 4, '#FFFFFF', pad='8px 0px'), bg='#F2F2F6', pad='0px'),
+ row(H('Learn your way around Formly', '#1A1A1A', 24, HELV, pad='24px 32px 8px'), T('A few resources to help you get started.', '#333333', 12, HELV, pad='4px 32px 8px'), bg='#FFFFFF', pad='0px'),
+ weighted([form_cell('form-card-1', 'A form being edited', 'Create a form', 'Generate a form with AI, pick a template, or start from scratch.', 'Build a form', True), form_cell('form-card-2', 'Stacked forms', 'Open your dashboard', 'Manage forms, make folders and invite your team.', 'Go to dashboard', False)], [1, 1], '#FFFFFF', '0px'),
+ weighted([form_cell('form-card-3', 'A help screen', 'Visit the help centre', 'Read how-to articles, watch tutorials and get live support.', 'Open help centre', True), form_cell('form-card-4', 'A clock and an offer badge', 'Upgrade your plan', 'Make better forms and get more responses. Today only.', 'See plans', False)], [1, 1], '#FFFFFF', '0px 0px 16px'),
+ row(text('', 4, '#FFFFFF', pad='8px 0px'), bg='#F2F2F6', pad='0px'),
+ row(H('Your Formly journey', '#1A1A1A', 24, HELV, pad='24px 32px 8px'), T('Start strong! <strong><u>' + lk('Create your first form', '#1A1A1A') + '</u></strong> with the AI builder, a template or a blank page.', '#333333', 12, HELV, pad='4px 32px 8px'), ill('journey', 'Five steps: sign up, build, connect, share, collect', pad='8px 24px 24px'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('person-heart', 'A person holding a heart', '100%', '16px 6px 0px 24px'), T('<strong><u>' + lk('Visit the community', '#1A1A1A') + '</u></strong><br>for questions and ideas.', '#333333', 12, HELV, pad='4px 6px 16px 24px')], [ill('person-laptop', 'A person at a laptop', '100%', '16px 24px 0px 6px'), T('<strong><u>' + lk('Go to the help centre', '#1A1A1A') + '</u></strong><br>for tutorials and live support.', '#333333', 12, HELV, pad='4px 24px 16px 6px')]], [1, 1], '#FFFFFF', '16px 0px'),
+], foot('#F2F2F6', '#777777', '© 2026 Formly · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F2F2F6', ['welcome', 'cards', 'onboarding'])
+
+green72 = '#0E7A3A'
+def cat_tile(icon, name, side=0): return T(f'<span style="display:block;background:#FFFFFF;box-shadow:0 2px 4px rgba(0,0,0,.08);padding:24px 8px;color:#0E7A3A"><span style="font-size:22px">{icon}</span><br><br><strong>{name}</strong></span>', '#0E7A3A', 15, HELV, pad=('8px 6px 8px 32px', '8px 32px 8px 6px')[side])
+studio('let-us-help', 'Let Us Help', 'Welcome', 'A personal-finance welcome: a top category nav, a cream panel with a serif headline and wide green button, a piggy-bank illustration and a grid of category tiles.',
+ 'Let us do the work for you', 'Start by checking your credit score.', [
+ row(H('▲ coinwise', green72, 22, HELV, pad='20px 24px 8px'), T('<strong>' + lk('CREDIT CARDS', green72) + ' &nbsp;&nbsp;&nbsp; ' + lk('BANKING', green72) + ' &nbsp;&nbsp;&nbsp; ' + lk('INSURANCE', green72) + '</strong>', green72, 12, HELV, pad='8px 24px 16px'), bg='#FFFFFF', pad='0px'),
+ row(H('Let us do the work for you', '#1A1A1A', 34, SERIF, pad='32px 32px 8px'), T('Welcome, {{first_name}}! Looking for the best financial products is a smart move, but letting us do the work is <em>smarter</em>. To get personal tips and suggestions, start by checking your credit score.', '#333333', 15, HELV, pad='4px 40px 8px'), T('<a href="https://example.com" style="display:inline-block;background:#0E7A3A;color:#FFFFFF;padding:14px 90px;text-decoration:none;letter-spacing:1px;font-weight:bold">LET’S DO THIS</a>', '#FFFFFF', 13, HELV, pad='16px 32px 8px'), ill('piggy-jar', 'A jar of coins beside a pink piggy bank'), bg='#FDF5E4', pad='0px'),
+ row(H('Explore by category', '#1A1A1A', 24, HELV, pad='24px 32px 8px'), bg='#F7D89A', pad='0px'),
+ weighted([[cat_tile('🏦', 'Banking')], [cat_tile('💳', 'Credit cards', 1)]], [1, 1], '#F7D89A', '0px'),
+ weighted([[cat_tile('🤝', 'Personal loans')], [cat_tile('🚗', 'Car insurance', 1)]], [1, 1], '#F7D89A', '0px'),
+ weighted([[cat_tile('💰', 'Personal finance')], [cat_tile('📈', 'Investing', 1)]], [1, 1], '#F7D89A', '0px'),
+ weighted([[cat_tile('🏠', 'Mortgages')], [cat_tile('✈️', 'Travel rewards', 1)]], [1, 1], '#F7D89A', '0px'),
+ row(H('Get the Coinwise app', '#1A1A1A', 18, HELV, pad='28px 32px 4px'), T('Personal tips and tools to make smart money moves, at home or out and about.', '#555555', 14, HELV, pad='4px 48px 24px'), bg='#F4F4F4', pad='0px'),
+], foot('#F4F4F4', '#777777', 'Coinwise is not a lender and doesn’t give financial advice. Rates and terms vary.', 'Coinwise · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['welcome', 'finance', 'categories'])
+
+blue73 = '#1A4AF0'
+def round_row(img, alt, title, body): return weighted([[ill(img, alt, '44px', '12px 4px 8px 40px')], [T(f'<strong style="font-size:17px">{title}</strong><br>{body}', '#111111', 14, HELV, 'left', '12px 40px 12px 8px')]], [1, 7], '#FFFFFF', '0px')
+studio('all-in-one-place', 'All in One Place', 'Welcome', 'A trading-app welcome: a dark grid of product tiles, a headline, numbered setup steps, a blue pill and a list of features with round icons.',
+ 'Start investing, all in one place', 'Three steps to set up your account.', [
+ row(H('tradewell', blue73, 22, HELV, 'left', '20px 40px'), ill('crypto-tiles', 'A dark grid of tiles with coins, a price chart and a portfolio list'), bg='#FFFFFF', pad='0px'),
+ row(H('Start investing, all in one place', '#111111', 24, HELV, 'left', '24px 40px 8px'), T('Whether you want to buy stocks, explore funds, earn interest on savings or follow the markets, Tradewell has everything you need in one place.', '#111111', 14, HELV, 'left', '4px 40px 8px'),
+  H('3 steps to set up your account:', '#111111', 20, HELV, 'left', '16px 40px 8px'), T('1. <strong>Verify your identity</strong><br>&nbsp;&nbsp;&nbsp; Confirm who you are to unlock everything.<br><br>2. <strong>Add a payment method</strong><br>&nbsp;&nbsp;&nbsp; Connect a bank account or card.<br><br>3. <strong>Build your portfolio</strong><br>&nbsp;&nbsp;&nbsp; Explore stocks, funds, savings and more.', '#111111', 14, HELV, 'left', '4px 48px 8px'),
+  pill('Get started', blue73, align='left', pad='12px 40px 24px', size='15px'), H('So, what can you do with Tradewell?', '#111111', 20, HELV, 'left', '8px 40px 8px'), bg='#FFFFFF', pad='0px'),
+ round_row('round-icon-1', 'A plus icon', 'Buy and sell stocks', 'Invest in thousands of companies.'),
+ round_row('round-icon-2', 'A pie chart icon', 'Build a balanced portfolio', 'Mix funds and stocks to suit your goals.'),
+ round_row('round-icon-3', 'A shapes icon', 'Follow the markets', 'Track prices and news as it happens.'),
+ round_row('round-icon-4', 'An arrow icon', 'Put your savings to work', 'Earn interest on cash you’re not using.'),
+ row(T('Need help setting up? Visit our ' + lk('help centre', blue73) + ' for tips and guides.', '#111111', 14, HELV, 'left', '16px 40px 32px'), bg='#FFFFFF', pad='0px'),
+], foot('#F6F7FA', '#555555', 'Investing involves risk, including losing money. This is not financial advice.', 'Tradewell · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['welcome', 'finance', 'steps'])
+
+purple74, sun74 = '#1E1036', '#F7C83A'
+def video_step(n, title, body_rows): return row(ill(f'num-yellow-{n}', f'Step {n}', '48px', '24px 32px 4px'), H(title, '#1A1A1A', 20, HELV, pad='4px 32px 12px'), *body_rows, divider('#E2E2E2'), bg='#FFFFFF', pad='0px')
+studio('four-easy-steps', 'Four Easy Steps', 'Welcome', 'A video-tool onboarding: a dark intro panel, then four numbered sections with template thumbnails, a media screenshot, icon rows and a dark footer menu.',
+ 'Let’s make a video in 4 easy steps', 'Pick a template, add your media, drag and drop, make it yours.', [
+ row(H('▲ Clipcraft', '#1A1A1A', 20, HELV, 'left', '20px 32px'), bg='#FFFFFF', pad='0px'),
+ row(H('Let’s make a video in 4 easy steps!', '#FFFFFF', 22, HELV, pad='32px 32px 8px'), T('<strong>Hey {{first_name}}!</strong> Thanks for signing up for Clipcraft.<br><br>If you want an easy way to make great videos, you’re in the right place. Look out for video tips, tutorials and ideas from our team, starting with this email.<br><br>Read on to make a video in just <strong>four simple steps</strong>.', '#FFFFFF', 12, HELV, 'left', '8px 32px'), pill('Get started', sun74, '#1A1A1A', pad='12px 32px 4px', size='13px'), T('<strong><u>' + lk('Learn more ›', '#FFFFFF') + '</u></strong>', '#FFFFFF', 13, HELV, pad='8px 32px 28px'), bg=purple74, pad='0px'),
+ video_step(1, 'Choose a template', [T('Pick from our templates for everything from birthday wishes to product launches, or start from scratch.', '#333333', 12, HELV, 'left', '4px 32px 8px')]),
+ weighted([[T('<strong>Promos</strong>', '#1A1A1A', 13, HELV, pad='4px'), ill('tpl-thumb-1', 'A promo template', '100%', '4px 8px 4px 24px'), T('<strong><u>Browse ›</u></strong>', '#1A1A1A', 11, HELV, pad='4px 8px 12px')], [T('<strong>Explainers</strong>', '#1A1A1A', 13, HELV, pad='4px'), ill('tpl-thumb-2', 'An explainer template', '100%', '4px 24px 4px 8px'), T('<strong><u>Browse ›</u></strong>', '#1A1A1A', 11, HELV, pad='4px 8px 12px')]], [1, 1], '#FFFFFF', '0px'),
+ weighted([[T('<strong>Workplace</strong>', '#1A1A1A', 13, HELV, pad='4px'), ill('tpl-thumb-3', 'A workplace template', '100%', '4px 8px 4px 24px'), T('<strong><u>Browse ›</u></strong>', '#1A1A1A', 11, HELV, pad='4px 8px 12px')], [T('<strong>Events</strong>', '#1A1A1A', 13, HELV, pad='4px'), ill('tpl-thumb-4', 'An events template', '100%', '4px 24px 4px 8px'), T('<strong><u>Browse ›</u></strong>', '#1A1A1A', 11, HELV, pad='4px 8px 12px')]], [1, 1], '#FFFFFF', '0px'),
+ video_step(2, 'Upload your media', [ill('media-ui', 'A media library window', '360px', '4px 32px 8px'), T('Add your images, illustrations and videos in a few ways:', '#333333', 12, HELV, 'left', '4px 32px 4px')]),
+ weighted([[ill('icon-laptop', 'A laptop', '40px', '8px 4px 4px 40px')], [T('<strong>From your computer:</strong> drag and drop files, or upload from cloud storage.', '#333333', 11, HELV, 'left', '10px 32px 4px 4px')]], [1, 7], '#FFFFFF', '0px'),
+ weighted([[ill('icon-phone2', 'A phone', '40px', '8px 4px 4px 40px')], [T('<strong>From your phone:</strong> scan a code, choose photos and clips, and add them with a tap.', '#333333', 11, HELV, 'left', '10px 32px 4px 4px')]], [1, 7], '#FFFFFF', '0px'),
+ weighted([[ill('icon-people', 'People', '40px', '8px 4px 16px 40px')], [T('<strong>From your team:</strong> send a private upload link so others can add media.', '#333333', 11, HELV, 'left', '10px 32px 16px 4px')]], [1, 7], '#FFFFFF', '0px'),
+ video_step(3, 'Drag and drop', [ill('media-ui', 'A media library window', '360px', '4px 32px 8px'), T('Drag your photos and videos into your media blocks. Try layouts that put two clips side by side.', '#333333', 12, HELV, 'left', '4px 32px 16px')]),
+ video_step(4, 'Make it your own', [ill('media-ui', 'A video editor with a colour palette', '360px', '4px 32px 8px'), T('Keep it simple with a ready-made theme, or change the text, colours, music and animation style.<br><br>And just like that, you have a great video!', '#333333', 12, HELV, 'left', '4px 32px 8px'), pill('Get started', sun74, '#1A1A1A', pad='8px 32px 24px', size='13px')]),
+ weighted([[T('📖<br><strong>Learning centre</strong>', '#FFFFFF', 12, HELV, pad='24px 4px')], [T('✏️<br><strong>Blog</strong>', '#FFFFFF', 12, HELV, pad='24px 4px')], [T('💬<br><strong>Help centre</strong>', '#FFFFFF', 12, HELV, pad='24px 4px')]], [1, 1, 1], purple74, '0px'),
+], foot('#FFFFFF', '#777777', 'Clipcraft · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a> · <a href="https://example.com" style="color:inherit">Email preferences</a>'), '#F2F2F2', ['welcome', 'steps', 'video'])
+
+def sdk_step(img, alt, title, body): return weighted([[ill(img, alt, '56px', '12px 4px 8px 32px')], [T(f'<strong>{title}</strong><br>{body}', '#1A1A1A', 14, HELV, 'left', '14px 32px 8px 8px')]], [1, 6], '#FFFFFF', '0px')
+studio('first-prototype', 'Your First Prototype', 'Welcome', 'A developer-platform welcome: a purple illustrated banner, three icon steps with links, a help line, a grey resources box and a partner strip.',
+ 'Welcome to Blockwise SDK', 'Get your first prototype running in under two minutes.', [
+ row(H('<span style="color:#7B4DFF">◆</span> blockwise <span style="font-weight:normal;color:#8A8A95">SDK</span>', '#2B2B33', 24, HELV, pad='24px 32px'), bg='#FFFFFF', pad='0px'),
+ row(H('Welcome to Blockwise SDK', '#FFFFFF', 30, HELV, pad='24px 32px 4px'), T('Your embeddable builder for emails, pages and pop-ups, in one subscription.', '#E8E0FA', 13, HELV, pad='4px 48px 8px'), ill('sdk-banner', 'An editor window with code and avatars'), bg='#7A4AF0', pad='0px'),
+ row(T('Hi {{first_name}},<br><br>We’re glad to have you. Let’s get your first prototype running <strong>in under two minutes</strong>:', '#1A1A1A', 14, HELV, 'left', '24px 32px 8px'), bg='#FFFFFF', pad='0px'),
+ sdk_step('step-icon-1', 'A sign-in icon', 'Step 1: Open the console', 'Sign in to your ' + lk('developer console', '#7B4DFF') + '.'),
+ sdk_step('step-icon-2', 'A settings icon', 'Step 2: Create an app', 'Follow this ' + lk('quick guide', '#7B4DFF') + ' (there’s a free plan, so no commitment).'),
+ sdk_step('step-icon-3', 'A rocket icon', 'Step 3: Get going quickly', 'Use our ' + lk('sample code', '#7B4DFF') + ' to speed up your setup.'),
+ row(divider('#E2E2EA'), T('💬 Questions? Want a quick walkthrough?<br><strong>Just reply to this email</strong>, we’re happy to help!', '#1A1A1A', 14, HELV, 'left', '8px 32px'), divider('#E2E2EA'),
+  T('<span style="display:block;background:#F4F4F8;border-radius:12px;padding:20px 24px"><strong style="font-size:20px;color:#2A1060">Helpful resources</strong><br><br>' + lk('→ Playground', '#7B4DFF') + '<br>Not ready to build? Try the editor first.<br><br>' + lk('→ Developer docs', '#7B4DFF') + '<br>Everything you need to integrate.<br><br>' + lk('→ Security and reliability', '#7B4DFF') + '<br>How we keep your data safe.</span>', '#1A1A1A', 14, HELV, 'left', '16px 32px 16px'),
+  T('<strong>Hundreds of software companies build with Blockwise</strong>, including teams like these:', '#1A1A1A', 14, HELV, pad='16px 32px 8px'), T('<strong>Northstar &nbsp;·&nbsp; Relay &nbsp;·&nbsp; Ledgeworks &nbsp;·&nbsp; Formly</strong>', '#555555', 15, HELV, pad='4px 32px 24px'), divider('#E2E2EA'),
+  T('Happy building!<br><strong style="color:#2A1060">The Blockwise team</strong>', '#1A1A1A', 14, HELV, 'left', '16px 32px 32px'), bg='#FFFFFF', pad='0px'),
+], foot('#F7F6FB', '#8A8A95', 'The embeddable editor for software teams.', 'Blockwise · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F7F6FB', ['welcome', 'developer', 'steps'])
+
+# --- Batch thirteen: welcome set three ---
+orange75 = '#F2641A'
+def perk_card(img, alt, title, body, link): return weighted([[ill(img, alt, '90px', '20px 8px 20px 40px')], [T(f'<strong>{title}</strong><br>{body}<br><br><strong style="color:#0E7A9A">{link}</strong>', '#1A1A1A', 13, HELV, 'left', '24px 40px 20px 8px')]], [1, 2], '#F2F4F5', '0px')
+studio('smooth-searching', 'Smooth Searching', 'Welcome', 'A travel-search welcome: a round portrait, a bold headline, an orange button, perk cards with illustrations and two image-beside-text promos.',
+ 'It’s smooth searching from here', 'Price alerts, trip plans and a wishlist, all in your account.', [
+ weighted([[H('<span style="background:#F2641A;color:#FFFFFF;padding:2px 8px;letter-spacing:4px">FARELY</span>', '#FFFFFF', 16, HELV, 'left', '24px 8px 8px 40px')], [T('✈ &nbsp; 🛏 &nbsp; 🚗 &nbsp; ⛱', '#1A1A1A', 16, HELV, 'right', '26px 40px 8px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ row(P('face4', 'square', '16px 140px'), H('It’s smooth searching from here.', '#111111', 28, HELV, 'left', '16px 40px 8px'), T('Congrats, you’ve just unlocked better trip planning. Now make your account go the extra mile.', '#111111', 15, HELV, 'left', '4px 40px 8px'), button('Get started', orange75, align='left'), divider('#DDDDDD'), H('Account perks, unpacked.', '#111111', 22, HELV, 'left', '16px 40px 8px'), bg='#FFFFFF', pad='0px'),
+ perk_card('perk-plant', 'A phone with a leaf', 'Price alerts', 'Keep an eye on flight, hotel and car prices from your inbox. Pause any time.', 'Catch that drop'),
+ row(text('', 4, '#FFFFFF', pad='6px 0px'), bg='#FFFFFF', pad='0px'),
+ perk_card('perk-case2', 'An orange suitcase', 'Trips', 'Keep your whole itinerary in one place. Forward your bookings and we’ll do the rest.', 'See everything clearly'),
+ row(text('', 4, '#FFFFFF', pad='6px 0px'), bg='#FFFFFF', pad='0px'),
+ perk_card('perk-map', 'A folded map', 'Wishlist', 'Save the places you dream about and never wonder where to go next.', 'Just heart it'),
+ weighted([[H('Get your plans off the ground.', '#111111', 18, HELV, 'left', '32px 8px 8px 40px'), T('Every trip starts somewhere. Find tools for choosing a destination, finding deals and more.', '#333333', 13, HELV, 'left', '4px 8px 8px 40px'), T('<span style="border:1px solid #111111;padding:10px 28px"><strong>Check it out</strong></span>', '#111111', 13, HELV, 'left', '16px 8px 24px 40px')], [ill('trip-map', 'A map with a camper van and pins', '100%', '24px 40px 24px 8px')]], [3, 2], '#FFFFFF', '16px 0px'),
+ row(divider('#DDDDDD'), bg='#FFFFFF', pad='0px'),
+ weighted([[H('The lightest thing in your carry-on (promise).', '#333333', 18, HELV, 'left', '24px 8px 8px 40px'), T('Download our app for deals you won’t find anywhere else.', '#555555', 13, HELV, 'left', '4px 8px 24px 40px')], [ill('phone-stand', 'A phone on a green stand', '100%', '16px 40px 16px 8px')]], [3, 2], '#FFFFFF', '0px'),
+], foot('#F7F8FA', '#555555', 'Compare hundreds of travel sites at once.', 'Farely · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#E8E8EC', ['welcome', 'travel', 'perks'])
+
+sun76, mint76 = '#F7C83A', '#C8EAD0'
+def check_row(body): return weighted([[ill('check-circle-lg', 'A tick', '40px', '8px 4px 8px 40px')], [T(body, '#1A1A1A', 13, HELV, 'left', '14px 40px 8px 8px')]], [1, 7], '#F4FBF4', '0px')
+def pill_badge(img, alt, text_, left): return weighted([[ill(img, alt, '76px', '8px 0px 8px 40px')], [T(f'<span style="display:block;background:#FFFFFF;border-radius:6px;padding:12px 16px;font-size:17px"><strong>{text_}</strong></span>', '#1A1A1A', 17, HELV, 'left', '20px 40px 8px 0px')]], [1, 4], mint76, '0px') if left else weighted([[T(f'<span style="display:block;background:#FFFFFF;border-radius:6px;padding:12px 16px;font-size:17px"><strong>{text_}</strong></span>', '#1A1A1A', 17, HELV, 'left', '20px 0px 8px 40px')], [ill(img, alt, '76px', '8px 40px 8px 0px')]], [4, 1], mint76, '0px')
+studio('on-the-list', 'On the List', 'Welcome', 'A membership welcome: a personal letter with photo-and-signature, a yellow button, an illustrated checklist of benefits and a mint panel of badges.',
+ 'You’re officially on the list!', 'A note from our founder, and what membership includes.', [
+ row(H('GROW<br>TOGETHER', '#1A1A1A', 22, BLACK, pad='20px 32px 4px'), T(lk('Home', '#555555') + ' &nbsp; ' + lk('Workshops', '#555555') + ' &nbsp; ' + lk('Reviews', '#555555') + ' &nbsp; ' + lk('Join', '#555555'), '#555555', 11, HELV, pad='4px 32px 16px'), bg='#F4F4F4', pad='0px'),
+ row(H('You’re officially on the list!', '#1A1A1A', 24, HELV, pad='16px 32px 8px'), T('Thank you for letting us into your inbox.<br><br>I’m Dr Anya Park, a child psychologist and mum of three. I spent years working with adults in therapy and used what I learned to build an approach for raising confident, resilient kids: ' + lk('Grow Together', '#1E7A4A') + '.<br><br>Our approach puts as much weight on staying connected as on setting limits, so you get calmer days now and stronger kids later.<br><br>If you’re thinking “this sounds great, but how do I start seeing wins today?”, membership was made for you.', '#1A1A1A', 13, HELV, 'left', '4px 40px 8px'), bg='#F4F4F4', pad='0px'),
+ weighted([[P('face3', 'square', '8px 8px 8px 48px')], [ill('signature', 'A handwritten signature', '160px', '24px 48px 8px 8px', 'left')]], [1, 3], '#F4F4F4', '0px'),
+ row(pill('EXPLORE NOW', sun76, '#1A1A1A', pad='16px 32px 24px', size='13px', inner='12px 64px'), bg='#F4F4F4', pad='0px'),
+ row(ill('parent-pair', 'Two parents carrying bags', '120px', '24px 32px 8px'), H('Meet your parenting playbook', '#1A1A1A', 24, HELV, pad='8px 32px 4px'), T('Take the guesswork out of raising a<br>big-feelings kid', '#1A1A1A', 16, MONO, pad='4px 32px 16px'), bg='#F4FBF4', pad='0px'),
+ check_row('<strong>Answers any time</strong> from our assistant, trained on our approach.'), check_row('<strong>Live events</strong> and daily support sessions with our coaches.'), check_row('<strong>A community</strong> of supportive parents who get it.'), check_row('<strong>Personal tools</strong> for your child and your challenges.'), check_row('<strong>Hundreds of workshops, scripts and videos</strong> for whatever parenting brings.'),
+ row(pill('EXPLORE NOW', sun76, '#1A1A1A', pad='16px 32px 24px', size='13px', inner='12px 64px'), bg='#F4FBF4', pad='0px'),
+ row(H('It’s all good here', '#1A1A1A', 24, HELV, pad='28px 32px 8px'), bg=mint76, pad='0px'),
+ pill_badge('seal-badge', 'A guarantee seal', '14-day money-back guarantee', True), pill_badge('stars-badge', 'Five stars', 'Thousands of five-star reviews', False), pill_badge('note-badge', 'A notebook', 'Advice backed by research and real life', True),
+ row(pill('LEARN MORE', sun76, '#1A1A1A', pad='16px 32px 8px', size='13px', inner='12px 64px'), T('<strong>From $20 a month on the annual plan</strong><br><strong>14-day money-back guarantee</strong>', '#1A1A1A', 12, HELV, pad='8px 32px 28px'), bg=mint76, pad='0px'),
+], foot('#FFFFFF', '#555555', 'Grow Together · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Preferences</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F4F4F4', ['welcome', 'membership', 'founder'])
+
+violet77 = '#7A4AF0'
+studio('you-did-it', 'You Did It', 'Retention', 'A first-milestone celebration: an illustrated hero, a two-tone headline, a lilac panel with a numbered list, a short letter and a P.S. box.',
+ 'You did it! You made your first email', 'Welcome to the club of people who make things.', [
+ row(H('◆ blockwise', '#2A1060', 28, HELV, pad='24px 32px 8px'), ill('maker-hero', 'A person with headphones working at a desk beside editor blocks'), H('You did it, {{first_name}}!', '#2A1060', 22, HELV, pad='16px 32px 0px'), H('You’re officially an email maker!', violet77, 30, HELV, pad='4px 32px 24px'), bg='#FFFFFF', pad='0px'),
+ row(T('Congrats on making your <strong>first email</strong>. You just showed:<br><br>&nbsp;&nbsp;1. <strong>You can design</strong> on-brand emails without code<br><br>&nbsp;&nbsp;2. <strong>You can turn</strong> an idea into something real<br><br>&nbsp;&nbsp;3. You’re not just planning emails, <strong>you’re making them</strong><br><br>&nbsp;&nbsp;4. And you’re <strong>officially an email maker</strong>. Welcome to the club.<br><br>And that’s pretty great.', '#333333', 16, HELV, 'left', '24px 32px'), bg='#F2EFFC', pad='0px'),
+ row(T('Lots of great emails started exactly like yours: with someone deciding to make something good.<br><br>Congratulations on this milestone, and welcome to our community. We can’t wait to see where you take it.<br><br>Keep building,<br><em>The Blockwise team</em>', '#333333', 16, HELV, 'left', '28px 32px 24px'), T('<span style="display:block;background:#F2EFFC;padding:20px 24px"><strong>P.S.</strong> Your email is saved in your projects. Come back any time to keep working on it, or start your next one. ' + lk('You’ve got this!', violet77) + '</span>', '#333333', 16, HELV, 'left', '8px 0px 24px'), bg='#FFFFFF', pad='0px'),
+], foot('#F7F6FB', '#8A8A95', '<strong>Email creation with no limits.</strong>', 'Blockwise · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#FFFFFF', ['milestone', 'celebration', 'activation'])
+
+paper78, ink78 = '#EEEDE6', '#1F1E1D'
+CODE3 = 'font-family:courier new,monospace;font-size:13px;color:#6A7A3A;font-weight:bold'
+def cli_step(img, alt, title, body): return weighted([[ill(img, alt, '56px', '24px 4px 8px 24px')], [T(f'<strong style="font-size:15px">{title}</strong><br>{body}', ink78, 13, HELV, 'left', '24px 24px 20px 8px')]], [1, 5], '#F8F7F2', '0px 16px')
+studio('first-commit', 'Your First Commit', 'Welcome', 'A developer-tool onboarding on warm grey: a hand-drawn presentation-board illustration, three rounded step cards with command snippets and a dark footer.',
+ 'Your Tern journey starts now', 'Three steps to your first commit in five minutes.', [
+ row(H('<span style="color:#D97757">✳</span> Tern', ink78, 26, SERIF, 'left', '28px 32px 8px'), ill('code-board', 'A hand-drawn board showing a code symbol, with a hand pulling its cord', '260px', '16px 32px'), H('Your Tern journey starts now', ink78, 22, HELV, 'left', '16px 32px 8px'), T('Welcome to Tern, your coding companion. Let’s get you to your first commit in the next five minutes.', ink78, 14, HELV, 'left', '4px 32px 16px'), bg=paper78, pad='0px'),
+ cli_step('step-laptop', 'A laptop', 'Step 1: Let Tern learn your project', f'Open your project folder and run <span style="{CODE3}">tern</span>. Then type:<br><br><span style="{CODE3}">&gt; /learn</span><br><br>Tern writes a short notes file about how your project builds and tests. Then ask it to commit that file.'),
+ row(text('', 4, ink78, pad='6px 0px'), bg=paper78, pad='0px'),
+ cli_step('step-search', 'A magnifier', 'Step 2: Make your first change', f'Ask for something small: a fix, a test, a tidy-up.<br><br><span style="{CODE3}">&gt; Add a feedback button and a test for it</span><br><br>Give feedback as it works, or approve edits as you go.'),
+ row(text('', 4, ink78, pad='6px 0px'), bg=paper78, pad='0px'),
+ cli_step('step-commit', 'A window with a tick', 'Step 3: Commit it', f'When you’re happy, tell Tern:<br><br><span style="{CODE3}">&gt; Commit and push this change</span>'),
+ row(button('Learn more', '#141414'), H('Share what you’re building!', ink78, 20, HELV, 'left', '24px 32px 4px'), T('Tag us on social media or post in our community forum.', ink78, 13, HELV, 'left', '4px 32px 24px'), bg=paper78, pad='16px 0px 0px'),
+], row(T('<span style="display:block;border:1px solid #D97757;border-radius:10px;padding:24px"><span style="font-family:georgia;font-size:20px;color:#FFFFFF">Was this email useful?</span><br><br><span style="font-size:24px">👍 &nbsp; 👎</span></span>', '#FFFFFF', 14, HELV, pad='28px 32px 16px'), H('<span style="color:#D97757">✳</span> Tern', '#FFFFFF', 24, SERIF, 'left', '16px 32px 8px'), T('Tern · 12 Example Street, Your City · ' + lk('Unsubscribe', '#BBBBBB') + '<br><a href="https://xem.email" style="color:#BBBBBB">Built with Xem</a>', '#BBBBBB', 11, HELV, 'left', '8px 32px 32px'), bg='#141414', pad='0px'),
+ paper78, ['welcome', 'developer', 'steps'])
+
+studio('good-taste', 'Good Taste', 'Welcome', 'A playful money-newsletter welcome: a giant stacked wordmark with a coin mascot, a bright card with oversized type, three bold-led bullets and a pill.',
+ 'You’ve got good taste', 'Your first edition of The Gist arrives on Monday.', [
+ row(H('Moneywise', '#2A2A2A', 22, SERIF, pad='40px 32px 0px'), H('THE GIST', '#2A2A2A', 86, BLACK, pad='0px 32px 0px'), ill('coin-mascot', 'A smiling gold coin character', '110px', '0px 32px 4px'), T('The country’s friendliest money newsletter', '#2A2A2A', 15, HELV, pad='4px 32px 24px'), bg='#F7F7F7', pad='0px'),
+ row(ill('tldr-card', 'A lime card reading You’ve got good taste, surrounded by small icons', pad='8px 32px'), T('Congratulations! From Monday, the latest edition of The Gist will land in your inbox. And in case you’ve forgotten what you signed up for, here’s what it’s about:', '#1A1A1A', 15, HELV, 'left', '24px 40px 8px'),
+  T('<strong>Money news</strong><br>Markets, housing and the price of groceries.<br><br><strong>Business news</strong><br>Mergers, takeovers and big-business drama.<br><br><strong>Totally optional good reads</strong><br>Deep dives and culture takes to make you sound clever at lunch.', '#1A1A1A', 15, HELV, 'left', '8px 40px 8px'),
+  pill('Read the latest edition', '#2A2A2A', pad='16px 32px 16px', size='14px', inner='12px 40px'),
+  T('P.S. Add us to your contacts so we don’t end up in your junk folder. On a phone, move us to your main inbox from the menu; on a computer, drag us there.', '#1A1A1A', 15, HELV, 'left', '16px 40px 32px'), bg='#F7F7F7', pad='0px'),
+], foot('#F7F7F7', '#777777', 'The Gist is for information only and isn’t financial advice.', 'Moneywise Media · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F7F7F7', ['welcome', 'newsletter', 'playful'])
+
+teal79 = '#1E7A8A'
+studio('ask-anything', 'Ask Anything', 'Welcome', 'An answer-engine welcome: a painterly sky hero with a reader on a hill, a statement headline, a small teal button, a getting-started list and an app panel.',
+ 'Welcome to Quarry', 'Ask a question, get an answer with sources.', [
+ row(H('quarry', '#1E3A3A', 26, HELV, pad='32px 32px 16px'), ill('sky-reader', 'A painted sky with swirling clouds and a person reading on a hilltop'), bg='#FFFFFF', pad='0px'),
+ row(H('Quarry is a new kind of search. Get answers to any question, big or small.', '#1A1A1A', 24, HELV, 'left', '28px 32px 8px'), T('Ask in plain words and get a clear answer, with the sources it came from.', '#777777', 16, HELV, 'left', '4px 32px 8px'), button('Ask your first question', teal79), divider('#E2E2DA'),
+  H('Getting started:', '#1A1A1A', 22, HELV, 'left', '16px 32px 8px'), T('<span style="font-size:17px">Ask a question. Check the answer.</span><br><span style="color:#777777">Every answer shows its sources, so you can see where it came from.</span><br><br><span style="font-size:17px">Go deeper.</span><br><span style="color:#777777">Ask a follow-up to explore more context and other points of view. Try: “' + lk('What happened in the news today?', '#777777') + '”</span><br><br><span style="font-size:17px">Save hours.</span><br><span style="color:#777777">Turn hours of research into minutes.</span>', '#1A1A1A', 14, HELV, 'left', '4px 32px 24px'), bg='#FBFAF4', pad='0px'),
+ row(H('Get the app for answers anywhere.', '#111111', 22, HELV, pad='28px 32px 28px'), bg='#E2F0EA', pad='0px'),
+], foot('#FFFFFF', '#999999', '© 2026 Quarry · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a> · <a href="https://example.com" style="color:inherit">Privacy</a>'), '#FFFFFF', ['welcome', 'search', 'getting started'])
+
+cream80 = '#FBF8E4'
+def try_step(img, alt, title, body): return weighted([[ill(img, alt, '100%', '12px 8px 12px 32px')], [T(f'<strong>{title}</strong><br><br>{body}', '#1A1A1A', 12, HELV, 'left', '40px 32px 12px 8px')]], [1, 1], cream80, '0px')
+studio('speak-it', 'Speak It', 'Welcome', 'A voice-app trial welcome: a big serif headline over a playful scooter illustration, a bordered “try it today” card with three steps, a founder quote and an orange tip box.',
+ 'Welcome to Murmur! Your 14-day trial has started', 'Try speaking instead of typing, just once today.', [
+ row(H('▥ Murmur', '#1A1A1A', 20, HELV, pad='32px 32px 8px'), H('Start typing at the <em>speed</em> of speech', '#1A1A1A', 36, SERIF, pad='8px 32px 8px'), ill('scooter', 'A rider on a lilac scooter with a happy dog in the sidecar', '360px', '8px 32px'),
+  H('Welcome to Murmur!<br>Your 14-day free trial has started.', '#1A1A1A', 18, HELV, pad='16px 32px 8px'), T('To welcome you, enjoy two weeks of ' + lk('Murmur Pro', '#1A1A1A') + ' on us: unlimited voice typing, <strong>no cost and no commitment</strong>.', '#1A1A1A', 12, HELV, 'left', '4px 32px 16px'), bg=cream80, pad='0px'),
+ row(divider('#1A1A1A'), H('Try Murmur just once today', '#1A1A1A', 20, HELV, pad='24px 32px 4px'), T('We’re building new habits, and this is one you’ll want to keep.', '#1A1A1A', 12, HELV, pad='4px 32px 8px'), bg=cream80, pad='0px'),
+ try_step('apps-panel', 'An applications list', 'Step 1: Open the app', 'Launch Murmur and keep it running in the background. It’s ready whenever you need it.'),
+ try_step('msg-box', 'A message box', 'Step 2: Find any text box', 'Instead of typing, <strong>hold your shortcut key</strong>. A small bar appears at the bottom of your screen.'),
+ try_step('msg-box-rec', 'A message box with a recording bar', 'Step 3: Just talk', 'You can even <strong><em>whisper</em></strong>. Let go of the key when you’re done.'),
+ row(button('Open Murmur to start', '#1A1A1A'), H('From Sol, our co-founder', '#1A1A1A', 18, HELV, pad='24px 32px 8px'), bg=cream80, pad='0px'),
+ weighted([[ill('avatar-4', 'Portrait of Sol', '70px', '8px 8px 8px 48px')], [T('“We built Murmur to make writing faster and more natural. It’s for anyone who wants to work at the speed of thought and <strong>take back their time</strong>. Thanks for being part of it.”', '#1A1A1A', 12, HELV, 'left', '12px 48px 8px 8px')]], [1, 4], cream80, '0px'),
+ row(T('<span style="display:block;background:#F7A84A;border:1px solid #1A1A1A;border-radius:8px;padding:16px 20px"><span style="background:#1A1A1A;color:#FFFFFF;padding:4px 10px;border-radius:4px">💡 Smart tip</span><br><br>Murmur understands many languages and detects which one you’re speaking. For best results, set your languages in ' + lk('settings', '#1A1A1A') + '.</span>', '#1A1A1A', 12, HELV, 'left', '24px 24px'), T('You can ' + lk('upgrade to Pro', '#1A1A1A') + ' any time to keep full access after your trial.<br><br>— Written with Murmur', '#1A1A1A', 12, HELV, 'left', '8px 32px 32px'), bg=cream80, pad='0px'),
+], foot(cream80, '#555555', '©2026 Murmur · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Blog</a> · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), cream80, ['welcome', 'trial', 'steps'])
+
+green81, pink81 = '#1EA85A', '#F79AE0'
+studio('our-story', 'Our Story', 'Welcome', 'A founder-story welcome for a small family business: a playful logo, a heartfelt letter with green highlights and links, a pink button and a colourful footer.',
+ 'Welcome to the crew', 'Why we started, and where to begin.', [
+ row(T('Can’t see this email? ' + lk('View in your browser', green81), '#555555', 11, HELV, pad='8px 24px'), bg='#EEEDE2', pad='0px'),
+ row(ill('family-logo', 'A playful pink and green Little Crew logo', '220px', '16px 32px 8px'), T(f'Hi <strong style="color:{green81}">{{{{first_name}}}}</strong>,<br><br>Jo here, co-founder of <strong style="color:{green81}">Little Crew</strong>.<br><br>Thank you for joining our crew! When our son was born with a condition that affects how he moves, everything changed for our family.<br><br>As he grew, we wanted to make things better for him. The clothes made for kids like him were either uncomfortable or impossible to find. Zips in the wrong places, fabrics that rubbed, nothing that worked with a wheelchair. Not good.<br><br>If you’ve found us, you’ve probably been dealing with this too.<br><br>With help from other families, we designed a range that fits real life. Our <strong><u style="color:{green81}">adaptive basics</u></strong> are a good place to start, and our <strong><u style="color:{green81}">sample pack</u></strong> helps you find the right size before buying more.', '#111111', 16, HELV, 'left', '8px 24px 8px'),
+  T('<a href="https://example.com" style="display:inline-block;background:#F79AE0;color:#FFFFFF;padding:16px 40px;text-decoration:none;font-weight:bold;font-size:17px">SHOP THE SAMPLE PACK</a>', '#FFFFFF', 17, HELV, pad='16px 24px 16px'),
+  T(f'Questions? Reply to this email. We’re here to help.<br><br>Thanks so much,<br>Jo &amp; Sam<br>Co-founders, <span style="color:{green81}">Little Crew</span>', '#111111', 16, HELV, 'left', '8px 24px 24px'), bg='#FFFFFF', pad='0px'),
+ row(T('f &nbsp;&nbsp; ◎ &nbsp;&nbsp; ♪ &nbsp;&nbsp; in &nbsp;&nbsp; ✉', '#FFFFFF', 14, HELV, pad='14px 24px'), bg='#4A3AD8', pad='0px'),
+], foot('#FBC8A8', '#555555', '© 2026 Little Crew · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#F7F7F7', ['welcome', 'founder', 'story'])
+
+# --- Batch fourteen: account and transactional ---
+def plain_footer(bg, ink, *lines): return foot(bg, ink, *lines)
+studio('blog-welcome-survey', 'Blog Welcome', 'Welcome', 'A blog subscription welcome: a black header bar, a bright product-swirl hero, a short letter with a one-click survey list, a grey trial panel and a black footer.',
+ 'Welcome to the Shopfront blog', 'Tell us where you are, and we’ll send the right advice.', [
+ weighted([[H('🛍 shopfront', '#FFFFFF', 22, HELV, 'left', '24px 8px 24px 40px')], [T('<strong><u>' + lk('Start free trial', '#FFFFFF') + '</u></strong>', '#FFFFFF', 14, HELV, 'right', '28px 40px 24px 8px')]], [1, 1], '#000000', '0px'),
+ row(ill('parcel-swirl', 'Parcels and a pair of headphones floating in a soft colourful swirl'), H('Shopfront Blog', '#111111', 34, HELV, 'left', '32px 40px 12px'),
+  T('Hello and welcome! Your journey towards building your own business starts here.<br><br>As a subscriber, you’ll get regular, practical advice, tactics and success stories to help you reach your goals.<br><br>We’d like to send you the advice you actually need. Please answer one quick question:', '#1A1A1A', 15, HELV, 'left', '4px 40px 8px'),
+  T(ul(['<strong><u>' + lk('I’m just curious about starting a business', '#111111') + '</u></strong>', '<strong><u>' + lk('I’m looking for a product or business idea', '#111111') + '</u></strong>', '<strong><u>' + lk('I have a product and I’m working on my first sale', '#111111') + '</u></strong>', '<strong><u>' + lk('I’ve made a few sales and want to grow', '#111111') + '</u></strong>', '<strong><u>' + lk('I run an established business', '#111111') + '</u></strong>']), '#111111', 14, HELV, 'left', '8px 56px 32px'), bg='#FFFFFF', pad='0px'),
+ row(H('Shopfront helps independent business owners everywhere', '#111111', 30, HELV, pad='48px 40px 8px'), T('Try Shopfront free, and explore the tools you need to start, run and grow your business.', '#1A1A1A', 16, HELV, pad='4px 56px 8px'), pill('Start free trial', '#000000', pad='16px 40px 48px', size='15px'), bg='#D8D8DC', pad='0px'),
+], plain_footer('#000000', '#FFFFFF', 'Shopfront · 12 Example Street, Your City', '<strong><u>' + lk('Unsubscribe', '#FFFFFF') + '</u> &nbsp; <u>' + lk('Manage your preferences', '#FFFFFF') + '</u></strong>'), '#EEEEF2', ['welcome', 'survey', 'segmentation'])
+
+studio('tldr-welcome', 'TL;DR Welcome', 'Welcome', 'A developer-platform welcome on warm paper: a dark glowing banner, a short TL;DR bullet list with links and a plain sign-off.',
+ 'Welcome to Keyward', 'The short version: where to start building.', [
+ row(H('◈ keyward', '#1A1A1A', 22, HELV, 'left', '40px 40px 24px'), ill('glow-banner', 'A dark banner with a purple glow reading Welcome to Keyward'), bg='#FFFDF8', pad='0px'),
+ row(T('We’re so glad you’re here. You’re probably busy, so here’s the TL;DR:<br><br>' + ul(['Explore the product and start building ' + lk('here', '#3A5AD8') + '.', 'Sign-in for AI agents is now available to everyone. Learn more ' + lk('here', '#3A5AD8') + '.', 'Get going quickly with our ' + lk('quickstarts', '#3A5AD8') + ' and ' + lk('SDKs', '#3A5AD8') + '.']) + '<br><br>…or tell us if you have any questions. Reply to this email to ask something or book a call with one of our engineers.<br><br>Happy building,<br>Keyward', '#555555', 15, HELV, 'left', '32px 40px 40px'), bg='#FFFDF8', pad='0px'),
+], plain_footer('#F4EFE6', '#777777', '<u>' + lk('View as a web page', '#777777') + '</u>', 'Keyward · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Unsubscribe</a>'), '#DCDAD2', ['welcome', 'developer', 'minimal'])
+
+studio('new-sign-in', 'New Sign-in', 'Transactional', 'A security alert: an illustration of someone checking their phone, a bold headline, sign-in details as a list, and clear “if this was you / wasn’t you” sections.',
+ 'New sign-in to your account', 'We noticed a sign-in from a new device.', [
+ row(H('〃 tally', '#1A2A6A', 30, HELV, pad='24px 40px 16px'), bg='#E8EEFA', pad='0px'),
+ row(ill('phone-gaze', 'A person looking at their phone', '240px', '32px 40px 8px'), H('New sign-in detected', '#1A1A1A', 24, HELV, pad='8px 40px 16px'),
+  T('We noticed a sign-in to your Tally account from a device we don’t recognise:<br><br>' + ul(['{{sign_in_time}}', '{{approximate_location}} (approximate, can vary with a VPN)', 'IP address: {{ip_address}}', '{{device_and_browser}}']) + '<br><br><strong>If this was you</strong><br>You’re all set. You can ignore this email.<br><br><strong>If this wasn’t you</strong><br>Please <strong>' + lk('change your password', '#1A3AB8') + '</strong> straight away and <strong>' + lk('turn on two-step sign-in', '#1A3AB8') + '</strong> to protect your account.', '#1A1A1A', 15, HELV, 'left', '4px 40px 40px'), bg='#FFFFFF', pad='0px'),
+], plain_footer('#E8EEFA', '#1A2A6A', 'Need help? Visit our <strong>' + lk('help centre', '#1A2A6A') + '</strong>. You received this because you have a Tally account.', 'Tally · 12 Example Street, Your City'), '#E8EEFA', ['security', 'alert', 'sign-in'], marketing=False)
+
+studio('shared-data', 'Shared Data', 'Transactional', 'A data-sharing notice: a centred headline and account chip, an illustration, a blue info box, a card listing what was shared, a pill button and a reassurance card.',
+ 'You signed in to Pinboard with your Keyring account', 'Here’s what you shared.', [
+ row(H('◍ Keyring', '#3A3A3A', 28, HELV, pad='32px 40px 8px'), H('Keep track of your account data', '#1A1A1A', 22, HELV, pad='8px 40px 8px'), T('<span style="background:#F2F2F2;border-radius:999px;padding:6px 14px">🙂 {{email}}</span>', '#1A1A1A', 13, HELV, pad='4px 40px 16px'), divider('#DDDDDD'), ill('account-shared', 'A phone with a profile icon, an envelope and a toggle', '260px', '16px 40px'),
+  T('<span style="display:block;background:#DCE8FC;border-radius:14px;padding:18px 20px">ℹ️ You’re getting this email because you used your Keyring account to sign in to <strong><u>Pinboard</u></strong> on {{date}}.<br><br>This email lists what you shared. You don’t need to do anything.</span>', '#1A1A1A', 13, HELV, 'left', '8px 40px 16px'),
+  T('<span style="display:block;background:#F7F8FC;border-radius:14px;padding:20px"><strong>Pinboard received this profile info</strong><br><br>👤 &nbsp;{{full_name}}<br><span style="font-size:11px;color:#777">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Name and profile picture</span><br><br>✉ &nbsp;{{email}}<br><span style="font-size:11px;color:#777">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email address</span></span>', '#1A1A1A', 13, HELV, 'left', '8px 40px 16px'),
+  T('If you want to stop using Keyring sign-in with Pinboard, go to your Keyring account.', '#1A1A1A', 14, HELV, 'left', '8px 40px'), pill('Go to your Keyring account', '#1A5AD8', pad='16px 40px 16px', size='15px'),
+  T('If you want to delete the data you shared with Pinboard, visit Pinboard.', '#1A1A1A', 14, HELV, 'left', '8px 40px 16px'), T('<span style="display:block;border:1px solid #DDDDDD;border-radius:10px;padding:14px 18px">🛡 <strong>Safer with Keyring</strong><br><span style="font-size:12px">Your account protects your privacy with built-in security.</span></span>', '#1A1A1A', 13, HELV, 'left', '8px 40px 32px'), bg='#FFFFFF', pad='0px'),
+], plain_footer('#FFFFFF', '#777777', 'You got this email to let you know about important changes to your account.', 'Keyring · 12 Example Street, Your City'), '#FFFFFF', ['account', 'privacy', 'notice'], marketing=False)
+
+studio('login-changed', 'Login Changed', 'Transactional', 'An account change confirmation: a dotted lilac hero with a badge, a small app tile, a bold headline, an account card and a perspective grid footer.',
+ 'You’ve changed how you sign in', 'From now on, use your Soundbox account to sign in.', [
+ row(H('◐ for Creators', '#1A1A1A', 20, HELV, 'left', '24px 40px'), bg='#7A74F5', pad='0px'),
+ row(ill('disc-check', 'A black headphones badge with a tick, on a dotted lilac background'), bg='#8A84F5', pad='0px'),
+ row(ill('heart-envelope', 'A small envelope with a heart', '100px', '24px 40px 8px'), H('Weekly Feedback by Good Mail Club', '#111111', 18, HELV, pad='4px 40px 16px'), H('You’ve changed your sign-in to Soundbox', '#111111', 32, HELV, 'left', '8px 72px 12px'),
+  T('You can no longer use your old sign-in for “Weekly Feedback by Good Mail Club”. From now on, you’ll sign in to Soundbox for Creators with this account:', '#111111', 14, HELV, 'left', '4px 72px 12px'),
+  T('<span style="display:block;background:#FFFFFF;border:1px solid #CCCCCC;border-radius:10px;padding:16px 20px"><strong>{{full_name}}</strong><br><span style="color:#777">{{email}}</span></span>', '#111111', 14, HELV, 'left', '8px 72px 16px'), T('<u>' + lk('Need help signing in?', '#111111') + '</u>', '#111111', 14, HELV, 'left', '8px 72px 32px'), bg='#F0EFEC', pad='0px'),
+ row(ill('grid-floor', 'A lilac perspective grid'), bg='#8A84F5', pad='0px'),
+], plain_footer('#F8F8F8', '#777777', '<u>' + lk('Terms', '#777777') + '</u> | <u>' + lk('Contact us', '#777777') + '</u>', 'Soundbox · 12 Example Street, Your City'), '#F8F8F8', ['account', 'sign-in', 'change'], marketing=False)
+
+studio('confirm-code', 'Confirm Code', 'Transactional', 'A minimal email-confirmation code: a logo, a bold headline, one line of explanation, the code in a soft grey box and a short reassurance.',
+ 'Confirm your email to join', 'Your code is inside.', [
+ row(H('<span style="color:#E8473C">■</span><span style="color:#2AB8E8">■</span><span style="color:#3AC46A">■</span><span style="color:#F2B233">■</span> chatterbox', '#1A1A1A', 24, HELV, 'left', '40px 40px 16px'), H('Confirm your email to join', '#1A1A1A', 30, HELV, 'left', '8px 40px 12px'),
+  T('Hello! Once you’ve confirmed your email address with the code below, you’ll be the newest member of {{workspace_name}}.', '#3A3A3A', 18, HELV, 'left', '4px 40px 16px'),
+  T('<span style="display:block;background:#F4F4F4;box-shadow:0 4px 10px rgba(0,0,0,.06);padding:36px 0;font-size:30px;letter-spacing:4px">{{code}}</span>', '#3A3A3A', 30, HELV, pad='8px 40px 24px'),
+  T('If you didn’t ask for this email, there’s nothing to worry about. You can safely ignore it.', '#3A3A3A', 18, HELV, 'left', '16px 40px 40px'), bg='#FFFFFF', pad='0px'),
+], plain_footer('#FFFFFF', '#999999', '<u>' + lk('Our blog', '#999999') + '</u> | <u>' + lk('Help centre', '#999999') + '</u>', '© 2026 Chatterbox · 12 Example Street, Your City'), '#FFFFFF', ['verification', 'code', 'minimal'], marketing=False)
+
+def id_panel(img, alt, title, body, link): return row(ill(img, alt, pad='24px 24px 0px'), H(title, '#111111', 24, HELV, pad='16px 32px 8px'), T(body, '#333333', 12, HELV, pad='4px 48px 8px'), *( [T(lk(link + ' ›', '#2A6AD8'), '#2A6AD8', 12, HELV, pad='4px 32px 16px')] if link else [text('', 4, '#FFFFFF', pad='8px 0px')] ), bg='#FFFFFF', pad='0px')
+studio('id-on-phone', 'ID on Your Phone', 'Transactional', 'A feature confirmation for a digital ID: a hand holding a phone on a sky gradient, a headline, then three coloured icon panels each with a headline and short text.',
+ 'Show your ID with a tap', 'You’ve added your ID to your wallet. Here’s how it works.', [
+ row(H('◍ Wallet', '#111111', 18, HELV, 'left', '16px 24px'), ill('phone-id', 'A hand holding a phone with an ID card on screen'), T('<strong>DIGITAL ID PILOT</strong>', '#111111', 12, HELV, pad='20px 32px 0px'), H('Show your ID.<br>With a tap.', '#111111', 30, HELV, pad='4px 32px 8px'),
+  T('Now that you’ve added your ID to your wallet as part of the pilot, you can show it at selected checkpoints and businesses where proof of age is needed, with a tap of your phone or watch. You never need to hand your device over.', '#333333', 12, HELV, pad='4px 48px 8px'), T(lk('Learn how to show your ID ›', '#2A6AD8'), '#2A6AD8', 12, HELV, pad='4px 32px 16px'), bg='#FFFFFF', pad='0px'),
+ id_panel('face-scan', 'A face scan icon', 'Your details. Private and secure.', 'Your ID is encrypted and protected against tampering and theft. No record of where you show it is kept, and your face or fingerprint keeps it safe.', None),
+ id_panel('id-card', 'An ID card icon', 'Digital ID is spreading.', 'You can show your ID at selected checkpoints, shops and for age-restricted deliveries. Keep carrying your physical ID for now, but expect more places to accept it soon.', 'Learn more about digital ID'),
+ id_panel('phone-watch', 'A phone and a watch', 'Manage your ID from your device.', 'Renew, update your address and more on the issuing office’s website. Changes appear on your digital ID automatically.', 'Visit the issuing office'),
+], plain_footer('#F4F4F4', '#777777', 'Digital ID is available in selected regions. Check local rules before relying on it.', 'Wallet · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Privacy</a>'), '#FFFFFF', ['feature', 'security', 'identity'], marketing=False)
+
+red82 = '#D8202A'
+studio('email-changed', 'Email Changed', 'Transactional', 'A plain account-change confirmation: a red monogram, a bold headline, a short note, a sign-off, a rule and a red outlined button.',
+ 'Your email address has been changed', 'If you didn’t ask for this, contact us.', [
+ row(H(f'<span style="color:{red82};font-size:44px">S</span>', red82, 44, BLACK, 'left', '24px 40px 4px'), H('Email changed', '#1A1A1A', 34, HELV, 'left', '8px 40px 12px'),
+  T('Hi {{first_name}},<br><br>We’ve changed your account email address, as you asked. You can no longer use {{old_email}} to sign in. Please use your new email address.<br><br>If you didn’t ask to change your email address, we’re here to help secure your account. Just ' + lk('contact us', '#1A1A1A') + '.', '#1A1A1A', 16, HELV, 'left', '4px 40px 12px'), T('<strong>The Streamly team</strong>', '#1A1A1A', 13, HELV, 'left', '8px 40px 16px'), divider('#1A1A1A'),
+  T(f'<a href="https://example.com" style="display:block;border:2px solid {red82};border-radius:4px;padding:14px;color:{red82};text-decoration:none;font-weight:bold">Browse shows and films</a>', red82, 14, HELV, pad='16px 40px 24px'), bg='#FFFFFF', pad='0px'),
+], plain_footer('#FFFFFF', '#AAAAAA', 'Questions? Visit our ' + lk('help centre', '#AAAAAA') + '.', 'Streamly · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Settings</a>'), '#E8E8E8', ['account', 'change', 'security'], marketing=False)
+
+studio('privacy-update', 'Privacy Update', 'Transactional', 'A policy-update notice: a black logo bar, a yellow hero with a bell in concentric circles, two short paragraphs, a grey sign-off and a black footer.',
+ 'We’ve updated our privacy notice', 'The changes take effect on 1 September.', [
+ row(H('Ridewell', '#FFFFFF', 26, HELV, 'left', '24px 40px'), bg='#000000', pad='0px'),
+ row(ill('bell-circles', 'A yellow banner reading Privacy Notice Update with a bell in rings'), bg='#F7C83A', pad='0px'),
+ row(T('We’ve updated our privacy notice to explain how we collect and use your personal data when you use our apps and websites. This includes more about our services and features, how we use data for marketing, and new settings that put you in charge of your data.<br><br>You can read the updated notice ' + lk('here', '#2A2AE8') + '. The changes take effect on 1 September.', '#1A1A1A', 16, HELV, 'left', '40px 40px'), bg='#FFFFFF', pad='0px'),
+ row(T('Thank you,<br>The Ridewell team', '#1A1A1A', 16, HELV, 'left', '32px 40px'), bg='#F4F4F4', pad='0px'),
+], row(T(lk('Help centre', '#FFFFFF') + ' &nbsp;&nbsp;&nbsp;&nbsp; ' + lk('Privacy', '#FFFFFF') + '<br>' + lk('Terms', '#FFFFFF') + ' &nbsp;&nbsp;&nbsp;&nbsp; ' + lk('Email preferences', '#FFFFFF') + '<br>' + lk('Unsubscribe', '#FFFFFF'), '#FFFFFF', 13, HELV, 'left', '32px 40px 16px'), T('Ridewell · 12 Example Street, Your City<br><a href="https://xem.email" style="color:#FFFFFF">Built with Xem</a>', '#FFFFFF', 11, HELV, 'left', '8px 40px 32px'), bg='#000000', pad='0px'),
+ '#FFFFFF', ['policy', 'notice', 'privacy'], marketing=False)
+
+blue83 = '#3A2AF0'
+studio('almost-there-code', 'Almost There', 'Transactional', 'A centred confirmation card on pale blue: a chunky logo, a bold headline, a wide button, then a fallback code in mono below a dashed rule.',
+ 'Almost there! Confirm your email', 'Tap the button, or use the code inside.', [
+ row(H(f'<span style="background:{blue83};color:#FFFFFF;padding:4px 12px;border-radius:8px">PENNY</span>', '#FFFFFF', 28, BLACK, pad='32px 40px 24px'), bg='#EEF2FF', pad='0px'),
+ row(H('Almost there!', '#111111', 32, HELV, pad='40px 40px 8px'), T('Confirm your email address to finish signing up. Just tap the button below.', '#6A7080', 16, HELV, pad='4px 56px 16px'),
+  T(f'<a href="https://example.com" style="display:block;background:{blue83};color:#FFFFFF;padding:16px;border-radius:4px;text-decoration:none;font-weight:bold">Confirm now</a>', '#FFFFFF', 16, HELV, pad='8px 80px 16px'), T('<span style="display:block;border-top:1px dashed #DDDDDD"></span>', '#DDDDDD', 1, HELV, pad='8px 40px 0px'),
+  H('Link not working?', '#3A3A3A', 16, HELV, pad='16px 40px 4px'), T(f'<span style="font-family:courier new;font-size:22px;color:{blue83}">{{{{code}}}}</span>', blue83, 22, MONO, pad='4px 40px 8px'), T('Enter the code above in the app when asked.<br>(Make sure your app is up to date.)', '#777777', 12, HELV, pad='4px 40px 32px'), bg='#FFFFFF', pad='0px 40px'),
+], plain_footer('#EEF2FF', '#333333', '<strong>PENNY</strong>', 'Penny · 12 Example Street, Your City'), '#EEF2FF', ['verification', 'code', 'confirm'], marketing=False)
+
+green84 = '#3A8A3A'
+studio('reset-camper', 'Reset Your Password', 'Transactional', 'A friendly password reset: a grey header panel with a line-drawn camper, a reassuring line, a green button, and a help box with a headset icon.',
+ 'Reset your Roamly password', 'It happens to everyone. Here’s your link.', [
+ weighted([[H('Roamly', '#1A1A1A', 24, SERIF, 'left', '28px 8px 16px 40px')], [T('Need help? ' + lk('Contact us', green84), '#555555', 12, HELV, 'right', '32px 40px 16px 8px')]], [1, 1], '#FFFFFF', '0px'),
+ weighted([[H('We got a request to reset your Roamly password', '#3A3A3A', 22, HELV, 'left', '24px 8px 24px 32px')], [ill('camper', 'A line drawing of a camper van', '100%', '20px 32px 20px 8px')]], [3, 2], '#F2F2F2', '0px 0px'),
+ row(T('Forgot your password? No problem, it happens to everyone!', '#3A3A3A', 16, HELV, 'left', '32px 40px 16px'), button('Reset your password', green84), T('If you ignore this message, your password won’t be changed.', '#3A3A3A', 16, HELV, 'left', '16px 40px 16px'), divider('#DDDDDD'), ill('cricket', 'A small line drawing of a cricket', '80px', '24px 40px 0px', 'right'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('headset', 'A headset with a heart', '64px', '24px 4px 24px 40px')], [T('<strong>Real people. Here to help.</strong><br>Got a question? Call {{support_phone}} to talk to our support team.', '#3A3A3A', 14, HELV, 'left', '26px 40px 24px 8px')]], [1, 4], '#F2F2F2', '0px'),
+ row(T('For your safety, please only make payments through Roamly. ' + lk('Learn more', green84) + '.', '#3A3A3A', 13, HELV, 'left', '24px 40px 24px'), bg='#FFFFFF', pad='0px'),
+], plain_footer('#F4F4F4', '#777777', 'Sent with love by Roamly · 12 Example Street, Your City'), '#F4F4F4', ['password', 'reset', 'account'], marketing=False)
+
+blue85 = '#2A8AF8'
+studio('confirm-personal', 'Confirm, Personally', 'Transactional', 'A double opt-in with personality: a centred hand-drawn logo, a bold line, a chatty letter with the subscriber’s address, a wide blue button and a signature.',
+ 'We’re almost there! Please confirm', 'One little blue button away from the newsletter.', [
+ row(T('Thank you for your interest in our newsletter!', '#999999', 11, HELV, 'left', '12px 0px'), bg='#F8F8F8', pad='0px'),
+ row(ill('heart-envelope', 'An envelope with a heart', '110px', '40px 40px 0px'), H('inbox fixers', '#111111', 34, HELV, pad='0px 40px 0px'), T('<strong style="color:#E8506A;letter-spacing:2px">BY NADIA KHAN</strong>', '#E8506A', 12, HELV, pad='0px 40px 24px'), H('We’re almost there!', '#111111', 22, HELV, pad='8px 40px 16px'),
+  T('You’re one little blue button away from your pass to email marketing done right (and the occasional email done wrong).<br><br>I love, love, LOVE that you’re as excited (curious? keen?) about email as I am.<br><br>And I can’t wait to send you all the tips I’ve been saving up for months.<br><br>But first, I need you to confirm your details.<br><br>Please press the button below to confirm that {{email}} is where you’d like to get the newsletter.', '#1A1A1A', 17, HELV, 'left', '4px 48px 16px'),
+  T(f'<a href="https://example.com" style="display:block;background:{blue85};color:#FFFFFF;padding:16px;border-radius:2px;text-decoration:none;font-weight:bold;border-bottom:3px solid #1A5AB8">Confirm your email</a>', '#FFFFFF', 15, HELV, pad='16px 48px 16px'),
+  T('Thanks! You’re a star :D<br><br>---<br><br><strong>Nadia Khan</strong><br>Chief Inbox Fixer<br>Inbox Fixers', '#1A1A1A', 17, HELV, 'left', '8px 48px 16px'), divider('#DDDDDD'),
+  T('Didn’t subscribe? Just delete this email or report it ' + lk('here', '#777777') + '. You’re not subscribed until you press the button above.', '#777777', 12, HELV, pad='8px 48px 32px'), bg='#FFFFFF', pad='0px'),
+], plain_footer('#F8F8F8', '#999999', '<strong>Inbox Fixers</strong> · 12 Example Street, Your City'), '#F8F8F8', ['double opt-in', 'personal', 'confirm'], marketing=False)
+
+purple86, teal86 = '#7A1A7A', '#0E6E7A'
+studio('magic-link', 'Magic Link', 'Transactional', 'A one-time sign-in link for a shop: a purple announcement bar, a centred logo and nav, a teal button, a warning note, two promo cards and a brands strip.',
+ 'Your sign-in link', 'This link works once and expires in 15 minutes.', [
+ row(T('<strong>FREE DELIVERY OVER $49*</strong>', '#FFFFFF', 14, HELV, pad='10px 24px'), bg=purple86, pad='0px'),
+ row(H('<span style="color:#7AB83A">✿</span> <span style="color:#7A1A7A">homeward</span>', purple86, 40, HELV, pad='16px 24px 4px'), T('Furniture | Decor | Rugs | Lighting | <span style="color:#C8202A">Sale</span>', '#1A1A1A', 15, HELV, pad='4px 24px 16px'), divider('#E2E2E2'), bg='#FFFFFF', pad='0px'),
+ row(T('Hi {{first_name}},<br><br>We got a request for a sign-in link for your Homeward account. Use the button below to sign in and carry on shopping.', '#1A1A1A', 16, HELV, 'left', '16px 40px 8px'), button('Sign in to your account', teal86),
+  T('Please note: this link works once and expires in 15 minutes. Because it signs you straight in, please don’t forward this email to anyone.<br><br>Thanks,<br>The Homeward team', '#1A1A1A', 16, HELV, 'left', '8px 40px 16px'), divider('#E2E2E2'), bg='#FFFFFF', pad='0px'),
+ weighted([[ill('card-icon', 'A card', '70px', '20px 8px 0px 24px'), T('Buy now, pay over 12 months<br>Get the Homeward card »', '#1A1A1A', 14, HELV, pad='4px 8px 20px 24px')], [ill('gift-icon', 'A gift card', '70px', '20px 24px 0px 8px'), T('Give the gift of choice<br>Buy a gift card »', '#1A1A1A', 14, HELV, pad='4px 24px 20px 8px')]], [1, 1], '#F4F2EC', '0px'),
+ row(H('Share your style with #HomewardAtHome', '#1A1A1A', 16, HELV, pad='24px 24px 8px'), divider('#E2E2E2'), H('Our other shops', '#1A1A1A', 16, HELV, pad='16px 24px 4px'), T('<span style="font-family:georgia;font-size:18px">Hearth &amp; Oak</span> &nbsp;&nbsp; <span style="letter-spacing:3px;color:#999">MODERNO</span> &nbsp;&nbsp; <span style="font-family:georgia;letter-spacing:2px">WILLOW LANE</span>', '#555555', 15, HELV, pad='8px 24px 24px'), bg='#FFFFFF', pad='0px'),
+], plain_footer('#FFFFFF', '#555555', '*Free delivery: some exclusions apply.', 'Homeward · 12 Example Street, Your City · <a href="https://example.com" style="color:inherit">Privacy</a>'), '#FFFFFF', ['sign-in', 'link', 'commerce'], marketing=False)
+
+yellow87 = '#FFF200'
+studio('just-signed-in', 'Just Signed In', 'Transactional', 'A playful sign-in alert: an original cartoon cloud character holding a phone, rounded yellow bands top and bottom, a big headline, and clear details with what to do.',
+ 'Someone just signed in to your account', 'If it was you, there’s nothing to do.', [
+ row(text('', 4, '#1A1A1A', pad='24px 0px'), bg=yellow87, pad='0px'),
+ row(ill('cloud-buddy', 'A cheerful cartoon cloud winking and holding a phone, with sparkles', '320px', '0px 40px 0px'), H('Just signed in!', '#1A1A1A', 36, HELV, pad='16px 40px 16px'),
+  T('Hi {{first_name}},<br><br>Someone signed in to your account from <strong>{{device}}</strong> on <strong>{{date}}</strong> at <strong>{{time}}</strong>, somewhere near <strong>{{approximate_location}}</strong>.<br><br>If this was you, you can ignore this email. There’s nothing else to do.<br><br>If this wasn’t you, please change your password in the app or on our ' + lk('help site', '#1A3AD8') + '.<br><br>Read more about ' + lk('keeping your account safe', '#1A3AD8') + '.<br><br>Thanks,<br>Team Cloudcam', '#1A1A1A', 17, HELV, 'left', '4px 40px 24px'), bg='#FFFFFF', pad='0px'),
+ row(text('', 4, '#1A1A1A', pad='28px 0px'), bg=yellow87, pad='0px'),
+], plain_footer('#F4F4F4', '#555555', '© Cloudcam 2026 | ' + lk('Terms', '#2A8AE8'), 'Cloudcam · 12 Example Street, Your City'), '#F4F4F4', ['security', 'sign-in', 'mascot'], marketing=False)
+
+purple88, teal88 = '#6A2AE8', '#2AC8C8'
+studio('reset-geometric', 'Changing Your Password', 'Transactional', 'A password reset with a bold geometric band top and bottom: a chunky wordmark, a lock icon, a light purple headline, a wide teal button and a grey perks footer.',
+ 'Reset your password', 'Need a new password? Start here.', [
+ row(ill('geo-band', 'A band of geometric purple, teal and coral shapes'), H('zest', purple88, 54, BLACK, 'left', '32px 40px 0px'), ill('lock-dots', 'A padlock icon', '64px', '8px 40px', 'left'),
+  H('Changing your<br>Zest password', purple88, 40, HELV, 'left', '24px 40px 8px'), T('Need to reset your password? No problem. Click below to get started.', '#555555', 18, HELV, 'left', '4px 40px 16px'),
+  T(f'<a href="https://example.com" style="display:inline-block;background:{teal88};color:#FFFFFF;padding:18px 70px;text-decoration:none;font-size:18px">Reset my password</a>', '#FFFFFF', 18, HELV, 'left', '8px 40px 16px'),
+  T('If you didn’t ask to change your Zest password, you don’t need to do anything. Easy.', '#555555', 18, HELV, 'left', '8px 40px 56px'), bg='#FFFFFF', pad='0px'),
+ row(T(f'<strong style="color:{purple88}">Free delivery over $35 &nbsp;•&nbsp; Free returns for 30 days &nbsp;•&nbsp; Help any time</strong>', purple88, 11, HELV, pad='24px 24px 8px'), T('<strong>help@zest.example</strong>', '#333333', 11, HELV, 'right', '8px 40px 16px'), ill('geo-band', 'A band of geometric shapes'), bg='#F4F4F4', pad='0px'),
+], plain_footer('#FFFFFF', '#777777', 'Zest · 12 Example Street, Your City', '<a href="https://example.com" style="color:inherit">Privacy policy</a>'), '#F4F4F4', ['password', 'reset', 'geometric'], marketing=False)

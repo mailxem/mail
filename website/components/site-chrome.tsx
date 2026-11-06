@@ -34,7 +34,7 @@ export function Brand({ light = false }: { light?: boolean }) {
 export function SiteHeader({
   active = "journal",
 }: {
-  active?: "journal" | "pricing" | "mcp" | "none";
+  active?: "journal" | "pricing" | "mcp" | "templates" | "none";
 }) {
   const link = (section: string, extra = "") =>
     `${extra} ${active === section ? "font-medium text-iris" : "hover:text-iris"}`.trim();
@@ -49,7 +49,10 @@ export function SiteHeader({
           <Link href="/#product" className="hover:text-iris">
             Product
           </Link>
-          <Link href="/#templates" className="hidden hover:text-iris sm:block">
+          <Link
+            href="/templates"
+            className={link("templates", "hidden sm:block")}
+          >
             Templates
           </Link>
           <Link href="/pricing" className={link("pricing")}>
@@ -97,8 +100,11 @@ export function SiteFooter() {
             <Link href="/pricing">Pricing</Link>
             <Link href="/compare">Compare Xem</Link>
             <Link href="/affiliates">Affiliates · earn 30%</Link>
+            <Link href="/tools/email-checker">
+              Email deliverability checker
+            </Link>
             <Link href="/blog">Journal</Link>
-            <Link href="/#templates">Email templates</Link>
+            <Link href="/templates">Email templates</Link>
             <Link href="/mcp">MCP server</Link>
             <Link href="/blog/editorial">Editorial approach</Link>
             <a href={docsUrl}>Documentation</a>

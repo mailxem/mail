@@ -46,7 +46,7 @@
 
 - **Campaigns and newsletters**: send once or on a schedule, with a public archive and RSS for each newsletter.
 - **Automations**: a visual builder with emails, waits, splits, percentage tests, tags, list moves, contact updates and webhooks.
-- **Templates**: 238 editable starting points built from native editor blocks, plus AI drafting if you turn it on.
+- **Templates**: 214 editable starting points built from native editor blocks, plus AI drafting if you turn it on.
 - **Audience**: lists, tags, segments, signup forms and a small CRM with lead stages.
 - **Inbox**: read and reply to mail from IMAP, Gmail or Cloudflare mailboxes alongside your campaigns.
 - **Analytics**: delivery, opens, clicks and audience growth, with honest notes on what open rates can and can't tell you.
@@ -97,6 +97,22 @@ bash install-xem.sh
 ```
 
 See the **[Swarm guide](devops/swarm/README.md)** for unattended setup, HTTPS, updates, backups, troubleshooting and removal. This is a single-node starter, not a high-availability deployment.
+
+### Docker Compose
+
+No Swarm and no wizard. On any host with **Docker Engine, the Compose plugin, Git and OpenSSL**:
+
+```bash
+git clone https://github.com/mailxem/mail.git xem && cd xem
+bash scripts/compose-env.sh 192.168.1.10
+docker compose up -d
+```
+
+Replace `192.168.1.10` with your server's LAN IP or DNS name, not `localhost`: the API container reaches object storage through the same address your browser uses. The script writes `.env` from [`.env.example`](.env.example) with generated database, auth and storage credentials and an RSA key. Keep `.env` and back it up. The default ports are 3000 (app), 9001 (API) and 9000 (object storage); change them in `.env` if they're taken.
+
+The first `up` builds the app and backend from your checkout, which takes several minutes. It then starts the same five services as the Swarm path, with healthchecks, `restart: unless-stopped` and data in the `xem_postgres`, `xem_redis` and `xem_storage` volumes. Open `http://<your address>:3000/auth/register`, create your account and connect your own SMTP provider.
+
+To update, `git pull` and run `docker compose up -d --build`. Back up first: the API runs database migrations at startup. `docker compose down` keeps your data; `docker compose down -v` deletes it. For HTTPS, put the three ports behind a TLS proxy and set the `https://` origins in `.env` before rebuilding; the [Swarm guide](devops/swarm/README.md#https-and-public-deployment) covers what the proxy needs.
 
 ### Deploy with an AI agent
 

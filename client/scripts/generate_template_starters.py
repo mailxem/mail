@@ -49,97 +49,8 @@ TEMPLATES=[]
 def add(key,name,category,description,subject,preheader,rows,bg='#ECEDE8',marketing=True,tags=None):
  TEMPLATES.append(dict(key=key,name=name,category=category,description=description,subject=subject,preheader=preheader,background=bg,rows=rows+[footer(marketing)],tags=tags or [],marketing=marketing))
 
-add('field-notes','Field Notes','Newsletters','An earthy editorial with a photographic lead story and a two-column reading list.','A little perspective for your week','Fresh ideas, a slower pace, and one story worth your time.',[
- masthead('FIELD / NOTES','VOL. 028  ·  THE WEEKLY EDITION','#294332','#F3F1E8'),
- row(title('Good things take<br>a little growing.',font=SERIF,color='#294332',size=48),text('A few things we found, loved, and thought you might too.',color='#52624E'),image('forest'),bg='#F3F1E8'),
- row(label('THE LONG READ'),title('Make room for a<br>different kind of progress.',size=32,font=SERIF),text('Hi {{first_name}},<br><br>Not every step forward needs to be a leap. This week, we’re exploring the small habits that make meaningful work possible.'),button('Read the story →')),
- columns(section('01 / IDEAS','A fresh point of view','Three questions to take into your next creative project.'),section('02 / PEOPLE','Meet the makers','A conversation about patience, process, and finding your voice.')),
-],tags=['editorial','nature','weekly'])
-add('sunday-letter','The Sunday Letter','Newsletters','Warm cream paper, generous serif type, and an intimate letter from the editor.','A quiet moment, just for you','Pour a coffee. This one is worth slowing down for.',[
- masthead('The Sunday Letter','A NOTE FROM THE EDITOR','#513C30','#FFF9EE'),
- row(label('TAKE FIVE. YOU’VE EARNED IT.','#886648'),title('Less noise.<br>More meaning.',font=SERIF,size=52,color='#513C30'),image('coffee'),text('Dear {{first_name}},<br><br>There is something about a slow morning that makes the important things a little easier to see. A conversation. A new idea. A little time to make something with care.',color='#513C30'),divider('#DDD0BB'),title('One thought to keep.',font=SERIF,size=28,color='#513C30'),text('You don’t have to do everything today. Choose the one thing that deserves your attention, and give it your best.',color='#513C30'),button('Read this week’s letter','#513C30'),text('Until next Sunday,<br><strong>The editorial team</strong>',font=SERIF,color='#513C30'),bg='#FFF9EE')
-],bg='#E9DFCF',tags=['letter','creator','minimal'])
-add('signal-digest','Signal Digest','Newsletters','A sharp, cobalt-accented digest for curated links, insights, and industry news.','The signal in your inbox this week','Three ideas. One useful read. No endless scrolling.',[
- masthead('SIGNAL_','YOUR WEEK, DISTILLED.','#1545C1','#EDF2FF'),
- row(title('Stay curious.<br>Skip the noise.',size=48,color='#1545C1'),text('The stories moving our industry forward, selected for people who make things happen.'),bg='#EDF2FF'),
- row(label('01  /  THE BIG IDEA','#1545C1'),title('The next chapter starts<br>with a better question.',size=30),text('A practical look at the decisions changing how teams work, build, and grow.'),button('Get the full picture','#1545C1')),
- row(divider(),label('02  /  WORTH YOUR TIME','#1545C1'),title('A small guide to better systems.',size=26),text('Simple principles you can put to work before your next meeting.'),divider(),label('03  /  SAVE FOR LATER','#1545C1'),title('Our reading list, refreshed.',size=26),text('New voices, useful research, and a few unexpected discoveries.'))
-],tags=['digest','technology','curated'])
-add('community-roundup','Around the Table','Newsletters','A warm community roundup with member stories, a gathering, and a personal invitation.','Good people. Great things happening.','Your monthly dispatch from the community.',[
- masthead('AROUND THE TABLE','PEOPLE MAKE THE DIFFERENCE.','#773D25','#FBE4D4'),
- row(title('A little closer,<br>even from here.',font=SERIF,color='#773D25',size=46),text('New faces, shared ideas, and moments that made this month.',color='#773D25'),image('event'),bg='#FBE4D4'),
- columns(section('MEMBER SPOTLIGHT','Meet your next collaborator','This month, we’re celebrating people turning thoughtful ideas into real things.'),section('ON THE CALENDAR','Good conversations ahead','Join our next community gathering. Bring a question, a story, or just yourself.')),
- row(button('See what’s happening','#773D25'),text('Have something to share? Hit reply. We’d love to hear from you.'))
-],tags=['community','roundup','people'])
-add('warm-welcome','A Warm Welcome','Welcome','A friendly lilac welcome with three clear next steps and one inviting call to action.','You’re in. Make yourself at home.','A few good things to get you started.',[
- masthead('hello, friend.','YOUR NEXT CHAPTER STARTS HERE','#4D347D','#EDE5FF'),
- row(title('Good to<br>have you here.',size=54,color='#4D347D'),text('Hi {{first_name}},<br><br>Welcome to a place for fresh ideas and meaningful connections. We’re glad you found us.',color='#4D347D'),button('Find your first inspiration','#4D347D'),bg='#EDE5FF'),
- row(label('MAKE YOURSELF AT HOME','#4D347D'),title('01. Start with something you love.',size=23),text('Explore our favorite stories, resources, and ideas.'),divider(),title('02. Make it your own.',size=23),text('Choose the topics that matter most to you.'),divider(),title('03. Say hello.',size=23),text('Reply and tell us what brought you here. Real people read these emails.'))
-],tags=['welcome','community','onboarding'])
-add('first-steps','First Steps','Welcome','A structured SaaS onboarding email with a bold checklist and a focused activation button.','Your first win is just a few steps away','Let’s turn your new workspace into a working one.',[
- masthead('YOUR WORKSPACE','LET’S GET YOU STARTED','#153E3A','#DDF5EE'),
- row(title('From blank page<br>to first win.',size=46,color='#153E3A'),text('Hi {{first_name}}, here’s the short path to getting something great out into the world.'),button('Open your workspace','#153E3A'),bg='#DDF5EE'),
- row(label('YOUR GETTING-STARTED GUIDE'),title('01 / Add your essentials',size=24),text('Set up your profile and bring your team together.'),divider(),title('02 / Make something yours',size=24),text('Pick a starter, add your voice, and build your first project.'),divider(),title('03 / Share your first result',size=24),text('Give it a final look, then take the next step with confidence.'),text('Need a hand? Reply to this email and we’ll help you find your way.'))
-],tags=['saas','activation','checklist'])
-add('founders-note','A Note from the Founder','Welcome','A personal, typography-led introduction with an editorial signature and a simple reply prompt.','A quick hello from our founder','Why we started, and why we’re glad you’re here.',[
- masthead('a personal note','FROM OUR FOUNDER TO YOU','#262626','#FFFFFF'),
- row(title('We’re building<br>something that matters.',font=SERIF,size=42),text('Hi {{first_name}},<br><br>I wanted to personally welcome you. We started this company with a simple belief: the best products make room for people, not just processes.<br><br>Your feedback will help shape what comes next. We’re here to listen, learn, and make something you’ll love using.'),divider(),title('What would make this<br>more useful for you?',size=26,font=SERIF),text('Hit reply and tell me. I read every message.'),text('With gratitude,<br><strong>Your name</strong><br>Founder, Your brand',font=SERIF),button('Get to know us','#262626'))
-],bg='#F0EEEB',tags=['founder','personal','minimal'])
-add('release-notes','Freshly Shipped','Product','A dark, high-contrast release announcement with a bright feature panel and clear changelog.','Freshly shipped. Ready for you.','The latest improvements, built around your feedback.',[
- masthead('SHIP / LOG','PRODUCT UPDATE  ·  THE LATEST EDITION','#CFFB73','#171D1A'),
- row(label('LESS FRICTION. MORE FLOW.','#CFFB73'),title('Your workflow.<br>Upgraded.',size=50,color='#FFFFFF'),text('A little faster. A lot more thoughtful. Meet the improvements designed to make your next project feel effortless.',color='#D7E2D8'),button('Explore what’s new','#CFFB73',ink='#172316'),bg='#171D1A'),
- row(label('THE HEADLINE FEATURE','#26432A'),title('Everything you need.<br>Right where you need it.',size=34,color='#26432A'),text('Keep your ideas, feedback, and next steps together. Spend less time looking and more time making.'),bg='#E6F4D5'),
- columns(section('ALSO NEW','Small details. Big difference.','Smarter defaults and thoughtful shortcuts that save you a few clicks.'),section('MADE BETTER','You asked. We listened.','A cleaner experience, with improvements inspired by your feedback.'))
-],bg='#DDE4DC',tags=['saas','changelog','dark'])
-add('feature-spotlight','The Spotlight','Product','Bold tangerine type and a simple problem-to-solution story for your next feature.','Meet your new favorite feature','One useful idea. A smoother everyday experience.',[
- masthead('THE SPOTLIGHT','A BETTER WAY TO GET THERE','#712F18','#FFD9BF'),
- row(title('Big ideas.<br>Fewer steps.',size=58,color='#712F18'),text('The next thing you’ll wonder how you worked without.',color='#712F18'),bg='#FFD9BF'),
- row(image('work'),label('INTRODUCING YOUR NEXT FAVORITE'),title('Make space for<br>the work that matters.',font=SERIF,size=34),text('Bring the pieces together in one thoughtful place. Less back and forth, fewer loose ends, and a clearer path from idea to done.'),button('Take a closer look','#712F18'),divider(),text('<strong>Made for real life.</strong><br>Easy to learn. Simple to share. Ready when you are.'))
-],tags=['feature','launch','bold'])
-add('new-collection','Objects of Everyday','Commerce','An understated product collection with warm neutrals, editorial photography, and paired features.','Good design. Everyday company.','Meet the new collection, made for the moments in between.',[
- masthead('FORM & EVERYDAY','THE NEW COLLECTION','#3F392F','#F4EFE5'),
- row(title('Made to live<br>beautifully.',font=SERIF,size=52,color='#3F392F'),image('interior'),text('Thoughtful objects. Honest materials. A little more pleasure in the everyday.',color='#3F392F'),button('Explore the collection','#3F392F'),bg='#F4EFE5'),
- columns(section('CONSIDERED DETAILS','Nothing extra.<br>Nothing missing.','Every curve, texture, and finish has a reason to be here.'),section('FOR THE LONG RUN','Keep the things<br>you love.','Designed to feel at home today, and for years to come.'))
-],bg='#DDD8CE',tags=['collection','home','editorial'])
-add('weekend-edit','The Weekend Edit','Commerce','A confident berry-and-pink promotion with a prominent offer and an editorial finish.','Your weekend just got a little brighter','A considered selection, at a very good price.',[
- masthead('THE WEEKEND EDIT','A LITTLE SOMETHING FOR YOU','#6F153F','#FFE7F0'),
- row(label('A GOOD TIME TO FIND YOUR FAVORITE','#6F153F',align='center'),title('A little treat.<br>On us.',size=56,color='#6F153F',align='center'),text('20% OFF',size=54,color='#6F153F',align='center',pad='10px 36px'),text('Your next favorite is waiting.<br>Use code <strong>WEEKEND20</strong> at checkout.',color='#6F153F',align='center'),button('Find something you love','#6F153F',align='center'),bg='#FFE7F0'),
- row(image('fashion'),text('Good things, thoughtfully chosen.<br>Discover the pieces we keep coming back to.',align='center'),text('Replace this with your offer dates, exclusions, and terms before sending.',12,'#68636A',align='center'))
-],bg='#EFDAE2',tags=['sale','promotion','offer'])
-add('saved-for-you','Saved for You','Commerce','A gentle cart reminder with a warm product story and one clear return-to-cart action.','Still thinking it over?','Your favorites are right where you left them.',[
- masthead('YOUR BRAND','A GENTLE REMINDER','#4C432D','#FAF5E6'),
- row(title('Good taste.<br>Great choice.',font=SERIF,size=48,color='#4C432D'),text('Something caught your eye. We kept it here so you can pick up where you left off.'),image('interior'),button('Back to your favorites','#4C432D'),bg='#FAF5E6'),
- row(title('A few things to feel good about.',size=24),text('Thoughtful details. Helpful people. A product you’ll be happy to make part of your day.'),divider(),text('Have a question before you decide? Just reply — we’re happy to help.'))
-],tags=['cart','reminder','retention'])
-add('gather-together','Gather Together','Events','An expressive, purple event invitation with a date block, agenda, and RSVP.','Good ideas happen together. You’re invited.','A gathering for curious people and meaningful conversations.',[
- masthead('GATHER / TOGETHER','AN INVITATION TO SOMETHING GOOD','#F3EFFF','#35204E'),
- row(title('Better ideas.<br>In good company.',size=48,color='#F3EFFF'),text('An evening of fresh perspectives, honest conversations, and people you’ll be glad you met.',color='#DCD0EA'),bg='#35204E'),
- columns([label('SAVE THE DATE','#5C3589'),title('OCT<br>24',size=56,color='#5C3589',pad='10px 24px')],[title('A place to connect.',size=27,pad='12px 24px'),text('6:00–8:00 PM · Your timezone<br>Your venue, Your city<br><br>Replace these event details before sending.',pad='12px 24px')],bg='#EDE3F8'),
- row(label('WHAT TO EXPECT','#5C3589'),text('<strong>Fresh perspectives.</strong> A short talk to get us thinking.<br><br><strong>Real connections.</strong> Time to meet people doing interesting things.<br><br><strong>A little inspiration.</strong> Something to take into your next project.'),button('Save my seat','#5C3589'))
-],bg='#DCD6E5',tags=['invitation','conference','rsvp'])
-add('live-session','See You Live','Events','A focused webinar reminder with a clean agenda and an unmistakable join button.','We’re going live. Bring your questions.','Your reminder, the details, and one easy way to join.',[
- masthead('THE LIVE SESSION','LEARN SOMETHING USEFUL','#173B60','#E6F2FF'),
- row(label('YOU’RE ON THE LIST','#173B60'),title('Let’s make<br>this practical.',size=46,color='#173B60'),text('Join us for a hands-on conversation about turning good ideas into better results.'),button('Join the live session','#173B60'),bg='#E6F2FF'),
- row(title('Your session at a glance',size=26),text('<strong>When</strong><br>Your date · Your time and timezone<br><br><strong>Where</strong><br>Online — join using the button above<br><br><strong>Bring</strong><br>Your questions and a little curiosity'),divider(),label('ON THE AGENDA','#173B60'),text('01. The idea behind the approach<br>02. A real example, step by step<br>03. Your questions, answered'))
-],tags=['webinar','reminder','live'])
-add('order-confirmed','Order, Confirmed','Transactional','A reassuring purchase confirmation with a clear order summary and delivery next steps.','It’s official. Your order is in.','Here’s what happens next.',[
- masthead('YOUR BRAND','ORDER CONFIRMATION','#234B3A','#EAF5EC'),
- row(label('THANK YOU FOR CHOOSING US','#234B3A'),title('Good things<br>are on their way.',font=SERIF,size=42,color='#234B3A'),text('Hi {{first_name}},<br><br>We’ve received your order. Here’s a little recap for your records.'),bg='#EAF5EC'),
- row(label('ORDER SUMMARY'),title('Your order number',size=24),text('Your product name · Quantity 1<br>Your product details'),divider(),text('<strong>Subtotal</strong> · Your subtotal<br><strong>Shipping</strong> · Your shipping cost<br><strong>Total</strong> · Your order total'),divider(),title('What happens next?',size=24),text('We’ll send another email when your order is on its way. You can check the latest status anytime.'),button('View order','#234B3A'))
-],marketing=False,tags=['receipt','order','confirmation'])
-add('reset-password','A Fresh Start','Transactional','A concise password-reset email with a prominent action and clear security context.','Reset your password','A secure next step for your account.',[
- masthead('YOUR BRAND','ACCOUNT SECURITY','#253A66','#F0F3FA'),
- row(label('PASSWORD RESET','#253A66'),title('A fresh start.<br>Just one step away.',size=38,color='#253A66'),text('Hi {{first_name}},<br><br>We received a request to reset the password for your account. Use the button below to choose a new one.'),button('Reset my password','#253A66'),divider(),text('If you didn’t request this, you can ignore this email. Your password will stay the same.<br><br>For your security, never share your reset link with anyone.',14,'#5B6477'))
-],marketing=False,tags=['password','security','account'])
-add('verify-email','You’re Almost In','Transactional','A crisp email verification message with a calm mint palette and one clear next step.','One last step: confirm your email','Let’s make sure we have the right address.',[
- masthead('YOUR BRAND','EMAIL CONFIRMATION','#164D44','#E3F6F0'),
- row(title('One small click.<br>A good beginning.',size=42,color='#164D44'),text('Hi {{first_name}},<br><br>Confirm your email address to finish setting up your account. It helps us keep your account secure and your updates in the right place.'),button('Confirm my email','#164D44'),divider(),text('If you didn’t create this account, no action is needed. You can safely ignore this message.',14,'#5A6D67'),bg='#E3F6F0')
-],marketing=False,tags=['verification','account','confirmation'])
-add('open-door','The Door Is Open','Retention','A calm, image-led re-engagement email that invites people back without pressure.','There’s always a place for you here','A few things have changed. The welcome hasn’t.',[
- masthead('COME AS YOU ARE','IT’S BEEN A LITTLE WHILE','#254D57','#E7F2F1'),
- row(title('New paths.<br>Same warm welcome.',font=SERIF,size=46,color='#254D57'),image('mountain'),text('Hi {{first_name}},<br><br>Life gets busy. We get it. Whenever you’re ready, there are fresh ideas and good things waiting for you here.',color='#254D57'),button('Take a look around','#254D57'),bg='#E7F2F1'),
- row(title('A little of what you’ve missed.',size=27,font=SERIF),text('Thoughtful new features. Stories worth your time. A community that keeps growing.<br><br>Come back on your terms. We’ll be here.'))
-],tags=['winback','reengagement','personal'])
+# The original hand-built starters were retired in favour of the Studio
+# collection (scripts/composed_template_collection.py).
 
 
 def design_for(t):
@@ -170,7 +81,7 @@ def preview_for(t,d):
    tag=v.get('headingType','div') if typ=='heading' else 'div'
    inside=f'<{tag} style="margin:0;{common}font-weight:{"700" if typ=="heading" else "400"}">{v["text"]}</{tag}>'
   elif typ=='image': inside=f'<img src="{html.escape(v["src"]["url"],quote=True)}" alt="{html.escape(v["altText"],quote=True)}" width="600" style="display:block;width:100%;max-width:{v["src"].get("maxWidth","100%")};height:auto;border:0;margin:{"0 auto" if align=="center" else "0"}">'
-  elif typ=='button': inside=f'<div style="text-align:{align}"><a href="{html.escape(v["href"]["values"]["href"],quote=True)}" style="{common}display:inline-block;padding:{v["padding"]};border-radius:{v["borderRadius"]};background:{v["buttonColors"]["backgroundColor"]};color:{v["buttonColors"]["color"]};font-weight:600;text-decoration:none">{v["text"]}</a></div>'
+  elif typ=='button': inside=f'<div style="text-align:{align}"><a href="{html.escape(v["href"]["values"]["href"],quote=True)}" style="{common}display:inline-block;padding:{v["padding"]};border-radius:{v["borderRadius"]};{"border:"+v["border"]["borderTopWidth"]+" solid "+v["border"]["borderTopColor"]+";" if v.get("border",{}).get("borderTopWidth") else ""}background:{v["buttonColors"]["backgroundColor"]};color:{v["buttonColors"]["color"]};font-weight:600;text-decoration:none">{v["text"]}</a></div>'
   elif typ=='divider': inside=f'<div style="border-top:1px solid {v["border"]["borderTopColor"]}"></div>'
   else: raise ValueError(typ)
   return f'<div style="padding:{pad}">{inside}</div>'
