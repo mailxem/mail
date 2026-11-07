@@ -8,6 +8,7 @@ import (
 	"kori/internal/ai"
 	"kori/internal/api/middleware"
 	"kori/internal/assistant"
+	"kori/internal/billing"
 	"kori/internal/config"
 	"kori/internal/handlers"
 	"kori/internal/models"
@@ -78,12 +79,15 @@ func SetupMarketingRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 	g.POST("/templates", h.SaveTemplate, em.BodyLimit("2M"), middleware.RequirePermissions(db, "templates:create"))
 	g.PUT("/templates/:id", h.SaveTemplate, em.BodyLimit("2M"), middleware.RequirePermissions(db, "templates:update"))
 	g.PUT("/contacts/:id/stage", h.UpdateContactStage)
+	// Newsletters, and their websites, come with Starter and up. Existing ones
+	// keep sending and can still be paused.
+	paidNewsletters := billing.PaidFeature(billing.ErrNewsletters)
 	g.GET("/newsletters", h.Newsletters, middleware.RequirePermissions(db, "campaigns:read"))
-	g.POST("/newsletters", h.SaveNewsletter, middleware.RequirePermissions(db, "campaigns:create"))
-	g.PUT("/newsletters/:id", h.SaveNewsletter, middleware.RequirePermissions(db, "campaigns:create"))
+	g.POST("/newsletters", h.SaveNewsletter, paidNewsletters, middleware.RequirePermissions(db, "campaigns:create"))
+	g.PUT("/newsletters/:id", h.SaveNewsletter, paidNewsletters, middleware.RequirePermissions(db, "campaigns:create"))
 	g.POST("/newsletters/:id/pause", h.PauseNewsletter, middleware.RequirePermissions(db, "campaigns:create"))
 	g.GET("/newsletters/:id/domain", h.NewsletterDomain, middleware.RequirePermissions(db, "campaigns:read"))
-	g.PUT("/newsletters/:id/domain", h.SetNewsletterDomain, middleware.RequirePermissions(db, "campaigns:create"))
+	g.PUT("/newsletters/:id/domain", h.SetNewsletterDomain, paidNewsletters, middleware.RequirePermissions(db, "campaigns:create"))
 	g.POST("/campaigns/:id/resume", h.ResumeCampaign, middleware.RequirePermissions(db, "campaigns:create"))
 	g.POST("/campaigns/:id/cancel", h.CancelCampaign, middleware.RequirePermissions(db, "campaigns:create"))
 	g.GET("/newsletters/:id/editions", h.NewsletterEditions, middleware.RequirePermissions(db, "campaigns:read"))

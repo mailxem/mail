@@ -39,6 +39,7 @@ import {
   Status,
 } from "./shared";
 import { toast } from "sonner";
+import { PaidPlanNotice, usePaidPlan } from "@/components/billing/paid-plan";
 
 // Newsletter websites live on the marketing site, not in the app.
 const siteUrl = (
@@ -52,6 +53,8 @@ export function NewslettersPage() {
   const [editing, setEditing] = useState<Partial<Newsletter> | null>(null);
   const [history, setHistory] = useState<Newsletter | null>(null);
   const rows = q.data || [];
+  // Newsletters, and their websites, come with Starter and up.
+  const paid = usePaidPlan();
   async function pause(n: Newsletter) {
     try {
       await request(`marketing/newsletters/${n.id}/pause`, "POST", {});
@@ -67,15 +70,22 @@ export function NewslettersPage() {
         title="Newsletters"
         description="Good stories deserve a regular place in the inbox."
         action={
-          <Button
-            className={workspaceClassName("product-primary")}
-            onClick={() => setEditing({})}
-          >
-            <Plus />
-            Create Newsletter
-          </Button>
+          paid ? (
+            <Button
+              className={workspaceClassName("product-primary")}
+              onClick={() => setEditing({})}
+            >
+              <Plus />
+              Create Newsletter
+            </Button>
+          ) : undefined
         }
       />
+      {!paid && (
+        <div className="mb-6">
+          <PaidPlanNotice feature="A newsletter with its own website" />
+        </div>
+      )}
       <div className={workspaceClassName("metrics-grid")}>
         <Metric
           label="All Newsletters"

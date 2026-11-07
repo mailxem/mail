@@ -53,6 +53,7 @@ export function PaidPlanNotice({ feature }: { feature: string }) {
 const PAID_FEATURES = [
   { title: "No daily sending cap", body: "Free stops at 100 emails a day. Paid plans only count your monthly volume." },
   { title: "More email every month", body: "From 20,000 emails on Starter up to 500,000 on Scale, with low per-email overage." },
+  { title: "Newsletters and websites", body: "Recurring newsletters with a public website, 14 templates and your own domain." },
   { title: "The Xem inbox", body: "Receive replies on your own domain inside Xem, no separate mailbox needed." },
   { title: "Cloudflare email", body: "Send and receive through your Cloudflare account with guided setup." },
 ];

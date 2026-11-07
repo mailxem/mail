@@ -41,7 +41,7 @@ export const competitors: Competitor[] = [
       "Mailchimp’s pricing page shows prices in local currency and loads US dollar figures with JavaScript, so we could not read them directly. The 10,000-contact figure is from third-party pricing summaries dated October 2026, as in our Mailchimp alternatives article. Send caps and contact limits are from Mailchimp’s own pages.",
     headline: "Pay for sends, not contacts.",
     summary:
-      "Mailchimp bills by the size of your audience, so quiet and unsubscribed contacts still cost money. Xem bills by the emails you actually send, and every plan includes the whole product.",
+      "Mailchimp bills by the size of your audience, so quiet and unsubscribed contacts still cost money. Xem bills by the emails you actually send, with campaigns, automations and forms on every plan.",
     cheaperAnswer:
       "For a weekly newsletter to 10,000 contacts, Mailchimp Standard is about $135 a month against $19 on Xem. Mailchimp counts every contact, including unsubscribed ones; Xem counts only emails sent.",
     chooseThem: [
@@ -203,7 +203,7 @@ export const competitors: Competitor[] = [
       "Brevo prices by emails sent, so a price per list size does not apply. Figures are from Brevo’s published pricing data of September 29, 2026; check its calculator for your volume.",
     headline: "Both charge for sends. Only one is open source.",
     summary:
-      "Brevo, like Xem, prices by emails sent, and bundles SMS, WhatsApp and a sales CRM. Xem focuses on newsletters and campaigns, includes every feature on every plan, and can be self-hosted.",
+      "Brevo, like Xem, prices by emails sent, and bundles SMS, WhatsApp and a sales CRM. Xem focuses on newsletters and campaigns, includes automations and forms on every plan, and can be self-hosted.",
     cheaperAnswer:
       "It depends on volume. Both charge by email: Xem is $19 a month for 40,000 emails, with branding-free sending and every feature included. Compare Brevo’s calculator for your exact volume and the add-ons you need.",
     chooseThem: [
