@@ -50,17 +50,23 @@ func siteURL() string {
 }
 
 // Badge is the "Sent with Xem" footer for emails from Free workspaces, with
-// the sender's referral link. Paid and self-hosted workspaces get "". Like
+// the sender's referral link. Paid workspaces and licensed self-hosted installs
+// get ""; unlicensed self-hosted installs get the badge without a referral. Like
 // Mailchimp's badge, it turns every free newsletter into an invitation.
 func Badge(ctx context.Context, db *gorm.DB, teamID string) string {
 	if !billing.IsFree(ctx, teamID) {
 		return ""
 	}
-	code, err := TeamCode(db, teamID)
-	if err != nil || code == "" {
-		return ""
+	q := url.Values{"utm_source": {"email-badge"}}
+	// Self-hosted installs have no Xem Cloud affiliate account to credit.
+	if billing.Enabled {
+		code, err := TeamCode(db, teamID)
+		if err != nil || code == "" {
+			return ""
+		}
+		q.Set("via", code)
 	}
-	link := siteURL() + "/?" + url.Values{"via": {code}, "utm_source": {"email-badge"}}.Encode()
+	link := siteURL() + "/?" + q.Encode()
 	return `<div style="padding:20px 24px;text-align:center;font:12px/1.5 Arial,sans-serif;color:#71717a">` +
 		`<a href="` + html.EscapeString(link) + `" style="color:#71717a;text-decoration:none">Sent with <strong style="color:#3f3f46">Xem</strong>, free email marketing</a></div>`
 }

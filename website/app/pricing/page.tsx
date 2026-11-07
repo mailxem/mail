@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight, Check } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
-import { appLink, docsUrl, siteUrl } from "@/lib/site";
+import { appLink, docsUrl, licenseUrl, siteUrl } from "@/lib/site";
 import { primaryButton } from "@/lib/brand";
 
 const title = "Pricing | Xem — pay for the emails you send";
 const description =
-  "Xem Cloud is priced per email: free for 3,000 a month, then from $9 for 20,000. Every plan includes campaigns, automations, forms and a CRM; newsletters with their own website start on Starter. Self-hosting is free.";
+  "Xem Cloud is priced per email: free for 3,000 a month, then from $9 for 20,000. Every plan includes campaigns, automations, forms and a CRM; newsletters with their own website start on Starter. Self-hosting is free, with a $9 one-time license for newsletters and the shared inbox.";
 export const metadata: Metadata = {
   title,
   description,
@@ -113,7 +113,7 @@ const faqs = [
   },
   {
     q: "Can I run Xem myself instead?",
-    a: "Yes. Xem is open source under GPL-3.0. Self-hosting is free; you pay your server and your email provider, such as Amazon SES at $0.10 to $0.16 per 1,000 emails.",
+    a: "Yes. Xem is open source under GPL-3.0. Self-hosting is free; you pay your server and your email provider, such as Amazon SES at $0.10 to $0.16 per 1,000 emails. Campaigns, newsletters, automations, forms and the CRM are free forever; a $9 one-time license adds the shared inbox and Cloudflare mailboxes and removes the “Sent with Xem” footer. Set the key as XEM_LICENSE_KEY.",
   },
   {
     q: "Can I get my money back?",
@@ -344,7 +344,10 @@ export default function PricingPage() {
             <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted">
               Xem is GPL-3.0. Install it on your own server with one command and
               pay only your email provider: through Amazon SES that is $0.10 to
-              $0.16 per 1,000 emails.
+              $0.16 per 1,000 emails. Campaigns, newsletters, automations, forms
+              and the CRM are free forever. A $9 license, paid once, adds the
+              shared inbox and Cloudflare mailboxes and removes the “Sent with
+              Xem” footer.
             </p>
           </div>
           <div className="flex flex-wrap gap-5 md:justify-end">
@@ -360,6 +363,12 @@ export default function PricingPage() {
             >
               What SES costs
             </Link>
+            <a
+              href={licenseUrl}
+              className="self-center text-sm underline underline-offset-4"
+            >
+              Buy a license, $9 once
+            </a>
           </div>
         </section>
 

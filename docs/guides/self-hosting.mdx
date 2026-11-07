@@ -67,6 +67,18 @@ Keep the state directory. Later runs reuse its credentials and volumes. Losing t
 
 A self-hosted install does not include managed sending, managed inbound mail, Google login, hosted billing, the MCP server or the AI assistant. Some of these appear in the interface but need separate setup.
 
+## License
+
+Campaigns, newsletters, automations, forms, the CRM and analytics are free forever. A Xem license, $9 once from [xem.email/pricing](https://xem.email/pricing), adds the shared inbox and Cloudflare mailboxes and removes the "Sent with Xem" footer from your emails.
+
+Dodo Payments emails the key after you buy. Add it to your install:
+
+```bash
+XEM_LICENSE_KEY=your-license-key bash install-xem.sh --state "$HOME/.local/share/xem"
+```
+
+The installer saves the key in the state directory, so later runs keep it. You can also add `"license_key"` to `config.json`. The API checks the key when it starts and once a day. If the check can't reach Dodo, a key that was valid stays valid.
+
 ## HTTPS and public servers
 
 The default HTTP addresses are for a trusted network. For a public server, put the app, API and storage behind a TLS reverse proxy, with addresses such as `https://app.example.com`, `https://api.example.com` and `https://files.example.com`. Storage requests must keep their original host, path and query so S3 signatures still match.
