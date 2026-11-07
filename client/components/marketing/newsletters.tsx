@@ -541,7 +541,7 @@ function NewsletterEditor({
                     <option value="midnight">Midnight</option>
                     <option value="atelier">Atelier</option>
                     <option value="letter">Letter</option>
-                    <option value="signal">Signal</option>
+                    <option value="index">Index</option>
                   </select>
                 </Field>
                 <Field

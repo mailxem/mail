@@ -17,7 +17,7 @@ var (
 var reservedSlugs = map[string]bool{
 	"about": true, "admin": true, "affiliates": true, "api": true, "app": true, "auth": true,
 	"blog": true, "brand": true, "by-domain": true, "compare": true, "data-deletion": true, "docs": true,
-	"feed": true, "fonts": true, "google-mail": true, "help": true, "images": true,
+	"feed": true, "fonts": true, "google-mail": true, "help": true, "images": true, "index": true, "404": true,
 	"login": true, "logos": true, "mcp": true, "migrate": true, "pricing": true,
 	"privacy": true, "signup": true, "sitemap": true, "status": true, "support": true,
 	"templates": true, "terms": true, "tools": true, "videos": true, "www": true, "xem": true,
@@ -39,7 +39,7 @@ func NormalizePublicSlug(raw string) (*string, error) {
 }
 
 // SiteThemes are the newsletter website templates (website/worker/templates.ts).
-var SiteThemes = map[string]bool{"paper": true, "broadsheet": true, "midnight": true, "atelier": true, "letter": true, "signal": true}
+var SiteThemes = map[string]bool{"paper": true, "broadsheet": true, "midnight": true, "atelier": true, "letter": true, "index": true}
 
 // ValidSiteLogo accepts "" or an HTTPS image address.
 func ValidSiteLogo(raw string) bool {
