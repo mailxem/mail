@@ -95,6 +95,14 @@ export const faqs = [
     a: "Yes. Xem supports managed sending through Amazon SES, with verified domains, workspace approval, delivery history, and revocable SMTP credentials. Complete the domain checks and approval steps in your workspace before sending. You can also connect your own SMTP provider.",
   },
   {
+    q: "How does Xem protect deliverability?",
+    a: "Managed sending goes through Amazon SES from your own verified domain, with DKIM, SPF and DMARC checks before you send. Hard bounces and spam complaints are suppressed automatically, and marketing emails carry a one-click unsubscribe header. If hard bounces reach 5% or complaints 0.3% of a week’s sends, Xem pauses sending before it hurts your domain. Readers who ignore five sends over 60 days get one question, and are set aside as inactive if they don’t answer within 14 days.",
+  },
+  {
+    q: "Can Claude or another AI agent run Xem?",
+    a: "Yes. The Xem MCP server gives Claude, Cursor, Codex and any MCP client 43 tools for campaigns, newsletters, contacts, CSV imports, forms, automations, sending domains and analytics. Connect to the hosted server at mcp.xem.email with a workspace API key, or run @xem.email/mcp locally. Campaigns start as drafts and sending is a separate tool, so a person can approve every send.",
+  },
+  {
     q: "Will managed sending replace my inbox?",
     a: "No. Managed sending handles outgoing email. Keep your existing mailbox and receiving MX records, and use your mailbox address for replies. The domain setup uses separate records for email authentication and a dedicated bounce subdomain.",
   },

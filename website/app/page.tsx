@@ -35,7 +35,7 @@ export default function Page() {
                 name: "Xem",
                 url: siteUrl,
                 description:
-                  "Open-source email marketing suite: campaigns, newsletters, automations, forms, CRM, a shared inbox and analytics. Sends through Amazon SES or your own SMTP.",
+                  "Open-source email marketing suite: campaigns, newsletters, automations, forms, CRM, a shared inbox and analytics, with an MCP server so Claude and other AI agents can run it. Sends through Amazon SES or your own SMTP.",
                 applicationCategory: "BusinessApplication",
                 applicationSubCategory: "Email marketing",
                 operatingSystem: "Web, Linux (self-hosted)",
@@ -46,7 +46,8 @@ export default function Page() {
                   "@type": "Offer",
                   price: "0",
                   priceCurrency: "USD",
-                  description: "Free to self-host. Sending costs are paid to your email provider.",
+                  description:
+                    "Free to self-host. Sending costs are paid to your email provider.",
                 },
                 publisher: { "@id": `${siteUrl}/#organization` },
               },
