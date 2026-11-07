@@ -48,12 +48,9 @@ export async function editorProxy(
       signal: controller.signal,
     });
     if (!response.ok) {
-      // The API explains a 502 (the model failed); log it, keep the reply calm.
+      // The API logs its own cause; the body can hold provider details, so log only the status.
       if (response.status >= 500)
-        logAssistantError(
-          `design ${operation} ${response.status}`,
-          new Error((await response.text().catch(() => "")).slice(0, 300)),
-        );
+        logAssistantError(`design ${operation}`, new Error(`API returned ${response.status}`));
       const messages: Record<number, string> = {
         400: "Check the template name, subject, category, and design, then try again.",
         401: "Please sign in again. Your draft is still here.",

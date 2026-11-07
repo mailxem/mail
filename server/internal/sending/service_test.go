@@ -67,7 +67,7 @@ func setup(t *testing.T) (*Service, string, Domain, *fakeProvider) {
 	db, e := gorm.Open(dialect, &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, Logger: logger.Default.LogMode(logger.Silent)})
 	require.NoError(t, e)
 	require.NoError(t, Migrate(db))
-	require.NoError(t, db.AutoMigrate(&models.Contact{}, &models.SuppressionList{}, &models.Email{}, &models.SMTPConfig{}, &models.Campaign{}))
+	require.NoError(t, db.AutoMigrate(&models.Contact{}, &models.SuppressionList{}, &models.Email{}, &models.SMTPConfig{}, &models.Campaign{}, &models.APIKey{}))
 	raw, e := db.DB()
 	require.NoError(t, e)
 	if os.Getenv("POSTHOOT_TEST_DATABASE_URL") == "" {
