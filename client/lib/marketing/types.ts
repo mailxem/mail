@@ -47,6 +47,10 @@ export type Newsletter = {
   siteTheme?: string;
   /** An https:// image shown on the website. */
   siteLogoUrl?: string;
+  /** The team's own domain for the website, once connected. */
+  siteDomain?: string | null;
+  /** "active" once the custom domain serves the website. */
+  siteDomainStatus?: string;
   /** Off sends editions without the open pixel or click-tracking links. */
   trackEngagement?: boolean;
 };

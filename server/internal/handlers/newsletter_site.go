@@ -225,6 +225,42 @@ func (h *MarketingHandler) scopedNewsletter(c echo.Context) (models.Newsletter, 
 	return n, nil
 }
 
+// SetNewsletterSite publishes, restyles or (with an empty slug) unpublishes a
+// newsletter's website without touching its sending schedule.
+func (h *MarketingHandler) SetNewsletterSite(c echo.Context) error {
+	n, err := h.scopedNewsletter(c)
+	if err != nil {
+		return err
+	}
+	var in struct{ PublicSlug, SiteTheme, SiteLogoURL string }
+	if err := c.Bind(&in); err != nil {
+		return bad("Invalid website settings")
+	}
+	slug, err := marketing.NormalizePublicSlug(in.PublicSlug)
+	if err != nil {
+		return bad(err.Error())
+	}
+	if slug == nil && n.SiteDomain != nil {
+		return bad("Disconnect the custom domain before taking the website down")
+	}
+	if !marketing.SiteThemes[in.SiteTheme] {
+		return bad("Choose a website template")
+	}
+	logo := strings.TrimSpace(in.SiteLogoURL)
+	if !marketing.ValidSiteLogo(logo) {
+		return bad("The logo must be an https:// image address")
+	}
+	err = h.scoped(c).Model(&n).Updates(map[string]any{"public_slug": slug, "site_theme": in.SiteTheme, "site_logo_url": logo}).Error
+	if errors.Is(err, gorm.ErrDuplicatedKey) || (err != nil && strings.Contains(err.Error(), "public_slug")) {
+		return bad("That web address is already taken; choose another")
+	}
+	if err != nil {
+		return err
+	}
+	n.PublicSlug, n.SiteTheme, n.SiteLogoURL = slug, in.SiteTheme, logo
+	return c.JSON(200, n)
+}
+
 // SetNewsletterDomain connects (or, with "", disconnects) the team's own
 // domain for a newsletter website.
 func (h *MarketingHandler) SetNewsletterDomain(c echo.Context) error {

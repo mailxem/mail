@@ -16,6 +16,8 @@ import {
   Eye,
   Clock,
   Users,
+  Globe,
+  Link2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GmailClipNotice } from "@/components/campaigns/gmail-clip-notice";
@@ -52,6 +54,7 @@ export function NewslettersPage() {
   const [tab, setTab] = useState("All newsletters");
   const [editing, setEditing] = useState<Partial<Newsletter> | null>(null);
   const [history, setHistory] = useState<Newsletter | null>(null);
+  const [site, setSite] = useState<Newsletter | null>(null);
   const rows = q.data || [];
   // Newsletters, and their websites, come with Starter and up.
   const paid = usePaidPlan();
@@ -114,6 +117,17 @@ export function NewslettersPage() {
           icon={<Repeat2 />}
         />
       </div>
+      {(!paid || !rows.some((n) => n.publicSlug)) && !q.isLoading && (
+        <WebsiteBanner
+          paid={paid}
+          setUp={() => {
+            const first = rows.find((n) => !n.publicSlug);
+            if (first) setSite(first);
+            else setEditing({});
+          }}
+          hasNewsletter={rows.length > 0}
+        />
+      )}
       <section className={workspaceClassName("product-panel")}>
         <div className={workspaceClassName("panel-toolbar")}>
           <h2>Your newsletters</h2>
@@ -133,13 +147,15 @@ export function NewslettersPage() {
             title="Something worth opening"
             description="Connect a template, choose your audience, and send your first edition. Once, weekly, or whenever inspiration strikes."
             action={
-              <Button
-                className={workspaceClassName("product-primary")}
-                onClick={() => setEditing({})}
-              >
-                <Plus />
-                Create a newsletter
-              </Button>
+              paid ? (
+                <Button
+                  className={workspaceClassName("product-primary")}
+                  onClick={() => setEditing({})}
+                >
+                  <Plus />
+                  Create a newsletter
+                </Button>
+              ) : undefined
             }
           />
         ) : (
@@ -152,6 +168,7 @@ export function NewslettersPage() {
                   <th>Audience</th>
                   <th>Next edition</th>
                   <th>Cadence</th>
+                  <th>Website</th>
                   <th />
                 </tr>
               </thead>
@@ -220,6 +237,42 @@ export function NewslettersPage() {
                             n.cadence.slice(1).toLowerCase()}
                       </td>
                       <td>
+                        {n.publicSlug ? (
+                          <div className="flex flex-col items-start gap-0.5">
+                            <a
+                              href={liveUrl(n)}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-medium hover:underline"
+                            >
+                              <span
+                                className="size-1.5 rounded-full bg-emerald-500"
+                                aria-hidden
+                              />
+                              {liveUrl(n).replace(/^https?:\/\//, "")}
+                              <ArrowUpRight size={12} />
+                            </a>
+                            <button
+                              className="text-xs text-muted-foreground hover:text-foreground"
+                              onClick={() => setSite(n)}
+                            >
+                              Website settings
+                            </button>
+                          </div>
+                        ) : paid ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setSite(n)}
+                          >
+                            <Globe />
+                            Set up
+                          </Button>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                      <td>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button
@@ -233,6 +286,11 @@ export function NewslettersPage() {
                             <DropdownMenuItem onClick={() => setEditing(n)}>
                               Edit newsletter
                             </DropdownMenuItem>
+                            {paid && (
+                              <DropdownMenuItem onClick={() => setSite(n)}>
+                                Website
+                              </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem
                               onClick={() =>
                                 setEditing({
@@ -277,6 +335,13 @@ export function NewslettersPage() {
       {history && (
         <EditionHistory newsletter={history} close={() => setHistory(null)} />
       )}
+      {site && (
+        <NewsletterWebsite
+          key={site.id}
+          newsletter={site}
+          close={() => setSite(null)}
+        />
+      )}
     </>
   );
 }
@@ -308,9 +373,6 @@ function NewsletterEditor({
     timezone:
       value.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
     postalAddress: value.postalAddress || "",
-    publicSlug: value.publicSlug || "",
-    siteTheme: value.siteTheme || "paper",
-    siteLogoUrl: value.siteLogoUrl || "",
     trackEngagement: value.trackEngagement ?? true,
   });
   const [at, setAt] = useState(localDate(value.nextSendAt));
@@ -520,51 +582,6 @@ function NewsletterEditor({
                 </span>
               </span>
             </label>
-            <Field
-              label="Website (optional)"
-              hint={
-                draft.publicSlug
-                  ? `Your site is at ${siteUrl}/${draft.publicSlug.toLowerCase()}: every sent edition, and a subscribe box readers confirm by email.`
-                  : "Leave empty to keep editions private. Add an address to publish a website with every sent edition and a subscribe box."
-              }
-            >
-              <input
-                value={draft.publicSlug}
-                onChange={(e) =>
-                  set("publicSlug", e.target.value.replace(/\s+/g, "-"))
-                }
-                pattern="[a-zA-Z0-9][a-zA-Z0-9-]{1,46}[a-zA-Z0-9]"
-                title="3 to 48 letters, numbers or hyphens"
-                maxLength={48}
-                placeholder="weekly-notes"
-              />
-            </Field>
-            {draft.publicSlug && (
-              <div>
-                <Field label="Website template">
-                  <SiteTemplatePicker
-                    value={draft.siteTheme}
-                    onChange={(v) => set("siteTheme", v)}
-                  />
-                </Field>
-                <Field
-                  label="Logo (optional)"
-                  hint="An https:// image, square works best."
-                >
-                  <input
-                    type="url"
-                    value={draft.siteLogoUrl}
-                    onChange={(e) => set("siteLogoUrl", e.target.value)}
-                    pattern="https://.*"
-                    maxLength={500}
-                    placeholder="https://example.com/logo.png"
-                  />
-                </Field>
-              </div>
-            )}
-            {draft.publicSlug && value.id && value.publicSlug && (
-              <SiteDomain newsletterId={value.id} />
-            )}
           </div>
           <div className={workspaceClassName("editor-preview")}>
             <div className={workspaceClassName("editor-preview-label")}>
@@ -732,6 +749,292 @@ function EditionStatus({
   if (edition.status === "SENDING" && edition.sendInStages)
     return <span>Sending in stages</span>;
   return <Status value={edition.status} />;
+}
+
+/** Where a newsletter's website is live: its own domain once active, else xem.email/{slug}. */
+function liveUrl(n: Newsletter) {
+  return n.siteDomain && n.siteDomainStatus === "active"
+    ? `https://${n.siteDomain}`
+    : `${siteUrl}/${n.publicSlug}`;
+}
+
+const siteHost = siteUrl.replace(/^https?:\/\//, "");
+
+/** Introduces newsletter websites until the workspace has published one. */
+function WebsiteBanner({
+  paid,
+  hasNewsletter,
+  setUp,
+}: {
+  paid: boolean;
+  hasNewsletter: boolean;
+  setUp: () => void;
+}) {
+  return (
+    <section className="relative mb-6 overflow-hidden rounded-2xl bg-foreground text-background">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-violet-500/30 blur-3xl"
+      />
+      <div className="relative grid items-center gap-8 p-6 sm:p-8 md:grid-cols-[1.15fr_1fr]">
+        <div>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-background/20 px-2.5 py-1 text-xs font-medium text-background/80">
+            <Globe size={13} />
+            Newsletter websites
+          </span>
+          <h2 className="mt-4 max-w-md text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+            Give your newsletter a home on the web
+          </h2>
+          <p className="mt-3 max-w-md text-sm leading-relaxed text-background/70">
+            Every sent edition, published at {siteHost}/your-name or your own
+            domain, with a subscribe box readers confirm by email. Pick from{" "}
+            {siteTemplates.length} templates.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            {paid ? (
+              <Button variant="secondary" onClick={setUp}>
+                {hasNewsletter ? <Globe /> : <Plus />}
+                {hasNewsletter ? "Set up a website" : "Create a newsletter"}
+              </Button>
+            ) : (
+              <>
+                <Button variant="secondary" asChild>
+                  <Link href="/settings/billing">See plans</Link>
+                </Button>
+                <span className="text-xs text-background/60">
+                  Included with Starter and up, 7-day free trial.
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+        <div aria-hidden className="relative hidden h-56 md:block">
+          {(["zine", "paper", "midnight"] as const).map((id, i) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={id}
+              src={`/assets/site-templates/${id}.webp`}
+              alt=""
+              width={320}
+              height={200}
+              className="absolute aspect-[16/10] w-[62%] rounded-xl border border-background/15 object-cover object-top shadow-2xl"
+              style={{
+                left: `${4 + i * 17}%`,
+                top: `${30 - i * 14}%`,
+                transform: `rotate(${[-6, 0, 5][i]}deg)`,
+                zIndex: i,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const suggestSlug = (name: string) =>
+  name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48);
+
+/** Publishes and styles one newsletter's website, apart from its sending settings. */
+function NewsletterWebsite({
+  newsletter: n,
+  close,
+}: {
+  newsletter: Newsletter;
+  close: () => void;
+}) {
+  const { request, refresh } = useMarketing();
+  const live = !!n.publicSlug;
+  const [slug, setSlug] = useState(n.publicSlug || suggestSlug(n.name));
+  const [theme, setTheme] = useState(n.siteTheme || "paper");
+  const [logo, setLogo] = useState(n.siteLogoUrl || "");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const name = siteTemplates.find(([id]) => id === theme)?.[1];
+  const address = live ? liveUrl(n) : `${siteUrl}/${slug.toLowerCase()}`;
+  async function save(publicSlug: string) {
+    setBusy(true);
+    setError("");
+    try {
+      await request(`marketing/newsletters/${n.id}/site`, "PUT", {
+        publicSlug,
+        siteTheme: theme,
+        siteLogoUrl: logo,
+      });
+      await refresh();
+      if (!publicSlug) toast.success("Website taken down");
+      else
+        toast.success(live ? "Website updated" : "Your website is live", {
+          action: {
+            label: "Visit",
+            onClick: () =>
+              window.open(`${siteUrl}/${publicSlug.toLowerCase()}`, "_blank"),
+          },
+        });
+      close();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <Modal
+      open
+      onOpenChange={close}
+      title={live ? "Website" : "Set up a website"}
+      description={`${n.name}: every sent edition and a subscribe box, on the web.`}
+      wide
+    >
+      <form
+        className={workspaceClassName("product-form")}
+        onSubmit={(e) => {
+          e.preventDefault();
+          void save(slug);
+        }}
+      >
+        <div className={workspaceClassName("editor-columns")}>
+          <div className="space-y-5">
+            <Field
+              label="Web address"
+              hint="3 to 48 letters, numbers or hyphens."
+            >
+              <div className="flex items-center overflow-hidden rounded-lg border border-[var(--border-strong)] bg-[var(--card)] focus-within:border-[var(--ring)]">
+                <span className="shrink-0 border-r bg-muted px-3 py-2 text-sm text-muted-foreground">
+                  {siteHost}/
+                </span>
+                <input
+                  required
+                  value={slug}
+                  onChange={(e) =>
+                    setSlug(e.target.value.replace(/\s+/g, "-"))
+                  }
+                  pattern="[a-zA-Z0-9][a-zA-Z0-9-]{1,46}[a-zA-Z0-9]"
+                  title="3 to 48 letters, numbers or hyphens"
+                  maxLength={48}
+                  placeholder="weekly-notes"
+                  className="!rounded-none !border-0 !outline-none"
+                />
+              </div>
+            </Field>
+            <Field label="Template">
+              <SiteTemplatePicker value={theme} onChange={setTheme} />
+            </Field>
+            <Field
+              label="Logo (optional)"
+              hint="An https:// image, square works best."
+            >
+              <input
+                type="url"
+                value={logo}
+                onChange={(e) => setLogo(e.target.value)}
+                pattern="https://.*"
+                maxLength={500}
+                placeholder="https://example.com/logo.png"
+              />
+            </Field>
+            {live ? (
+              <SiteDomain newsletterId={n.id} />
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                You can connect your own domain, like news.example.com, once
+                the website is live.
+              </p>
+            )}
+          </div>
+          <div
+            className={`${workspaceClassName("editor-preview")} self-start md:sticky md:top-0`}
+          >
+            <div className="flex items-center gap-2 border-b px-4 py-3">
+              <span className="flex gap-1.5" aria-hidden>
+                <span className="size-2.5 rounded-full bg-border" />
+                <span className="size-2.5 rounded-full bg-border" />
+                <span className="size-2.5 rounded-full bg-border" />
+              </span>
+              <span className="min-w-0 flex-1 truncate rounded-md bg-muted px-3 py-1 text-xs text-muted-foreground">
+                {address.replace(/^https?:\/\//, "")}
+              </span>
+              {live && (
+                <>
+                  <button
+                    type="button"
+                    className={workspaceClassName("icon-button")}
+                    aria-label="Copy link"
+                    onClick={() => {
+                      void navigator.clipboard.writeText(address);
+                      toast.success("Link copied");
+                    }}
+                  >
+                    <Link2 size={15} />
+                  </button>
+                  <a
+                    href={address}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={workspaceClassName("icon-button")}
+                    aria-label="Visit website"
+                  >
+                    <ArrowUpRight size={15} />
+                  </a>
+                </>
+              )}
+            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/assets/site-templates/${theme}.webp`}
+              alt={`${name} template`}
+              className="aspect-[16/10] w-full object-cover object-top"
+            />
+            <div className="flex items-center gap-2 p-5 text-xs text-muted-foreground">
+              <span
+                className={`size-1.5 rounded-full ${live ? "bg-emerald-500" : "bg-muted-foreground/40"}`}
+                aria-hidden
+              />
+              {live
+                ? `Live with the ${name} template.`
+                : `${name} template. Not published yet.`}
+            </div>
+          </div>
+        </div>
+        {error && (
+          <p role="alert" className="text-sm text-destructive">
+            {error}
+          </p>
+        )}
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          {live && (
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={busy}
+              className="mr-auto"
+              onClick={() => {
+                if (confirm("Take this website down? Its address stops working."))
+                  void save("");
+              }}
+            >
+              Take website down
+            </Button>
+          )}
+          <Button type="button" variant="outline" onClick={close}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={busy}
+            className={workspaceClassName("product-primary")}
+          >
+            <Globe />
+            {live ? "Save changes" : "Publish website"}
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  );
 }
 
 type DomainState = {
