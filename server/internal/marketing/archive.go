@@ -38,8 +38,8 @@ func NormalizePublicSlug(raw string) (*string, error) {
 	return &slug, nil
 }
 
-// SiteThemes are the looks a newsletter website can take.
-var SiteThemes = map[string]bool{"paper": true, "broadsheet": true, "midnight": true}
+// SiteThemes are the newsletter website templates (website/worker/templates.ts).
+var SiteThemes = map[string]bool{"paper": true, "broadsheet": true, "midnight": true, "atelier": true, "letter": true, "signal": true}
 
 // ValidSiteLogo accepts "" or an HTTPS image address.
 func ValidSiteLogo(raw string) bool {

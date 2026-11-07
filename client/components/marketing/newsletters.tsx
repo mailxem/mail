@@ -531,7 +531,7 @@ function NewsletterEditor({
             </Field>
             {draft.publicSlug && (
               <div className={workspaceClassName("form-row")}>
-                <Field label="Website theme">
+                <Field label="Website template">
                   <select
                     value={draft.siteTheme}
                     onChange={(e) => set("siteTheme", e.target.value)}
@@ -539,6 +539,9 @@ function NewsletterEditor({
                     <option value="paper">Paper</option>
                     <option value="broadsheet">Broadsheet</option>
                     <option value="midnight">Midnight</option>
+                    <option value="atelier">Atelier</option>
+                    <option value="letter">Letter</option>
+                    <option value="signal">Signal</option>
                   </select>
                 </Field>
                 <Field
