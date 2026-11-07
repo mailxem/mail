@@ -87,8 +87,12 @@ const notes: Record<string, string> = {
   busy: "Lots of people are signing up right now. Try again in a few minutes.",
 };
 
+// Previews may run without the configured vars; fall back to production.
 const api = (env: Env, path: string, init?: RequestInit) =>
-  fetch(`${env.API_URL.replace(/\/$/, "")}/public/newsletters/${path}`, init);
+  fetch(
+    `${(env.API_URL || "https://api.xem.email").replace(/\/$/, "")}/public/newsletters/${path}`,
+    init,
+  );
 
 async function notFound(env: Env, request: Request) {
   const res = await env.ASSETS.fetch(new URL("/404", request.url).toString());
@@ -266,6 +270,27 @@ function route(
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    try {
+      return await serve(request, env);
+    } catch (err) {
+      // A failed API call shows a plain error page, never Cloudflare's crash page.
+      console.error("newsletter site", request.url, err);
+      return new Response(
+        "This page is unavailable right now. Try again shortly.",
+        {
+          status: 503,
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+            "Retry-After": "30",
+          },
+        },
+      );
+    }
+  },
+};
+
+async function serve(request: Request, env: Env): Promise<Response> {
+  {
     const url = new URL(request.url);
     const parts = url.pathname.split("/").filter(Boolean);
     if (!XEM_HOST.test(url.hostname)) {
@@ -293,5 +318,5 @@ export default {
       { slug, base: `/${slug}`, origin: url.origin },
       rest,
     );
-  },
-};
+  }
+}
