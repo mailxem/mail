@@ -167,6 +167,14 @@ export function SendingPreview({ dashboard = false }: { dashboard?: boolean }) {
       s.domains.push(d);
       return d as T;
     }
+    if (path.endsWith("/dns-hosts")) {
+      const zone = s.domains[0]?.name.split(".").slice(-2).join(".") ?? "";
+      return [
+        { id: "cloudflare", name: "Cloudflare", zone, detected: true, connect: "#one-click", manage: "#" },
+        { id: "godaddy", name: "GoDaddy", zone, detected: false, manage: "#" },
+        { id: "namecheap", name: "Namecheap", zone, detected: false, manage: "#" },
+      ] as T;
+    }
     if (path.endsWith("/check")) {
       if (scenario === "error")
         throw new Error("DNS check failed. Please try again.");

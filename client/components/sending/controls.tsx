@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Check,
   Copy,
@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMarketing } from "@/lib/marketing/api";
 import type { SendingDomain } from "@/lib/sending/types";
+import { DNSHostButtons } from "./dns-hosts";
 
 export function CopyButton({
   value,
@@ -147,6 +148,15 @@ export function DomainDNS({
       setBusy(false);
     }
   }
+  // Back from a registrar's one-click approval: check straight away.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("dns") !== "applied") return;
+    url.searchParams.delete("dns");
+    window.history.replaceState(null, "", url);
+    void check();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const states: [[string, boolean], ...Array<[string, boolean]>] = [
     ["Ownership", domain.ownership],
     ["DKIM", domain.dkimStatus === "SUCCESS"],
@@ -176,6 +186,7 @@ export function DomainDNS({
         value exactly. For CNAME records, choose “DNS only” if your provider
         offers proxying.
       </p>
+      <DNSHostButtons domain={domain} />
       <section className="space-y-3" aria-label="Domain ownership">
         <h3 className="text-sm font-semibold">1. Verify domain ownership</h3>
         {domain.ownership && (
