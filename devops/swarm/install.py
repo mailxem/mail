@@ -89,7 +89,7 @@ def stack_spec(c, node, version):
         'S3_ACCESS_KEY': c['storage_user'], 'S3_SECRET_KEY': c['storage_password'],
         'CORS_ALLOWED_ORIGINS': c['app_url'], 'APP_ENV': 'production',
         'AI_ENABLED': 'false', 'MANAGED_SENDING_ENABLED': 'false', 'MANAGED_SMTP_ENABLED': 'false',
-        # A $9 Xem license unlocks the shared inbox and removes the "Sent with Xem" footer.
+        # A $9 Xem license unlocks newsletters and the shared inbox and removes the "Sent with Xem" footer.
         'XEM_LICENSE_KEY': c.get('license_key', ''),
     }
     # Dollar signs in user credentials must survive Compose interpolation.

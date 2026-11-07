@@ -398,11 +398,11 @@ export const competitors: Competitor[] = [
     ],
     priceNote:
       "Sendy is a one-time $69 licence, with free updates until the next major version and a paid upgrade after that. These figures are Amazon SES sending costs at $0.10 per 1,000 emails, before the licence and your server. Xem self-hosted is free and costs the same to send; the Xem column is Xem Cloud, where we run it for you.",
-    headline: "Sendy is $69 once. Xem is free, or $9 once.",
+    headline: "Sendy is $69 once. Xem is $9 once.",
     summary:
-      "Sendy is a proven, no-frills way to send newsletters through your own Amazon SES account, with a one-time licence instead of a monthly bill. Xem is also self-hostable, but it’s free and open source (a $9 one-time license adds the shared inbox), adds visual automations, signup forms with a CRM and a shared inbox, and comes as a hosted service if you’d rather not run a server.",
+      "Sendy is a proven, no-frills way to send newsletters through your own Amazon SES account, with a one-time licence instead of a monthly bill. Xem is also self-hostable and open source, with newsletters on a $9 one-time license, and adds visual automations, signup forms with a CRM and a shared inbox, and comes as a hosted service if you’d rather not run a server.",
     cheaperAnswer:
-      "Self-hosted, Xem is cheaper: Sendy is $69 once, and Xem is free, or $9 once for the license that adds the shared inbox and removes the Xem footer. Both cost the same to send through SES. If you don’t want to run a server, Xem Cloud is $19 a month for a weekly newsletter to 10,000 people; Sendy has no hosted plan.",
+      "Self-hosted, Xem is cheaper: Sendy is $69 once, and Xem's license, which adds newsletters and the shared inbox, is $9 once. Both cost the same to send through SES. If you don’t want to run a server, Xem Cloud is $19 a month for a weekly newsletter to 10,000 people; Sendy has no hosted plan.",
     chooseThem: [
       "You want a simple PHP and MySQL newsletter sender that you pay for once and rarely touch.",
       "You manage several clients or brands and need Sendy’s white-labelled client accounts with sending limits.",
