@@ -22,6 +22,7 @@ import (
 	"kori/internal/marketing"
 	"kori/internal/models"
 	"kori/internal/services"
+	"kori/internal/sitedomains"
 )
 
 var (
@@ -42,13 +43,17 @@ const (
 	signupHourlyCap = 300
 )
 
-// SiteURL is a newsletter website's address: xem.email/{slug} by default.
-func SiteURL(slug string) string {
+// SiteURL is a newsletter website's address: its own domain once that
+// works, else xem.email/{slug}.
+func SiteURL(n models.Newsletter) string {
+	if n.SiteDomain != nil && n.SiteDomainStatus == "active" {
+		return "https://" + *n.SiteDomain
+	}
 	base := strings.TrimRight(os.Getenv("XEM_SITE_URL"), "/")
 	if base == "" {
 		base = "https://xem.email"
 	}
-	return base + "/" + slug
+	return base + "/" + *n.PublicSlug
 }
 
 func signupHash(token string) string {
@@ -111,7 +116,7 @@ func (h *MarketingHandler) SubscribeNewsletter(c echo.Context) error {
 	if err := db.Create(&signup).Error; err != nil {
 		return err
 	}
-	link := SiteURL(*n.PublicSlug) + "/confirm?token=" + url.QueryEscape(token)
+	link := SiteURL(n) + "/confirm?token=" + url.QueryEscape(token)
 	name := html.EscapeString(n.Name)
 	body := `<div style="font:16px/1.6 Arial,sans-serif;color:#27272a;max-width:520px;margin:0 auto;padding:32px 24px">` +
 		`<p>Confirm that you'd like to receive <strong>` + name + `</strong>.</p>` +
@@ -201,4 +206,118 @@ func subscribeConfirmed(tx *gorm.DB, n models.Newsletter, email string, now time
 		return nil
 	}
 	return models.SyncSubscribersCountByID(tx, list.ID)
+}
+
+// siteDomains is read per request: secrets load after package init.
+var siteDomains = sitedomains.FromEnv
+
+type domainState struct {
+	Domain  string               `json:"domain"`
+	Status  string               `json:"status"`
+	Records []sitedomains.Record `json:"records"`
+}
+
+func (h *MarketingHandler) scopedNewsletter(c echo.Context) (models.Newsletter, error) {
+	var n models.Newsletter
+	if err := h.scoped(c).First(&n, "id = ?", c.Param("id")).Error; err != nil {
+		return n, missing()
+	}
+	return n, nil
+}
+
+// SetNewsletterDomain connects (or, with "", disconnects) the team's own
+// domain for a newsletter website.
+func (h *MarketingHandler) SetNewsletterDomain(c echo.Context) error {
+	n, err := h.scopedNewsletter(c)
+	if err != nil {
+		return err
+	}
+	var in struct{ Domain string }
+	if err := c.Bind(&in); err != nil {
+		return bad("Enter a domain like news.example.com")
+	}
+	ctx := c.Request().Context()
+	cf := siteDomains()
+	if strings.TrimSpace(in.Domain) == "" {
+		if n.SiteDomainID != "" && cf != nil {
+			if err := cf.Delete(ctx, n.SiteDomainID); err != nil {
+				return err
+			}
+		}
+		if err := h.scoped(c).Model(&n).Updates(map[string]any{"site_domain": nil, "site_domain_id": "", "site_domain_status": ""}).Error; err != nil {
+			return err
+		}
+		return c.JSON(200, domainState{})
+	}
+	if n.PublicSlug == nil {
+		return bad("Give the newsletter a website address first")
+	}
+	host, err := sitedomains.Normalize(in.Domain)
+	if err != nil {
+		return bad(err.Error())
+	}
+	if n.SiteDomain != nil && *n.SiteDomain == host {
+		return h.NewsletterDomain(c)
+	}
+	if cf == nil {
+		return echo.NewHTTPError(503, "Custom domains aren't available yet")
+	}
+	var taken int64
+	if err := h.service.DB.WithContext(ctx).Model(&models.Newsletter{}).Where("site_domain = ? AND id <> ?", host, n.ID).Count(&taken).Error; err != nil {
+		return err
+	}
+	if taken > 0 {
+		return bad("That domain is already connected to another newsletter")
+	}
+	created, err := cf.Create(ctx, host)
+	if err != nil {
+		return bad("Cloudflare couldn't add that domain: " + err.Error())
+	}
+	if n.SiteDomainID != "" {
+		_ = cf.Delete(ctx, n.SiteDomainID) // the old domain stops serving; a stale hostname is harmless
+	}
+	if err := h.scoped(c).Model(&n).Updates(map[string]any{"site_domain": host, "site_domain_id": created.ID, "site_domain_status": created.Status}).Error; err != nil {
+		return err
+	}
+	return c.JSON(200, domainState{Domain: host, Status: created.Status, Records: created.Records})
+}
+
+// NewsletterDomain reports the custom domain's DNS and certificate progress.
+func (h *MarketingHandler) NewsletterDomain(c echo.Context) error {
+	n, err := h.scopedNewsletter(c)
+	if err != nil {
+		return err
+	}
+	if n.SiteDomain == nil {
+		return c.JSON(200, domainState{})
+	}
+	cf := siteDomains()
+	if cf == nil || n.SiteDomainID == "" {
+		return c.JSON(200, domainState{Domain: *n.SiteDomain, Status: n.SiteDomainStatus})
+	}
+	got, err := cf.Get(c.Request().Context(), n.SiteDomainID, *n.SiteDomain)
+	if err != nil {
+		return err
+	}
+	if got.Status != n.SiteDomainStatus {
+		if err := h.scoped(c).Model(&n).Update("site_domain_status", got.Status).Error; err != nil {
+			return err
+		}
+	}
+	return c.JSON(200, domainState{Domain: *n.SiteDomain, Status: got.Status, Records: got.Records})
+}
+
+// PublicSiteByDomain tells the site Worker which newsletter a domain serves.
+func (h *MarketingHandler) PublicSiteByDomain(c echo.Context) error {
+	var n models.Newsletter
+	err := h.service.DB.WithContext(c.Request().Context()).
+		Where("site_domain = ? AND site_domain_status = ? AND public_slug IS NOT NULL AND is_deleted = ?", strings.ToLower(c.Param("host")), "active", false).First(&n).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return missing()
+	}
+	if err != nil {
+		return err
+	}
+	c.Response().Header().Set("Cache-Control", "public, max-age=300")
+	return c.JSON(200, map[string]string{"slug": *n.PublicSlug})
 }

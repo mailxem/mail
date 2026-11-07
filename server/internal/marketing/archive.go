@@ -16,7 +16,7 @@ var (
 // website at xem.email/{slug} must never shadow.
 var reservedSlugs = map[string]bool{
 	"about": true, "admin": true, "affiliates": true, "api": true, "app": true, "auth": true,
-	"blog": true, "brand": true, "compare": true, "data-deletion": true, "docs": true,
+	"blog": true, "brand": true, "by-domain": true, "compare": true, "data-deletion": true, "docs": true,
 	"feed": true, "fonts": true, "google-mail": true, "help": true, "images": true,
 	"login": true, "logos": true, "mcp": true, "migrate": true, "pricing": true,
 	"privacy": true, "signup": true, "sitemap": true, "status": true, "support": true,

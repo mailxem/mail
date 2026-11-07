@@ -28,6 +28,11 @@ type Newsletter struct {
 	// SiteTheme and SiteLogoURL style the newsletter's public website.
 	SiteTheme   string `gorm:"not null;default:paper" json:"siteTheme"`
 	SiteLogoURL string `json:"siteLogoUrl"`
+	// SiteDomain serves the website on the team's own domain once
+	// SiteDomainStatus is "active"; SiteDomainID is its Cloudflare hostname.
+	SiteDomain       *string `gorm:"uniqueIndex" json:"siteDomain"`
+	SiteDomainID     string  `json:"-"`
+	SiteDomainStatus string  `json:"siteDomainStatus"`
 }
 
 // NewsletterSignup is a reader who asked to subscribe on a newsletter's

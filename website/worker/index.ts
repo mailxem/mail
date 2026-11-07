@@ -290,23 +290,64 @@ async function confirm(env: Env, request: Request, site: Site) {
   return back(site, "subscribe=expired");
 }
 
+// xem.email itself; every other host reaching this Worker is a newsletter's
+// own domain, connected through Cloudflare for SaaS.
+const XEM_HOST =
+  /^(?:www\.)?xem\.email$|\.workers\.dev$|^localhost$|^127\.0\.0\.1$/;
+
+async function slugForDomain(env: Env, host: string) {
+  const res = await api(env, `by-domain/${encodeURIComponent(host)}`, {
+    cf: { cacheTtl: 300, cacheEverything: true },
+  } as RequestInit);
+  if (!res.ok) return "";
+  return ((await res.json()) as { slug?: string }).slug || "";
+}
+
+function route(
+  env: Env,
+  request: Request,
+  site: Site,
+  rest: string | undefined,
+) {
+  if (request.method === "POST") {
+    if (rest === "subscribe") return subscribe(env, request, site);
+    if (rest === "confirm") return confirm(env, request, site);
+    return new Response("Method not allowed", { status: 405 });
+  }
+  if (request.method !== "GET" && request.method !== "HEAD")
+    return new Response("Method not allowed", { status: 405 });
+  if (!rest) return home(env, request, site);
+  if (rest === "feed.xml") return feed(env, request, site);
+  if (rest === "confirm") return confirmPage(env, request, site);
+  return issue(env, request, site, rest);
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
-    const [slug, rest, ...extra] = url.pathname.split("/").filter(Boolean);
+    const parts = url.pathname.split("/").filter(Boolean);
+    if (!XEM_HOST.test(url.hostname)) {
+      const slug = await slugForDomain(env, url.hostname);
+      if (!slug || parts.length > 1)
+        return new Response("Not found", { status: 404 });
+      return route(
+        env,
+        request,
+        { slug, base: "", origin: url.origin },
+        parts[0],
+      );
+    }
+    // xem.email's own pages come first; newsletters fill the gaps.
+    const asset = await env.ASSETS.fetch(request);
+    if (asset.status !== 404) return asset;
+    const [slug, rest, ...extra] = parts;
     if (!slug || !SLUG.test(slug) || extra.length)
       return notFound(env, request);
-    const site: Site = { slug, base: `/${slug}`, origin: url.origin };
-    if (request.method === "POST") {
-      if (rest === "subscribe") return subscribe(env, request, site);
-      if (rest === "confirm") return confirm(env, request, site);
-      return new Response("Method not allowed", { status: 405 });
-    }
-    if (request.method !== "GET" && request.method !== "HEAD")
-      return new Response("Method not allowed", { status: 405 });
-    if (!rest) return home(env, request, site);
-    if (rest === "feed.xml") return feed(env, request, site);
-    if (rest === "confirm") return confirmPage(env, request, site);
-    return issue(env, request, site, rest);
+    return route(
+      env,
+      request,
+      { slug, base: `/${slug}`, origin: url.origin },
+      rest,
+    );
   },
 };
