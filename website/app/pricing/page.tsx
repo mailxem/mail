@@ -113,7 +113,7 @@ const faqs = [
   },
   {
     q: "Can I run Xem myself instead?",
-    a: "Yes. Xem is open source under GPL-3.0. Self-hosting is free; you pay your server and your email provider, such as Amazon SES at $0.10 to $0.16 per 1,000 emails. Campaigns, newsletters, automations, forms and the CRM are free forever; a $9 one-time license adds the shared inbox and Cloudflare mailboxes and removes the “Sent with Xem” footer. Set the key as XEM_LICENSE_KEY.",
+    a: "Yes. Xem is open source under GPL-3.0. Self-hosting is free; you pay your server and your email provider, such as Amazon SES at $0.10 to $0.16 per 1,000 emails. Campaigns, automations, forms and the CRM are free forever; a $9 one-time license adds newsletters, the shared inbox and Cloudflare mailboxes and removes the “Sent with Xem” footer. Set the key as XEM_LICENSE_KEY.",
   },
   {
     q: "Can I get my money back?",
@@ -344,8 +344,8 @@ export default function PricingPage() {
             <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted">
               Xem is GPL-3.0. Install it on your own server with one command and
               pay only your email provider: through Amazon SES that is $0.10 to
-              $0.16 per 1,000 emails. Campaigns, newsletters, automations, forms
-              and the CRM are free forever. A $9 license, paid once, adds the
+              $0.16 per 1,000 emails. Campaigns, automations, forms and the CRM
+              are free forever. A $9 license, paid once, adds newsletters, the
               shared inbox and Cloudflare mailboxes and removes the “Sent with
               Xem” footer.
             </p>

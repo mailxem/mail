@@ -15,6 +15,10 @@ const ErrNewsletters = "Newsletters and newsletter websites come with a paid pla
 func PaidFeature(message string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			// Self-hosted without a license: say how to get one, not how to upgrade.
+			if unlicensed() {
+				return echo.NewHTTPError(http.StatusPaymentRequired, ErrLicenseFeature)
+			}
 			team, _ := c.Get("teamID").(string)
 			if IsFree(c.Request().Context(), team) {
 				return echo.NewHTTPError(http.StatusPaymentRequired, message)

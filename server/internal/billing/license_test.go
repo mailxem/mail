@@ -46,6 +46,10 @@ func TestSelfHostedFeaturesFollowTheLicense(t *testing.T) {
 	require.ErrorAs(t, paidOnly(), &he)
 	require.Equal(t, http.StatusPaymentRequired, he.Code)
 	require.True(t, IsFree(ctx, "team"))
+	// Newsletters, like every paid feature, name the license on self-hosted installs.
+	newsletterErr := PaidFeature(ErrNewsletters)(func(echo.Context) error { return nil })(echo.New().NewContext(httptest.NewRequest(http.MethodPost, "/", nil), httptest.NewRecorder()))
+	require.ErrorAs(t, newsletterErr, &he)
+	require.Equal(t, ErrLicenseFeature, he.Message)
 
 	for key, want := range map[string]bool{"good": true, "revoked": false, "unknown": false} {
 		valid, err := validateLicense(ctx, key)
