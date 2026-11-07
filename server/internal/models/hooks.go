@@ -13,6 +13,22 @@ func (a *APIKey) AfterCreate(tx *gorm.DB) error {
 	if a.AssistantUserID != "" {
 		return nil
 	}
+	if a.Admin {
+		for _, name := range AdminKeyResources {
+			var resource Resource
+			if err := tx.Where("name = ? AND action = ? AND is_deleted = false", name, "admin").FirstOrCreate(&resource, Resource{Name: name, Action: "admin"}).Error; err != nil {
+				return err
+			}
+			var permission ResourcePermission
+			if err := tx.Where("resource_id = ? AND is_deleted = false", resource.ID).FirstOrCreate(&permission, ResourcePermission{ResourceID: resource.ID, Scope: "admin:" + name}).Error; err != nil {
+				return err
+			}
+			if err := tx.Create(&APIKeyPermission{KeyID: a.ID, ResourcePermissionID: permission.ID}).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	}
 
 	// 🔍 Get resources for read and create actions
 	var resources []Resource

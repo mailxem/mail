@@ -67,11 +67,14 @@ export interface APIKey {
   updatedAt: string;
   expiresAt: string;
   isDeleted: boolean;
+  /** Full access to the workspace's product data. */
+  admin?: boolean;
 }
 
-export interface APIKeyRequest {
-  name: string;
-  expiresAt?: Date;
+/** A key's expiry, or null for a key that never expires (Go sends year 1). */
+export function apiKeyExpiry(key: Pick<APIKey, "expiresAt">) {
+  const at = key.expiresAt ? new Date(key.expiresAt) : null;
+  return at && at.getUTCFullYear() > 1 ? at : null;
 }
 
 export interface APIKeyResponse {

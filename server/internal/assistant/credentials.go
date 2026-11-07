@@ -48,7 +48,6 @@ func Issue(db *gorm.DB, user models.User) (string, time.Time, error) {
 	expiry := time.Now().UTC().Add(5 * time.Minute)
 	write := user.Role == models.UserRoleAdmin || user.Role == models.UserRoleSuperAdmin
 	key := models.APIKey{Name: "Xem assistant (short-lived)", Key: Lookup(secret), TeamID: user.TeamID, ExpiresAt: expiry, AssistantUserID: user.ID, AssistantWrite: write}
-	resources := []string{"campaigns", "contacts", "lists", "templates", "smtp_configs", "analytics", "emails", "marketing", "forms", "automations", "domains", "tags", "webhooks", "sending"}
 	err := db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&key).Error; err != nil {
 			return err
@@ -57,7 +56,7 @@ func Issue(db *gorm.DB, user models.User) (string, time.Time, error) {
 		if write {
 			action = "admin"
 		}
-		for _, name := range resources {
+		for _, name := range models.AdminKeyResources {
 			var resource models.Resource
 			if err := tx.Where("name = ? AND action = ? AND is_deleted = false", name, action).FirstOrCreate(&resource, models.Resource{Name: name, Action: action}).Error; err != nil {
 				return err
