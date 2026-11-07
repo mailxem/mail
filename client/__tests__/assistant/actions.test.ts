@@ -20,6 +20,7 @@ jest.mock("@/lib/assistant/server", () => ({
     }
   },
   authenticate: async () => mockScope,
+  logAssistantError: () => {},
   enabled: () => true,
   ownerKey: (s: any) => `${s.teamId}:${s.userId}`,
   connectMCP: async () => ({
