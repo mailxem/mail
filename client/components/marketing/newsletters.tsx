@@ -542,6 +542,14 @@ function NewsletterEditor({
                     <option value="atelier">Atelier</option>
                     <option value="letter">Letter</option>
                     <option value="index">Index</option>
+                    <option value="bento">Bento</option>
+                    <option value="gallery">Gallery</option>
+                    <option value="cinema">Cinema</option>
+                    <option value="creator">Creator</option>
+                    <option value="soft">Soft</option>
+                    <option value="zine">Zine</option>
+                    <option value="terminal">Terminal</option>
+                    <option value="almanac">Almanac</option>
                   </select>
                 </Field>
                 <Field
