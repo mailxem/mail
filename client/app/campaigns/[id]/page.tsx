@@ -389,8 +389,9 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
               template.variables.length > 0 ? (
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Set values for the template variables. These will be used when
-                  sending emails for this campaign.
+                  Set values for the template variables. Contact fields such as
+                  first_name fill in from each contact; a value here replaces
+                  them for everyone, and a blank one leaves them as they are.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {template.variables.map((variable) => (
@@ -404,7 +405,11 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
                       <Input
                         id={`var-${variable}`}
                         type="text"
-                        placeholder={`Enter value for ${variable}`}
+                        placeholder={
+                          contactFields.has(variable)
+                            ? "Filled from each contact; leave blank"
+                            : `Enter value for ${variable}`
+                        }
                         value={templateVariables[variable] || ""}
                         onChange={(e) =>
                           handleVariableChange(variable, e.target.value)
@@ -441,5 +446,25 @@ const CampaignViewPageWrapper = ({
     </Suspense>
   );
 };
+
+// Filled per recipient from the contact when sending (server/internal/tasks).
+const contactFields = new Set([
+  "email",
+  "first_name",
+  "last_name",
+  "name",
+  "full_name",
+  "company",
+  "country",
+  "city",
+  "state",
+  "zip",
+  "address",
+  "phone",
+  "linkedin",
+  "twitter",
+  "facebook",
+  "instagram",
+]);
 
 export default CampaignViewPageWrapper;
