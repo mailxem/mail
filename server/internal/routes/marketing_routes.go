@@ -82,6 +82,8 @@ func SetupMarketingRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 	g.POST("/newsletters", h.SaveNewsletter, middleware.RequirePermissions(db, "campaigns:create"))
 	g.PUT("/newsletters/:id", h.SaveNewsletter, middleware.RequirePermissions(db, "campaigns:create"))
 	g.POST("/newsletters/:id/pause", h.PauseNewsletter, middleware.RequirePermissions(db, "campaigns:create"))
+	g.GET("/newsletters/:id/domain", h.NewsletterDomain, middleware.RequirePermissions(db, "campaigns:read"))
+	g.PUT("/newsletters/:id/domain", h.SetNewsletterDomain, middleware.RequirePermissions(db, "campaigns:create"))
 	g.POST("/campaigns/:id/resume", h.ResumeCampaign, middleware.RequirePermissions(db, "campaigns:create"))
 	g.POST("/campaigns/:id/cancel", h.CancelCampaign, middleware.RequirePermissions(db, "campaigns:create"))
 	g.GET("/newsletters/:id/editions", h.NewsletterEditions, middleware.RequirePermissions(db, "campaigns:read"))
@@ -108,6 +110,7 @@ func SetupMarketingRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 	public.GET("/unsubscribe/:team/:contact/:token", h.Unsubscribe)
 	// Web archives are read by page renders and crawlers, so they get a roomier limit.
 	archive := e.Group("/public/newsletters", em.RateLimiter(em.NewRateLimiterMemoryStore(rate.Limit(20))))
+	archive.GET("/by-domain/:host", h.PublicSiteByDomain)
 	archive.GET("/:slug", h.PublicNewsletter)
 	archive.GET("/:slug/issues/:id", h.PublicNewsletterIssue)
 	archive.POST("/:slug/subscribe", h.SubscribeNewsletter, em.BodyLimit("4K"))

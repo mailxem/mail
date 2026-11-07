@@ -8,7 +8,10 @@
   "assets": {
     "directory": "./out",
     "binding": "ASSETS",
-    "html_handling": "drop-trailing-slash"
+    "html_handling": "drop-trailing-slash",
+    // Customer domains share this Worker, so it decides before any asset is
+    // served: news.example.com/pricing must not show xem.email's pricing.
+    "run_worker_first": true
     // No not_found_handling: unknown paths must reach the Worker, which
     // serves /404 itself when there's no newsletter there either.
   },
