@@ -530,27 +530,12 @@ function NewsletterEditor({
               />
             </Field>
             {draft.publicSlug && (
-              <div className={workspaceClassName("form-row")}>
+              <div>
                 <Field label="Website template">
-                  <select
+                  <SiteTemplatePicker
                     value={draft.siteTheme}
-                    onChange={(e) => set("siteTheme", e.target.value)}
-                  >
-                    <option value="paper">Paper</option>
-                    <option value="broadsheet">Broadsheet</option>
-                    <option value="midnight">Midnight</option>
-                    <option value="atelier">Atelier</option>
-                    <option value="letter">Letter</option>
-                    <option value="index">Index</option>
-                    <option value="bento">Bento</option>
-                    <option value="gallery">Gallery</option>
-                    <option value="cinema">Cinema</option>
-                    <option value="creator">Creator</option>
-                    <option value="soft">Soft</option>
-                    <option value="zine">Zine</option>
-                    <option value="terminal">Terminal</option>
-                    <option value="almanac">Almanac</option>
-                  </select>
+                    onChange={(v) => set("siteTheme", v)}
+                  />
                 </Field>
                 <Field
                   label="Logo (optional)"
@@ -841,5 +826,84 @@ function SiteDomain({ newsletterId }: { newsletterId: string }) {
         </button>
       </div>
     </Field>
+  );
+}
+
+// Newsletter website templates, matching website/worker/templates.
+const siteTemplates = [
+  ["paper", "Paper", "Editorial journal, featured issue"],
+  ["broadsheet", "Broadsheet", "A newspaper front page"],
+  ["midnight", "Midnight", "Dark, dotted grid, cards"],
+  ["atelier", "Atelier", "Magazine spread, numbered"],
+  ["letter", "Letter", "One column of text"],
+  ["index", "Index", "Huge nameplate, dated rows"],
+  ["bento", "Bento", "Everything in tiles"],
+  ["gallery", "Gallery", "Covers in a masonry"],
+  ["cinema", "Cinema", "Full-screen latest cover"],
+  ["creator", "Creator", "Personal page, big avatar"],
+  ["soft", "Soft", "Pastel mesh, glass cards"],
+  ["zine", "Zine", "Loud, inky, stickers"],
+  ["terminal", "Terminal", "A shell session"],
+  ["almanac", "Almanac", "Classic book contents"],
+] as const;
+
+/** Thumbnail grid for choosing a newsletter website template. */
+function SiteTemplatePicker({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div
+      role="radiogroup"
+      aria-label="Website template"
+      className="grid grid-cols-2 gap-3 sm:grid-cols-3"
+    >
+      {siteTemplates.map(([id, name, about]) => {
+        const checked = value === id;
+        return (
+          <label
+            key={id}
+            className={`group relative cursor-pointer rounded-xl border p-1.5 transition has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-foreground ${
+              checked
+                ? "border-foreground ring-2 ring-foreground/15"
+                : "border-border hover:border-foreground/40"
+            }`}
+          >
+            <input
+              type="radio"
+              name="siteTheme"
+              value={id}
+              checked={checked}
+              onChange={() => onChange(id)}
+              className="sr-only"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/assets/site-templates/${id}.webp`}
+              alt=""
+              width={320}
+              height={200}
+              loading="lazy"
+              className="aspect-[16/10] w-full rounded-lg border border-border/60 object-cover object-top"
+            />
+            <span className="mt-2 flex items-center justify-between px-1 text-sm font-medium text-foreground">
+              {name}
+              {checked && (
+                <span
+                  className="size-2 rounded-full bg-foreground"
+                  aria-hidden
+                />
+              )}
+            </span>
+            <span className="block px-1 pb-1 text-xs text-muted-foreground">
+              {about}
+            </span>
+          </label>
+        );
+      })}
+    </div>
   );
 }
