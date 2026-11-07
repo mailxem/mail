@@ -13,6 +13,7 @@ import {
   errorResponse,
   ownerKey,
   toolResult,
+  logAssistantError,
 } from "@/lib/assistant/server";
 import { publicConversation, readJSON } from "@/lib/assistant/http";
 import type { ActionOutput } from "@/lib/assistant/types";
@@ -81,14 +82,17 @@ export async function POST(request: Request) {
       await saveConversation(owner, row);
       // Persist running BEFORE dispatch. A crash or timeout can never replay a write.
       try {
+        // `why` is for the approval card; the tool never sees it.
+        const { why: _why, ...args } = action.input as Record<string, unknown>;
         const output = await mcp.callTool({
           name: action.tool,
-          arguments: action.input,
+          arguments: args,
           options: { timeout: 30_000 },
         });
         action.status = output.isError ? "unknown" : "completed";
         action.result = toolResult(output);
-      } catch {
+      } catch (error) {
+        logAssistantError(`action ${action.tool}`, error);
         action.status = "unknown";
         action.result = {
           notice:

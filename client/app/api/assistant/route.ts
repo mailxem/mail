@@ -12,6 +12,7 @@ import {
   saveConversation,
 } from "@/lib/assistant/store";
 import {
+  logAssistantError,
   AssistantError,
   authenticate,
   connectMCP,
@@ -112,12 +113,15 @@ export async function POST(request: Request) {
         "Another reply or action is still finishing. Please wait a moment.",
       );
     const now = Date.now();
-    const row: Conversation = (await loadConversation(
-      owner,
-      input.data.conversationId,
-    )) || {
+    const saved = await loadConversation(owner, input.data.conversationId);
+    if (input.data.continue) {
+      if (!saved) throw new AssistantError(404, "This chat is no longer available.");
+      if (saved.actions.some((a) => a.status === "pending" || a.status === "running"))
+        throw new AssistantError(409, "Approve or decline the remaining steps first.");
+    }
+    const row: Conversation = saved || {
       id: input.data.conversationId,
-      title: input.data.text.slice(0, 80),
+      title: (input.data.text || "").slice(0, 80),
       createdAt: now,
       updatedAt: now,
       messages: [],
@@ -130,11 +134,12 @@ export async function POST(request: Request) {
       );
     mcp = await connectMCP(scope);
     const tools = await workspaceTools(mcp, scope, row);
-    row.messages.push({
-      id: randomUUID(),
-      role: "user",
-      parts: [{ type: "text", text: input.data.text }],
-    });
+    if (input.data.text)
+      row.messages.push({
+        id: randomUUID(),
+        role: "user",
+        parts: [{ type: "text", text: input.data.text }],
+      });
     row.updatedAt = now;
     await saveConversation(owner, row);
     const result = streamText({
@@ -146,11 +151,9 @@ export async function POST(request: Request) {
         ignoreIncompleteToolCalls: true,
       }),
       tools,
-      onError: () => {
-        console.warn("Xem assistant generation failed");
-      },
-      stopWhen: isStepCount(6),
-      maxOutputTokens: 2400,
+      onError: ({ error }) => logAssistantError("generation", error),
+      stopWhen: isStepCount(12),
+      maxOutputTokens: 4000,
       maxRetries: 0,
       timeout: 60_000,
       abortSignal: request.signal,

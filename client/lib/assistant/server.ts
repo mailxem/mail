@@ -2,7 +2,7 @@ import "server-only";
 import { auth } from "@/auth";
 import { createMCPClient } from "@ai-sdk/mcp";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { dynamicTool, type ToolSet } from "ai";
+import { dynamicTool, jsonSchema, type JSONSchema7, type ToolSet } from "ai";
 import { randomUUID } from "node:crypto";
 import { READ_TOOLS, redact, safeEndpoint, schemaHash } from "./policy";
 import { saveConversation } from "./store";
@@ -99,7 +99,7 @@ export async function connectMCP(scope: AssistantScope) {
       url: safeEndpoint(process.env.XEM_MCP_URL || "https://mcp.xem.email/mcp"),
       headers: { Authorization: `Bearer ${grant.key}` },
     },
-    onUncaughtError: () => {},
+    onUncaughtError: (error) => logAssistantError("MCP connection", error),
   });
 }
 export function model() {
@@ -143,6 +143,20 @@ export function toolResult(result: unknown) {
     return redact(text);
   }
 }
+/** Adds an optional `why` to a write tool's input: the one-line reason the
+ * approval card shows. The approval route strips it before calling the tool. */
+function withWhy(schema: { properties?: Record<string, object> }) {
+  return {
+    ...schema,
+    properties: {
+      ...schema.properties,
+      why: {
+        type: "string",
+        description: "One short sentence for the person approving: why this step, in plain words.",
+      },
+    },
+  } as JSONSchema7;
+}
 export async function workspaceTools(
   mcp: Awaited<ReturnType<typeof connectMCP>>,
   scope: AssistantScope,
@@ -163,9 +177,12 @@ export async function workspaceTools(
       (!READ_TOOLS.has(name) || name === "get_sending_status")
     )
       continue;
+    const write = !READ_TOOLS.has(name);
     result[name] = dynamicTool({
       description: definition.description,
-      inputSchema: original[name].inputSchema,
+      inputSchema: write
+        ? jsonSchema(withWhy(definition.inputSchema as { properties?: Record<string, object> }))
+        : original[name].inputSchema,
       execute: async (input) => {
         if (JSON.stringify(input).length > 32000)
           return { error: "This action is too large. Use smaller batches." };
@@ -199,9 +216,55 @@ export async function workspaceTools(
       },
     });
   }
+  // Rendered by the chat as buttons or a short form; the answer comes back as
+  // the user's next message, so this tool only echoes what to show.
+  result.ask_user = dynamicTool({
+    description:
+      "Ask the user to choose or fill something in, shown as buttons and/or a short form in the chat. Use it for choices, missing details, and to offer next steps after a task. Then stop and wait for their reply.",
+    inputSchema: jsonSchema({
+      type: "object",
+      properties: {
+        question: { type: "string", description: "One short line above the controls." },
+        options: {
+          type: "array",
+          maxItems: 4,
+          description: "Buttons. Each label is sent as the user's reply, so write it in their voice (\"Create the draft\", \"Use the Beta list\").",
+          items: { type: "string", maxLength: 60 },
+        },
+        fields: {
+          type: "array",
+          maxItems: 5,
+          description: "Form inputs, when you need typed details.",
+          items: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              label: { type: "string" },
+              type: { type: "string", enum: ["text", "email", "url", "number", "date", "textarea", "select"] },
+              placeholder: { type: "string" },
+              choices: { type: "array", items: { type: "string" }, description: "For select." },
+              required: { type: "boolean" },
+            },
+            required: ["name", "label"],
+          },
+        },
+        submitLabel: { type: "string", description: "Button under the form, e.g. Continue." },
+      },
+    } as JSONSchema7),
+    execute: async (input) => ({ kind: "xem-ask", ...(input as object) }),
+  });
   return result;
 }
+/** Logs what went wrong without request data: the name, message and first stack frames. */
+export function logAssistantError(where: string, error: unknown) {
+  const e = error instanceof Error ? error : new Error(String(error));
+  console.error(
+    `Xem assistant ${where}: ${e.name}: ${e.message}`,
+    e.stack?.split("\n").slice(1, 4).join(" | ") || "",
+  );
+}
 export function errorResponse(error: unknown) {
+  if (!(error instanceof AssistantError)) logAssistantError("failed", error);
   const e =
     error instanceof AssistantError
       ? error
