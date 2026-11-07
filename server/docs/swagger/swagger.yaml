@@ -73,6 +73,24 @@ definitions:
       selector:
         type: string
     type: object
+  internal_handlers.ContactEventInput:
+    properties:
+      contactId:
+        type: string
+      email:
+        example: ada@example.com
+        type: string
+      event:
+        example: trial_started
+        type: string
+      listId:
+        description: ListID creates the contact in this list when no contact there
+          has the email.
+        type: string
+      properties:
+        additionalProperties: true
+        type: object
+    type: object
   internal_handlers.CreateSubscriptionRequest:
     properties:
       product_id:
@@ -83,10 +101,17 @@ definitions:
   internal_handlers.EmailAnalytics:
     description: Email analytics data
     properties:
+      acceptedMessages:
+        type: integer
       averageReadTime:
         allOf:
         - $ref: '#/definitions/time.Duration'
         description: Average time between open and click
+      botClicks:
+        type: integer
+      botOpens:
+        description: "\U0001F916 Machine events left out of every count above"
+        type: integer
       bounceCount:
         type: integer
       browserBreakdown:
@@ -100,6 +125,8 @@ definitions:
       clickCount:
         type: integer
       clickRate:
+        type: number
+      clickToOpenRate:
         type: number
       clickedLinks:
         description: "\U0001F517 Link Analytics"
@@ -149,6 +176,8 @@ definitions:
         additionalProperties:
           type: integer
         type: object
+      proxyOpens:
+        type: integer
       regionBreakdown:
         additionalProperties:
           type: integer
@@ -167,6 +196,9 @@ definitions:
       uniqueClicks:
         type: integer
       uniqueOpens:
+        type: integer
+      untracked:
+        description: sent without open/click tracking; excluded from rates
         type: integer
     type: object
   internal_handlers.GetPlansResponse:
@@ -305,6 +337,10 @@ definitions:
     type: object
   internal_handlers.SendEmailRequest:
     properties:
+      attachments:
+        items:
+          $ref: '#/definitions/kori_internal_models.MailAttachment'
+        type: array
       bcc:
         type: string
       cc:
@@ -315,6 +351,8 @@ definitions:
         type: array
       html:
         type: string
+      inReplyTo:
+        type: string
       provider:
         enum:
         - CUSTOM
@@ -324,7 +362,11 @@ definitions:
         type: string
       replyTo:
         type: string
+      requestId:
+        type: string
       scheduleAt:
+        type: string
+      smtpConfigId:
         type: string
       subject:
         type: string
@@ -424,6 +466,61 @@ definitions:
       period:
         type: string
     type: object
+  kori_internal_models.ABTest:
+    properties:
+      autoDeclareWinner:
+        description: Automatically declare winner when threshold met
+        type: boolean
+      automation:
+        $ref: '#/definitions/kori_internal_models.Automation'
+      automationID:
+        type: string
+      campaign:
+        $ref: '#/definitions/kori_internal_models.Campaign'
+      campaignID:
+        type: string
+      confidenceThreshold:
+        description: 95% confidence
+        type: number
+      createdAt:
+        type: string
+      description:
+        type: string
+      endedAt:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      minimumSampleSize:
+        description: Minimum sends per variant
+        type: integer
+      name:
+        type: string
+      startedAt:
+        type: string
+      status:
+        $ref: '#/definitions/kori_internal_models.TestStatus'
+      team:
+        $ref: '#/definitions/kori_internal_models.Team'
+      teamID:
+        type: string
+      testType:
+        $ref: '#/definitions/kori_internal_models.TestType'
+      updatedAt:
+        type: string
+      variants:
+        items:
+          $ref: '#/definitions/kori_internal_models.TestVariant'
+        type: array
+      winnerMetric:
+        $ref: '#/definitions/kori_internal_models.WinnerMetric'
+      winnerVariant:
+        $ref: '#/definitions/kori_internal_models.TestVariant'
+      winnerVariantID:
+        type: string
+    type: object
   kori_internal_models.APIKey:
     properties:
       createdAt:
@@ -484,6 +581,12 @@ definitions:
         items:
           $ref: '#/definitions/kori_internal_models.AutomationNodeEdge'
         type: array
+      exitOnGoal:
+        description: ExitOnGoal makes a contact leave when they reach one of the workflow's
+          goals; nil means yes.
+        type: boolean
+      hasDraft:
+        type: boolean
       id:
         type: string
       isActive:
@@ -491,18 +594,138 @@ definitions:
       isDeleted:
         default: false
         type: boolean
+      liveVersion:
+        description: Nodes and Edges hold the draft; LiveVersion names the published
+          snapshot new contacts start on.
+        type: integer
       name:
         type: string
       nodes:
         items:
           $ref: '#/definitions/kori_internal_models.AutomationNode'
         type: array
+      reentryDays:
+        type: integer
+      reentryMode:
+        description: ReentryMode is "once", "after_finish" or "after_days"; empty
+          (older workflows) behaves as "after_finish".
+        type: string
+      sendWindow:
+        description: null uses the workspace default
+        items:
+          type: integer
+        type: array
       team:
         $ref: '#/definitions/kori_internal_models.Team'
       teamId:
         type: string
+      triggerEvent:
+        type: string
       updatedAt:
         type: string
+    type: object
+  kori_internal_models.AutomationExecution:
+    properties:
+      automation:
+        $ref: '#/definitions/kori_internal_models.Automation'
+      automationId:
+        type: string
+      completedAt:
+        type: string
+      contact:
+        $ref: '#/definitions/kori_internal_models.Contact'
+      contactId:
+        type: string
+      createdAt:
+        type: string
+      currentNode:
+        $ref: '#/definitions/kori_internal_models.AutomationNode'
+      currentNodeId:
+        type: string
+      error:
+        type: string
+      executionLog:
+        items:
+          type: integer
+        type: array
+      exitReason:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      startedAt:
+        type: string
+      status:
+        $ref: '#/definitions/kori_internal_models.ExecutionStatus'
+      triggerData:
+        items:
+          type: integer
+        type: array
+      triggerType:
+        type: string
+      updatedAt:
+        type: string
+      variables:
+        items:
+          type: integer
+        type: array
+      version:
+        type: integer
+    type: object
+  kori_internal_models.AutomationGoal:
+    properties:
+      automation:
+        $ref: '#/definitions/kori_internal_models.Automation'
+      automationID:
+        type: string
+      conversions:
+        items:
+          $ref: '#/definitions/kori_internal_models.GoalConversion'
+        type: array
+      createdAt:
+        type: string
+      description:
+        type: string
+      goalType:
+        $ref: '#/definitions/kori_internal_models.GoalType'
+      id:
+        type: string
+      isActive:
+        description: Can be disabled without deletion
+        type: boolean
+      isDeleted:
+        default: false
+        type: boolean
+      metadata:
+        items:
+          type: integer
+        type: array
+      name:
+        type: string
+      targetValue:
+        description: For revenue/conversion rate targets
+        type: number
+      updatedAt:
+        type: string
+    type: object
+  kori_internal_models.AutomationGoalSummary:
+    properties:
+      automationId:
+        type: string
+      conversionRate:
+        type: number
+      goals:
+        items:
+          $ref: '#/definitions/kori_internal_models.GoalStats'
+        type: array
+      totalConversions:
+        type: integer
+      totalExecutions:
+        type: integer
+      totalRevenue:
+        type: number
     type: object
   kori_internal_models.AutomationNode:
     properties:
@@ -590,10 +813,14 @@ definitions:
         items:
           $ref: '#/definitions/kori_internal_models.EmailTracking'
         type: array
+      archiveNewsletterId:
+        description: ArchiveNewsletterID publishes a one-off campaign in that newsletter's
+          web archive.
+        type: string
       batchDelay:
         allOf:
-        - $ref: '#/definitions/time.Duration'
-        description: 1 hour delay between batches
+        - $ref: '#/definitions/kori_internal_models.Duration'
+        description: nanoseconds between batches
       batchSize:
         type: integer
       createdAt:
@@ -606,6 +833,8 @@ definitions:
         type: array
       description:
         type: string
+      htmlBody:
+        type: string
       id:
         type: string
       isDeleted:
@@ -617,6 +846,15 @@ definitions:
         type: string
       name:
         type: string
+      newsletterId:
+        type: string
+      nextStageAt:
+        type: string
+      pauseReason:
+        description: PauseReason says why staged sending paused the campaign.
+        type: string
+      postalAddress:
+        type: string
       processed:
         type: integer
       recurringSchedule:
@@ -625,6 +863,10 @@ definitions:
         $ref: '#/definitions/kori_internal_models.CampaignSchedule'
       scheduledFor:
         type: string
+      sendInStages:
+        description: 'SendInStages: nil sends in stages automatically to never-mailed
+          lists.'
+        type: boolean
       sentEmails:
         items:
           $ref: '#/definitions/kori_internal_models.Email'
@@ -633,8 +875,15 @@ definitions:
         $ref: '#/definitions/kori_internal_models.SMTPConfig'
       smtpConfigId:
         type: string
+      stage:
+        description: |-
+          Stage counts staged-sending stages cleared; NextStageAt is when the
+          next stage's results check is due.
+        type: integer
       status:
         $ref: '#/definitions/kori_internal_models.CampaignStatus'
+      subject:
+        type: string
       team:
         $ref: '#/definitions/kori_internal_models.Team'
       teamId:
@@ -645,6 +894,10 @@ definitions:
         type: string
       timezone:
         type: string
+      trackEngagement:
+        description: 'TrackEngagement: nil or true adds the open pixel and click-tracking
+          links.'
+        type: boolean
       updatedAt:
         type: string
     type: object
@@ -717,6 +970,8 @@ definitions:
       lastName:
         minLength: 2
         type: string
+      lifecycleStage:
+        type: string
       linkedin:
         type: string
       list:
@@ -745,6 +1000,9 @@ definitions:
           $ref: '#/definitions/kori_internal_models.Tag'
         type: array
       teamId:
+        type: string
+      timezone:
+        description: IANA name; automations send in it
         type: string
       twitter:
         type: string
@@ -783,6 +1041,11 @@ definitions:
         $ref: '#/definitions/kori_internal_models.MailingList'
       listId:
         type: string
+      skipped:
+        description: rows left out, counted by reason
+        items:
+          type: integer
+        type: array
       status:
         allOf:
         - $ref: '#/definitions/kori_internal_models.ContactImportStatus'
@@ -826,6 +1089,10 @@ definitions:
         - reply
         - bounce
         - complaint
+        - sent
+        - delivered
+        - unsubscribed
+        - failed
         type: string
       id:
         type: string
@@ -881,8 +1148,33 @@ definitions:
     - domain
     - teamId
     type: object
+  kori_internal_models.Duration:
+    enum:
+    - -9223372036854775808
+    - 9223372036854775807
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 3600000000000
+    format: int64
+    type: integer
+    x-enum-varnames:
+    - minDuration
+    - maxDuration
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Hour
   kori_internal_models.Email:
     properties:
+      attachments:
+        items:
+          $ref: '#/definitions/kori_internal_models.MailAttachment'
+        type: array
       bcc:
         type: string
       body:
@@ -913,9 +1205,15 @@ definitions:
         type: string
       id:
         type: string
+      inReplyTo:
+        type: string
       isDeleted:
         default: false
         type: boolean
+      providerResult:
+        items:
+          type: integer
+        type: array
       replyTo:
         type: string
       sendAt:
@@ -1055,6 +1353,12 @@ definitions:
       isDeleted:
         default: false
         type: boolean
+      machine:
+        description: "\U0001F916 Machine traffic: empty for people, otherwise TrackingMachineBot
+          or\nTrackingMachineProxy. Reports and list cleanup count only machine=''."
+        type: string
+      machineReason:
+        type: string
       metadata:
         description: "\U0001F4CA Additional Metadata"
         items:
@@ -1095,6 +1399,31 @@ definitions:
     - EmailTrackingEventBounce
     - EmailTrackingEventComplaint
     - EmailTrackingEventUnsubscribe
+  kori_internal_models.ExecutionStatus:
+    enum:
+    - RUNNING
+    - COMPLETED
+    - FAILED
+    - PAUSED
+    - WAITING
+    - EXITED
+    type: string
+    x-enum-comments:
+      ExecutionStatusExited: left early; see ExitReason
+    x-enum-descriptions:
+    - ""
+    - ""
+    - ""
+    - ""
+    - ""
+    - left early; see ExitReason
+    x-enum-varnames:
+    - ExecutionStatusRunning
+    - ExecutionStatusCompleted
+    - ExecutionStatusFailed
+    - ExecutionStatusPaused
+    - ExecutionStatusWaiting
+    - ExecutionStatusExited
   kori_internal_models.File:
     properties:
       createdAt:
@@ -1132,6 +1461,84 @@ definitions:
     - size
     - type
     type: object
+  kori_internal_models.GoalConversion:
+    properties:
+      automation:
+        $ref: '#/definitions/kori_internal_models.Automation'
+      automationID:
+        type: string
+      contact:
+        $ref: '#/definitions/kori_internal_models.Contact'
+      contactID:
+        type: string
+      conversionValue:
+        description: Revenue or custom value
+        type: number
+      convertedAt:
+        type: string
+      createdAt:
+        type: string
+      execution:
+        $ref: '#/definitions/kori_internal_models.AutomationExecution'
+      executionID:
+        type: string
+      goal:
+        $ref: '#/definitions/kori_internal_models.AutomationGoal'
+      goalID:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      metadata:
+        items:
+          type: integer
+        type: array
+      updatedAt:
+        type: string
+    type: object
+  kori_internal_models.GoalStats:
+    properties:
+      averageTimeToGoal:
+        description: Hours from start to conversion
+        type: number
+      conversionRate:
+        description: Conversions / Total executions
+        type: number
+      firstConversion:
+        type: string
+      goalId:
+        type: string
+      goalName:
+        type: string
+      lastConversion:
+        type: string
+      totalConversions:
+        type: integer
+      totalValue:
+        type: number
+      uniqueContacts:
+        type: integer
+    type: object
+  kori_internal_models.GoalType:
+    enum:
+    - EMAIL_OPEN
+    - EMAIL_CLICK
+    - FORM_SUBMIT
+    - PAGE_VISIT
+    - PURCHASE
+    - CUSTOM_EVENT
+    - REVENUE_TARGET
+    type: string
+    x-enum-varnames:
+    - GoalTypeEmailOpen
+    - GoalTypeEmailClick
+    - GoalTypeFormSubmit
+    - GoalTypePageVisit
+    - GoalTypePurchase
+    - GoalTypeCustomEvent
+    - GoalTypeRevenueTarget
   kori_internal_models.InviteStatus:
     enum:
     - PENDING
@@ -1142,6 +1549,32 @@ definitions:
     - InviteStatusPending
     - InviteStatusAccepted
     - InviteStatusRejected
+  kori_internal_models.LeadScore:
+    properties:
+      contact:
+        $ref: '#/definitions/kori_internal_models.Contact'
+      contactID:
+        type: string
+      createdAt:
+        type: string
+      grade:
+        $ref: '#/definitions/kori_internal_models.ScoreGrade'
+      lastActivityAt:
+        type: string
+      score:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  kori_internal_models.MailAttachment:
+    properties:
+      content:
+        type: string
+      contentType:
+        type: string
+      filename:
+        type: string
+    type: object
   kori_internal_models.MailingList:
     properties:
       contactImports:
@@ -1161,6 +1594,10 @@ definitions:
       isDeleted:
         default: false
         type: boolean
+      listCleanup:
+        description: ListCleanup asks long-silent readers once, then stops emailing
+          them. Nil means on.
+        type: boolean
       name:
         minLength: 2
         type: string
@@ -1175,7 +1612,6 @@ definitions:
         type: string
     required:
     - name
-    - subscribersCount
     - teamId
     type: object
   kori_internal_models.Model:
@@ -1205,6 +1641,7 @@ definitions:
     - START
     - EMAIL
     - WAIT
+    - WAIT_UNTIL
     - CONDITION
     - WEBHOOK
     - ADD_TO_LIST
@@ -1216,11 +1653,14 @@ definitions:
     - UNSUBSCRIBE
     - CUSTOM_CODE
     - EXIT
+    - AI_DECISION
+    - AI_SUGGEST
     type: string
     x-enum-varnames:
     - NodeTypeStart
     - NodeTypeEmail
     - NodeTypeWait
+    - NodeTypeWaitUntil
     - NodeTypeCondition
     - NodeTypeWebhook
     - NodeTypeAddToList
@@ -1232,6 +1672,8 @@ definitions:
     - NodeTypeUnsubscribe
     - NodeTypeCustomCode
     - NodeTypeExit
+    - NodeTypeAIDecision
+    - NodeTypeAISuggest
   kori_internal_models.Product:
     properties:
       createdAt:
@@ -1392,6 +1834,60 @@ definitions:
     - teamId
     - username
     type: object
+  kori_internal_models.ScoreGrade:
+    enum:
+    - A
+    - B
+    - C
+    - D
+    - F
+    type: string
+    x-enum-comments:
+      GradeA: 80-100 - Hot lead, sales ready
+      GradeB: 60-79 - Warm lead, nurture more
+      GradeC: 40-59 - Cold lead, engage
+      GradeD: 20-39 - Very cold, re-engagement campaign
+      GradeF: 0-19 - Inactive, consider removing
+    x-enum-descriptions:
+    - 80-100 - Hot lead, sales ready
+    - 60-79 - Warm lead, nurture more
+    - 40-59 - Cold lead, engage
+    - 20-39 - Very cold, re-engagement campaign
+    - 0-19 - Inactive, consider removing
+    x-enum-varnames:
+    - GradeA
+    - GradeB
+    - GradeC
+    - GradeD
+    - GradeF
+  kori_internal_models.ScoreRule:
+    properties:
+      activityType:
+        description: email_opened, link_clicked, etc.
+        type: string
+      createdAt:
+        type: string
+      decayDays:
+        description: Auto-subtract after X days
+        type: integer
+      description:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      isDeleted:
+        default: false
+        type: boolean
+      points:
+        type: integer
+      team:
+        $ref: '#/definitions/kori_internal_models.Team'
+      teamID:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   kori_internal_models.SubscriberStatus:
     enum:
     - ACTIVE
@@ -1473,6 +1969,8 @@ definitions:
       name:
         minLength: 1
         type: string
+      teamId:
+        type: string
       updatedAt:
         type: string
       value:
@@ -1532,6 +2030,9 @@ definitions:
         items:
           $ref: '#/definitions/kori_internal_models.SMTPConfig'
         type: array
+      trackingConsentMode:
+        description: TrackingConsentMode is none, opt_out or opt_in; see ShouldTrack.
+        type: string
       updatedAt:
         type: string
       users:
@@ -1631,6 +2132,8 @@ definitions:
         items:
           $ref: '#/definitions/kori_internal_models.Email'
         type: array
+      htmlBody:
+        type: string
       htmlFile:
         $ref: '#/definitions/kori_internal_models.File'
       htmlFileId:
@@ -1642,6 +2145,8 @@ definitions:
         type: boolean
       name:
         minLength: 2
+        type: string
+      starterKey:
         type: string
       subject:
         type: string
@@ -1661,8 +2166,108 @@ definitions:
     - subject
     - teamId
     type: object
+  kori_internal_models.TestResult:
+    properties:
+      clickRate:
+        description: Calculated field
+        type: number
+      clicks:
+        type: integer
+      conversionRate:
+        description: Calculated field
+        type: number
+      conversions:
+        type: integer
+      createdAt:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      openRate:
+        description: Calculated field
+        type: number
+      opens:
+        type: integer
+      revenue:
+        type: number
+      sends:
+        type: integer
+      test:
+        $ref: '#/definitions/kori_internal_models.ABTest'
+      testID:
+        type: string
+      updatedAt:
+        type: string
+      variant:
+        $ref: '#/definitions/kori_internal_models.TestVariant'
+      variantID:
+        type: string
+    type: object
+  kori_internal_models.TestStatus:
+    enum:
+    - DRAFT
+    - RUNNING
+    - COMPLETED
+    - STOPPED
+    type: string
+    x-enum-varnames:
+    - TestStatusDraft
+    - TestStatusRunning
+    - TestStatusCompleted
+    - TestStatusStopped
+  kori_internal_models.TestType:
+    enum:
+    - SUBJECT
+    - CONTENT
+    - SEND_TIME
+    - FULL
+    type: string
+    x-enum-varnames:
+    - TestTypeSubject
+    - TestTypeContent
+    - TestTypeSendTime
+    - TestTypeFull
+  kori_internal_models.TestVariant:
+    properties:
+      createdAt:
+        type: string
+      emailContent:
+        type: string
+      id:
+        type: string
+      isDeleted:
+        default: false
+        type: boolean
+      metadata:
+        items:
+          type: integer
+        type: array
+      result:
+        $ref: '#/definitions/kori_internal_models.TestResult'
+      sendHour:
+        description: For send-time tests (0-23)
+        type: integer
+      splitPercentage:
+        description: 33, 33, 34 for 3-way split
+        type: integer
+      subjectLine:
+        type: string
+      test:
+        $ref: '#/definitions/kori_internal_models.ABTest'
+      testID:
+        type: string
+      updatedAt:
+        type: string
+      variantName:
+        description: '"A", "B", "C"'
+        type: string
+    type: object
   kori_internal_models.User:
     properties:
+      bio:
+        type: string
       createdAt:
         type: string
       email:
@@ -1781,6 +2386,74 @@ definitions:
     - teamId
     - url
     type: object
+  kori_internal_models.WinnerMetric:
+    enum:
+    - OPEN_RATE
+    - CLICK_RATE
+    - CONVERSION_RATE
+    - REVENUE
+    type: string
+    x-enum-varnames:
+    - MetricOpenRate
+    - MetricClickRate
+    - MetricConversionRate
+    - MetricRevenue
+  kori_internal_services.ContactConversionStats:
+    properties:
+      contact:
+        $ref: '#/definitions/kori_internal_models.Contact'
+      conversionCount:
+        type: integer
+      lastConvertedAt:
+        type: string
+      totalValue:
+        type: number
+    type: object
+  kori_internal_services.GoalProgress:
+    properties:
+      currentValue:
+        type: number
+      goalId:
+        type: string
+      goalName:
+        type: string
+      isAchieved:
+        type: boolean
+      progressPercent:
+        type: number
+      targetValue:
+        type: number
+    type: object
+  kori_internal_services.TestAnalysis:
+    properties:
+      comparisons:
+        items:
+          $ref: '#/definitions/kori_internal_services.VariantComparison'
+        type: array
+      confidence:
+        type: number
+      isSignificant:
+        type: boolean
+      message:
+        type: string
+      testId:
+        type: string
+      winnerVariantId:
+        type: string
+    type: object
+  kori_internal_services.VariantComparison:
+    properties:
+      confidence:
+        type: number
+      isSignificant:
+        type: boolean
+      pValue:
+        type: number
+      variantAId:
+        type: string
+      variantBId:
+        type: string
+    type: object
   time.Duration:
     enum:
     - -9223372036854775808
@@ -1805,6 +2478,255 @@ definitions:
 info:
   contact: {}
 paths:
+  /api/v1/ab-tests:
+    get:
+      consumes:
+      - application/json
+      description: Get all A/B tests for the team
+      parameters:
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: List A/B tests
+      tags:
+      - A/B Testing
+    post:
+      consumes:
+      - application/json
+      description: Create a new A/B test
+      parameters:
+      - description: Test data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/kori_internal_models.ABTest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/kori_internal_models.ABTest'
+      security:
+      - ApiKeyAuth: []
+      summary: Create A/B test
+      tags:
+      - A/B Testing
+  /api/v1/ab-tests/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an A/B test and all its data
+      parameters:
+      - description: Test ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - ApiKeyAuth: []
+      summary: Delete A/B test
+      tags:
+      - A/B Testing
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific A/B test
+      parameters:
+      - description: Test ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_models.ABTest'
+      security:
+      - ApiKeyAuth: []
+      summary: Get A/B test
+      tags:
+      - A/B Testing
+    put:
+      consumes:
+      - application/json
+      description: Update an existing A/B test
+      parameters:
+      - description: Test ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update data
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_models.ABTest'
+      security:
+      - ApiKeyAuth: []
+      summary: Update A/B test
+      tags:
+      - A/B Testing
+  /api/v1/ab-tests/{id}/analyze:
+    get:
+      consumes:
+      - application/json
+      description: Perform statistical analysis to determine winner
+      parameters:
+      - description: Test ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_services.TestAnalysis'
+      security:
+      - ApiKeyAuth: []
+      summary: Analyze test
+      tags:
+      - A/B Testing
+  /api/v1/ab-tests/{id}/declare-winner:
+    post:
+      consumes:
+      - application/json
+      description: Manually declare a winning variant
+      parameters:
+      - description: Test ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Winner data
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_models.ABTest'
+      security:
+      - ApiKeyAuth: []
+      summary: Declare winner
+      tags:
+      - A/B Testing
+  /api/v1/ab-tests/{id}/results:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed results for an A/B test
+      parameters:
+      - description: Test ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/kori_internal_models.TestResult'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: Get test results
+      tags:
+      - A/B Testing
+  /api/v1/ab-tests/{id}/start:
+    post:
+      consumes:
+      - application/json
+      description: Start running an A/B test
+      parameters:
+      - description: Test ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_models.ABTest'
+      security:
+      - ApiKeyAuth: []
+      summary: Start A/B test
+      tags:
+      - A/B Testing
+  /api/v1/ab-tests/{id}/stop:
+    post:
+      consumes:
+      - application/json
+      description: Stop a running A/B test
+      parameters:
+      - description: Test ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_models.ABTest'
+      security:
+      - ApiKeyAuth: []
+      summary: Stop A/B test
+      tags:
+      - A/B Testing
   /api/v1/analytics/audience:
     get:
       consumes:
@@ -1900,6 +2822,43 @@ paths:
               type: string
             type: object
       summary: Compare multiple campaigns
+  /api/v1/analytics/contacts-by-grade:
+    get:
+      consumes:
+      - application/json
+      description: Get all contacts with a specific grade (A, B, C, D, F)
+      parameters:
+      - description: Grade
+        enum:
+        - A
+        - B
+        - C
+        - D
+        - F
+        in: query
+        name: grade
+        required: true
+        type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get contacts by grade
+      tags:
+      - Lead Scoring
   /api/v1/analytics/email:
     get:
       consumes:
@@ -2035,6 +2994,26 @@ paths:
               type: string
             type: object
       summary: Get click heatmap
+  /api/v1/analytics/score-distribution:
+    get:
+      consumes:
+      - application/json
+      description: Get the distribution of contacts across different score grades
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              format: int64
+              type: integer
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get score distribution
+      tags:
+      - Lead Scoring
   /api/v1/analytics/team/overview:
     get:
       consumes:
@@ -2066,6 +3045,31 @@ paths:
               type: string
             type: object
       summary: Get team overview
+  /api/v1/analytics/top-leads:
+    get:
+      consumes:
+      - application/json
+      description: Get the contacts with the highest lead scores for the team
+      parameters:
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/kori_internal_models.LeadScore'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: Get top scored contacts
+      tags:
+      - Lead Scoring
   /api/v1/analytics/trends:
     get:
       consumes:
@@ -2099,6 +3103,174 @@ paths:
               type: string
             type: object
       summary: Get trend analysis
+  /api/v1/contacts/{contactId}/goals:
+    get:
+      consumes:
+      - application/json
+      description: Get all goal conversions for a specific contact
+      parameters:
+      - description: Contact ID
+        in: path
+        name: contactId
+        required: true
+        type: string
+      - default: 50
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get contact goal history
+      tags:
+      - Goal Tracking
+  /api/v1/contacts/{id}/score:
+    get:
+      consumes:
+      - application/json
+      description: Get the lead score for a specific contact
+      parameters:
+      - description: Contact ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_models.LeadScore'
+      security:
+      - ApiKeyAuth: []
+      summary: Get contact score
+      tags:
+      - Lead Scoring
+    post:
+      consumes:
+      - application/json
+      description: Manually add or subtract points from a contact's score
+      parameters:
+      - description: Contact ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Score update request
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_models.LeadScore'
+      security:
+      - ApiKeyAuth: []
+      summary: Update contact score
+      tags:
+      - Lead Scoring
+  /api/v1/contacts/{id}/score/history:
+    get:
+      consumes:
+      - application/json
+      description: Get the score activity history for a specific contact
+      parameters:
+      - description: Contact ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get score history
+      tags:
+      - Lead Scoring
+  /api/v1/events:
+    post:
+      consumes:
+      - application/json
+      description: Records something a contact did in your app (for example trial_started).
+        Automations whose trigger is "Event named X" start for that contact, with
+        each scalar property available as {{event_<name>}}. Identify the contact by
+        contactId, or by email; with listId, an unknown email is added to that list
+        first.
+      parameters:
+      - description: Event
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handlers.ContactEventInput'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Event recorded
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Validation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Contact or list not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Address is suppressed
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "429":
+          description: Rate limit exceeded
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Record a contact event
+      tags:
+      - Events
   /api/v1/files/upload:
     post:
       consumes:
@@ -2135,6 +3307,412 @@ paths:
       summary: Upload a file
       tags:
       - Files
+  /api/v1/goals:
+    get:
+      consumes:
+      - application/json
+      description: Get all goals for an automation
+      parameters:
+      - description: Automation ID
+        in: query
+        name: automationId
+        required: true
+        type: string
+      - description: Show only active goals
+        in: query
+        name: active_only
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/kori_internal_models.AutomationGoal'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: List goals
+      tags:
+      - Goal Tracking
+    post:
+      consumes:
+      - application/json
+      description: Create a new goal for an automation
+      parameters:
+      - description: Goal data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/kori_internal_models.AutomationGoal'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/kori_internal_models.AutomationGoal'
+      security:
+      - ApiKeyAuth: []
+      summary: Create goal
+      tags:
+      - Goal Tracking
+  /api/v1/goals/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a goal and all its conversions
+      parameters:
+      - description: Goal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - ApiKeyAuth: []
+      summary: Delete goal
+      tags:
+      - Goal Tracking
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific goal
+      parameters:
+      - description: Goal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_models.AutomationGoal'
+      security:
+      - ApiKeyAuth: []
+      summary: Get goal
+      tags:
+      - Goal Tracking
+    put:
+      consumes:
+      - application/json
+      description: Update an existing goal
+      parameters:
+      - description: Goal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update data
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_models.AutomationGoal'
+      security:
+      - ApiKeyAuth: []
+      summary: Update goal
+      tags:
+      - Goal Tracking
+  /api/v1/goals/{id}/conversions:
+    get:
+      consumes:
+      - application/json
+      description: Get all conversions for a specific goal
+      parameters:
+      - description: Goal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - default: 50
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get goal conversions
+      tags:
+      - Goal Tracking
+  /api/v1/goals/{id}/progress:
+    get:
+      consumes:
+      - application/json
+      description: Get progress towards a goal target
+      parameters:
+      - description: Goal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_services.GoalProgress'
+      security:
+      - ApiKeyAuth: []
+      summary: Get goal progress
+      tags:
+      - Goal Tracking
+  /api/v1/goals/{id}/stats:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed statistics for a goal
+      parameters:
+      - description: Goal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_models.GoalStats'
+      security:
+      - ApiKeyAuth: []
+      summary: Get goal stats
+      tags:
+      - Goal Tracking
+  /api/v1/goals/date-range:
+    get:
+      consumes:
+      - application/json
+      description: Get goal conversions within a specific date range
+      parameters:
+      - description: Automation ID
+        in: query
+        name: automationId
+        required: true
+        type: string
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        required: true
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: end_date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/kori_internal_models.GoalConversion'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: Get goals by date range
+      tags:
+      - Goal Tracking
+  /api/v1/goals/summary:
+    get:
+      consumes:
+      - application/json
+      description: Get summary of all goals for an automation
+      parameters:
+      - description: Automation ID
+        in: query
+        name: automationId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_models.AutomationGoalSummary'
+      security:
+      - ApiKeyAuth: []
+      summary: Get automation goal summary
+      tags:
+      - Goal Tracking
+  /api/v1/goals/top-contacts:
+    get:
+      consumes:
+      - application/json
+      description: Get contacts with the most goal conversions
+      parameters:
+      - description: Automation ID
+        in: query
+        name: automationId
+        required: true
+        type: string
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/kori_internal_services.ContactConversionStats'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: Get top converting contacts
+      tags:
+      - Goal Tracking
+  /api/v1/score-rules:
+    get:
+      consumes:
+      - application/json
+      description: Get all score rules for the team
+      parameters:
+      - description: Show only active rules
+        in: query
+        name: active_only
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/kori_internal_models.ScoreRule'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: List score rules
+      tags:
+      - Lead Scoring
+    post:
+      consumes:
+      - application/json
+      description: Create a new score rule for the team
+      parameters:
+      - description: Score rule data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/kori_internal_models.ScoreRule'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/kori_internal_models.ScoreRule'
+      security:
+      - ApiKeyAuth: []
+      summary: Create score rule
+      tags:
+      - Lead Scoring
+  /api/v1/score-rules/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a score rule (soft delete by setting is_active to false)
+      parameters:
+      - description: Rule ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      security:
+      - ApiKeyAuth: []
+      summary: Delete score rule
+      tags:
+      - Lead Scoring
+    put:
+      consumes:
+      - application/json
+      description: Update an existing score rule
+      parameters:
+      - description: Rule ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update data
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/kori_internal_models.ScoreRule'
+      security:
+      - ApiKeyAuth: []
+      summary: Update score rule
+      tags:
+      - Lead Scoring
+  /api/v1/score-rules/initialize:
+    post:
+      consumes:
+      - application/json
+      description: Initialize default score rules for the team (called during team
+        setup)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/kori_internal_models.ScoreRule'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: Initialize default score rules
+      tags:
+      - Lead Scoring
   /api/v1/t:
     post:
       consumes:

@@ -21,6 +21,409 @@
     }
   ],
   "paths": {
+    "/api/v1/ab-tests": {
+      "get": {
+        "summary": "List A/B tests",
+        "description": "Get all A/B tests for the team",
+        "tags": [
+          "A/B Testing"
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by status",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Items per page",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create A/B test",
+        "description": "Create a new A/B test",
+        "tags": [
+          "A/B Testing"
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_models.ABTest"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/kori_internal_models.ABTest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ab-tests/{id}": {
+      "get": {
+        "summary": "Get A/B test",
+        "description": "Get details of a specific A/B test",
+        "tags": [
+          "A/B Testing"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Test ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_models.ABTest"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update A/B test",
+        "description": "Update an existing A/B test",
+        "tags": [
+          "A/B Testing"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Test ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_models.ABTest"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete A/B test",
+        "description": "Delete an A/B test and all its data",
+        "tags": [
+          "A/B Testing"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Test ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ab-tests/{id}/analyze": {
+      "get": {
+        "summary": "Analyze test",
+        "description": "Perform statistical analysis to determine winner",
+        "tags": [
+          "A/B Testing"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Test ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_services.TestAnalysis"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ab-tests/{id}/declare-winner": {
+      "post": {
+        "summary": "Declare winner",
+        "description": "Manually declare a winning variant",
+        "tags": [
+          "A/B Testing"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Test ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_models.ABTest"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ab-tests/{id}/results": {
+      "get": {
+        "summary": "Get test results",
+        "description": "Get detailed results for an A/B test",
+        "tags": [
+          "A/B Testing"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Test ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/kori_internal_models.TestResult"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ab-tests/{id}/start": {
+      "post": {
+        "summary": "Start A/B test",
+        "description": "Start running an A/B test",
+        "tags": [
+          "A/B Testing"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Test ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_models.ABTest"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ab-tests/{id}/stop": {
+      "post": {
+        "summary": "Stop A/B test",
+        "description": "Stop a running A/B test",
+        "tags": [
+          "A/B Testing"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Test ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_models.ABTest"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/analytics/audience": {
       "get": {
         "summary": "Get audience insights",
@@ -193,6 +596,61 @@
           }
         },
         "security": []
+      }
+    },
+    "/api/v1/analytics/contacts-by-grade": {
+      "get": {
+        "summary": "Get contacts by grade",
+        "description": "Get all contacts with a specific grade (A, B, C, D, F)",
+        "tags": [
+          "Lead Scoring"
+        ],
+        "parameters": [
+          {
+            "name": "grade",
+            "in": "query",
+            "description": "Grade",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Offset",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
       }
     },
     "/api/v1/analytics/email": {
@@ -440,6 +898,37 @@
         "security": []
       }
     },
+    "/api/v1/analytics/score-distribution": {
+      "get": {
+        "summary": "Get score distribution",
+        "description": "Get the distribution of contacts across different score grades",
+        "tags": [
+          "Lead Scoring"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/analytics/team/overview": {
       "get": {
         "summary": "Get team overview",
@@ -495,6 +984,46 @@
           }
         },
         "security": []
+      }
+    },
+    "/api/v1/analytics/top-leads": {
+      "get": {
+        "summary": "Get top scored contacts",
+        "description": "Get the contacts with the highest lead scores for the team",
+        "tags": [
+          "Lead Scoring"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/kori_internal_models.LeadScore"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
       }
     },
     "/api/v1/analytics/trends": {
@@ -555,6 +1084,288 @@
           }
         },
         "security": []
+      }
+    },
+    "/api/v1/contacts/{contactId}/goals": {
+      "get": {
+        "summary": "Get contact goal history",
+        "description": "Get all goal conversions for a specific contact",
+        "tags": [
+          "Goal Tracking"
+        ],
+        "parameters": [
+          {
+            "name": "contactId",
+            "in": "path",
+            "description": "Contact ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Offset",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/contacts/{id}/score": {
+      "get": {
+        "summary": "Get contact score",
+        "description": "Get the lead score for a specific contact",
+        "tags": [
+          "Lead Scoring"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Contact ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_models.LeadScore"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Update contact score",
+        "description": "Manually add or subtract points from a contact's score",
+        "tags": [
+          "Lead Scoring"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Contact ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_models.LeadScore"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/contacts/{id}/score/history": {
+      "get": {
+        "summary": "Get score history",
+        "description": "Get the score activity history for a specific contact",
+        "tags": [
+          "Lead Scoring"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Contact ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Offset",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/events": {
+      "post": {
+        "summary": "Record a contact event",
+        "description": "Records something a contact did in your app (for example trial_started). Automations whose trigger is \"Event named X\" start for that contact, with each scalar property available as {{event_<name>}}. Identify the contact by contactId, or by email; with listId, an unknown email is added to that list first.",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [],
+        "responses": {
+          "202": {
+            "description": "Event recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Contact or list not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Address is suppressed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/internal_handlers.ContactEventInput"
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/files/upload": {
@@ -629,6 +1440,663 @@
             }
           }
         }
+      }
+    },
+    "/api/v1/goals": {
+      "get": {
+        "summary": "List goals",
+        "description": "Get all goals for an automation",
+        "tags": [
+          "Goal Tracking"
+        ],
+        "parameters": [
+          {
+            "name": "automationId",
+            "in": "query",
+            "description": "Automation ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "active_only",
+            "in": "query",
+            "description": "Show only active goals",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/kori_internal_models.AutomationGoal"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create goal",
+        "description": "Create a new goal for an automation",
+        "tags": [
+          "Goal Tracking"
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_models.AutomationGoal"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/kori_internal_models.AutomationGoal"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/goals/date-range": {
+      "get": {
+        "summary": "Get goals by date range",
+        "description": "Get goal conversions within a specific date range",
+        "tags": [
+          "Goal Tracking"
+        ],
+        "parameters": [
+          {
+            "name": "automationId",
+            "in": "query",
+            "description": "Automation ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "description": "Start date (YYYY-MM-DD)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "description": "End date (YYYY-MM-DD)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/kori_internal_models.GoalConversion"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/goals/summary": {
+      "get": {
+        "summary": "Get automation goal summary",
+        "description": "Get summary of all goals for an automation",
+        "tags": [
+          "Goal Tracking"
+        ],
+        "parameters": [
+          {
+            "name": "automationId",
+            "in": "query",
+            "description": "Automation ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_models.AutomationGoalSummary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/goals/top-contacts": {
+      "get": {
+        "summary": "Get top converting contacts",
+        "description": "Get contacts with the most goal conversions",
+        "tags": [
+          "Goal Tracking"
+        ],
+        "parameters": [
+          {
+            "name": "automationId",
+            "in": "query",
+            "description": "Automation ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/kori_internal_services.ContactConversionStats"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/goals/{id}": {
+      "get": {
+        "summary": "Get goal",
+        "description": "Get details of a specific goal",
+        "tags": [
+          "Goal Tracking"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Goal ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_models.AutomationGoal"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update goal",
+        "description": "Update an existing goal",
+        "tags": [
+          "Goal Tracking"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Goal ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_models.AutomationGoal"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete goal",
+        "description": "Delete a goal and all its conversions",
+        "tags": [
+          "Goal Tracking"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Goal ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/goals/{id}/conversions": {
+      "get": {
+        "summary": "Get goal conversions",
+        "description": "Get all conversions for a specific goal",
+        "tags": [
+          "Goal Tracking"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Goal ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Limit",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Offset",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/goals/{id}/progress": {
+      "get": {
+        "summary": "Get goal progress",
+        "description": "Get progress towards a goal target",
+        "tags": [
+          "Goal Tracking"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Goal ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_services.GoalProgress"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/goals/{id}/stats": {
+      "get": {
+        "summary": "Get goal stats",
+        "description": "Get detailed statistics for a goal",
+        "tags": [
+          "Goal Tracking"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Goal ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_models.GoalStats"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/score-rules": {
+      "get": {
+        "summary": "List score rules",
+        "description": "Get all score rules for the team",
+        "tags": [
+          "Lead Scoring"
+        ],
+        "parameters": [
+          {
+            "name": "active_only",
+            "in": "query",
+            "description": "Show only active rules",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/kori_internal_models.ScoreRule"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create score rule",
+        "description": "Create a new score rule for the team",
+        "tags": [
+          "Lead Scoring"
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_models.ScoreRule"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/kori_internal_models.ScoreRule"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/score-rules/initialize": {
+      "post": {
+        "summary": "Initialize default score rules",
+        "description": "Initialize default score rules for the team (called during team setup)",
+        "tags": [
+          "Lead Scoring"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/kori_internal_models.ScoreRule"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/score-rules/{id}": {
+      "put": {
+        "summary": "Update score rule",
+        "description": "Update an existing score rule",
+        "tags": [
+          "Lead Scoring"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Rule ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/kori_internal_models.ScoreRule"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete score rule",
+        "description": "Delete a score rule (soft delete by setting is_active to false)",
+        "tags": [
+          "Lead Scoring"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Rule ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
       }
     },
     "/api/v1/t": {
@@ -983,7 +2451,127 @@
         }
       }
     },
-    "/auth/invite/{id}": {
+    "/auth/invite/resend/{code}": {
+      "post": {
+        "summary": "Resend an invitation to a user",
+        "description": "Resend an invitation to a user",
+        "tags": [
+          "auth"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "description": "Invitation code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invitation resent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid invitation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/invite/{code}": {
+      "get": {
+        "summary": "Check invitation validity",
+        "description": "Check if an invitation code is valid and not expired",
+        "tags": [
+          "auth"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "description": "Invitation code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invitation details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or expired invitation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
       "delete": {
         "summary": "Delete a team invitation",
         "description": "Delete a pending team invitation",
@@ -992,9 +2580,9 @@
         ],
         "parameters": [
           {
-            "name": "id",
+            "name": "code",
             "in": "path",
-            "description": "Invitation ID",
+            "description": "Invitation code",
             "required": true,
             "schema": {
               "type": "string"
@@ -1694,7 +3282,7 @@
         "security": []
       }
     },
-    "/email": {
+    "/emails": {
       "post": {
         "summary": "Send an email",
         "description": "Send an email using the provided template and variables",
@@ -2077,86 +3665,6 @@
         },
         "security": []
       }
-    },
-    "/api/v1/events": {
-      "post": {
-        "summary": "Record a contact event",
-        "description": "Records something a contact did in your app, such as `trial_started` or `order_placed`, on the contact's event history. Every active automation whose trigger is \"Event from your app\" with this event name (matched without regard to case) starts for that contact. Each string, number or boolean property is available to conditions and email merge tags as `{{event_<name>}}`, for example `{{event_plan}}`; nested objects are stored but not exposed as variables.\n\nIdentify the contact by `contactId`, or by `email`. With `listId`, the contact is looked up in that list and, when no contact there has the email, added to it first (suppressed addresses are refused). Requires the `contacts:create` permission. Limited to 20 requests per second per workspace, with bursts of 100.",
-        "tags": [
-          "Events"
-        ],
-        "parameters": [],
-        "security": [
-          {
-            "ApiKeyAuth": []
-          },
-          {
-            "BearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/internal_handlers.ContactEventInput"
-              },
-              "example": {
-                "email": "ada@example.com",
-                "event": "trial_started",
-                "properties": {
-                  "plan": "pro",
-                  "seats": 5
-                },
-                "listId": "6b0b6c1e-5f4e-4c43-9a59-2f1f4c3f6d10"
-              }
-            }
-          }
-        },
-        "responses": {
-          "202": {
-            "description": "Event recorded; matching automations are queued",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "contactId": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "contactCreated": {
-                      "type": "boolean"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Missing or invalid event, email, contactId, listId or properties"
-          },
-          "401": {
-            "description": "Missing or invalid API key"
-          },
-          "403": {
-            "description": "The API key lacks contacts:create"
-          },
-          "404": {
-            "description": "Contact not found (send listId to add them), or list not found"
-          },
-          "422": {
-            "description": "The address is suppressed, so no contact was added"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          }
-        }
-      }
     }
   },
   "components": {
@@ -2289,6 +3797,30 @@
           }
         }
       },
+      "internal_handlers.ContactEventInput": {
+        "type": "object",
+        "properties": {
+          "contactId": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "example": "ada@example.com"
+          },
+          "event": {
+            "type": "string",
+            "example": "trial_started"
+          },
+          "listId": {
+            "description": "ListID creates the contact in this list when no contact there has the email.",
+            "type": "string"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
       "internal_handlers.CreateSubscriptionRequest": {
         "type": "object",
         "required": [
@@ -2304,6 +3836,9 @@
         "description": "Email analytics data",
         "type": "object",
         "properties": {
+          "acceptedMessages": {
+            "type": "integer"
+          },
           "averageReadTime": {
             "description": "Average time between open and click",
             "allOf": [
@@ -2311,6 +3846,13 @@
                 "$ref": "#/components/schemas/time.Duration"
               }
             ]
+          },
+          "botClicks": {
+            "type": "integer"
+          },
+          "botOpens": {
+            "description": "🤖 Machine events left out of every count above",
+            "type": "integer"
           },
           "bounceCount": {
             "type": "integer"
@@ -2331,6 +3873,9 @@
             "type": "integer"
           },
           "clickRate": {
+            "type": "number"
+          },
+          "clickToOpenRate": {
             "type": "number"
           },
           "clickedLinks": {
@@ -2403,6 +3948,9 @@
               "type": "integer"
             }
           },
+          "proxyOpens": {
+            "type": "integer"
+          },
           "regionBreakdown": {
             "type": "object",
             "additionalProperties": {
@@ -2428,6 +3976,10 @@
             "type": "integer"
           },
           "uniqueOpens": {
+            "type": "integer"
+          },
+          "untracked": {
+            "description": "sent without open/click tracking; excluded from rates",
             "type": "integer"
           }
         }
@@ -2639,6 +4191,12 @@
           "to"
         ],
         "properties": {
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/kori_internal_models.MailAttachment"
+            }
+          },
           "bcc": {
             "type": "string"
           },
@@ -2654,6 +4212,9 @@
           "html": {
             "type": "string"
           },
+          "inReplyTo": {
+            "type": "string"
+          },
           "provider": {
             "type": "string",
             "enum": [
@@ -2666,7 +4227,13 @@
           "replyTo": {
             "type": "string"
           },
+          "requestId": {
+            "type": "string"
+          },
           "scheduleAt": {
+            "type": "string"
+          },
+          "smtpConfigId": {
             "type": "string"
           },
           "subject": {
@@ -2813,6 +4380,87 @@
           }
         }
       },
+      "kori_internal_models.ABTest": {
+        "type": "object",
+        "properties": {
+          "autoDeclareWinner": {
+            "description": "Automatically declare winner when threshold met",
+            "type": "boolean"
+          },
+          "automation": {
+            "$ref": "#/components/schemas/kori_internal_models.Automation"
+          },
+          "automationID": {
+            "type": "string"
+          },
+          "campaign": {
+            "$ref": "#/components/schemas/kori_internal_models.Campaign"
+          },
+          "campaignID": {
+            "type": "string"
+          },
+          "confidenceThreshold": {
+            "description": "95% confidence",
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "endedAt": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "default": false
+          },
+          "minimumSampleSize": {
+            "description": "Minimum sends per variant",
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startedAt": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/kori_internal_models.TestStatus"
+          },
+          "team": {
+            "$ref": "#/components/schemas/kori_internal_models.Team"
+          },
+          "teamID": {
+            "type": "string"
+          },
+          "testType": {
+            "$ref": "#/components/schemas/kori_internal_models.TestType"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/kori_internal_models.TestVariant"
+            }
+          },
+          "winnerMetric": {
+            "$ref": "#/components/schemas/kori_internal_models.WinnerMetric"
+          },
+          "winnerVariant": {
+            "$ref": "#/components/schemas/kori_internal_models.TestVariant"
+          },
+          "winnerVariantID": {
+            "type": "string"
+          }
+        }
+      },
       "kori_internal_models.APIKey": {
         "type": "object",
         "required": [
@@ -2903,6 +4551,13 @@
               "$ref": "#/components/schemas/kori_internal_models.AutomationNodeEdge"
             }
           },
+          "exitOnGoal": {
+            "description": "ExitOnGoal makes a contact leave when they reach one of the workflow's goals; nil means yes.",
+            "type": "boolean"
+          },
+          "hasDraft": {
+            "type": "boolean"
+          },
           "id": {
             "type": "string"
           },
@@ -2913,6 +4568,10 @@
             "type": "boolean",
             "default": false
           },
+          "liveVersion": {
+            "description": "Nodes and Edges hold the draft; LiveVersion names the published snapshot new contacts start on.",
+            "type": "integer"
+          },
           "name": {
             "type": "string"
           },
@@ -2922,14 +4581,185 @@
               "$ref": "#/components/schemas/kori_internal_models.AutomationNode"
             }
           },
+          "reentryDays": {
+            "type": "integer"
+          },
+          "reentryMode": {
+            "description": "ReentryMode is \"once\", \"after_finish\" or \"after_days\"; empty (older workflows) behaves as \"after_finish\".",
+            "type": "string"
+          },
+          "sendWindow": {
+            "description": "null uses the workspace default",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
           "team": {
             "$ref": "#/components/schemas/kori_internal_models.Team"
           },
           "teamId": {
             "type": "string"
           },
+          "triggerEvent": {
+            "type": "string"
+          },
           "updatedAt": {
             "type": "string"
+          }
+        }
+      },
+      "kori_internal_models.AutomationExecution": {
+        "type": "object",
+        "properties": {
+          "automation": {
+            "$ref": "#/components/schemas/kori_internal_models.Automation"
+          },
+          "automationId": {
+            "type": "string"
+          },
+          "completedAt": {
+            "type": "string"
+          },
+          "contact": {
+            "$ref": "#/components/schemas/kori_internal_models.Contact"
+          },
+          "contactId": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "currentNode": {
+            "$ref": "#/components/schemas/kori_internal_models.AutomationNode"
+          },
+          "currentNodeId": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "executionLog": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "exitReason": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "default": false
+          },
+          "startedAt": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/kori_internal_models.ExecutionStatus"
+          },
+          "triggerData": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "triggerType": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "variables": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "kori_internal_models.AutomationGoal": {
+        "type": "object",
+        "properties": {
+          "automation": {
+            "$ref": "#/components/schemas/kori_internal_models.Automation"
+          },
+          "automationID": {
+            "type": "string"
+          },
+          "conversions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/kori_internal_models.GoalConversion"
+            }
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "goalType": {
+            "$ref": "#/components/schemas/kori_internal_models.GoalType"
+          },
+          "id": {
+            "type": "string"
+          },
+          "isActive": {
+            "description": "Can be disabled without deletion",
+            "type": "boolean"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "default": false
+          },
+          "metadata": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "targetValue": {
+            "description": "For revenue/conversion rate targets",
+            "type": "number"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "kori_internal_models.AutomationGoalSummary": {
+        "type": "object",
+        "properties": {
+          "automationId": {
+            "type": "string"
+          },
+          "conversionRate": {
+            "type": "number"
+          },
+          "goals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/kori_internal_models.GoalStats"
+            }
+          },
+          "totalConversions": {
+            "type": "integer"
+          },
+          "totalExecutions": {
+            "type": "integer"
+          },
+          "totalRevenue": {
+            "type": "number"
           }
         }
       },
@@ -3064,11 +4894,15 @@
               "$ref": "#/components/schemas/kori_internal_models.EmailTracking"
             }
           },
+          "archiveNewsletterId": {
+            "description": "ArchiveNewsletterID publishes a one-off campaign in that newsletter's web archive.",
+            "type": "string"
+          },
           "batchDelay": {
-            "description": "1 hour delay between batches",
+            "description": "nanoseconds between batches",
             "allOf": [
               {
-                "$ref": "#/components/schemas/time.Duration"
+                "$ref": "#/components/schemas/kori_internal_models.Duration"
               }
             ]
           },
@@ -3090,6 +4924,9 @@
           "description": {
             "type": "string"
           },
+          "htmlBody": {
+            "type": "string"
+          },
           "id": {
             "type": "string"
           },
@@ -3106,6 +4943,19 @@
           "name": {
             "type": "string"
           },
+          "newsletterId": {
+            "type": "string"
+          },
+          "nextStageAt": {
+            "type": "string"
+          },
+          "pauseReason": {
+            "description": "PauseReason says why staged sending paused the campaign.",
+            "type": "string"
+          },
+          "postalAddress": {
+            "type": "string"
+          },
           "processed": {
             "type": "integer"
           },
@@ -3117,6 +4967,10 @@
           },
           "scheduledFor": {
             "type": "string"
+          },
+          "sendInStages": {
+            "description": "SendInStages: nil sends in stages automatically to never-mailed lists.",
+            "type": "boolean"
           },
           "sentEmails": {
             "type": "array",
@@ -3130,8 +4984,15 @@
           "smtpConfigId": {
             "type": "string"
           },
+          "stage": {
+            "description": "Stage counts staged-sending stages cleared; NextStageAt is when the\nnext stage's results check is due.",
+            "type": "integer"
+          },
           "status": {
             "$ref": "#/components/schemas/kori_internal_models.CampaignStatus"
+          },
+          "subject": {
+            "type": "string"
           },
           "team": {
             "$ref": "#/components/schemas/kori_internal_models.Team"
@@ -3147,6 +5008,10 @@
           },
           "timezone": {
             "type": "string"
+          },
+          "trackEngagement": {
+            "description": "TrackEngagement: nil or true adds the open pixel and click-tracking links.",
+            "type": "boolean"
           },
           "updatedAt": {
             "type": "string"
@@ -3252,6 +5117,9 @@
             "type": "string",
             "minLength": 2
           },
+          "lifecycleStage": {
+            "type": "string"
+          },
           "linkedin": {
             "type": "string"
           },
@@ -3294,6 +5162,10 @@
             }
           },
           "teamId": {
+            "type": "string"
+          },
+          "timezone": {
+            "description": "IANA name; automations send in it",
             "type": "string"
           },
           "twitter": {
@@ -3349,6 +5221,13 @@
           },
           "listId": {
             "type": "string"
+          },
+          "skipped": {
+            "description": "rows left out, counted by reason",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
           },
           "status": {
             "enum": [
@@ -3409,7 +5288,11 @@
               "open",
               "reply",
               "bounce",
-              "complaint"
+              "complaint",
+              "sent",
+              "delivered",
+              "unsubscribed",
+              "failed"
             ]
           },
           "id": {
@@ -3483,6 +5366,30 @@
           }
         }
       },
+      "kori_internal_models.Duration": {
+        "type": "integer",
+        "format": "int64",
+        "enum": [
+          -9223372036854776000,
+          9223372036854776000,
+          1,
+          1000,
+          1000000,
+          1000000000,
+          60000000000,
+          3600000000000
+        ],
+        "x-enum-varnames": [
+          "minDuration",
+          "maxDuration",
+          "Nanosecond",
+          "Microsecond",
+          "Millisecond",
+          "Second",
+          "Minute",
+          "Hour"
+        ]
+      },
       "kori_internal_models.Email": {
         "type": "object",
         "required": [
@@ -3496,6 +5403,12 @@
           "to"
         ],
         "properties": {
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/kori_internal_models.MailAttachment"
+            }
+          },
           "bcc": {
             "type": "string"
           },
@@ -3541,9 +5454,18 @@
           "id": {
             "type": "string"
           },
+          "inReplyTo": {
+            "type": "string"
+          },
           "isDeleted": {
             "type": "boolean",
             "default": false
+          },
+          "providerResult": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
           },
           "replyTo": {
             "type": "string"
@@ -3738,6 +5660,13 @@
             "type": "boolean",
             "default": false
           },
+          "machine": {
+            "description": "🤖 Machine traffic: empty for people, otherwise TrackingMachineBot or\nTrackingMachineProxy. Reports and list cleanup count only machine=''.",
+            "type": "string"
+          },
+          "machineReason": {
+            "type": "string"
+          },
           "metadata": {
             "description": "📊 Additional Metadata",
             "type": "array",
@@ -3784,6 +5713,36 @@
           "EmailTrackingEventBounce",
           "EmailTrackingEventComplaint",
           "EmailTrackingEventUnsubscribe"
+        ]
+      },
+      "kori_internal_models.ExecutionStatus": {
+        "type": "string",
+        "enum": [
+          "RUNNING",
+          "COMPLETED",
+          "FAILED",
+          "PAUSED",
+          "WAITING",
+          "EXITED"
+        ],
+        "x-enum-comments": {
+          "ExecutionStatusExited": "left early; see ExitReason"
+        },
+        "x-enum-descriptions": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "left early; see ExitReason"
+        ],
+        "x-enum-varnames": [
+          "ExecutionStatusRunning",
+          "ExecutionStatusCompleted",
+          "ExecutionStatusFailed",
+          "ExecutionStatusPaused",
+          "ExecutionStatusWaiting",
+          "ExecutionStatusExited"
         ]
       },
       "kori_internal_models.File": {
@@ -3839,6 +5798,116 @@
           }
         }
       },
+      "kori_internal_models.GoalConversion": {
+        "type": "object",
+        "properties": {
+          "automation": {
+            "$ref": "#/components/schemas/kori_internal_models.Automation"
+          },
+          "automationID": {
+            "type": "string"
+          },
+          "contact": {
+            "$ref": "#/components/schemas/kori_internal_models.Contact"
+          },
+          "contactID": {
+            "type": "string"
+          },
+          "conversionValue": {
+            "description": "Revenue or custom value",
+            "type": "number"
+          },
+          "convertedAt": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "execution": {
+            "$ref": "#/components/schemas/kori_internal_models.AutomationExecution"
+          },
+          "executionID": {
+            "type": "string"
+          },
+          "goal": {
+            "$ref": "#/components/schemas/kori_internal_models.AutomationGoal"
+          },
+          "goalID": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "default": false
+          },
+          "metadata": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "kori_internal_models.GoalStats": {
+        "type": "object",
+        "properties": {
+          "averageTimeToGoal": {
+            "description": "Hours from start to conversion",
+            "type": "number"
+          },
+          "conversionRate": {
+            "description": "Conversions / Total executions",
+            "type": "number"
+          },
+          "firstConversion": {
+            "type": "string"
+          },
+          "goalId": {
+            "type": "string"
+          },
+          "goalName": {
+            "type": "string"
+          },
+          "lastConversion": {
+            "type": "string"
+          },
+          "totalConversions": {
+            "type": "integer"
+          },
+          "totalValue": {
+            "type": "number"
+          },
+          "uniqueContacts": {
+            "type": "integer"
+          }
+        }
+      },
+      "kori_internal_models.GoalType": {
+        "type": "string",
+        "enum": [
+          "EMAIL_OPEN",
+          "EMAIL_CLICK",
+          "FORM_SUBMIT",
+          "PAGE_VISIT",
+          "PURCHASE",
+          "CUSTOM_EVENT",
+          "REVENUE_TARGET"
+        ],
+        "x-enum-varnames": [
+          "GoalTypeEmailOpen",
+          "GoalTypeEmailClick",
+          "GoalTypeFormSubmit",
+          "GoalTypePageVisit",
+          "GoalTypePurchase",
+          "GoalTypeCustomEvent",
+          "GoalTypeRevenueTarget"
+        ]
+      },
       "kori_internal_models.InviteStatus": {
         "type": "string",
         "enum": [
@@ -3851,6 +5920,46 @@
           "InviteStatusAccepted",
           "InviteStatusRejected"
         ]
+      },
+      "kori_internal_models.LeadScore": {
+        "type": "object",
+        "properties": {
+          "contact": {
+            "$ref": "#/components/schemas/kori_internal_models.Contact"
+          },
+          "contactID": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "grade": {
+            "$ref": "#/components/schemas/kori_internal_models.ScoreGrade"
+          },
+          "lastActivityAt": {
+            "type": "string"
+          },
+          "score": {
+            "type": "integer"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "kori_internal_models.MailAttachment": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          }
+        }
       },
       "kori_internal_models.MailingList": {
         "type": "object",
@@ -3884,9 +5993,17 @@
             "type": "boolean",
             "default": false
           },
+          "listCleanup": {
+            "description": "ListCleanup asks long-silent readers once, then stops emailing them. Nil means on.",
+            "type": "boolean"
+          },
           "name": {
             "type": "string",
             "minLength": 2
+          },
+          "subscribersCount": {
+            "type": "integer",
+            "minimum": 0
           },
           "team": {
             "$ref": "#/components/schemas/kori_internal_models.Team"
@@ -3938,6 +6055,7 @@
           "START",
           "EMAIL",
           "WAIT",
+          "WAIT_UNTIL",
           "CONDITION",
           "WEBHOOK",
           "ADD_TO_LIST",
@@ -3948,12 +6066,15 @@
           "TAG",
           "UNSUBSCRIBE",
           "CUSTOM_CODE",
-          "EXIT"
+          "EXIT",
+          "AI_DECISION",
+          "AI_SUGGEST"
         ],
         "x-enum-varnames": [
           "NodeTypeStart",
           "NodeTypeEmail",
           "NodeTypeWait",
+          "NodeTypeWaitUntil",
           "NodeTypeCondition",
           "NodeTypeWebhook",
           "NodeTypeAddToList",
@@ -3964,7 +6085,9 @@
           "NodeTypeTag",
           "NodeTypeUnsubscribe",
           "NodeTypeCustomCode",
-          "NodeTypeExit"
+          "NodeTypeExit",
+          "NodeTypeAIDecision",
+          "NodeTypeAISuggest"
         ]
       },
       "kori_internal_models.Product": {
@@ -4190,6 +6313,78 @@
           }
         }
       },
+      "kori_internal_models.ScoreGrade": {
+        "type": "string",
+        "enum": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "F"
+        ],
+        "x-enum-comments": {
+          "GradeA": "80-100 - Hot lead, sales ready",
+          "GradeB": "60-79 - Warm lead, nurture more",
+          "GradeC": "40-59 - Cold lead, engage",
+          "GradeD": "20-39 - Very cold, re-engagement campaign",
+          "GradeF": "0-19 - Inactive, consider removing"
+        },
+        "x-enum-descriptions": [
+          "80-100 - Hot lead, sales ready",
+          "60-79 - Warm lead, nurture more",
+          "40-59 - Cold lead, engage",
+          "20-39 - Very cold, re-engagement campaign",
+          "0-19 - Inactive, consider removing"
+        ],
+        "x-enum-varnames": [
+          "GradeA",
+          "GradeB",
+          "GradeC",
+          "GradeD",
+          "GradeF"
+        ]
+      },
+      "kori_internal_models.ScoreRule": {
+        "type": "object",
+        "properties": {
+          "activityType": {
+            "description": "email_opened, link_clicked, etc.",
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "decayDays": {
+            "description": "Auto-subtract after X days",
+            "type": "integer"
+          },
+          "description": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "default": false
+          },
+          "points": {
+            "type": "integer"
+          },
+          "team": {
+            "$ref": "#/components/schemas/kori_internal_models.Team"
+          },
+          "teamID": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
       "kori_internal_models.SubscriberStatus": {
         "type": "string",
         "enum": [
@@ -4305,6 +6500,9 @@
             "type": "string",
             "minLength": 1
           },
+          "teamId": {
+            "type": "string"
+          },
           "updatedAt": {
             "type": "string"
           },
@@ -4392,6 +6590,10 @@
             "items": {
               "$ref": "#/components/schemas/kori_internal_models.SMTPConfig"
             }
+          },
+          "trackingConsentMode": {
+            "description": "TrackingConsentMode is none, opt_out or opt_in; see ShouldTrack.",
+            "type": "string"
           },
           "updatedAt": {
             "type": "string"
@@ -4545,6 +6747,9 @@
               "$ref": "#/components/schemas/kori_internal_models.Email"
             }
           },
+          "htmlBody": {
+            "type": "string"
+          },
           "htmlFile": {
             "$ref": "#/components/schemas/kori_internal_models.File"
           },
@@ -4561,6 +6766,9 @@
           "name": {
             "type": "string",
             "minLength": 2
+          },
+          "starterKey": {
+            "type": "string"
           },
           "subject": {
             "type": "string"
@@ -4582,9 +6790,150 @@
           }
         }
       },
+      "kori_internal_models.TestResult": {
+        "type": "object",
+        "properties": {
+          "clickRate": {
+            "description": "Calculated field",
+            "type": "number"
+          },
+          "clicks": {
+            "type": "integer"
+          },
+          "conversionRate": {
+            "description": "Calculated field",
+            "type": "number"
+          },
+          "conversions": {
+            "type": "integer"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "default": false
+          },
+          "openRate": {
+            "description": "Calculated field",
+            "type": "number"
+          },
+          "opens": {
+            "type": "integer"
+          },
+          "revenue": {
+            "type": "number"
+          },
+          "sends": {
+            "type": "integer"
+          },
+          "test": {
+            "$ref": "#/components/schemas/kori_internal_models.ABTest"
+          },
+          "testID": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "variant": {
+            "$ref": "#/components/schemas/kori_internal_models.TestVariant"
+          },
+          "variantID": {
+            "type": "string"
+          }
+        }
+      },
+      "kori_internal_models.TestStatus": {
+        "type": "string",
+        "enum": [
+          "DRAFT",
+          "RUNNING",
+          "COMPLETED",
+          "STOPPED"
+        ],
+        "x-enum-varnames": [
+          "TestStatusDraft",
+          "TestStatusRunning",
+          "TestStatusCompleted",
+          "TestStatusStopped"
+        ]
+      },
+      "kori_internal_models.TestType": {
+        "type": "string",
+        "enum": [
+          "SUBJECT",
+          "CONTENT",
+          "SEND_TIME",
+          "FULL"
+        ],
+        "x-enum-varnames": [
+          "TestTypeSubject",
+          "TestTypeContent",
+          "TestTypeSendTime",
+          "TestTypeFull"
+        ]
+      },
+      "kori_internal_models.TestVariant": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string"
+          },
+          "emailContent": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "default": false
+          },
+          "metadata": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "result": {
+            "$ref": "#/components/schemas/kori_internal_models.TestResult"
+          },
+          "sendHour": {
+            "description": "For send-time tests (0-23)",
+            "type": "integer"
+          },
+          "splitPercentage": {
+            "description": "33, 33, 34 for 3-way split",
+            "type": "integer"
+          },
+          "subjectLine": {
+            "type": "string"
+          },
+          "test": {
+            "$ref": "#/components/schemas/kori_internal_models.ABTest"
+          },
+          "testID": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "variantName": {
+            "description": "\"A\", \"B\", \"C\"",
+            "type": "string"
+          }
+        }
+      },
       "kori_internal_models.User": {
         "type": "object",
         "properties": {
+          "bio": {
+            "type": "string"
+          },
           "createdAt": {
             "type": "string"
           },
@@ -4755,6 +7104,107 @@
           }
         }
       },
+      "kori_internal_models.WinnerMetric": {
+        "type": "string",
+        "enum": [
+          "OPEN_RATE",
+          "CLICK_RATE",
+          "CONVERSION_RATE",
+          "REVENUE"
+        ],
+        "x-enum-varnames": [
+          "MetricOpenRate",
+          "MetricClickRate",
+          "MetricConversionRate",
+          "MetricRevenue"
+        ]
+      },
+      "kori_internal_services.ContactConversionStats": {
+        "type": "object",
+        "properties": {
+          "contact": {
+            "$ref": "#/components/schemas/kori_internal_models.Contact"
+          },
+          "conversionCount": {
+            "type": "integer"
+          },
+          "lastConvertedAt": {
+            "type": "string"
+          },
+          "totalValue": {
+            "type": "number"
+          }
+        }
+      },
+      "kori_internal_services.GoalProgress": {
+        "type": "object",
+        "properties": {
+          "currentValue": {
+            "type": "number"
+          },
+          "goalId": {
+            "type": "string"
+          },
+          "goalName": {
+            "type": "string"
+          },
+          "isAchieved": {
+            "type": "boolean"
+          },
+          "progressPercent": {
+            "type": "number"
+          },
+          "targetValue": {
+            "type": "number"
+          }
+        }
+      },
+      "kori_internal_services.TestAnalysis": {
+        "type": "object",
+        "properties": {
+          "comparisons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/kori_internal_services.VariantComparison"
+            }
+          },
+          "confidence": {
+            "type": "number"
+          },
+          "isSignificant": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "testId": {
+            "type": "string"
+          },
+          "winnerVariantId": {
+            "type": "string"
+          }
+        }
+      },
+      "kori_internal_services.VariantComparison": {
+        "type": "object",
+        "properties": {
+          "confidence": {
+            "type": "number"
+          },
+          "isSignificant": {
+            "type": "boolean"
+          },
+          "pValue": {
+            "type": "number"
+          },
+          "variantAId": {
+            "type": "string"
+          },
+          "variantBId": {
+            "type": "string"
+          }
+        }
+      },
       "time.Duration": {
         "type": "integer",
         "format": "int64",
@@ -4778,40 +7228,6 @@
           "Minute",
           "Hour"
         ]
-      },
-      "internal_handlers.ContactEventInput": {
-        "type": "object",
-        "required": [
-          "event"
-        ],
-        "properties": {
-          "email": {
-            "type": "string",
-            "format": "email",
-            "description": "The contact's address. Send this or contactId."
-          },
-          "contactId": {
-            "type": "string",
-            "format": "uuid",
-            "description": "The contact's ID. Send this or email."
-          },
-          "event": {
-            "type": "string",
-            "maxLength": 100,
-            "description": "Event name, 1–100 characters."
-          },
-          "properties": {
-            "type": "object",
-            "additionalProperties": true,
-            "maxProperties": 100,
-            "description": "Details of the event. Scalars become {{event_<name>}} variables."
-          },
-          "listId": {
-            "type": "string",
-            "format": "uuid",
-            "description": "Look the email up in this list and add the contact to it if missing."
-          }
-        }
       }
     }
   },
