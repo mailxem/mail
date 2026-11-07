@@ -1,0 +1,21 @@
+{
+  "providerId": "xem.email",
+  "providerName": "Xem",
+  "logoUrl": "https://app.xem.email/android-chrome-512x512.png",
+  "version": 1,
+  "syncBlock": false,
+  "syncPubKeyDomain": "xem.email",
+  "syncRedirectDomain": "app.xem.email",
+  "serviceId": "ownership",
+  "serviceName": "Verify your domain for Xem",
+  "description": "Adds the TXT record that proves you own this domain.",
+  "records": [
+    {
+      "type": "TXT",
+      "host": "_xem",
+      "data": "%token%",
+      "ttl": 3600,
+      "txtConflictMatchingMode": "None"
+    }
+  ]
+}

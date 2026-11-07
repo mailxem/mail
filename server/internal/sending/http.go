@@ -61,6 +61,7 @@ func (s *Service) Register(e *echo.Echo, jwtSecret string) {
 	g.POST("/domains/:id/check", s.checkDomain)
 	g.POST("/domains/:id/sender", s.activateSender)
 	g.DELETE("/domains/:id", s.removeDomain)
+	g.GET("/domains/:id/dns-hosts", s.dnsHosts)
 	g.POST("/credentials", s.createCredential)
 	g.DELETE("/credentials/:id", s.revokeCredential)
 	g.PUT("/pause", s.pause)
