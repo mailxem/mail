@@ -237,7 +237,7 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		if err != nil {
 			return nil, h.logger.Error("❌ failed to convert campaign data to map: %w", err)
 		}
-		maps.Copy(variables, data)
+		mergeCampaignValues(variables, data)
 
 		messageID := uuid.NewString()
 		// A campaign goes to a list, so it's marketing: every email gets an
@@ -670,4 +670,15 @@ func (h *TaskHandler) HandleAutomationExecute(ctx context.Context, t *asynq.Task
 
 	h.logger.Warn("⚠️  Automation engine not initialized, skipping execution")
 	return nil
+}
+
+// mergeCampaignValues lays a campaign's saved variables over a contact's own
+// fields. A blank campaign value never replaces a contact field: the campaign
+// page saves every variable, and a blank first_name would send "Hi ," to all.
+func mergeCampaignValues(variables, campaign map[string]string) {
+	for k, v := range campaign {
+		if strings.TrimSpace(v) != "" || variables[k] == "" {
+			variables[k] = v
+		}
+	}
 }
