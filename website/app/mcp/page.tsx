@@ -13,9 +13,9 @@ import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { siteUrl } from "@/lib/site";
 import { primaryButton } from "@/lib/brand";
 
-const title = "Xem MCP Server — Email Marketing for AI Assistants";
+const title = "Xem MCP Server — Email Marketing for Claude and AI Agents";
 const description =
-  "Connect your AI assistant to Xem with Model Context Protocol. Create newsletter and campaign drafts, manage contacts, map CSV imports, and explore email analytics.";
+  "Connect Claude, Cursor, Codex or any MCP client to Xem. 43 tools to draft newsletters and campaigns, manage contacts, import CSVs and read email analytics, priced per email sent.";
 export const metadata: Metadata = {
   title,
   description,
@@ -59,6 +59,16 @@ const faqs = [
       "It is an open-source Model Context Protocol server that connects an MCP-compatible AI client to the Xem email API. Connect over hosted HTTPS or run locally from npm over stdio. It exposes tools for newsletters, campaigns, contacts, CSV workflows, and analytics.",
   },
   {
+    question: "Does it work with Claude?",
+    answer:
+      "Yes. In Claude Code, add the hosted server with one command and your API key. In Claude Desktop, add the local npm server to claude_desktop_config.json, since its custom connectors sign in with OAuth rather than an API key header. Claude then sees all 43 tools, and you can require approval before any tool that sends.",
+  },
+  {
+    question: "What does sending cost?",
+    answer:
+      "Xem Cloud charges per email sent, not per contact. 3,000 emails a month are free, 20,000 are $9, and 25,000 are $11.50. Self-hosted Xem is free and you pay your email provider.",
+  },
+  {
     question: "Which AI assistants can connect?",
     answer:
       "For hosted access, use an MCP client supporting Streamable HTTP and custom Authorization headers. Clients that only support OAuth can use the local npm server over stdio. Configuration formats vary; the examples use the common mcpServers format.",
@@ -89,6 +99,9 @@ const hostedConfig = `{
     }
   }
 }`;
+const claudeCode = `claude mcp add --transport http xem \\
+  https://mcp.xem.email/mcp \\
+  --header "Authorization: Bearer your-workspace-api-key"`;
 const localConfig = `{
   "mcpServers": {
     "xem": {
@@ -320,6 +333,26 @@ export default function McpPage() {
                 </p>
                 <pre className="overflow-x-auto rounded-xl border border-cream/20 bg-black/15 p-5 text-xs leading-6">
                   <code>{localConfig}</code>
+                </pre>
+              </div>
+            </div>
+            <div className="mt-12 grid min-w-0 gap-10 border-t border-cream/20 pt-10 md:grid-cols-2">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-widest text-lemon">
+                  Claude
+                </p>
+                <h3 className="mt-4 font-editorial text-3xl">Using Claude?</h3>
+                <p className="mt-5 text-sm leading-relaxed text-cream/80">
+                  In Claude Code, run the command and ask Claude for your
+                  contact lists. In Claude Desktop, paste the local
+                  configuration above into claude_desktop_config.json and
+                  restart the app.
+                </p>
+              </div>
+              <div className="min-w-0">
+                <p className="mb-3 text-xs text-cream/70">Claude Code</p>
+                <pre className="overflow-x-auto rounded-xl border border-cream/20 bg-black/15 p-5 text-xs leading-6">
+                  <code>{claudeCode}</code>
                 </pre>
               </div>
             </div>

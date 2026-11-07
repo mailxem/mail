@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "Xem — All your email marketing, at the price of email.",
   description:
-    "The open-source email marketing suite: campaigns, newsletters, automations, forms, a CRM, a shared inbox and analytics. Priced per email: free for 3,000 a month, $9 for 20,000, or self-host it for free.",
+    "Open-source email marketing that Claude and other AI agents can run through its MCP server: campaigns, newsletters, automations, forms, a CRM and analytics. Priced per email: free for 3,000 a month, $9 for 20,000, $11.50 for 25,000, or self-host it for free.",
   openGraph: {
     type: "website",
     siteName: "Xem",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     description:
-      "The open-source email marketing suite: campaigns, newsletters, automations, CRM and a shared inbox, priced per email sent.",
+      "Open-source email marketing with an MCP server for Claude and other AI agents: campaigns, newsletters, automations and a CRM, priced per email sent.",
     title: "Xem — All your email marketing, at the price of email.",
     images: ["/opengraph-image.png"],
   },

@@ -5,7 +5,13 @@ import { ArrowUpRight, Check } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { appLink } from "@/lib/site";
 import { primaryButton } from "@/lib/brand";
-import { checked, competitors, getCompetitor, sizes } from "@/lib/compare";
+import {
+  checked,
+  competitors,
+  getCompetitor,
+  sizes,
+  xemAgents,
+} from "@/lib/compare";
 import { weeklyEmails, xemMonthlyCost } from "@/lib/xem-pricing";
 
 export const dynamicParams = false;
@@ -56,6 +62,14 @@ export default async function ComparePage({
       q: `When is ${c.name} the better choice?`,
       a: c.chooseThem.join(" "),
     },
+    ...(c.agents
+      ? [
+          {
+            q: `Can an AI agent like Claude run ${c.name} or Xem?`,
+            a: `${c.agents} ${xemAgents}`,
+          },
+        ]
+      : []),
   ];
   const structuredData = {
     "@context": "https://schema.org",
@@ -202,6 +216,36 @@ export default async function ComparePage({
             </ul>
           </div>
         </section>
+
+        {c.agents && (
+          <section
+            aria-labelledby="agents-title"
+            className="mx-auto max-w-[1160px] px-5 pb-16 md:pb-20"
+          >
+            <h2
+              id="agents-title"
+              className="font-editorial text-3xl tracking-tight md:text-4xl"
+            >
+              Running it from an AI agent
+            </h2>
+            <dl className="mt-6 grid gap-6 text-sm leading-relaxed md:grid-cols-2">
+              <div>
+                <dt className="font-medium">{c.name}</dt>
+                <dd className="mt-1 text-muted">{c.agents}</dd>
+              </div>
+              <div>
+                <dt className="font-medium">Xem</dt>
+                <dd className="mt-1 text-muted">
+                  {xemAgents}{" "}
+                  <Link href="/mcp" className="text-iris underline">
+                    Set up the MCP server
+                  </Link>
+                  .
+                </dd>
+              </div>
+            </dl>
+          </section>
+        )}
 
         <section
           aria-labelledby="faq-title"

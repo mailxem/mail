@@ -25,6 +25,8 @@ export type Competitor = {
   /** Xem's importer detects this vendor's export format. */
   recognised: boolean;
   extraRebuild?: string;
+  /** Its MCP server, API and AI-agent support. */
+  agents?: string;
   sources: string[];
 };
 
@@ -277,7 +279,188 @@ export const competitors: Competitor[] = [
       "https://listmonk.app/docs/",
     ],
   },
+  {
+    id: "plunk",
+    name: "Plunk",
+    modelShort: "charges $0.001 per email sent, with no monthly fee",
+    model:
+      "Pay as you go: $0.001 per email with no monthly fee and no commitment. The free plan covers 1,000 emails a month with Plunk branding on marketing emails. Contacts are unlimited on every plan, emails with an attachment count double, and inbound emails count too.",
+    plan: "Pay as you go",
+    prices: [40, 200, 400],
+    priceNote:
+      "Plunk’s pricing page and billing docs give $0.001 per email, so 40,000, 200,000 and 400,000 emails come to $40, $200 and $400 a month. There is no base fee. Plunk is also open source (AGPL-3.0), and self-hosting it is free apart from your own server and email provider.",
+    headline: "Both open source. Only one has a flat monthly price.",
+    summary:
+      "Plunk is an open-source email platform for developers: transactional email, campaigns and workflows, billed at $0.001 per email. Xem is also open source, but it is built for newsletters and marketing, with plan prices that fall per email as you grow, plus forms, a CRM and a shared inbox.",
+    cheaperAnswer:
+      "For a weekly newsletter to 10,000 subscribers (40,000 emails), Plunk is $40 a month and Xem is $19. At 50,000 subscribers it is $200 against $59, and at 100,000 it is $400 against $99. Plunk has no minimum, so for a few thousand emails a month it can be cheaper.",
+    chooseThem: [
+      "You send mostly transactional email from your app and want a small API-first tool with an SMTP relay.",
+      "You send very little, or you want to pay only per email with no plan fee.",
+      "You want the leanest open-source option to self-host, with inbound email handling built in.",
+    ],
+    exportSteps:
+      "Plunk’s docs describe importing contacts from CSV, but we found no dashboard export. Page through your contacts with the List contacts API (GET /contacts, up to 100 per page, using the cursor from each response) and save the email, subscribed status and custom fields as a CSV.",
+    exportShort:
+      "Partly. We found no CSV export in Plunk’s docs, but the List contacts API returns every contact.",
+    exportHelp: "https://docs.useplunk.com/api-reference/contacts/listContacts",
+    recognised: false,
+    agents:
+      "Plunk publishes an official MCP server, @plunk/mcp, with tools for contacts, sending, events, campaigns, segments and workflows. It can run read-only, sends need your confirmation, and billing stays in the dashboard.",
+    sources: [
+      "https://www.useplunk.com/pricing",
+      "https://docs.useplunk.com/concepts/billing",
+      "https://docs.useplunk.com/guides/mcp-server",
+      "https://docs.useplunk.com/api-reference/contacts/listContacts",
+      "https://github.com/useplunk/plunk",
+    ],
+  },
+  {
+    id: "sequenzy",
+    name: "Sequenzy",
+    modelShort: "charges by emails sent, with unlimited contacts",
+    model:
+      "By emails sent per month, in volume tiers, with unlimited contacts on every plan. The free plan covers 2,500 emails a month and adds a small Sequenzy footer. Paid plans start at 15,000 emails for $19 and step up through 30k, 60k, 120k, 300k, 600k and larger tiers. SMS is a separate $16 a month add-on.",
+    plan: "Pro",
+    prices: [49, 199, 399],
+    priceNote:
+      "Sequenzy’s pricing page lists tiers by emails a month: $49 for 60,000, $199 for 300,000 and $399 for 600,000. A weekly newsletter to 10,000, 50,000 and 100,000 subscribers is 40,000, 200,000 and 400,000 emails, which fall in those tiers. The $29 tier covers 30,000 emails a month. Prices are on monthly billing; yearly billing is cheaper.",
+    headline: "Both bill by emails sent. Xem costs less.",
+    summary:
+      "Sequenzy is a newer email platform for SaaS and ecommerce that prices by emails sent, not contacts, and was built with AI agents in mind. Xem uses the same pricing idea, adds open-source code you can self-host, and costs less at newsletter volumes.",
+    cheaperAnswer:
+      "For a weekly newsletter, Sequenzy Pro is $49 a month at 10,000 subscribers against $19 on Xem. At 50,000 it is $199 against $59, and at 100,000 it is $399 against $99. Both count emails sent and include unlimited contacts.",
+    chooseThem: [
+      "You run a SaaS product and want its Stripe-based revenue attribution and lifecycle flows.",
+      "You want a hosted AI assistant connection that signs in with OAuth instead of an API key, or a ChatGPT plugin.",
+      "You send under 2,500 emails a month and its free plan, with a footer, is enough.",
+    ],
+    exportSteps:
+      "Sequenzy’s docs describe the List Subscribers API endpoint and daily subscriber snapshots to your own S3 or Google Cloud Storage bucket. We could not find a documented one-click CSV export, so check the Subscribers page in your dashboard, or pull your contacts through the API into a CSV.",
+    exportShort:
+      "Probably. Pull subscribers through the API or a data export; check your dashboard for a CSV option.",
+    exportHelp: "https://docs.sequenzy.com/integrations/data-exports.md",
+    recognised: false,
+    agents:
+      "Sequenzy has an official MCP server: a hosted remote server that signs in with OAuth, a local @sequenzy/mcp package that uses an API key, and a ChatGPT plugin. Its REST API covers subscribers, lists, segments, sequences, campaigns, templates, transactional email and sending domains.",
+    sources: [
+      "https://www.sequenzy.com/pricing",
+      "https://docs.sequenzy.com/concepts/mcp.md",
+      "https://docs.sequenzy.com/api-reference/introduction.md",
+      "https://docs.sequenzy.com/integrations/data-exports.md",
+    ],
+  },
+  {
+    id: "bento",
+    name: "Bento",
+    modelShort: "charges per active user, with unlimited sends",
+    model:
+      "Per active user, with unlimited marketing sends on paid plans, subject to fair use. One plan from $29 a month covers up to 5,000 active users; above that it adds $0.01 per user up to 50,000, then $0.009 up to 250,000. An active user is a subscribed person or anyone with an event in the last 30 days.",
+    plan: "Marketing Platform",
+    prices: [79, 479, 929],
+    priceNote:
+      "Bento publishes one Marketing Platform plan: $29 a month for up to 5,000 active users, plus $0.01 per user from 5,001 to 50,000 and $0.009 from 50,001 to 250,000. Its own sample bills ($229 at 25,000 users, $929 at 100,000) match that formula, so the 10,000 and 50,000 figures are calculated from the same rates, counting every subscriber as an active user. The Chat add-on is $30 a month extra and not included.",
+    headline: "Both send without a cap. Only one prices by the email.",
+    summary:
+      "Bento is a polished email platform for ecommerce and SaaS with unlimited sends and a strong API. It charges by active user. Xem charges by email sent, so a weekly newsletter to 50,000 people is $59 a month instead of $479.",
+    cheaperAnswer:
+      "At 10,000 subscribers sending weekly, Bento is $79 a month on monthly billing and Xem is $19. At 50,000 it is $479 against $59. Bento’s unlimited sends only pay off if you send far more than weekly.",
+    chooseThem: [
+      "You send many emails a day to a small list, where unlimited sends and per-user pricing work in your favour.",
+      "You want Bento’s Chat add-on for a shared inbox with SMS, WhatsApp and push in one place.",
+      "You want a hosted product with official SDKs for ten languages.",
+    ],
+    exportSteps:
+      "Bento’s docs cover importing but we found no page on exporting. Check the People section of your Bento account for an export option, or ask Bento support. Include unsubscribed people and keep tags and custom fields as extra columns.",
+    exportShort:
+      "Probably. Bento documents imports but not a CSV export, so check People in your account or ask support.",
+    recognised: false,
+    agents:
+      "Bento runs an official hosted MCP server, authenticated with API headers, covering subscribers, tags, events, broadcasts, sequences, workflows, templates and stats. Broadcasts are saved as unapproved drafts by default.",
+    sources: [
+      "https://bentonow.com/pricing",
+      "https://bentonow.com/docs/integrations/mcp",
+      "https://bentonow.com/docs",
+    ],
+  },
+  {
+    id: "sendy",
+    name: "Sendy",
+    modelShort:
+      "is a one-time licence, self-hosted app that sends through Amazon SES",
+    model:
+      "A one-time licence ($69) for software you run on your own server with PHP and MySQL, sending through your own Amazon SES account. There is no monthly fee and no per-subscriber charge. Updates are free until the next major version, which is a paid upgrade. Each licence covers one domain.",
+    plan: "self-hosted on Amazon SES (licence and server not included)",
+    prices: [
+      "≈ $4 + licence + server",
+      "≈ $20 + licence + server",
+      "≈ $40 + licence + server",
+    ],
+    priceNote:
+      "Sendy is a one-time $69 licence, with free updates until the next major version and a paid upgrade after that. These figures are Amazon SES sending costs at $0.10 per 1,000 emails, before the licence and your server. Xem self-hosted is free and costs the same to send; the Xem column is Xem Cloud, where we run it for you.",
+    headline: "Pay once for Sendy, or not at all for Xem.",
+    summary:
+      "Sendy is a proven, no-frills way to send newsletters through your own Amazon SES account, with a one-time licence instead of a monthly bill. Xem is also self-hostable, but it’s free and open source, adds visual automations, signup forms with a CRM and a shared inbox, and comes as a hosted service if you’d rather not run a server.",
+    cheaperAnswer:
+      "Self-hosted, Xem is cheaper by the cost of the licence: Sendy is $69 once, and Xem is free. Both cost the same to send through SES. If you don’t want to run a server, Xem Cloud is $19 a month for a weekly newsletter to 10,000 people; Sendy has no hosted plan.",
+    chooseThem: [
+      "You want a simple PHP and MySQL newsletter sender that you pay for once and rarely touch.",
+      "You manage several clients or brands and need Sendy’s white-labelled client accounts with sending limits.",
+      "You already run Sendy happily and don’t need automations beyond autoresponders.",
+    ],
+    exportSteps:
+      "In Sendy, open View all lists and choose your list. Pick the status tab you want (active, unsubscribed, bounced) and click Export to download a CSV. Export the active and unsubscribed subscribers separately so Xem keeps unsubscribed people unsubscribed.",
+    exportShort:
+      "Yes. Export each list as a CSV from View all lists, one status tab at a time.",
+    recognised: false,
+    agents:
+      "Sendy has a documented HTTP API for subscribing, unsubscribing, listing lists and creating or sending a campaign. It has no official MCP server, so agents reach it through third-party connectors.",
+    sources: [
+      "https://sendy.co",
+      "https://sendy.co/api",
+      "https://sendy.co/get-updated",
+    ],
+  },
+  {
+    id: "mailcheap",
+    name: "MailCheap",
+    modelShort: "charges by emails sent, in volume tiers",
+    model:
+      "By emails sent per month, not by subscribers. Plans step from 20,000 emails for $19 to 75,000 for $39, 200,000 for $79, 500,000 for $149, 2,000,000 for $349 and 5,000,000 for $799. Every plan has the same features. There is no free plan, and when you pass the cap new sends wait until you upgrade or the month resets.",
+    plan: "the smallest tier that fits your monthly emails",
+    prices: [39, 79, 149],
+    priceNote:
+      "From mailcheap.ai’s pricing page, on monthly billing, for 40,000, 200,000 and 400,000 emails a month. 40,000 needs the 75,000-email tier ($39), 200,000 fits the $79 tier, and 400,000 needs the 500,000-email tier ($149). At 25,000 emails a month MailCheap is $39 and Xem is $11.50. Yearly billing is two months free.",
+    headline: "Same billing idea. Different price.",
+    summary:
+      "MailCheap is an open-source newsletter app that, like Xem, charges for emails sent rather than subscribers, and it has an MCP server and API. Xem costs less at each of these volumes and also includes automations, a CRM and a shared inbox.",
+    cheaperAnswer:
+      "For a weekly newsletter to 10,000 subscribers, MailCheap is $39 a month and Xem is $19. At 50,000 it is $79 against $59, and at 100,000 it is $149 against $99. Both are open source and can be self-hosted for the cost of your email provider.",
+    chooseThem: [
+      "You want an MCP server that covers every API endpoint, including billing and team, with OAuth sign-in for ChatGPT and Claude.",
+      "You want a public website for your issues as part of the product, with a simple newsletter-only feature set.",
+      "You like its safeguards: staged first sends, and campaigns that pause on high bounce or spam rates.",
+    ],
+    exportSteps:
+      "MailCheap exports contacts as a CSV download link, valid for an hour, through its API (GET /api/v1/contacts/export, or the export_contacts MCP tool) with a full-access API key. Keep each contact’s status in the file.",
+    exportShort:
+      "Yes. Export contacts as a CSV through MailCheap’s API or MCP.",
+    exportHelp: "https://mailcheap.ai/docs/api",
+    recognised: false,
+    agents:
+      "MailCheap ships an official MCP server with 90 tools, one per REST endpoint, covering campaigns, contacts, segments, domains, newsletters, team, API keys and billing. ChatGPT, Claude and Grok connect with OAuth; Claude Code, Codex and Cursor use an API key.",
+    sources: [
+      "https://mailcheap.ai/",
+      "https://mailcheap.ai/docs",
+      "https://mailcheap.ai/docs/mcp",
+      "https://github.com/marclou/mailcheap",
+    ],
+  },
 ];
+
+/** Xem's side of the AI-agent comparison. */
+export const xemAgents =
+  "Xem runs a hosted MCP server at mcp.xem.email with 43 tools for campaigns, newsletters, contacts, CSV imports, forms, CRM notes, automations, sending domains and analytics, or you can run @xem.email/mcp locally. It works with Claude, Cursor, Codex and any MCP client. Campaigns start as drafts, imports preview first, and sending is a separate tool.";
 
 export const getCompetitor = (id: string) =>
   competitors.find((c) => c.id === id);
