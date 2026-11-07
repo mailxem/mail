@@ -177,9 +177,9 @@ export default async function ComparePage({
                 <dt className="font-medium">Xem</dt>
                 <dd className="mt-1 text-muted">
                   Per email sent. Free for 3,000 a month, then from $9. Contacts
-                  are free to keep, every plan has every feature, and you can
-                  self-host the open-source version and pay only your email
-                  provider.
+                  are free to keep, campaigns, automations and forms are on
+                  every plan, and you can self-host the open-source version and
+                  pay only your email provider.
                 </dd>
               </div>
             </dl>

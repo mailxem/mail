@@ -7,7 +7,7 @@ import { primaryButton } from "@/lib/brand";
 
 const title = "Pricing | Xem — pay for the emails you send";
 const description =
-  "Xem Cloud is priced per email: free for 3,000 a month, then from $9 for 20,000. Every plan includes campaigns, newsletters, automations, forms, CRM and a shared inbox. Self-hosting is free.";
+  "Xem Cloud is priced per email: free for 3,000 a month, then from $9 for 20,000. Every plan includes campaigns, automations, forms and a CRM; newsletters with their own website start on Starter. Self-hosting is free.";
 export const metadata: Metadata = {
   title,
   description,
@@ -31,7 +31,7 @@ const plans = [
     included: 20000,
     daily: null,
     overage: 0.5,
-    note: "For a weekly newsletter to a few thousand readers.",
+    note: "Newsletters with their own website, for a few thousand readers.",
   },
   {
     name: "Growth",
@@ -53,14 +53,23 @@ const plans = [
 ];
 
 const everyPlan = [
-  "Campaigns and recurring newsletters",
+  "Campaigns",
   "Visual automations",
   "Signup forms, lists and contact CRM",
-  "Shared inbox",
+  "Shared inbox for your own mailboxes",
   "Analytics and send-time suggestions",
   "200+ editable templates and AI drafting",
   "API, webhooks and MCP server",
-  "Public newsletter archive and RSS",
+];
+
+// Starter and up add these.
+const paidPlans = [
+  "Recurring newsletters",
+  "A newsletter website, 14 templates",
+  "Your own domain for the website",
+  "Email-confirmed website signups",
+  "The Xem inbox",
+  "Cloudflare email",
 ];
 
 // Monthly cost of a weekly newsletter to 10,000 subscribers (40,000 emails),
@@ -96,7 +105,7 @@ const faqs = [
   },
   {
     q: "Is anything held back on cheaper plans?",
-    a: "No. Every plan, including Free, has the full product. Plans differ only in how many emails are included, and in one thing: emails sent on Free end with a small “Sent with Xem” link.",
+    a: "A little. Every plan, including Free, has campaigns, automations, forms, the CRM, analytics, templates and the API. Newsletters with their own website, the Xem inbox and Cloudflare email start on Starter. Plans otherwise differ in how many emails are included, and emails sent on Free end with a small “Sent with Xem” link.",
   },
   {
     q: "What is the “Sent with Xem” link?",
@@ -167,7 +176,8 @@ export default function PricingPage() {
             <em>Not for the list you keep.</em>
           </h1>
           <p className="mt-7 max-w-xl text-lg leading-relaxed text-muted">
-            Every plan has the whole of Xem. Start free with 3,000 emails a
+            Campaigns, automations and forms on every plan; newsletters with
+            their own website from Starter. Start free with 3,000 emails a
             month, and upgrade when your list grows.
           </p>
           <p className="mt-4 text-sm font-medium text-forest">
@@ -237,6 +247,24 @@ export default function PricingPage() {
           </h2>
           <ul className="mt-6 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
             {everyPlan.map((item) => (
+              <li key={item} className="flex gap-2">
+                <Check
+                  size={16}
+                  className="mt-0.5 shrink-0 text-iris"
+                  aria-hidden="true"
+                />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="mx-auto max-w-[1160px] px-5 pb-14">
+          <h2 className="font-editorial text-3xl tracking-tight md:text-4xl">
+            Starter and up add
+          </h2>
+          <ul className="mt-6 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+            {paidPlans.map((item) => (
               <li key={item} className="flex gap-2">
                 <Check
                   size={16}
