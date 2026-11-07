@@ -160,8 +160,10 @@ func (h *MarketingHandler) ResumeCampaign(c echo.Context) error {
 }
 
 // CancelCampaign stops a paused campaign or edition: the rest is never sent.
+// CancelCampaign stops a paused campaign's remaining sends, or a scheduled one
+// before it starts. The queued task skips completed campaigns.
 func (h *MarketingHandler) CancelCampaign(c echo.Context) error {
-	result := h.scoped(c).Model(&models.Campaign{}).Where("id = ? AND status = ?", c.Param("id"), models.CampaignStatusPaused).Update("status", models.CampaignStatusCompleted)
+	result := h.scoped(c).Model(&models.Campaign{}).Where("id = ? AND status IN ?", c.Param("id"), []models.CampaignStatus{models.CampaignStatusPaused, models.CampaignStatusScheduled}).Update("status", models.CampaignStatusCompleted)
 	if result.Error != nil {
 		return result.Error
 	}

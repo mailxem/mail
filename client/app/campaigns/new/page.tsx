@@ -81,7 +81,7 @@ const campaignSchema = z.object({
   description: z.string().optional(),
   data: z.record(z.string(), z.string()).optional(),
   templateId: z.string().uuid("Choose an email template"),
-  status: z.literal("DRAFT").default("DRAFT"),
+  status: z.literal("SCHEDULED").default("SCHEDULED"),
   scheduledFor: z.date().optional(),
   schedule: z.enum(["ONE_TIME", "RECURRING"]).default("ONE_TIME"),
   listId: z.string().uuid("Choose a contact list"),
@@ -259,7 +259,7 @@ function NewCampaignForm() {
       description: "",
       templateId: "",
       subject: "",
-      status: "DRAFT",
+      status: "SCHEDULED",
       listId: "",
       smtpConfigId: "",
       schedule: "ONE_TIME",
@@ -393,7 +393,8 @@ function NewCampaignForm() {
           sendInStages:
             values.stages === "auto" ? undefined : values.stages === "on",
           teamId: team?.id,
-          status: "DRAFT",
+          // Saving queues the send: now, or at the chosen time.
+          status: "SCHEDULED",
           scheduledFor: isScheduled ? values.scheduledFor : undefined,
           schedule: isScheduled ? values.schedule : "ONE_TIME",
           recurringSchedule:
@@ -417,7 +418,7 @@ function NewCampaignForm() {
         payload.campaign || payload,
       );
       await queryClient.invalidateQueries({ queryKey: ["campaigns"] });
-      toast.success("Campaign draft saved");
+      toast.success(isScheduled ? "Campaign scheduled" : "Campaign is sending");
       router.push(`/campaigns/${campaign.id}`);
     } catch (error) {
       toast.error((error as Error).message);
@@ -444,7 +445,7 @@ function NewCampaignForm() {
             ) : (
               <Save className="size-4" />
             )}
-            {saving ? "Saving…" : "Save draft"}
+            {saving ? "Saving…" : isScheduled ? "Schedule campaign" : "Send now"}
           </Button>
         </PageHeader>
         {!templateResource.isLoading && !listResource.isLoading && !senderResource.isLoading &&
@@ -497,7 +498,7 @@ function NewCampaignForm() {
                   variant="secondary"
                   className="rounded-full px-3 py-1 text-xs font-normal"
                 >
-                  Draft
+                  New
                 </Badge>
               </div>
               <div className="space-y-5">
@@ -958,7 +959,7 @@ function NewCampaignForm() {
                 description={
                   isScheduled && draft.scheduledFor
                     ? format(draft.scheduledFor, "MMM d, yyyy · h:mm a")
-                    : "Choose your timing when you’re ready."
+                    : "Sends as soon as you save, unless you pick a time."
                 }
                 icon={<CalendarDays size={20} />}
                 complete={false}
@@ -971,14 +972,14 @@ function NewCampaignForm() {
                   {[
                     {
                       scheduled: false,
-                      title: "Decide later",
-                      description: "Keep this campaign as a draft.",
+                      title: "Send now",
+                      description: "Goes out as soon as you save.",
                       icon: FileText,
                     },
                     {
                       scheduled: true,
-                      title: "Plan a send time",
-                      description: "Save a date with your draft.",
+                      title: "Pick a send time",
+                      description: "Goes out at the time you choose.",
                       icon: CalendarDays,
                     },
                   ].map((option) => (
@@ -1372,7 +1373,7 @@ function NewCampaignForm() {
                   />
                   <p>
                     {completed === 4
-                      ? "All the essentials are in place. Save your draft to continue."
+                      ? "All the essentials are in place. Saving sends it, now or at your chosen time."
                       : "Work through the details at your own pace. Save when the essentials are ready."}
                   </p>
                 </div>
@@ -1414,7 +1415,7 @@ function NewCampaignForm() {
             ) : (
               <Save className="size-4" />
             )}
-            {saving ? "Saving…" : "Save draft"}
+            {saving ? "Saving…" : isScheduled ? "Schedule campaign" : "Send now"}
           </Button>
         </div>
       </form>

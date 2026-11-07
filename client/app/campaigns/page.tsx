@@ -6,7 +6,7 @@ import { useState } from "react";
 import { FullScreenCalendar } from "@/components/ui/full-screen-calendar";
 import { Metric, FilterTabs } from "@/components/marketing/shared";
 import { workspaceClassName } from "@/lib/workspace-styles";
-import { Mail, CalendarClock, FilePenLine, CheckCheck } from "lucide-react";
+import { Mail, CalendarClock, Send, CheckCheck } from "lucide-react";
 
 function CampaignCollection() {
   const { campaigns, total, loading } = useCampaigns();
@@ -22,7 +22,7 @@ function CampaignCollection() {
     <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <Metric label="Total campaigns" value={loading ? "—" : total} icon={<Mail size={18}/>}/>
       <Metric label="Scheduled on this page" value={count("SCHEDULED")} icon={<CalendarClock size={18}/>}/>
-      <Metric label="Drafts on this page" value={count("DRAFT")} icon={<FilePenLine size={18}/>}/>
+      <Metric label="Sending on this page" value={count("SENDING")} icon={<Send size={18}/>}/>
       <Metric label="Completed on this page" value={count("COMPLETED")} icon={<CheckCheck size={18}/>}/>
     </div>
     <section className={workspaceClassName("product-panel")}>
