@@ -7,7 +7,7 @@ import { primaryButton } from "@/lib/brand";
 
 const title = "Pricing | Xem — pay for the emails you send";
 const description =
-  "Xem Cloud is priced per email: free for 3,000 a month, then from $9 for 20,000. Every plan includes campaigns, automations, forms and a CRM; newsletters with their own website start on Starter. Self-hosting is free, with a $9 one-time license for newsletters and the shared inbox.";
+  "Xem Cloud is priced per email: free for 3,000 a month, then from $9 for 20,000. Every plan includes campaigns, automations, forms and a CRM; newsletters with their own website start on Starter. Self-hosting is free, with a $49 one-time license for newsletters and the shared inbox.";
 export const metadata: Metadata = {
   title,
   description,
@@ -113,7 +113,7 @@ const faqs = [
   },
   {
     q: "Can I run Xem myself instead?",
-    a: "Yes. Xem is open source under GPL-3.0. Self-hosting is free; you pay your server and your email provider, such as Amazon SES at $0.10 to $0.16 per 1,000 emails. Campaigns, automations, forms and the CRM are free forever; a $9 one-time license adds newsletters, the shared inbox and Cloudflare mailboxes and removes the “Sent with Xem” footer. Set the key as XEM_LICENSE_KEY.",
+    a: "Yes. Xem is open source under GPL-3.0. Self-hosting is free; you pay your server and your email provider, such as Amazon SES at $0.10 to $0.16 per 1,000 emails. Campaigns, automations, forms and the CRM are free forever; a $49 one-time license adds newsletters, the shared inbox and Cloudflare mailboxes and removes the “Sent with Xem” footer. Set the key as XEM_LICENSE_KEY.",
   },
   {
     q: "Can I get my money back?",
@@ -345,7 +345,7 @@ export default function PricingPage() {
               Xem is GPL-3.0. Install it on your own server with one command and
               pay only your email provider: through Amazon SES that is $0.10 to
               $0.16 per 1,000 emails. Campaigns, automations, forms and the CRM
-              are free forever. A $9 license, paid once, adds newsletters, the
+              are free forever. A $49 license, paid once, adds newsletters, the
               shared inbox and Cloudflare mailboxes and removes the “Sent with
               Xem” footer.
             </p>
@@ -367,7 +367,7 @@ export default function PricingPage() {
               href={licenseUrl}
               className="self-center text-sm underline underline-offset-4"
             >
-              Buy a license, $9 once
+              Buy a license, $49 once
             </a>
           </div>
         </section>
