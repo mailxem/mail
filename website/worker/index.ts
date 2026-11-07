@@ -48,6 +48,9 @@ type Edition = {
 };
 type Site = { slug: string; base: string; origin: string };
 
+// Fades content in as it scrolls into view; [data-r] marks what moves.
+const REVEAL = `const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");o.unobserve(e.target)}}),{rootMargin:"0px 0px -6% 0px"});document.querySelectorAll("[data-r]").forEach(el=>o.observe(el))`;
+
 const SLUG = /^[a-z0-9](?:[a-z0-9-]{1,46}[a-z0-9])$/;
 const XEM_HOST =
   /^(?:www\.)?xem\.email$|\.workers\.dev$|^localhost$|^127\.0\.0\.1$/;
@@ -64,7 +67,7 @@ function page(
 <title>${esc(head.title)}</title><meta name="description" content="${esc(head.description)}">
 <link rel="canonical" href="${esc(url)}"><link rel="alternate" type="application/rss+xml" href="${esc(site.base)}/feed.xml">
 <meta property="og:title" content="${esc(head.title)}"><meta property="og:description" content="${esc(head.description)}"><meta property="og:url" content="${esc(url)}"><meta property="og:type" content="website">
-<style>${stylesheet(theme)}</style></head><body class="t-${esc(theme)}${grainy(theme) ? " grain" : ""}">${body.replace(/<script>/g, `<script nonce="${nonce}">`)}</body></html>`;
+<style>${stylesheet(theme)}</style><script nonce="${nonce}">document.documentElement.classList.add("js")</script></head><body class="t-${esc(theme)}${grainy(theme) ? " grain" : ""}">${body.replace(/<script>/g, `<script nonce="${nonce}">`)}<script nonce="${nonce}">${REVEAL}</script></body></html>`;
   return new Response(html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
