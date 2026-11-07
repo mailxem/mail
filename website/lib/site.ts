@@ -21,4 +21,8 @@ export const appLink = (path: string) => `${appUrl}${path}`;
 export const githubUrl = "https://github.com/mailxem/mail";
 export const docsUrl = "https://docs.xem.email";
 export const selfHostUrl = `${githubUrl}/blob/undefined/devops/swarm/README.md`;
+// Buys a one-time $9 self-hosted license; email us until the checkout link is set.
+export const licenseUrl =
+  process.env.NEXT_PUBLIC_LICENSE_CHECKOUT_URL ||
+  "mailto:team@xem.email?subject=Xem%20self-hosted%20license";
 export const contributeUrl = `${githubUrl}#contribute`;

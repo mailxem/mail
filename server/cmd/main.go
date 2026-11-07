@@ -174,6 +174,9 @@ func main() {
 			reporter.Run(managedCtx, func(err error) { logger.Error("Billing usage report failed: %v", err) })
 		}()
 		defer func() { stopManaged(); <-billingDone }()
+	} else {
+		// Self-hosted: paid features and badge-free emails need a Xem license.
+		go billing.WatchLicense(managedCtx, os.Getenv("XEM_LICENSE_KEY"), logger.Info)
 	}
 	defer stopManaged()
 	receivingDone := make(chan struct{})

@@ -42,6 +42,9 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual(stack['services']['api']['environment']['S3_ENDPOINT_URL'], BASE['storage_url'])
         self.assertEqual(stack['services']['app']['environment']['INTERNAL_API_URL'], 'http://api:9001/api/v1')
         self.assertEqual(stack['services']['storage-init']['deploy']['restart_policy']['condition'], 'on-failure')
+        self.assertEqual(stack['services']['api']['environment']['XEM_LICENSE_KEY'], '')
+        licensed = installer.stack_spec({**self.config(), 'license_key': 'key-1'}, 'node1', 'abc')
+        self.assertEqual(licensed['services']['api']['environment']['XEM_LICENSE_KEY'], 'key-1')
 
     def test_state_permissions(self):
         with tempfile.TemporaryDirectory() as directory:

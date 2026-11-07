@@ -44,6 +44,8 @@ def validate(config):
             raise ValueError(f'{key} must be an integer from 1 to 65535')
     if len({config[k] for k in ('app_port', 'api_port', 'storage_port')}) != 3:
         raise ValueError('App, API, and storage ports must differ')
+    if type(config.get('license_key', '')) is not str:
+        raise ValueError('license_key must be a string')
 
 def prompt_config():
     # curl | bash consumes stdin; interactive questions use the controlling terminal.
@@ -87,6 +89,8 @@ def stack_spec(c, node, version):
         'S3_ACCESS_KEY': c['storage_user'], 'S3_SECRET_KEY': c['storage_password'],
         'CORS_ALLOWED_ORIGINS': c['app_url'], 'APP_ENV': 'production',
         'AI_ENABLED': 'false', 'MANAGED_SENDING_ENABLED': 'false', 'MANAGED_SMTP_ENABLED': 'false',
+        # A $9 Xem license unlocks the shared inbox and removes the "Sent with Xem" footer.
+        'XEM_LICENSE_KEY': c.get('license_key', ''),
     }
     # Dollar signs in user credentials must survive Compose interpolation.
     def escaped(env):
@@ -164,12 +168,14 @@ def install(args, state):
     c = json.loads(state_file.read_text()) if state_file.exists() else {}
     if args.config:
         supplied = json.loads(args.config.read_text())
-        allowed = {'app_url', 'api_url', 'app_port', 'api_port', 'storage_url', 'storage_port'}
+        allowed = {'app_url', 'api_url', 'app_port', 'api_port', 'storage_url', 'storage_port', 'license_key'}
         if set(supplied) - allowed:
             raise ValueError('Unknown configuration keys; use config.example.json')
         c.update(supplied)
     elif not c:
         c = prompt_config()
+    if os.environ.get('XEM_LICENSE_KEY'):
+        c['license_key'] = os.environ['XEM_LICENSE_KEY'].strip()
     validate(c)
     info = json.loads(run('docker', 'info', '--format', '{{json .}}', capture=True))
     if info['OSType'] != 'linux':
