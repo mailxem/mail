@@ -90,7 +90,9 @@ func ReplaceLinksWithRedirect(body string, mailID string, cfg *config.Config, is
 	if isMarketing {
 		link, err := UnsubscribeLink(mailID, cfg)
 		if err == nil {
-			footer := fmt.Sprintf(`<p><a href="%s">Unsubscribe from this list</a></p>`, link)
+			// Inline styles: email clients drop stylesheets, and a bare link renders
+			// left-aligned in default blue under a centered template footer.
+			footer := fmt.Sprintf(`<p style="margin:0;padding:12px 24px 32px;text-align:center;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:#6b6b6b"><a href="%s" style="color:#6b6b6b;text-decoration:underline">Unsubscribe from this list</a></p>`, link)
 			if strings.Contains(body, "</body>") {
 				body = strings.Replace(body, "</body>", footer+"</body>", 1)
 			} else {
