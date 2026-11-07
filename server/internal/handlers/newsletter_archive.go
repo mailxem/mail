@@ -69,7 +69,7 @@ func (h *MarketingHandler) PublicNewsletter(c echo.Context) error {
 	c.Response().Header().Set("Cache-Control", "public, max-age=300")
 	// Explicit projection: no team, list, sender or audience details.
 	return c.JSON(200, map[string]interface{}{"name": n.Name, "description": n.Description, "slug": *n.PublicSlug, "subscribeForm": form.Slug, "issues": issues,
-		"theme": n.SiteTheme, "logo": n.SiteLogoURL, "readers": readers})
+		"theme": n.SiteTheme, "logo": n.SiteLogoURL, "readers": readers, "cadence": n.Cadence})
 }
 
 // PublicNewsletterIssue returns one sent edition with merge fields blanked.

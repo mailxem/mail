@@ -4,10 +4,12 @@
 // newsletter's own domain, connected through Cloudflare for SaaS.
 
 import {
+  back as backLink,
   bar,
   day,
   esc,
   foot,
+  grainy,
   stylesheet,
   subscribe,
   template,
@@ -27,7 +29,14 @@ type Archive = {
   theme: string;
   logo: string;
   readers: number;
+  cadence?: string;
   issues: Issue[];
+};
+
+const cadences: Record<string, string> = {
+  DAILY: "Every day",
+  WEEKLY: "Every week",
+  MONTHLY: "Every month",
 };
 type Edition = {
   newsletter: string;
@@ -55,7 +64,7 @@ function page(
 <title>${esc(head.title)}</title><meta name="description" content="${esc(head.description)}">
 <link rel="canonical" href="${esc(url)}"><link rel="alternate" type="application/rss+xml" href="${esc(site.base)}/feed.xml">
 <meta property="og:title" content="${esc(head.title)}"><meta property="og:description" content="${esc(head.description)}"><meta property="og:url" content="${esc(url)}"><meta property="og:type" content="website">
-<style>${stylesheet(theme)}</style></head><body class="t-${esc(theme)}">${body.replace(/<script>/g, `<script nonce="${nonce}">`)}</body></html>`;
+<style>${stylesheet(theme)}</style></head><body class="t-${esc(theme)}${grainy(theme) ? " grain" : ""}">${body.replace(/<script>/g, `<script nonce="${nonce}">`)}</body></html>`;
   return new Response(html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
@@ -105,6 +114,7 @@ async function home(env: Env, request: Request, site: Site) {
     description: a.description,
     logo: a.logo,
     readers: a.readers,
+    cadence: cadences[a.cadence || ""] || "",
     issues: a.issues,
     note,
   });
@@ -144,9 +154,9 @@ async function issue(env: Env, request: Request, site: Site, id: string) {
       description: `An issue of ${e.newsletter}.`,
       path: `/${id}`,
     },
-    `${bar(site.base, e.newsletter, e.logo)}<main class="reader"><a class="back" href="${esc(site.base || "/")}">← All issues</a><time datetime="${esc(e.issue.sentAt)}">${day(e.issue.sentAt)}</time><h1>${esc(e.issue.subject)}</h1>
+    `${bar(site.base, e.newsletter, e.logo)}<main class="reader">${backLink(site.base)}<time class="meta mono" datetime="${esc(e.issue.sentAt)}">${day(e.issue.sentAt)}</time><h1>${esc(e.issue.subject)}</h1>
 <iframe title="${esc(e.issue.subject)}" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" referrerpolicy="no-referrer" srcdoc="${esc(FRAME_POLICY + e.html)}"></iframe></main>
-<section class="end"><h2>Get the next issue in your inbox.</h2>${subscribe(site.base, 0)}</section>${foot(site.base)}${FIT}`,
+<section class="end"><h2>Get the next issue in your inbox.</h2>${subscribe(site.base, { readers: 0, cadence: "" })}</section>${foot(site.base, e.newsletter)}${FIT}`,
   );
 }
 
@@ -164,7 +174,7 @@ async function confirmPage(env: Env, request: Request, site: Site) {
       description: `Confirm your subscription to ${a.name}.`,
       path: "/confirm",
     },
-    `${bar(site.base, a.name, a.logo)}<main class="panel"><h1>One more click</h1><p>Confirm that you'd like to receive ${esc(a.name)}.</p><form method="post" action="${esc(site.base)}/confirm"><input type="hidden" name="token" value="${esc(token)}"><button class="btn">Yes, subscribe me</button></form></main>${foot(site.base)}`,
+    `${bar(site.base, a.name, a.logo)}<main class="panel"><h1>One more click</h1><p>Confirm that you'd like to receive ${esc(a.name)}.</p><form method="post" action="${esc(site.base)}/confirm"><input type="hidden" name="token" value="${esc(token)}"><button class="btn">Yes, subscribe me</button></form></main>${foot(site.base, a.name, a.description)}`,
   );
 }
 
