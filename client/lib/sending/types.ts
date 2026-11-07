@@ -59,6 +59,10 @@ export type SendingState = {
     campaigns: number;
     acceptedEmails: number;
     testedDomainIds: string[];
+    /** API keys people created (not the assistant's own). */
+    apiKeys?: number;
+    /** Test emails sent from the template editor or the API. */
+    testEmails?: number;
   };
 };
 export function onboardingDomain(state: SendingState) {

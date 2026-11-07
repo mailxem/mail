@@ -114,7 +114,7 @@ func (s *Service) status(c echo.Context) error {
 			return httpError(err)
 		}
 	}
-	var byo, campaigns, sent int64
+	var byo, campaigns, sent, apiKeys, testEmails int64
 	if err := s.DB.WithContext(ctx).Model(&models.SMTPConfig{}).Where("team_id = ? AND is_deleted = false AND is_active = true AND provider <> ?", team, "MANAGED").Count(&byo).Error; err != nil {
 		return httpError(err)
 	}
@@ -122,6 +122,14 @@ func (s *Service) status(c echo.Context) error {
 		return httpError(err)
 	}
 	if err := s.DB.WithContext(ctx).Model(&models.Email{}).Where("team_id = ? AND status IN ?", team, []string{"SENT", "OPENED", "CLICKED", "DELIVERED"}).Count(&sent).Error; err != nil {
+		return httpError(err)
+	}
+	// The setup checklist: an API key (not the assistant's own), and a test
+	// email from the editor or API, which lives in emails rather than Message.
+	if err := s.DB.WithContext(ctx).Model(&models.APIKey{}).Where("team_id = ? AND is_deleted = false AND COALESCE(assistant_user_id, '') = ''", team).Count(&apiKeys).Error; err != nil {
+		return httpError(err)
+	}
+	if err := s.DB.WithContext(ctx).Model(&models.Email{}).Where("team_id = ? AND test = true AND status IN ?", team, []string{"SENT", "OPENED", "CLICKED", "DELIVERED"}).Count(&testEmails).Error; err != nil {
 		return httpError(err)
 	}
 	testedDomains := []string{}
@@ -133,7 +141,7 @@ func (s *Service) status(c echo.Context) error {
 		views = append(views, s.view(d))
 	}
 	c.Response().Header().Set("Cache-Control", "no-store")
-	return c.JSON(200, map[string]any{"enabled": s.Config.Enabled, "account": a, "domains": views, "credentials": credentials, "messages": messages, "smtp": map[string]any{"enabled": s.Config.SMTPEnabled, "host": s.Config.SMTPHost, "port": 587, "security": "STARTTLS"}, "costPerRecipientMicros": s.Config.CostMicros, "maxMessageBytes": s.Config.MaxBytes, "journey": map[string]any{"byoSenders": byo, "campaigns": campaigns, "acceptedEmails": sent, "testedDomainIds": testedDomains}})
+	return c.JSON(200, map[string]any{"enabled": s.Config.Enabled, "account": a, "domains": views, "credentials": credentials, "messages": messages, "smtp": map[string]any{"enabled": s.Config.SMTPEnabled, "host": s.Config.SMTPHost, "port": 587, "security": "STARTTLS"}, "costPerRecipientMicros": s.Config.CostMicros, "maxMessageBytes": s.Config.MaxBytes, "journey": map[string]any{"byoSenders": byo, "campaigns": campaigns, "acceptedEmails": sent, "testedDomainIds": testedDomains, "apiKeys": apiKeys, "testEmails": testEmails}})
 }
 func (s *Service) addDomain(c echo.Context) error {
 	var in struct {

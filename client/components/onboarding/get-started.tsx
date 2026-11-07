@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Check, ChevronRight, FileText, Megaphone, Send, Users, X, type LucideIcon } from "lucide-react";
+import { Check, ChevronRight, FileText, Globe, KeyRound, Megaphone, MailCheck, Send, Users, X, type LucideIcon } from "lucide-react";
 import { useLocalStorage } from "usehooks-ts";
 import { Button } from "@/components/ui/button";
 import { useResourcePage } from "@/hooks/use-resource-page";
@@ -8,6 +8,8 @@ import { useMarketingQuery } from "@/lib/marketing/api";
 import type { LeadForm } from "@/lib/marketing/types";
 import type { MailSender } from "@/lib/connected-mail";
 import { GridIllustration } from "./grid-illustration";
+import { useApi } from "@/hooks/use-api";
+import type { SendingState } from "@/lib/sending/types";
 
 type Step = {
   done: boolean;
@@ -15,22 +17,69 @@ type Step = {
   body: string;
   href: string;
   cta: string;
+  /** A second way to finish the step, like SMTP beside an API key. */
+  alt?: { href: string; cta: string };
   icon: LucideIcon;
   /** Tile background, icon colour and dark-mode tile background. */
   tint: [string, string, string];
 };
 
-/** First-run guide for every member; each step ticks itself off from workspace data. */
+/** The path to a first email, for admins who can set up sending. */
+function firstEmailSteps(s: SendingState): Step[] {
+  const domain = s.domains.find((d) => d.ready) || s.domains[0];
+  const ownProvider = s.journey.byoSenders > 0; // their provider verified the domain
+  return [
+    {
+      done: !!domain?.ready || ownProvider,
+      title: "Verify your sending domain",
+      body: domain
+        ? `${domain.name} is waiting on DNS. Add the records, then check again; it usually takes a few minutes.`
+        : "Add your domain and a few DNS records so email arrives from you, not from spam.",
+      href: "/onboarding",
+      cta: domain ? "Check DNS" : "Verify domain",
+      icon: Globe,
+      tint: ["#e6f0ff", "#1d5fd6", "rgb(59 111 216 / 0.22)"],
+    },
+    {
+      done: !!s.journey.apiKeys || ownProvider || s.domains.some((d) => d.smtpConfigId),
+      title: "Add an API key or SMTP",
+      body: "An API key sends from your app; SMTP plugs into tools that already send email.",
+      href: "/settings/api-keys",
+      cta: "Create API key",
+      alt: { href: "/settings/smtp", cta: "Use SMTP" },
+      icon: KeyRound,
+      tint: ["#efe7ff", "#6b3fd4", "rgb(139 92 246 / 0.24)"],
+    },
+    {
+      done: !!s.journey.testEmails || s.journey.testedDomainIds.length > 0 || s.journey.acceptedEmails > 0,
+      title: "Send a test email",
+      body: "Send one to yourself and see it land in your inbox.",
+      href: "/onboarding",
+      cta: "Send a test",
+      icon: MailCheck,
+      tint: ["#e5f6ec", "#1f7a45", "rgb(47 158 91 / 0.22)"],
+    },
+  ];
+}
+
+/** First-run guide; each step ticks itself off from workspace data. Admins first
+ * get the path to a first email, then everyone gets the steps to grow. */
 export function GetStarted() {
-  const [hidden, setHidden] = useLocalStorage("xem-get-started-hidden", false);
+  const { session } = useApi();
+  const isAdmin = ["ADMIN", "SUPER_ADMIN"].includes(session?.user?.role || "");
+  const sending = useMarketingQuery<SendingState>("sending", isAdmin, 30000);
+  const setup = sending.data ? firstEmailSteps(sending.data) : [];
+  const settingUp = setup.some((s) => !s.done);
+  // A separate key, so people who hid the old guide still see the setup steps.
+  const [hidden, setHidden] = useLocalStorage(settingUp ? "xem-first-email-hidden" : "xem-get-started-hidden", false);
   const senders = useMarketingQuery<MailSender[]>("mail-connections/senders");
   const contacts = useResourcePage("contacts", 1, 1);
   const campaigns = useResourcePage("campaigns", 1, 1);
   const forms = useMarketingQuery<LeadForm[]>("marketing/forms");
-  const loading = [senders, contacts, campaigns, forms].some((q) => q.isLoading);
+  const loading = [senders, contacts, campaigns, forms].some((q) => q.isLoading) || (isAdmin && sending.isLoading);
   if (hidden || loading) return null;
 
-  const steps: Step[] = [
+  const steps: Step[] = settingUp ? setup : [
     { done: !!senders.data?.length, title: "Connect a sender", body: "Use Xem’s managed sending or your own SMTP so email can leave your workspace.", href: "/settings/smtp", cta: "Connect sender", icon: Send, tint: ["#e6f0ff", "#1d5fd6", "rgb(59 111 216 / 0.22)"] },
     { done: !!contacts.data?.total, title: "Add your contacts", body: "Create a list, then import a CSV or an export from Mailchimp, Substack or beehiiv.", href: "/audience/lists", cta: "Add contacts", icon: Users, tint: ["#e5f6ec", "#1f7a45", "rgb(47 158 91 / 0.22)"] },
     { done: !!campaigns.data?.total, title: "Send your first campaign", body: "Pick one of 200+ editable templates, choose a list and send now or schedule it.", href: "/campaigns/new", cta: "Create campaign", icon: Megaphone, tint: ["#ffece3", "#c2410c", "rgb(240 100 74 / 0.22)"] },
@@ -48,9 +97,14 @@ export function GetStarted() {
       <div className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 id="get-started" className="text-base font-semibold">Get started with Xem</h2>
+            <h2 id="get-started" className="text-base font-semibold">
+              {settingUp ? "Send your first email" : "Get started with Xem"}
+            </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {done} of {steps.length} done. Follow these in order and you’ll have your first campaign out in minutes.
+              {done} of {steps.length} done.{" "}
+              {settingUp
+                ? "Three steps, in this order, and your workspace can send."
+                : "Follow these in order and you’ll have your first campaign out in minutes."}
             </p>
           </div>
           <Button variant="ghost" size="icon" className="size-8 shrink-0 md:hidden" aria-label="Hide getting started guide" onClick={() => setHidden(true)}>
@@ -58,7 +112,8 @@ export function GetStarted() {
           </Button>
         </div>
         <div
-          className="mt-3 grid grid-cols-4 gap-1"
+          className="mt-3 grid gap-1"
+          style={{ gridTemplateColumns: `repeat(${steps.length}, 1fr)` }}
           role="progressbar"
           aria-label="Setup progress"
           aria-valuemin={0}
@@ -87,12 +142,19 @@ export function GetStarted() {
                 {!s.done && <p className="mt-0.5 text-xs text-muted-foreground">{s.body}</p>}
               </div>
               {!s.done && (
-                <Button asChild size="sm" variant={i === next ? "default" : "outline"}>
-                  <Link href={s.href}>
-                    {s.cta}
-                    <ChevronRight className="ml-1 size-4" />
-                  </Link>
-                </Button>
+                <div className="flex gap-2">
+                  {s.alt && (
+                    <Button asChild size="sm" variant="ghost">
+                      <Link href={s.alt.href}>{s.alt.cta}</Link>
+                    </Button>
+                  )}
+                  <Button asChild size="sm" variant={i === next ? "default" : "outline"}>
+                    <Link href={s.href}>
+                      {s.cta}
+                      <ChevronRight className="ml-1 size-4" />
+                    </Link>
+                  </Button>
+                </div>
               )}
             </li>
           ))}
