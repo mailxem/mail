@@ -516,17 +516,26 @@ func (t EmailTracking) Human() bool { return t.Machine == "" }
 
 type APIKey struct {
 	Base
-	AssistantUserID string             `gorm:"index" json:"-"`
-	AssistantWrite  bool               `json:"-"`
-	Name            string             `gorm:"not null" json:"name"`
-	Key             string             `gorm:"not null" json:"key"`
-	TeamID          string             `gorm:"type:uuid;not null" json:"teamId" validate:"required,uuid"`
-	Team            *Team              `json:"team,omitempty"`
-	CreatedAt       time.Time          `json:"createdAt"`
-	LastUsedAt      time.Time          `json:"lastUsedAt"`
-	ExpiresAt       time.Time          `json:"expiresAt"`
-	Permissions     []APIKeyPermission `gorm:"foreignKey:KeyID" json:"permissions,omitempty"`
+	AssistantUserID string    `gorm:"index" json:"-"`
+	AssistantWrite  bool      `json:"-"`
+	Name            string    `gorm:"not null" json:"name"`
+	Key             string    `gorm:"not null" json:"key"`
+	TeamID          string    `gorm:"type:uuid;not null" json:"teamId" validate:"required,uuid"`
+	Team            *Team     `json:"team,omitempty"`
+	CreatedAt       time.Time `json:"createdAt"`
+	LastUsedAt      time.Time `json:"lastUsedAt"`
+	ExpiresAt       time.Time `json:"expiresAt"`
+	// Admin keys get full access to AdminKeyResources. Set only on create, so
+	// the generic update route can't promote an existing key.
+	Admin bool `gorm:"<-:create;not null;default:false" json:"admin"`
+	// NeverExpires leaves ExpiresAt zero, which the auth middleware treats as no expiry.
+	NeverExpires bool               `gorm:"-" json:"-"`
+	Permissions  []APIKeyPermission `gorm:"foreignKey:KeyID" json:"permissions,omitempty"`
 }
+
+// AdminKeyResources are the product resources an admin key can fully manage.
+// They leave out API keys, members, billing and operator approvals.
+var AdminKeyResources = []string{"campaigns", "contacts", "lists", "templates", "smtp_configs", "analytics", "emails", "marketing", "forms", "automations", "domains", "tags", "webhooks", "sending"}
 
 func (a *APIKey) BeforeCreate(tx *gorm.DB) error {
 	if a.ID == "" {
@@ -536,7 +545,7 @@ func (a *APIKey) BeforeCreate(tx *gorm.DB) error {
 		keyWithoutDashes := strings.ReplaceAll(uuid.New().String(), "-", "")
 		a.Key = "kori_" + keyWithoutDashes
 	}
-	if a.ExpiresAt.IsZero() {
+	if a.ExpiresAt.IsZero() && !a.NeverExpires {
 		a.ExpiresAt = time.Now().Add(24 * 90 * time.Hour)
 	}
 	return nil

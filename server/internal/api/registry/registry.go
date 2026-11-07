@@ -733,7 +733,7 @@ func RegisterCRUDRoutes(g *echo.Group, db *gorm.DB) {
 	// @Failure 403 {object} map[string]string "Forbidden"
 	// @Failure 500 {object} map[string]string "Internal server error"
 	// @Router /api/v1/api-keys [post]
-	apiKeyWriteGroup.POST("", apiKeyController.Create)
+	apiKeyWriteGroup.POST("", handlers.CreateAPIKey)
 	apiKeyWriteGroup.PUT("/:id", apiKeyController.Update)
 	apiKeyWriteGroup.DELETE("/:id", apiKeyController.Delete)
 
