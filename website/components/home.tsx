@@ -46,6 +46,7 @@ import { SendingSection } from "./sending-section";
 import { MoreFeatures, Testimonials, JournalPreview } from "./home-expansion";
 import type { PostMeta } from "@/lib/blog-types";
 import { HeroFilm } from "./hero-film";
+import { HeroWheel } from "./hero-wheel";
 import { PriceSection, biggestSaving } from "./price-section";
 import { primaryButton as primary } from "@/lib/brand";
 import { cn } from "@/lib/utils";
@@ -264,7 +265,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
           aria-labelledby="hero-title"
           className="relative isolate pt-[116px] md:pt-[120px]"
         >
-          <div className="relative z-10 mx-auto max-w-4xl px-5 text-center">
+          <div className="relative z-10 mx-auto max-w-6xl px-5 text-center">
             <a
               href="#open-source"
               data-intro
@@ -279,8 +280,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               className="mt-5 font-editorial text-[clamp(3.25rem,7.8vw,6rem)] font-normal leading-[.94] tracking-[-.055em]"
             >
               All your email marketing,
-              <br />
-              <em className="font-normal">at the price of email.</em>
+              <HeroWheel />
             </h1>
             <p
               data-intro
