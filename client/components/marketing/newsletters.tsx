@@ -39,6 +39,11 @@ import {
   Status,
 } from "./shared";
 import { toast } from "sonner";
+
+// Newsletter websites live on the marketing site, not in the app.
+const siteUrl = (
+  process.env.NEXT_PUBLIC_SITE_URL || "https://xem.email"
+).replace(/\/$/, "");
 export function NewslettersPage() {
   const q = useMarketingQuery<Newsletter[]>("marketing/newsletters");
   const options = useMarketingQuery<Options>("marketing/options");
@@ -62,7 +67,10 @@ export function NewslettersPage() {
         title="Newsletters"
         description="Good stories deserve a regular place in the inbox."
         action={
-          <Button className={workspaceClassName("product-primary")} onClick={() => setEditing({})}>
+          <Button
+            className={workspaceClassName("product-primary")}
+            onClick={() => setEditing({})}
+          >
             <Plus />
             Create Newsletter
           </Button>
@@ -149,7 +157,9 @@ export function NewslettersPage() {
                     <tr key={n.id}>
                       <td>
                         <button
-                          className={workspaceClassName("newsletter-title text-left")}
+                          className={workspaceClassName(
+                            "newsletter-title text-left",
+                          )}
                           onClick={() => setEditing(n)}
                         >
                           <span>
@@ -289,6 +299,8 @@ function NewsletterEditor({
       value.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
     postalAddress: value.postalAddress || "",
     publicSlug: value.publicSlug || "",
+    siteTheme: value.siteTheme || "paper",
+    siteLogoUrl: value.siteLogoUrl || "",
     trackEngagement: value.trackEngagement ?? true,
   });
   const [at, setAt] = useState(localDate(value.nextSendAt));
@@ -299,7 +311,10 @@ function NewsletterEditor({
   const [error, setError] = useState("");
   const [review, setReview] = useState(false);
   const template = options?.templates.find((t) => t.id === draft.templateId);
-  const preview = useMarketingQuery<{htmlBody:string}>(`marketing/templates/${draft.templateId}/preview`, !!draft.templateId && !template?.htmlBody);
+  const preview = useMarketingQuery<{ htmlBody: string }>(
+    `marketing/templates/${draft.templateId}/preview`,
+    !!draft.templateId && !template?.htmlBody,
+  );
   const templateHTML = template?.htmlBody || preview.data?.htmlBody;
   const set = (key: string, val: string | boolean) => {
     setDraft((d) => ({ ...d, [key]: val }));
@@ -496,11 +511,11 @@ function NewsletterEditor({
               </span>
             </label>
             <Field
-              label="Web archive (optional)"
+              label="Website (optional)"
               hint={
                 draft.publicSlug
-                  ? `Sent editions appear at ${typeof window !== "undefined" ? window.location.origin : ""}/n/${draft.publicSlug.toLowerCase()}, readable by anyone.`
-                  : "Leave empty to keep editions private. Add an address to publish every sent edition on its own web page."
+                  ? `Your site is at ${siteUrl}/${draft.publicSlug.toLowerCase()}: every sent edition, and a subscribe box readers confirm by email.`
+                  : "Leave empty to keep editions private. Add an address to publish a website with every sent edition and a subscribe box."
               }
             >
               <input
@@ -514,6 +529,33 @@ function NewsletterEditor({
                 placeholder="weekly-notes"
               />
             </Field>
+            {draft.publicSlug && (
+              <div className={workspaceClassName("form-row")}>
+                <Field label="Website theme">
+                  <select
+                    value={draft.siteTheme}
+                    onChange={(e) => set("siteTheme", e.target.value)}
+                  >
+                    <option value="paper">Paper</option>
+                    <option value="broadsheet">Broadsheet</option>
+                    <option value="midnight">Midnight</option>
+                  </select>
+                </Field>
+                <Field
+                  label="Logo (optional)"
+                  hint="An https:// image, square works best."
+                >
+                  <input
+                    type="url"
+                    value={draft.siteLogoUrl}
+                    onChange={(e) => set("siteLogoUrl", e.target.value)}
+                    pattern="https://.*"
+                    maxLength={500}
+                    placeholder="https://example.com/logo.png"
+                  />
+                </Field>
+              </div>
+            )}
           </div>
           <div className={workspaceClassName("editor-preview")}>
             <div className={workspaceClassName("editor-preview-label")}>
@@ -559,7 +601,10 @@ function NewsletterEditor({
           <Button variant="outline" type="button" onClick={close}>
             Cancel
           </Button>
-          <Button className={workspaceClassName("product-primary")} disabled={busy}>
+          <Button
+            className={workspaceClassName("product-primary")}
+            disabled={busy}
+          >
             {busy
               ? "Saving…"
               : status === "DRAFT"
