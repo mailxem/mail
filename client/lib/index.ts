@@ -197,6 +197,10 @@ export interface Campaign {
   pauseReason?: string;
   /** When staged sending checks results and sends the next stage. */
   nextStageAt?: string;
+  subject?: string;
+  timezone?: string;
+  /** Off sends without the open pixel or click-tracking links. */
+  trackEngagement?: boolean;
   templateId: string;
   listId: string;
   schedule?: string;

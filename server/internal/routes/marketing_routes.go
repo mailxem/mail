@@ -89,6 +89,7 @@ func SetupMarketingRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 	g.PUT("/newsletters/:id/site", h.SetNewsletterSite, paidNewsletters, middleware.RequirePermissions(db, "campaigns:create"))
 	g.GET("/newsletters/:id/domain", h.NewsletterDomain, middleware.RequirePermissions(db, "campaigns:read"))
 	g.PUT("/newsletters/:id/domain", h.SetNewsletterDomain, paidNewsletters, middleware.RequirePermissions(db, "campaigns:create"))
+	g.GET("/campaigns/:id/report", h.CampaignReport, middleware.RequirePermissions(db, "campaigns:read"))
 	g.POST("/campaigns/:id/resume", h.ResumeCampaign, middleware.RequirePermissions(db, "campaigns:create"))
 	g.POST("/campaigns/:id/cancel", h.CancelCampaign, middleware.RequirePermissions(db, "campaigns:create"))
 	g.GET("/newsletters/:id/editions", h.NewsletterEditions, middleware.RequirePermissions(db, "campaigns:read"))

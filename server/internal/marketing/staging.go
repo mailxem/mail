@@ -56,6 +56,31 @@ func Recipients(db *gorm.DB, c *models.Campaign) (old, fresh *gorm.DB) {
 	return base().Where("LOWER(email) IN (?)", emailedBefore(db, c)), base().Where("LOWER(email) NOT IN (?)", emailedBefore(db, c))
 }
 
+// StagePlan is how a staged send splits its audience: returning readers go
+// first, never-emailed readers in three stages ending at Bounds and New.
+type StagePlan struct {
+	ReturningLeft int64  `json:"returningLeft"` // returning readers not emailed yet
+	New           int64  `json:"new"`           // never-emailed readers in all
+	SentToNew     int64  `json:"sentToNew"`
+	Bounds        [2]int `json:"bounds"` // cumulative new-reader sends after stages 1 and 2
+}
+
+// StageProgress reports c's stage plan and how far it has got.
+func StageProgress(db *gorm.DB, c *models.Campaign) (p StagePlan, err error) {
+	old, fresh := Recipients(db, c)
+	if err = old.Count(&p.ReturningLeft).Error; err != nil {
+		return
+	}
+	var left int64
+	if err = fresh.Count(&left).Error; err != nil {
+		return
+	}
+	err = db.Session(&gorm.Session{NewDB: true}).Table("emails e").Where(`e.campaign_id = ? AND e.test = false AND LOWER(e."to") NOT IN (?)`, c.ID, emailedBefore(db, c)).Count(&p.SentToNew).Error
+	p.New = left + p.SentToNew
+	p.Bounds = stageBounds(int(p.New))
+	return
+}
+
 // stageBounds are the cumulative never-emailed sends after stages 1 and 2.
 func stageBounds(total int) [2]int {
 	first := max(1, total*firstStagePct/100)
@@ -87,7 +112,7 @@ func Stage(db *gorm.DB, c *models.Campaign, managed bool, now time.Time) (limit 
 	if err = fresh.Count(&remaining).Error; err != nil {
 		return
 	}
-	sentToNew := db.Session(&gorm.Session{NewDB: true}).Table("emails e").Where(`e.campaign_id = ? AND LOWER(e."to") NOT IN (?)`, c.ID, emailedBefore(db, c)).Session(&gorm.Session{})
+	sentToNew := db.Session(&gorm.Session{NewDB: true}).Table("emails e").Where(`e.campaign_id = ? AND e.test = false AND LOWER(e."to") NOT IN (?)`, c.ID, emailedBefore(db, c)).Session(&gorm.Session{})
 	if err = sentToNew.Count(&sent).Error; err != nil {
 		return
 	}
