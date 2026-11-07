@@ -13,7 +13,7 @@ import (
 
 // ErrLicenseFeature is shown when an unlicensed self-hosted install sets up a
 // feature that needs a paid plan on Xem Cloud.
-const ErrLicenseFeature = "Newsletters, Cloudflare mailboxes and the Xem inbox need a Xem license on self-hosted installs: buy one for $9 at xem.email/pricing and set XEM_LICENSE_KEY"
+const ErrLicenseFeature = "Newsletters, Cloudflare mailboxes and the Xem inbox need a Xem license on self-hosted installs: buy one for $49 at xem.email/pricing and set XEM_LICENSE_KEY"
 
 // LicenseURL is Dodo Payments' public license check; it needs no API key.
 var LicenseURL = "https://live.dodopayments.com/licenses/validate"
