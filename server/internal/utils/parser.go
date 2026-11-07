@@ -62,7 +62,11 @@ func fillVariables(input string, variables map[string]string, mailId string, cfg
 
 // JSONToMap convert datatypes.JSON to map[string]string
 func JSONToMap(jsonData datatypes.JSON) (map[string]string, error) {
-	var result map[string]string
+	result := map[string]string{}
+	// A campaign saved without variables stores NULL: that's no values, not an error.
+	if len(jsonData) == 0 {
+		return result, nil
+	}
 	err := json.Unmarshal(jsonData, &result)
 	if err != nil {
 		return nil, err
