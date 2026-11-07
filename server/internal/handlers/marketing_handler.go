@@ -60,6 +60,8 @@ func (h *MarketingHandler) SaveNewsletter(c echo.Context) error {
 		PublicSlug *string
 		// Absent keeps the current setting; tracking is on for new newsletters.
 		TrackEngagement *bool
+		// Absent keeps the website's current look.
+		SiteTheme, SiteLogoURL *string
 	}
 	if err := c.Bind(&input); err != nil {
 		return bad("Invalid newsletter")
@@ -74,6 +76,19 @@ func (h *MarketingHandler) SaveNewsletter(c echo.Context) error {
 			return bad(err.Error())
 		}
 		n.PublicSlug = slug
+	}
+	n.SiteTheme = "paper"
+	if input.SiteTheme != nil {
+		if !marketing.SiteThemes[*input.SiteTheme] {
+			return bad("Choose a website theme")
+		}
+		n.SiteTheme = *input.SiteTheme
+	}
+	if input.SiteLogoURL != nil {
+		if !marketing.ValidSiteLogo(strings.TrimSpace(*input.SiteLogoURL)) {
+			return bad("The logo must be an https:// image address")
+		}
+		n.SiteLogoURL = strings.TrimSpace(*input.SiteLogoURL)
 	}
 	if n.NextSendAt != nil {
 		loc, _ := time.LoadLocation(n.Timezone) // Validated above.
@@ -91,6 +106,12 @@ func (h *MarketingHandler) SaveNewsletter(c echo.Context) error {
 			}
 			if input.TrackEngagement == nil {
 				n.TrackEngagement = old.TrackEngagement
+			}
+			if input.SiteTheme == nil {
+				n.SiteTheme = old.SiteTheme
+			}
+			if input.SiteLogoURL == nil {
+				n.SiteLogoURL = old.SiteLogoURL
 			}
 			if n.NextSendAt != nil && old.NextSendAt != nil && n.NextSendAt.Equal(*old.NextSendAt) && n.Timezone == old.Timezone {
 				n.MonthDay = old.MonthDay

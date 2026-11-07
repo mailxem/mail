@@ -25,6 +25,22 @@ type Newsletter struct {
 	TrackEngagement *bool `json:"trackEngagement,omitempty"`
 	// PublicSlug publishes sent editions at /n/{slug}; nil keeps the archive private.
 	PublicSlug *string `gorm:"uniqueIndex" json:"publicSlug"`
+	// SiteTheme and SiteLogoURL style the newsletter's public website.
+	SiteTheme   string `gorm:"not null;default:paper" json:"siteTheme"`
+	SiteLogoURL string `json:"siteLogoUrl"`
+}
+
+// NewsletterSignup is a reader who asked to subscribe on a newsletter's
+// website. They join the list only once they confirm from their inbox.
+type NewsletterSignup struct {
+	ID           string `gorm:"type:uuid;primaryKey"`
+	TeamID       string `gorm:"type:uuid;not null"`
+	NewsletterID string `gorm:"type:uuid;not null;index:idx_signup_newsletter_email"`
+	Email        string `gorm:"not null;index:idx_signup_newsletter_email"`
+	// TokenHash is the SHA-256 of the emailed confirmation token.
+	TokenHash   string `gorm:"not null;uniqueIndex"`
+	CreatedAt   time.Time
+	ConfirmedAt *time.Time
 }
 
 type ContactNote struct {

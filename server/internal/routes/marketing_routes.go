@@ -110,6 +110,8 @@ func SetupMarketingRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 	archive := e.Group("/public/newsletters", em.RateLimiter(em.NewRateLimiterMemoryStore(rate.Limit(20))))
 	archive.GET("/:slug", h.PublicNewsletter)
 	archive.GET("/:slug/issues/:id", h.PublicNewsletterIssue)
+	archive.POST("/:slug/subscribe", h.SubscribeNewsletter, em.BodyLimit("4K"))
+	archive.POST("/:slug/confirm", h.ConfirmNewsletter, em.BodyLimit("4K"))
 	public.POST("/unsubscribe/:team/:contact/:token", h.Unsubscribe)
 	public.GET("/keep/:team/:contact/:token", h.KeepSending)
 	public.POST("/keep/:team/:contact/:token", h.KeepSending)
