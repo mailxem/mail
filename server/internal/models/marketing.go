@@ -25,7 +25,7 @@ type Newsletter struct {
 	TrackEngagement *bool `json:"trackEngagement,omitempty"`
 	// PublicSlug publishes sent editions at /n/{slug}; nil keeps the archive private.
 	PublicSlug *string `gorm:"uniqueIndex" json:"publicSlug"`
-	// SiteTheme and SiteLogoURL style the newsletter's public website.
+	// SiteTheme (a template name) and SiteLogoURL style the public website.
 	SiteTheme   string `gorm:"not null;default:paper" json:"siteTheme"`
 	SiteLogoURL string `json:"siteLogoUrl"`
 	// SiteDomain serves the website on the team's own domain once

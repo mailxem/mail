@@ -43,7 +43,7 @@ export type Newsletter = {
   postalAddress: string;
   /** Website address (xem.email/{publicSlug}); null when the site is off. */
   publicSlug?: string | null;
-  /** The website's look: paper, broadsheet or midnight. */
+  /** The website template: paper, broadsheet, midnight, atelier, letter or signal. */
   siteTheme?: string;
   /** An https:// image shown on the website. */
   siteLogoUrl?: string;
