@@ -593,15 +593,19 @@ func sendEmail(
 	}
 
 	htmlFromTemplate := handler.body
+	if htmlFromTemplate == "" {
+		// Editor templates keep raw HTML in HTMLBody; older ones only have a file.
+		htmlFromTemplate = template.HTMLBody
+	}
 
-	if handler.body == "" && template.HtmlFile != nil {
+	if htmlFromTemplate == "" && template.HtmlFile != nil {
 		// Get HTML content outside transaction since it's an external operation
 		htmlFromTemplate, err = utils.GetHTMLFromURL(template.HtmlFile.SignedURL)
 		if err != nil {
 			tx.Rollback()
 			return log.Error("failed to get html from template ❌", err)
 		}
-	} else if handler.body == "" && template.HtmlFile == nil {
+	} else if htmlFromTemplate == "" {
 		tx.Rollback()
 		return log.Error("failed to get html from template ❌", errors.New("body is empty"))
 	}
@@ -610,10 +614,10 @@ func sendEmail(
 	parsedSubject := handler.subject
 	if handler.subject == "" {
 		parsedSubject = utils.ReplaceVariables(template.Subject, handler.variables, definedID.String(), cfg, false, false)
-		parsedSubject, err = base64.DecodeFromBase64(parsedSubject)
-		if err != nil {
-			tx.Rollback()
-			return log.Error("failed to decode subject ❌", err)
+		// Editor templates store the subject raw; legacy ones store it base64.
+		// ponytail: a raw subject that happens to be valid base64 gets decoded; store an encoding flag if that bites.
+		if decoded, err := base64.DecodeFromBase64(parsedSubject); err == nil {
+			parsedSubject = decoded
 		}
 	}
 
