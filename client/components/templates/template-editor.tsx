@@ -407,7 +407,9 @@ export function TemplateEditor({
         const started = Date.now();
         while (loads.current === before) {
           if (Date.now() - started > 25000)
-            throw new Error("The editor didn’t finish loading the new design. Your previous version is still saved.");
+            throw new Error(
+              "The editor didn’t finish loading the new design. Your previous version is still saved.",
+            );
           await new Promise((r) => setTimeout(r, 150));
         }
         await new Promise((r) => setTimeout(r, 300));
@@ -463,9 +465,20 @@ export function TemplateEditor({
       const { html } = await exportTemplate();
       const response = await apiFetch("emails", {
         method: "POST",
-        body: JSON.stringify({ to: email, html, test: true }),
+        body: JSON.stringify({
+          to: email,
+          html,
+          test: true,
+          // Providers reject mail without a subject.
+          subject:
+            template.subject.trim() || template.name.trim() || "Test email",
+        }),
       });
-      if (!response.ok) throw new Error("Failed to send test email");
+      if (!response.ok)
+        throw new Error(
+          (await response.json().catch(() => null))?.message ||
+            "Failed to send test email",
+        );
       toast.success("Test email sent successfully");
       setShowTestEmailDialog(false);
     } catch (error) {

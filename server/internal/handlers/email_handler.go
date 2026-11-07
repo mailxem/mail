@@ -76,6 +76,11 @@ func SendEmail(c echo.Context) error {
 	if req.Body == "" && req.TemplateID == "" {
 		return echo.NewHTTPError(400, "Email content or a template is required")
 	}
+	// Without a template there is no subject to fall back on, and providers
+	// reject the message only later, in the queue.
+	if req.TemplateID == "" && strings.TrimSpace(req.Subject) == "" {
+		return echo.NewHTTPError(400, "A subject is required")
+	}
 
 	// Get teamID from context (set by auth middleware)
 	teamID := c.Get("teamID").(string)
