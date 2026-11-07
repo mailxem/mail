@@ -556,6 +556,9 @@ function NewsletterEditor({
                 </Field>
               </div>
             )}
+            {draft.publicSlug && value.id && value.publicSlug && (
+              <SiteDomain newsletterId={value.id} />
+            )}
           </div>
           <div className={workspaceClassName("editor-preview")}>
             <div className={workspaceClassName("editor-preview-label")}>
@@ -723,4 +726,109 @@ function EditionStatus({
   if (edition.status === "SENDING" && edition.sendInStages)
     return <span>Sending in stages</span>;
   return <Status value={edition.status} />;
+}
+
+type DomainState = {
+  domain: string;
+  status: string;
+  records?: { type: string; name: string; value: string }[];
+};
+
+/** Connects the team's own domain to a saved newsletter's website. */
+function SiteDomain({ newsletterId }: { newsletterId: string }) {
+  const { request } = useMarketing();
+  const path = `marketing/newsletters/${newsletterId}/domain`;
+  const state = useMarketingQuery<DomainState>(path);
+  const [domain, setDomain] = useState("");
+  const [busy, setBusy] = useState(false);
+  const current = state.data;
+  const save = async (next: string) => {
+    setBusy(true);
+    try {
+      await request(path, "PUT", { domain: next });
+      await state.refetch();
+      setDomain("");
+    } catch (e) {
+      toast.error(
+        e instanceof Error ? e.message : "Couldn't update the domain",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+  if (current?.domain)
+    return (
+      <Field
+        label="Custom domain"
+        hint={
+          current.status === "active"
+            ? `Live at https://${current.domain}.`
+            : "Add these DNS records at your domain provider. The certificate is issued a few minutes after they resolve."
+        }
+      >
+        <div className="space-y-2 text-sm">
+          <div className="flex items-center justify-between gap-3">
+            <span className="font-medium">{current.domain}</span>
+            <span className="text-xs text-muted-foreground">
+              {current.status === "active" ? "Connected" : "Waiting for DNS"}
+            </span>
+          </div>
+          {current.status !== "active" &&
+            current.records?.map((r) => (
+              <div
+                key={r.type + r.name}
+                className="grid grid-cols-[56px_1fr] gap-x-2 rounded-md border p-2 font-mono text-xs"
+              >
+                <span>{r.type}</span>
+                <span className="break-all">{r.name}</span>
+                <span />
+                <span className="break-all text-muted-foreground">
+                  {r.value}
+                </span>
+              </div>
+            ))}
+          <div className="flex gap-3">
+            <button
+              type="button"
+              className="underline"
+              disabled={busy}
+              onClick={() => state.refetch()}
+            >
+              Check again
+            </button>
+            <button
+              type="button"
+              className="underline"
+              disabled={busy}
+              onClick={() => save("")}
+            >
+              Disconnect
+            </button>
+          </div>
+        </div>
+      </Field>
+    );
+  return (
+    <Field
+      label="Custom domain (optional)"
+      hint="Serve the website on your own domain, like news.example.com."
+    >
+      <div className="flex gap-2">
+        <input
+          value={domain}
+          onChange={(e) => setDomain(e.target.value)}
+          placeholder="news.example.com"
+          maxLength={253}
+        />
+        <button
+          type="button"
+          className="shrink-0 underline"
+          disabled={busy || !domain.trim()}
+          onClick={() => save(domain)}
+        >
+          Connect
+        </button>
+      </div>
+    </Field>
+  );
 }
