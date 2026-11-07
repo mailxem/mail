@@ -53,6 +53,22 @@ func TestResumeOnlyContinuesOwnPausedCampaignsWithoutStages(t *testing.T) {
 	var cancelled models.Campaign
 	require.NoError(t, db.First(&cancelled, "id = ?", stopped.ID).Error)
 	require.Equal(t, models.CampaignStatusCompleted, cancelled.Status)
-	require.Error(t, cancel(sending.ID), "only paused campaigns cancel")
+	scheduled := add(team, models.CampaignStatusScheduled)
+	require.NoError(t, cancel(scheduled.ID), "a scheduled campaign cancels before it starts")
+	require.Error(t, cancel(sending.ID), "a campaign already sending doesn't cancel")
 	require.Error(t, cancel(foreign.ID), "another workspace's campaign is not found")
+}
+
+func TestSavedCampaignIsScheduledNotADraft(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	require.NoError(t, err)
+	require.NoError(t, db.AutoMigrate(&models.Campaign{}, &models.SMTPConfig{}))
+	// Saving queues the send (AfterCreate), so the status has to say so.
+	saved := models.Campaign{TeamID: uuid.NewString(), Name: "Launch", Status: models.CampaignStatusDraft, TemplateID: uuid.NewString(), ListID: uuid.NewString()}
+	require.NoError(t, db.Create(&saved).Error)
+	require.Equal(t, models.CampaignStatusScheduled, saved.Status)
+	// MCP drafts skip hooks, aren't queued, and stay drafts.
+	draft := models.Campaign{Base: models.Base{ID: uuid.NewString()}, TeamID: saved.TeamID, Name: "Idea", Status: models.CampaignStatusDraft}
+	require.NoError(t, db.Session(&gorm.Session{SkipHooks: true}).Create(&draft).Error)
+	require.Equal(t, models.CampaignStatusDraft, draft.Status)
 }

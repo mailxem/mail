@@ -72,6 +72,11 @@ func (c *Campaign) BeforeCreate(tx *gorm.DB) error {
 	if err := c.checkArchiveNewsletter(tx, true); err != nil {
 		return err
 	}
+	// AfterCreate queues the send, so a saved campaign is scheduled, not a draft.
+	// Drafts that must not send (MCP) are created with SkipHooks.
+	if c.NewsletterID == nil && (c.Status == "" || c.Status == CampaignStatusDraft) {
+		c.Status = CampaignStatusScheduled
+	}
 	return rejectCloudflareMarketing(tx, c.TeamID, c.SMTPConfigID, true, "")
 }
 

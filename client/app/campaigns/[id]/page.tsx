@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AlertTriangle, Save, Trash2 } from "lucide-react";
+import { AlertTriangle, CalendarClock, Save, Trash2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
@@ -167,7 +167,11 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
         method: "POST",
       });
       if (!response.ok) throw new Error();
-      toast.success("Campaign cancelled. The rest of the list won’t be sent.");
+      toast.success(
+        campaign?.status === "SCHEDULED"
+          ? "Campaign cancelled. Nothing will be sent."
+          : "Campaign cancelled. The rest of the list won’t be sent.",
+      );
       await reloadCampaign();
       refetch();
     } catch {
@@ -255,6 +259,30 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
               disabled={resuming}
             >
               Cancel the rest
+            </Button>
+          </div>
+        )}
+        {campaign.status === "SCHEDULED" && (
+          <div
+            role="status"
+            className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-muted/50 p-4 text-sm"
+          >
+            <CalendarClock className="size-4 shrink-0 text-muted-foreground" />
+            <p className="min-w-0 flex-1">
+              {campaign.schedule === "RECURRING"
+                ? "Sends on its recurring schedule."
+                : campaign.scheduledFor &&
+                    new Date(campaign.scheduledFor).getTime() > Date.now()
+                  ? `Sends ${new Date(campaign.scheduledFor).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}.`
+                  : "Sending shortly."}
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => void handleCancel()}
+              disabled={resuming}
+            >
+              Cancel campaign
             </Button>
           </div>
         )}
