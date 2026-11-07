@@ -25,6 +25,11 @@ variable "feedback_queue" {
   type    = bool
   default = false
 }
+# Existing SNS topic for the feedback queue's dead-letter and backlog alarms.
+variable "alarm_topic_arn" {
+  type    = string
+  default = ""
+}
 variable "tags" {
   type    = map(string)
   default = { Project = "Xem", Purpose = "ManagedSending" }
@@ -32,14 +37,17 @@ variable "tags" {
 
 # Adopt the STACK, not its children. CloudFormation remains the single owner of
 # its existing topic/policy/subscription and preserves generated resource ARNs.
+# The template is the one in server/deploy, also used by
+# devops/scripts/enable-ses-events-queue.sh, so the two can't drift apart.
 resource "aws_cloudformation_stack" "sending" {
   name          = var.name
-  template_body = file("${path.module}/cloudformation.json")
+  template_body = file("${path.module}/../../../../server/deploy/managed-sending/cloudformation.json")
   capabilities  = ["CAPABILITY_NAMED_IAM"]
   parameters = {
     RuntimeRoleName   = var.runtime_role_name
     FeedbackEndpoint  = var.feedback_endpoint
     CreateEventsQueue = tostring(var.feedback_queue)
+    AlarmTopicArn     = var.alarm_topic_arn
   }
   tags = var.tags
   lifecycle { prevent_destroy = true }

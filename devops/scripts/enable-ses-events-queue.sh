@@ -85,7 +85,7 @@ else
   # has drifted from the template and needs a human look.
   if ! CHANGES="$changes" python3 - <<'PY'
 import os, sys
-allowed_adds = {"FeedbackQueue", "FeedbackDeadLetterQueue", "FeedbackQueuePolicy", "FeedbackQueueSubscription"}
+allowed_adds = {"FeedbackQueue", "FeedbackDeadLetterQueue", "FeedbackQueuePolicy", "FeedbackQueueSubscription", "FeedbackDeadLetterAlarm", "FeedbackBacklogAgeAlarm"}
 bad = []
 for line in os.environ["CHANGES"].splitlines():
     action, rid, _type, replace = (line.split("\t") + [""] * 4)[:4]
