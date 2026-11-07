@@ -20,8 +20,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { CampaignReport } from "@/components/campaigns/campaign-report";
+import { Status } from "@/components/marketing/shared";
+import { useMarketingQuery } from "@/lib/marketing/api";
+import type { Options } from "@/lib/marketing/types";
 import { AlertTriangle, CalendarClock, Save, Trash2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -30,6 +32,7 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = use(params);
   const { getCampaign, refetch } = useCampaigns();
   const { apiFetch, session } = useApi();
+  const options = useMarketingQuery<Options>("marketing/options");
   const [template, setTemplate] = useState<EmailTemplate | null>(null);
   const [templateVariables, setTemplateVariables] = useState<
     Record<string, any>
@@ -213,11 +216,13 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
   return (
     <div className="container mx-auto">
-      <PageHeader heading={campaign.name}>
+      <PageHeader
+        heading={campaign.name}
+        description={campaign.subject || campaign.description}
+        backButton={{ href: "/campaigns", label: "Campaigns" }}
+      >
         <div className="flex gap-2 items-center">
-          <Button variant="outline" onClick={() => router.back()}>
-            Back
-          </Button>
+          <Status value={campaign.status} />
           <Button variant="destructive" onClick={handleDelete}>
             <Trash2 className="mr-2 h-4 w-4" />
             Delete Campaign
@@ -286,98 +291,73 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
             </Button>
           </div>
         )}
-        {campaign.status === "SENDING" && campaign.sendInStages && (
-          <p
-            role="status"
-            className="rounded-xl border border-border bg-muted/50 p-4 text-sm text-muted-foreground"
-          >
-            Sending in stages to readers you haven’t emailed before.
-            {campaign.nextStageAt &&
-              ` Next stage after ${new Date(campaign.nextStageAt).toLocaleTimeString()}, if bounces and complaints stay low.`}
-          </p>
-        )}
-        {/* Campaign Details Card */}
+        <CampaignReport campaign={campaign} />
+
         <Card>
           <CardHeader>
-            <CardTitle>Campaign Details</CardTitle>
-            <CardDescription>
-              General information about this campaign
-            </CardDescription>
+            <CardTitle>Details</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label className="text-muted-foreground">Status</Label>
-                <div className="mt-1">
-                  <Badge
-                    variant={
-                      campaign.status === "COMPLETED"
-                        ? "default"
-                        : campaign.status === "SENDING"
-                          ? "secondary"
-                          : campaign.status === "SCHEDULED"
-                            ? "outline"
-                            : campaign.status === "FAILED"
-                              ? "destructive"
-                              : "secondary"
-                    }
-                  >
-                    {campaign.status}
-                  </Badge>
+          <CardContent>
+            <dl className="grid gap-x-8 gap-y-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
+              {(
+                [
+                  ["Subject", campaign.subject],
+                  [
+                    "Audience",
+                    options.data?.lists.find((l) => l.id === campaign.listId)
+                      ?.name,
+                  ],
+                  [
+                    "From",
+                    options.data?.senders.find(
+                      (s) => s.id === campaign.smtpConfigId,
+                    )?.fromEmail,
+                  ],
+                  ["Template", template?.name],
+                  [
+                    campaign.schedule === "RECURRING" ? "Repeats" : "Send time",
+                    campaign.schedule === "RECURRING"
+                      ? campaign.cronExpression ||
+                        campaign.recurringSchedule?.toLowerCase()
+                      : campaign.scheduledFor &&
+                        new Date(campaign.scheduledFor).toLocaleString(
+                          undefined,
+                          { dateStyle: "medium", timeStyle: "short" },
+                        ),
+                  ],
+                  [
+                    "Created",
+                    new Date(campaign.createdAt).toLocaleString(undefined, {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    }),
+                  ],
+                  ["Time zone", campaign.timezone],
+                  [
+                    "Open and click tracking",
+                    campaign.trackEngagement === false ? "Off" : "On",
+                  ],
+                  [
+                    "Staged sending",
+                    campaign.sendInStages === false
+                      ? "Off"
+                      : campaign.sendInStages
+                        ? "On"
+                        : "Automatic",
+                  ],
+                ] as const
+              ).map(([label, value]) => (
+                <div key={label}>
+                  <dt className="text-muted-foreground">{label}</dt>
+                  <dd className="mt-0.5 break-words">{value || "—"}</dd>
                 </div>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">Created At</Label>
-                <p className="mt-1">{campaign.createdAt.toLocaleString()}</p>
-              </div>
-            </div>
-
-            {campaign.description && (
-              <div>
-                <Label className="text-muted-foreground">Description</Label>
-                <p className="mt-1">{campaign.description}</p>
-              </div>
+              ))}
+            </dl>
+            {campaign.description && campaign.subject && (
+              <p className="mt-4 border-t pt-4 text-sm text-muted-foreground">
+                {campaign.description}
+              </p>
             )}
-
-            <Separator />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {campaign.schedule && (
-                <div>
-                  <Label className="text-muted-foreground">Schedule</Label>
-                  <p className="mt-1">{campaign.schedule}</p>
-                </div>
-              )}
-
-              {campaign.scheduledFor && (
-                <div>
-                  <Label className="text-muted-foreground">Scheduled For</Label>
-                  <p className="mt-1">
-                    {campaign.scheduledFor.toLocaleString()}
-                  </p>
-                </div>
-              )}
-
-              {campaign.recurringSchedule && (
-                <div>
-                  <Label className="text-muted-foreground">
-                    Recurring Schedule
-                  </Label>
-                  <p className="mt-1">{campaign.recurringSchedule}</p>
-                </div>
-              )}
-
-              {campaign.cronExpression && (
-                <div>
-                  <Label className="text-muted-foreground">
-                    Cron Expression
-                  </Label>
-                  <p className="mt-1 font-mono text-sm">
-                    {campaign.cronExpression}
-                  </p>
-                </div>
-              )}
-            </div>
           </CardContent>
         </Card>
 
