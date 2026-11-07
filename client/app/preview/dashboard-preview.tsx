@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { ArrowUpRight, Plus, RefreshCw } from "lucide-react";
 import { EmailOverview } from "@/components/analytics/dashboard-home";
+import { SendingStatus } from "@/components/onboarding/sending-status";
 import type { EmailReport, EmailTotals } from "@/lib/analytics/types";
 import { PageHeading, QueryState } from "@/components/marketing/shared";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ export function DashboardPreview({ onNavigate }: { onNavigate: (path: string) =>
   const report = useMemo(() => sampleReport(Number(days), state === "empty", tab === "campaigns"), [days, state, tab]);
   return (
     <div className={styles.workspace}>
+      <SendingStatus />
       <PageHeading title="Dashboard" description="Your email activity and campaign performance, in one place." action={<div className="flex flex-wrap gap-2"><Button variant="outline" onClick={() => onNavigate("/developer/logs/emails")}>Open outbox <ArrowUpRight /></Button><Button onClick={() => onNavigate("/newsletters")}><Plus />Create newsletter</Button></div>} />
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className={styles.tabs} aria-label="Preview report source"><TabsTrigger className={styles.tab} value="email">Email</TabsTrigger><TabsTrigger className={styles.tab} value="campaigns">Campaign sample</TabsTrigger></TabsList>

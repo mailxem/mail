@@ -77,7 +77,7 @@ func (h *MailConnectionsHandler) Mailboxes(c echo.Context) error {
 			Provider     string `json:"provider"`
 		}{}
 		cutoff := time.Now().UTC().Add(-24 * time.Hour)
-		if err := h.DB.Table("managed_receiving_mailboxes AS b").Select("b.id, b.address AS username, d.name AS host, CASE WHEN b.active = true AND b.status = 'active' AND d.ready = true AND d.ownership = true AND d.provisioned = true AND d.checked_at >= ? AND a.approved = true AND a.paused = false AND a.suspended = false THEN b.smtp_config_id ELSE '' END AS smtp_config_id, 'MANAGED' AS provider", cutoff).Joins("JOIN managed_domains d ON d.id = b.domain_id AND d.team_id = b.team_id").Joins("JOIN managed_accounts a ON a.team_id = b.team_id").Where("b.team_id = ?", c.Get("teamID")).Scan(&managedRows).Error; err != nil {
+		if err := h.DB.Table("managed_receiving_mailboxes AS b").Select("b.id, b.address AS username, d.name AS host, CASE WHEN b.active = true AND b.status = 'active' AND d.ready = true AND d.ownership = true AND d.provisioned = true AND d.checked_at >= ? AND a.approved = true AND a.paused = false AND a.suspended = false THEN CAST(b.smtp_config_id AS TEXT) ELSE '' END AS smtp_config_id, 'MANAGED' AS provider", cutoff).Joins("JOIN managed_domains d ON d.id = b.domain_id AND d.team_id = b.team_id").Joins("JOIN managed_accounts a ON a.team_id = b.team_id").Where("b.team_id = ?", c.Get("teamID")).Scan(&managedRows).Error; err != nil {
 			return echo.NewHTTPError(500, "Unable to load mailboxes")
 		}
 		rows = append(rows, managedRows...)

@@ -17,9 +17,10 @@ func GetSMTPConfig(teamID string, smtpConfigID string, providerName string, db *
 
 	if smtpConfigID == "" && providerName == "" {
 
-		// get the default smtp config for the team
+		// The team's default sender, or else its oldest active one: a managed
+		// sender is never marked default, and it's often the only sender.
 		smtpConfig := &SMTPConfig{}
-		if err := db.Where("team_id = ? AND is_default = true AND is_deleted = false", teamID).First(smtpConfig).Error; err != nil {
+		if err := db.Where("team_id = ? AND is_deleted = false AND (is_default = true OR is_active = true)", teamID).Order("is_default DESC, created_at ASC").First(smtpConfig).Error; err != nil {
 			return nil, err
 		}
 		return smtpConfig, nil
