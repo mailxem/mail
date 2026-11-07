@@ -5,7 +5,6 @@ import {
   ArrowDown,
   ArrowUp,
   Check,
-  ChevronDown,
   Copy,
   History,
   Mail,
@@ -13,19 +12,18 @@ import {
   Plus,
   Square,
   Users,
-  X,
   ChartNoAxesCombined,
-  Loader2,
   Trash2,
   RefreshCw,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { ActionOutput, ConversationSummary } from "@/lib/assistant/types";
+import type { ConversationSummary } from "@/lib/assistant/types";
 import styles from "./chat.module.css";
 import { GlanceLine } from "./workspace-glance";
 import { useSession } from "next-auth/react";
 import { XemMarkTile } from "./xem-mark";
+import { ApprovalCard, AskCard, RunSummary, actionOf, askOf } from "./agent-run";
 
 const starters = [
   {
@@ -62,9 +60,6 @@ function greeting() {
 }
 export const messageText = (message: UIMessage) =>
   message.parts.flatMap((p) => (p.type === "text" ? [p.text] : [])).join("\n");
-function label(name: string) {
-  return name.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
-}
 function Markdown({ text }: { text: string }) {
   return (
     <div className={styles.markdown}>
@@ -92,146 +87,6 @@ function Markdown({ text }: { text: string }) {
         {text}
       </ReactMarkdown>
     </div>
-  );
-}
-function Output({ value }: { value: unknown }) {
-  return (
-    <pre className={styles.output}>
-      {typeof value === "string" ? value : JSON.stringify(value, null, 2)}
-    </pre>
-  );
-}
-function ToolPart({
-  part,
-  busy,
-  onAction,
-}: {
-  part: UIMessage["parts"][number];
-  busy: boolean;
-  onAction: (id: string, approved: boolean) => void;
-}) {
-  if (!("toolCallId" in part)) return null;
-  const name =
-    "toolName" in part
-      ? String(part.toolName)
-      : part.type.replace(/^tool-/, "");
-  const output = "output" in part ? part.output : undefined;
-  const action =
-    (output as ActionOutput)?.kind === "xem-action"
-      ? (output as ActionOutput)
-      : undefined;
-  const loading =
-    part.state === "input-streaming" || part.state === "input-available";
-  if (action) {
-    const details = (
-      <>
-        <dl className={styles.arguments}>
-          {Object.entries(action.input).map(([key, value]) => (
-            <div key={key}>
-              <dt>{label(key)}</dt>
-              <dd>
-                {typeof value === "object" ? (
-                  <Output value={value} />
-                ) : (
-                  String(value)
-                )}
-              </dd>
-            </div>
-          ))}
-        </dl>
-        {action.result != null && (
-          <details className={styles.result}>
-            <summary>
-              View result <ChevronDown size={14} />
-            </summary>
-            <Output value={action.result} />
-          </details>
-        )}
-      </>
-    );
-    if (action.status === "completed" || action.status === "declined") {
-      return (
-        <details className={styles.resolved}>
-          <summary>
-            {action.status === "completed" ? (
-              <Check size={16} />
-            ) : (
-              <X size={16} />
-            )}
-            <span>
-              <strong>{label(action.tool)}</strong>
-              <span>
-                {action.status === "completed"
-                  ? "Completed in your workspace"
-                  : "Declined · nothing changed"}
-              </span>
-            </span>
-            <ChevronDown size={14} />
-          </summary>
-          {details}
-        </details>
-      );
-    }
-    return (
-      <section
-        className={styles.action}
-        aria-label={`Review ${label(action.tool)}`}
-      >
-        <div className={styles.actionHeading}>
-          <span className={styles.actionIcon}>
-            <Mail size={17} />
-          </span>
-          <div>
-            <strong>{label(action.tool)}</strong>
-            <p>
-              {action.status === "pending"
-                ? "Ready for your review"
-                : action.status === "running"
-                  ? "Outcome pending · check your workspace"
-                  : "Outcome unconfirmed · check before retrying"}
-            </p>
-          </div>
-        </div>
-        {details}
-        {action.status === "pending" && (
-          <div className={styles.actionFooter}>
-            <span>Only these details will be used.</span>
-            <button
-              disabled={busy}
-              onClick={() => onAction(action.actionId, false)}
-            >
-              Decline
-            </button>
-            <button
-              className={styles.approve}
-              disabled={busy}
-              onClick={() => onAction(action.actionId, true)}
-            >
-              <Check size={14} /> Approve
-            </button>
-          </div>
-        )}
-      </section>
-    );
-  }
-  return (
-    <details className={styles.tool}>
-      <summary>
-        {loading ? (
-          <Loader2 size={14} className={styles.spin} />
-        ) : part.state === "output-error" ? (
-          <X size={14} />
-        ) : (
-          <Check size={14} />
-        )}
-        <span>{label(name)}</span>
-        <ChevronDown size={13} />
-      </summary>
-      {output != null && <Output value={output} />}{" "}
-      {part.state === "output-error" && (
-        <p>Couldn’t complete this lookup. Try again in a moment.</p>
-      )}
-    </details>
   );
 }
 export interface ChatViewProps {
@@ -420,23 +275,46 @@ export function ChatView({
                 aria-label={message.role === "user" ? "You" : "Xem"}
               >
                 <div className={styles.messageContent}>
-                  {message.parts.map((part, i) =>
-                    part.type === "text" ? (
-                      message.role === "user" ? (
+                  {message.role === "user" ? (
+                    message.parts.map((part, i) =>
+                      part.type === "text" ? (
                         <div key={i} className={styles.userText}>
                           {part.text}
                         </div>
-                      ) : (
-                        <Markdown key={i} text={part.text} />
-                      )
-                    ) : "toolCallId" in part ? (
-                      <ToolPart
-                        key={i}
-                        part={part}
-                        busy={busy}
-                        onAction={onAction}
+                      ) : null,
+                    )
+                  ) : (
+                    <>
+                      {/* Lookups and decided changes fold into one line; open
+                          proposals stay as cards after the answer. */}
+                      <RunSummary
+                        parts={message.parts.filter((p) => {
+                          const a = actionOf(p);
+                          return "toolCallId" in p && !askOf(p) && (!a || a.status === "completed" || a.status === "declined");
+                        })}
+                        live={busy && message.id === messages[messages.length - 1]?.id}
                       />
-                    ) : null,
+                      {message.parts.map((part, i) =>
+                        part.type === "text" ? <Markdown key={i} text={part.text} /> : null,
+                      )}
+                      {message.parts.map((part, i) => {
+                        const a = actionOf(part);
+                        return a && a.status !== "completed" && a.status !== "declined" ? (
+                          <ApprovalCard key={i} action={a} busy={busy} onAction={onAction} />
+                        ) : null;
+                      })}
+                      {message.parts.map((part, i) => {
+                        const ask = askOf(part);
+                        return ask ? (
+                          <AskCard
+                            key={i}
+                            ask={ask}
+                            active={!busy && message.id === messages[messages.length - 1]?.id}
+                            onReply={onSend}
+                          />
+                        ) : null;
+                      })}
+                    </>
                   )}
                   {message.role === "assistant" &&
                     messageText(message) &&
@@ -472,7 +350,7 @@ export function ChatView({
                 </div>
               </article>
             ))}
-            {busy && (
+            {busy && messages[messages.length - 1]?.role === "user" && (
               <div className={styles.thinking} role="status">
                 <span />
                 <span />

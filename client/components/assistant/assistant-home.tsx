@@ -1,9 +1,9 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState, useId } from "react";
 import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
+import { DefaultChatTransport, type UIMessage } from "ai";
 import { ChatView, messageText } from "./chat-view";
-import type { ConversationSummary } from "@/lib/assistant/types";
+import type { ActionOutput, ConversationSummary } from "@/lib/assistant/types";
 
 async function responseJSON(response: Response) {
   const data = await response.json();
@@ -34,11 +34,15 @@ export function AssistantHome({ embedded = false }: { embedded?: boolean }) {
     () =>
       new DefaultChatTransport({
         api: "/api/assistant",
+        // A send with no new user message carries on after approvals.
         prepareSendMessagesRequest: ({ messages }) => ({
-          body: {
-            conversationId: current.current,
-            text: messageText(messages[messages.length - 1]),
-          },
+          body:
+            messages[messages.length - 1]?.role === "user"
+              ? {
+                  conversationId: current.current,
+                  text: messageText(messages[messages.length - 1]),
+                }
+              : { conversationId: current.current, continue: true },
         }),
       }),
     [],
@@ -112,6 +116,17 @@ export function AssistantHome({ embedded = false }: { embedded?: boolean }) {
         }),
       );
       chat.setMessages(data.conversation.messages);
+      // Once every proposal is decided, the agent reads the outcomes and goes on.
+      const waiting = (data.conversation.messages as UIMessage[]).some((m) =>
+        m.parts.some((p) => {
+          const a = "output" in p ? (p.output as ActionOutput | undefined) : undefined;
+          return a?.kind === "xem-action" && (a.status === "pending" || a.status === "running");
+        }),
+      );
+      if (!waiting) {
+        setActing(false);
+        await chat.sendMessage();
+      }
     } catch (e) {
       setProblem((e as Error).message);
     } finally {

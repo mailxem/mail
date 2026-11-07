@@ -3,8 +3,7 @@ import {
   authenticate,
   AssistantError,
   backendEndpoint,
-  errorResponse,
-} from "./server";
+  errorResponse, logAssistantError } from "./server";
 import { readJSON } from "./http";
 
 // This is a fixed-purpose proxy, never a client-selected upstream URL.
@@ -49,6 +48,12 @@ export async function editorProxy(
       signal: controller.signal,
     });
     if (!response.ok) {
+      // The API explains a 502 (the model failed); log it, keep the reply calm.
+      if (response.status >= 500)
+        logAssistantError(
+          `design ${operation} ${response.status}`,
+          new Error((await response.text().catch(() => "")).slice(0, 300)),
+        );
       const messages: Record<number, string> = {
         400: "Check the template name, subject, category, and design, then try again.",
         401: "Please sign in again. Your draft is still here.",
@@ -74,7 +79,8 @@ export async function editorProxy(
     if (
       error instanceof Error &&
       ["TimeoutError", "AbortError", "TypeError"].includes(error.name)
-    )
+    ) {
+      logAssistantError(`design ${operation}`, error);
       return Response.json(
         {
           error:
@@ -84,6 +90,7 @@ export async function editorProxy(
         },
         { status: 503 },
       );
+    }
     return errorResponse(error);
   } finally {
     clearTimeout(timeout);
