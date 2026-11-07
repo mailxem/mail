@@ -41,8 +41,12 @@ export type Newsletter = {
   lastSentAt?: string;
   editions: number;
   postalAddress: string;
-  /** Web archive address (/n/{publicSlug}); null when the archive is private. */
+  /** Website address (xem.email/{publicSlug}); null when the site is off. */
   publicSlug?: string | null;
+  /** The website's look: paper, broadsheet or midnight. */
+  siteTheme?: string;
+  /** An https:// image shown on the website. */
+  siteLogoUrl?: string;
   /** Off sends editions without the open pixel or click-tracking links. */
   trackEngagement?: boolean;
 };
