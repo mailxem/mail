@@ -125,9 +125,15 @@ func TestTrackingFlagsMachines(t *testing.T) {
 	click("GET", burst, "https://example.com/a", browser)
 	click("GET", burst, "https://example.com/b", browser)
 	click("GET", burst, "https://example.com/c", browser)
-	for _, e := range events(burst) {
-		require.Equal(t, "several links clicked at once", e.MachineReason, e.URL)
-	}
+	// The flush flags the burst just after it saves the row, so wait for the flag too.
+	require.Eventually(t, func() bool {
+		for _, e := range events(burst) {
+			if e.MachineReason != "several links clicked at once" {
+				return false
+			}
+		}
+		return true
+	}, 2*time.Second, 5*time.Millisecond)
 
 	// Opens: a person, Apple Mail Privacy Protection and a scanner.
 	opened := email(hourAgo)
