@@ -21,6 +21,12 @@
         "true"
       ],
       "Description": "true adds an SQS queue (and dead-letter queue) subscribed to the feedback topic. Set the backend's SES_EVENTS_QUEUE_URL to the FeedbackQueueURL output."
+    },
+    "AlarmTopicArn": {
+      "Type": "String",
+      "Default": "",
+      "AllowedPattern": "^$|^arn:[a-z0-9-]+:sns:[a-z0-9-]+:[0-9]{12}:[A-Za-z0-9_.-]+$",
+      "Description": "Existing operator SNS topic for feedback queue alarm and recovery notifications."
     }
   },
   "Conditions": {
@@ -42,6 +48,18 @@
           "Ref": "CreateEventsQueue"
         },
         "true"
+      ]
+    },
+    "HasAlarmTopic": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "AlarmTopicArn"
+            },
+            ""
+          ]
+        }
       ]
     }
   },
@@ -313,6 +331,112 @@
           "Ref": "FeedbackTopic"
         },
         "RawMessageDelivery": false
+      }
+    },
+    "FeedbackDeadLetterAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Condition": "HasEventsQueue",
+      "Properties": {
+        "AlarmDescription": "SES feedback that failed 5 times is waiting in the dead-letter queue: bounces or complaints may be unrecorded.",
+        "Namespace": "AWS/SQS",
+        "MetricName": "ApproximateNumberOfMessagesVisible",
+        "Dimensions": [
+          {
+            "Name": "QueueName",
+            "Value": {
+              "Fn::GetAtt": [
+                "FeedbackDeadLetterQueue",
+                "QueueName"
+              ]
+            }
+          }
+        ],
+        "Statistic": "Maximum",
+        "Period": 60,
+        "EvaluationPeriods": 1,
+        "DatapointsToAlarm": 1,
+        "Threshold": 1,
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "TreatMissingData": "notBreaching",
+        "AlarmActions": {
+          "Fn::If": [
+            "HasAlarmTopic",
+            [
+              {
+                "Ref": "AlarmTopicArn"
+              }
+            ],
+            {
+              "Ref": "AWS::NoValue"
+            }
+          ]
+        },
+        "OKActions": {
+          "Fn::If": [
+            "HasAlarmTopic",
+            [
+              {
+                "Ref": "AlarmTopicArn"
+              }
+            ],
+            {
+              "Ref": "AWS::NoValue"
+            }
+          ]
+        }
+      }
+    },
+    "FeedbackBacklogAgeAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Condition": "HasEventsQueue",
+      "Properties": {
+        "AlarmDescription": "SES feedback has waited over 10 minutes in the queue: the backend may not be reading it.",
+        "Namespace": "AWS/SQS",
+        "MetricName": "ApproximateAgeOfOldestMessage",
+        "Dimensions": [
+          {
+            "Name": "QueueName",
+            "Value": {
+              "Fn::GetAtt": [
+                "FeedbackQueue",
+                "QueueName"
+              ]
+            }
+          }
+        ],
+        "Statistic": "Maximum",
+        "Period": 60,
+        "EvaluationPeriods": 2,
+        "DatapointsToAlarm": 2,
+        "Threshold": 600,
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "TreatMissingData": "notBreaching",
+        "AlarmActions": {
+          "Fn::If": [
+            "HasAlarmTopic",
+            [
+              {
+                "Ref": "AlarmTopicArn"
+              }
+            ],
+            {
+              "Ref": "AWS::NoValue"
+            }
+          ]
+        },
+        "OKActions": {
+          "Fn::If": [
+            "HasAlarmTopic",
+            [
+              {
+                "Ref": "AlarmTopicArn"
+              }
+            ],
+            {
+              "Ref": "AWS::NoValue"
+            }
+          ]
+        }
       }
     }
   },
