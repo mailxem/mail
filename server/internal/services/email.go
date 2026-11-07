@@ -11,12 +11,14 @@ import (
 	"kori/internal/db"
 	"kori/internal/events"
 	"kori/internal/mailconnect"
+	"kori/internal/marketing"
 	"kori/internal/models"
 	"kori/internal/tasks"
 	"kori/internal/utils"
 	"kori/internal/utils/base64"
 	"kori/internal/utils/logger"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -593,15 +595,19 @@ func sendEmail(
 	}
 
 	htmlFromTemplate := handler.body
+	if htmlFromTemplate == "" {
+		// Editor templates keep raw HTML in HTMLBody; older ones only have a file.
+		htmlFromTemplate = template.HTMLBody
+	}
 
-	if handler.body == "" && template.HtmlFile != nil {
+	if htmlFromTemplate == "" && template.HtmlFile != nil {
 		// Get HTML content outside transaction since it's an external operation
 		htmlFromTemplate, err = utils.GetHTMLFromURL(template.HtmlFile.SignedURL)
 		if err != nil {
 			tx.Rollback()
 			return log.Error("failed to get html from template ❌", err)
 		}
-	} else if handler.body == "" && template.HtmlFile == nil {
+	} else if htmlFromTemplate == "" {
 		tx.Rollback()
 		return log.Error("failed to get html from template ❌", errors.New("body is empty"))
 	}
@@ -610,10 +616,10 @@ func sendEmail(
 	parsedSubject := handler.subject
 	if handler.subject == "" {
 		parsedSubject = utils.ReplaceVariables(template.Subject, handler.variables, definedID.String(), cfg, false, false)
-		parsedSubject, err = base64.DecodeFromBase64(parsedSubject)
-		if err != nil {
-			tx.Rollback()
-			return log.Error("failed to decode subject ❌", err)
+		// Editor templates store the subject raw; legacy ones store it base64.
+		// ponytail: a raw subject that happens to be valid base64 gets decoded; store an encoding flag if that bites.
+		if decoded, err := base64.DecodeFromBase64(parsedSubject); err == nil {
+			parsedSubject = decoded
 		}
 	}
 
@@ -624,28 +630,40 @@ func sendEmail(
 		return log.Error("failed to convert variables to json ❌", err)
 	}
 
+	// Marketing API mail needs the same one-click unsubscribe link campaigns use.
+	unsub := ""
+	if category.Name == "Marketing" && contact.ID != "" {
+		m := marketing.New(tx, cfg.JWT.Secret, os.Getenv("PUBLIC_API_URL"))
+		if len(m.Secret) < 32 || !strings.HasPrefix(m.PublicURL, "https://") {
+			tx.Rollback()
+			return log.Error("marketing email requires a 32-character JWT secret and HTTPS PUBLIC_API_URL ❌", errors.New("unsubscribe link unavailable"))
+		}
+		unsub = m.PublicURL + "/public/unsubscribe/" + handler.teamId + "/" + contact.ID + "/" + m.MessageToken(handler.teamId, contact.ID, definedID.String()) + "?message=" + definedID.String()
+	}
+
 	// Create email
 	email := &models.Email{
-		From:         smtpConfig.FromEmail,
-		TeamID:       handler.teamId,
-		TemplateID:   handler.templateId,
-		To:           handler.to,
-		Subject:      parsedSubject,
-		Body:         parsedBody,
-		Status:       models.EmailStatusPending,
-		Data:         jsonData,
-		ContactID:    contact.ID,
-		CategoryID:   category.ID,
-		SMTPConfigID: smtpConfig.ID,
-		CampaignID:   handler.campaignId,
-		CC:           handler.cc,
-		BCC:          handler.bcc,
-		ReplyTo:      handler.replyTo,
-		InReplyTo:    handler.inReplyTo,
-		Attachments:  handler.attachments,
-		RequestHash:  handler.requestHash,
-		Test:         handler.testMail,
-		SendAt:       handler.sendAt,
+		From:           smtpConfig.FromEmail,
+		TeamID:         handler.teamId,
+		TemplateID:     handler.templateId,
+		To:             handler.to,
+		Subject:        parsedSubject,
+		Body:           parsedBody,
+		Status:         models.EmailStatusPending,
+		Data:           jsonData,
+		ContactID:      contact.ID,
+		CategoryID:     category.ID,
+		SMTPConfigID:   smtpConfig.ID,
+		CampaignID:     handler.campaignId,
+		CC:             handler.cc,
+		BCC:            handler.bcc,
+		ReplyTo:        handler.replyTo,
+		InReplyTo:      handler.inReplyTo,
+		Attachments:    handler.attachments,
+		RequestHash:    handler.requestHash,
+		Test:           handler.testMail,
+		SendAt:         handler.sendAt,
+		UnsubscribeURL: unsub,
 	}
 
 	email.ID = definedID.String()

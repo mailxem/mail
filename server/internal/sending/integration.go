@@ -18,9 +18,28 @@ func (s *Service) SubmitEmail(ctx context.Context, email *models.Email, raw []by
 	if err != nil {
 		return err
 	}
+	marketing, err := s.isMarketing(ctx, email)
+	if err != nil {
+		return err
+	}
 	ref, kind := s.feedbackRef(ctx, email.TeamID, email.ID, email.CampaignID)
-	_, err = s.Submit(ctx, emailSubmission(email, domainID, raw, ref, kind))
+	_, err = s.Submit(ctx, emailSubmission(email, domainID, raw, ref, kind, marketing))
 	return err
+}
+
+// isMarketing decides by campaign, unsubscribe link or category, never by contact:
+// every API send has a contact, and treating those as marketing made transactional
+// API mail fail the one-click unsubscribe check forever.
+func (s *Service) isMarketing(ctx context.Context, email *models.Email) (bool, error) {
+	if email.CampaignID != "" || email.UnsubscribeURL != "" {
+		return true, nil
+	}
+	if email.CategoryID == "" {
+		return false, nil
+	}
+	var n int64
+	err := s.DB.WithContext(ctx).Model(&models.EmailCategory{}).Where("id = ? AND team_id = ? AND name = ?", email.CategoryID, email.TeamID, "Marketing").Count(&n).Error
+	return n > 0, err
 }
 
 // SubmitEmails is SubmitEmail for a page of one team's emails, reserving
@@ -53,7 +72,12 @@ func (s *Service) SubmitEmails(ctx context.Context, emails []*models.Email, raws
 				refs[email.CampaignID] = ref
 			}
 		}
-		subs = append(subs, emailSubmission(email, d.id, raws[i], ref[0], ref[1]))
+		marketing, err := s.isMarketing(ctx, email)
+		if err != nil {
+			errs[i] = err
+			continue
+		}
+		subs = append(subs, emailSubmission(email, d.id, raws[i], ref[0], ref[1], marketing))
 		at = append(at, i)
 	}
 	for j, r := range s.SubmitBatch(ctx, subs) {
@@ -62,14 +86,14 @@ func (s *Service) SubmitEmails(ctx context.Context, emails []*models.Email, raws
 	return errs
 }
 
-func emailSubmission(email *models.Email, domainID string, raw []byte, ref, kind string) Submission {
+func emailSubmission(email *models.Email, domainID string, raw []byte, ref, kind string, marketing bool) Submission {
 	recipients := []string{email.To}
 	for _, list := range []string{email.CC, email.BCC} {
 		if list != "" {
 			recipients = append(recipients, strings.Split(list, ",")...)
 		}
 	}
-	return Submission{TeamID: email.TeamID, DomainID: domainID, EmailID: email.ID, Key: "email-" + email.ID, From: email.From, Recipients: recipients, Raw: raw, Marketing: email.CampaignID != "" || email.ContactID != "", FeedbackRef: ref, FeedbackKind: kind, Transient: RenderRaw != nil}
+	return Submission{TeamID: email.TeamID, DomainID: domainID, EmailID: email.ID, Key: "email-" + email.ID, From: email.From, Recipients: recipients, Raw: raw, Marketing: marketing, FeedbackRef: ref, FeedbackKind: kind, Transient: RenderRaw != nil}
 }
 
 // feedbackRef is the first Feedback-ID field of an in-process email: its
