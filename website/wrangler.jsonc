@@ -3,9 +3,14 @@
   "name": "xem-website",
   "compatibility_date": "2026-09-10",
   "previews": {},
+  // Newsletter websites: paths the static site doesn't have go to the Worker.
+  "main": "worker/index.ts",
   "assets": {
     "directory": "./out",
-    "html_handling": "drop-trailing-slash",
-    "not_found_handling": "404-page"
-  }
+    "binding": "ASSETS",
+    "html_handling": "drop-trailing-slash"
+    // No not_found_handling: unknown paths must reach the Worker, which
+    // serves /404 itself when there's no newsletter there either.
+  },
+  "vars": { "API_URL": "https://api.xem.email" }
 }
