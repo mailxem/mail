@@ -1,0 +1,156 @@
+{
+  "title": "Email authentication on the top 10,000 websites",
+  "year": 2026,
+  "scannedAt": "2026-11-08T04:15:00Z",
+  "publishedAt": "2026-11-08",
+  "source": {
+    "name": "Tranco top sites list",
+    "id": "94P72",
+    "url": "https://tranco-list.eu/list/94P72"
+  },
+  "method": "MX and TXT lookups (SPF on the domain, DMARC at _dmarc, BIMI at default._bimi, MTA-STS at _mta-sts) for Tranco ranks 1-10,000 through Cloudflare, Google and Quad9 public resolvers. Percentages under 'mail' cover domains with a non-null MX record. Failed lookups are excluded from that check.",
+  "license": "CC BY 4.0, cite https://xem.email/research/email-authentication",
+  "results": {
+    "scanned": 10000,
+    "errors": 120,
+    "receivesMail": 7266,
+    "all": {
+      "domains": 10000,
+      "spf": 75.6,
+      "spfAll": {
+        "-all": 49.7,
+        "~all": 44.2,
+        "redirect": 2.9,
+        "?all": 2.1,
+        "multiple": 0.7,
+        "none": 0.4,
+        "+all": 0.0
+      },
+      "dmarc": 67.7,
+      "dmarcPolicy": {
+        "none": 16.8,
+        "quarantine": 19.4,
+        "reject": 31.2,
+        "invalid": 0.2
+      },
+      "dmarcEnforced": 50.6,
+      "dmarcReject": 31.2,
+      "dmarcReports": 86.1,
+      "dmarcPartial": 2.7,
+      "spfAndDmarc": 65.2,
+      "bimi": 9.8,
+      "mtaSts": 2.9
+    },
+    "mail": {
+      "domains": 7266,
+      "spf": 93.3,
+      "spfAll": {
+        "~all": 47.5,
+        "-all": 46.2,
+        "redirect": 3.1,
+        "?all": 2.1,
+        "multiple": 0.7,
+        "none": 0.4,
+        "+all": 0.0
+      },
+      "dmarc": 83.1,
+      "dmarcPolicy": {
+        "none": 21.7,
+        "quarantine": 26.0,
+        "reject": 35.1,
+        "invalid": 0.2
+      },
+      "dmarcEnforced": 61.1,
+      "dmarcReject": 35.1,
+      "dmarcReports": 87.0,
+      "dmarcPartial": 2.8,
+      "spfAndDmarc": 81.6,
+      "bimi": 13.3,
+      "mtaSts": 4.0
+    },
+    "tiers": {
+      "100": {
+        "domains": 65,
+        "spf": 93.8,
+        "spfAll": {
+          "-all": 50.8,
+          "~all": 32.8,
+          "redirect": 11.5,
+          "?all": 4.9
+        },
+        "dmarc": 86.2,
+        "dmarcPolicy": {
+          "none": 10.8,
+          "quarantine": 18.5,
+          "reject": 56.9,
+          "invalid": 0.0
+        },
+        "dmarcEnforced": 75.4,
+        "dmarcReject": 56.9,
+        "dmarcReports": 96.4,
+        "dmarcPartial": 0.0,
+        "spfAndDmarc": 86.2,
+        "bimi": 26.2,
+        "mtaSts": 12.3
+      },
+      "1000": {
+        "domains": 693,
+        "spf": 93.8,
+        "spfAll": {
+          "-all": 52.8,
+          "~all": 40.0,
+          "redirect": 4.9,
+          "?all": 1.8,
+          "multiple": 0.5
+        },
+        "dmarc": 89.0,
+        "dmarcPolicy": {
+          "none": 14.3,
+          "quarantine": 24.2,
+          "reject": 50.5,
+          "invalid": 0.0
+        },
+        "dmarcEnforced": 74.7,
+        "dmarcReject": 50.5,
+        "dmarcReports": 93.4,
+        "dmarcPartial": 1.5,
+        "spfAndDmarc": 88.0,
+        "bimi": 23.3,
+        "mtaSts": 5.3
+      },
+      "10000": {
+        "domains": 7266,
+        "spf": 93.3,
+        "spfAll": {
+          "~all": 47.5,
+          "-all": 46.2,
+          "redirect": 3.1,
+          "?all": 2.1,
+          "multiple": 0.7,
+          "none": 0.4,
+          "+all": 0.0
+        },
+        "dmarc": 83.1,
+        "dmarcPolicy": {
+          "none": 21.7,
+          "quarantine": 26.0,
+          "reject": 35.1,
+          "invalid": 0.2
+        },
+        "dmarcEnforced": 61.1,
+        "dmarcReject": 35.1,
+        "dmarcReports": 87.0,
+        "dmarcPartial": 2.8,
+        "spfAndDmarc": 81.6,
+        "bimi": 13.3,
+        "mtaSts": 4.0
+      }
+    },
+    "noMail": {
+      "domains": 2711,
+      "nullMx": 72,
+      "lockedDown": 16.3,
+      "dmarc": 26.4
+    }
+  }
+}

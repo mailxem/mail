@@ -17,6 +17,7 @@ export function GET() {
 - [Pricing](${siteUrl}/pricing): per email sent. Free 3,000 a month, up to 100 a day; Starter $9 with 20,000, then $0.50 per 1,000; Growth $29 with 100,000, then $0.30; Scale $99 with 500,000, then $0.20. Self-hosting is free; a $49 one-time license adds newsletters, the shared inbox and Cloudflare mailboxes and removes the “Sent with Xem” footer.
 - [MCP server](${siteUrl}/mcp): 43 tools that let Claude and other AI agents run Xem campaigns, newsletters, contacts, forms, automations, sending domains and analytics. Claude Code: claude mcp add --transport http xem https://mcp.xem.email/mcp --header "Authorization: Bearer YOUR_XEM_API_KEY"
 - [Email deliverability checker](${siteUrl}/tools/email-checker): free browser-only check of a domain's MX, SPF (including the 10-lookup limit), DMARC and DKIM records, with the record to add for each problem
+- [Email authentication research](${siteUrl}/research/email-authentication): SPF, DMARC, BIMI and MTA-STS adoption across the top 10,000 websites, with the method and the aggregate data
 - [Source code](${githubUrl}): app, Go backend, SDKs and self-hosting tools
 
 ## Compare and switch
