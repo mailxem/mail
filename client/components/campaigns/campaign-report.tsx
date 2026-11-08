@@ -22,6 +22,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import type { Campaign } from "@/lib";
+import { ClickMap } from "./click-map";
 
 export type CampaignReportData = {
   delivery: {
@@ -47,7 +48,9 @@ export type CampaignReportData = {
     botClicks: number;
     proxyOpens: number;
     deviceBreakdown?: Record<string, number> | null;
-    clickedLinks?: { url: string; uniqueClicks: number; clickRate: number }[] | null;
+    clickedLinks?:
+      | { url: string; uniqueClicks: number; clickRate: number }[]
+      | null;
   };
   stages?: {
     returningLeft: number;
@@ -57,8 +60,10 @@ export type CampaignReportData = {
   };
 };
 
-const pct = (n: number) => `${n >= 10 || n === 0 ? Math.round(n) : n.toFixed(1)}%`;
-const share = (part: number, whole: number) => (whole ? (part / whole) * 100 : 0);
+const pct = (n: number) =>
+  `${n >= 10 || n === 0 ? Math.round(n) : n.toFixed(1)}%`;
+const share = (part: number, whole: number) =>
+  whole ? (part / whole) * 100 : 0;
 const count = (n: number, one: string, many = one + "s") =>
   `${n.toLocaleString()} ${n === 1 ? one : many}`;
 
@@ -73,7 +78,11 @@ export function CampaignReport({ campaign }: { campaign: Campaign }) {
   const r = q.data;
   if (!r)
     return (
-      <QueryState loading={q.isLoading} error={q.error} retry={() => q.refetch()} />
+      <QueryState
+        loading={q.isLoading}
+        error={q.error}
+        retry={() => q.refetch()}
+      />
     );
   const d = r.delivery;
   const e = r.engagement;
@@ -135,7 +144,10 @@ export function CampaignReport({ campaign }: { campaign: Campaign }) {
                   .sort((a, b) => b.uniqueClicks - a.uniqueClicks)
                   .slice(0, 8)
                   .map((l) => (
-                    <li key={l.url} className="flex items-center gap-3 py-2.5 text-sm">
+                    <li
+                      key={l.url}
+                      className="flex items-center gap-3 py-2.5 text-sm"
+                    >
                       <Link2 className="size-4 shrink-0 text-muted-foreground" />
                       <a
                         href={l.url}
@@ -145,7 +157,9 @@ export function CampaignReport({ campaign }: { campaign: Campaign }) {
                       >
                         {l.url.replace(/^https?:\/\//, "")}
                       </a>
-                      <span className="tabular-nums font-medium">{l.uniqueClicks}</span>
+                      <span className="tabular-nums font-medium">
+                        {l.uniqueClicks}
+                      </span>
                       <span className="w-12 text-right tabular-nums text-xs text-muted-foreground">
                         {pct(l.clickRate)}
                       </span>
@@ -170,11 +184,14 @@ export function CampaignReport({ campaign }: { campaign: Campaign }) {
               {machines > 0
                 ? `Left out of these numbers: ${count(e.proxyOpens, "privacy-proxy open")}, ${count(e.botOpens, "bot open")} and ${count(e.botClicks, "link-scanner click")}.`
                 : "Bot opens and link-scanner clicks are left out of these numbers."}
-              {e.untracked > 0 && ` ${count(e.untracked, "email was", "emails were")} sent without tracking.`}
+              {e.untracked > 0 &&
+                ` ${count(e.untracked, "email was", "emails were")} sent without tracking.`}
             </p>
           </CardContent>
         </Card>
       </div>
+
+      <SentClickMap campaign={campaign} links={e.clickedLinks || []} />
 
       <Link
         href={`/analytics/campaigns?campaignId=${campaign.id}`}
@@ -183,6 +200,34 @@ export function CampaignReport({ campaign }: { campaign: Campaign }) {
         Audience report for this campaign <ArrowUpRight className="size-3.5" />
       </Link>
     </div>
+  );
+}
+
+function SentClickMap({
+  campaign,
+  links,
+}: {
+  campaign: Campaign;
+  links: NonNullable<CampaignReportData["engagement"]["clickedLinks"]>;
+}) {
+  const sent = useMarketingQuery<{ html: string; source: string }>(
+    `marketing/campaigns/${campaign.id}/sent-html`,
+  );
+  if (!sent.data?.html) return null;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Click map</CardTitle>
+        <CardDescription>
+          {sent.data.source === "sent"
+            ? "The email as it went out, with each link outlined by how many people clicked it."
+            : "The campaign's template, with each link outlined by how many people clicked it."}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ClickMap html={sent.data.html} links={links} />
+      </CardContent>
+    </Card>
   );
 }
 
@@ -220,7 +265,9 @@ function DeliveryBar({ d }: { d: CampaignReportData["delivery"] }) {
           <div key={label} className="flex items-center gap-2">
             <span className={`size-2 rounded-full ${color}`} aria-hidden />
             <dt className="text-muted-foreground">{label}</dt>
-            <dd className="ml-auto tabular-nums font-medium">{n.toLocaleString()}</dd>
+            <dd className="ml-auto tabular-nums font-medium">
+              {n.toLocaleString()}
+            </dd>
           </div>
         ))}
       </dl>
@@ -232,17 +279,26 @@ function Bars({ data }: { data: Record<string, number> }) {
   const rows = Object.entries(data).sort((a, b) => b[1] - a[1]);
   const total = rows.reduce((s, [, n]) => s + n, 0);
   if (!total)
-    return <p className="py-4 text-center text-sm text-muted-foreground">No opens yet.</p>;
+    return (
+      <p className="py-4 text-center text-sm text-muted-foreground">
+        No opens yet.
+      </p>
+    );
   return (
     <ul className="space-y-2.5">
       {rows.slice(0, 5).map(([name, n]) => (
         <li key={name} className="text-sm">
           <div className="mb-1 flex justify-between">
             <span className="capitalize">{name || "Unknown"}</span>
-            <span className="tabular-nums text-muted-foreground">{pct(share(n, total))}</span>
+            <span className="tabular-nums text-muted-foreground">
+              {pct(share(n, total))}
+            </span>
           </div>
           <div className="h-1.5 rounded-full bg-muted">
-            <div className="h-full rounded-full bg-emerald-500" style={{ width: `${share(n, total)}%` }} />
+            <div
+              className="h-full rounded-full bg-emerald-500"
+              style={{ width: `${share(n, total)}%` }}
+            />
           </div>
         </li>
       ))}
@@ -251,7 +307,13 @@ function Bars({ data }: { data: Record<string, number> }) {
 }
 
 /** Staged sending: returning readers first, then never-emailed readers in three stages. */
-function Stages({ campaign, r }: { campaign: Campaign; r: CampaignReportData }) {
+function Stages({
+  campaign,
+  r,
+}: {
+  campaign: Campaign;
+  r: CampaignReportData;
+}) {
   const s = r.stages!;
   const returningSent = Math.max(0, r.delivery.total - s.sentToNew);
   const steps = [
@@ -280,7 +342,8 @@ function Stages({ campaign, r }: { campaign: Campaign; r: CampaignReportData }) 
   const waiting =
     campaign.status === "PAUSED"
       ? "Paused: check the warning above"
-      : campaign.nextStageAt && new Date(campaign.nextStageAt).getTime() > Date.now()
+      : campaign.nextStageAt &&
+          new Date(campaign.nextStageAt).getTime() > Date.now()
         ? `Starts after ${new Date(campaign.nextStageAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}, if bounces and complaints stay low`
         : "Sending";
   return (
@@ -288,8 +351,8 @@ function Stages({ campaign, r }: { campaign: Campaign; r: CampaignReportData }) 
       <CardHeader>
         <CardTitle>Staged sending</CardTitle>
         <CardDescription>
-          New readers get it in stages, so a bad list pauses before it hurts your
-          sender reputation. {s.sentToNew.toLocaleString()} of{" "}
+          New readers get it in stages, so a bad list pauses before it hurts
+          your sender reputation. {s.sentToNew.toLocaleString()} of{" "}
           {s.new.toLocaleString()} new readers sent so far.
         </CardDescription>
       </CardHeader>
@@ -323,7 +386,13 @@ function Stages({ campaign, r }: { campaign: Campaign; r: CampaignReportData }) 
                   )}
                 </span>
                 <div className="min-w-0 text-sm">
-                  <p className={step.done || active ? "font-medium" : "text-muted-foreground"}>
+                  <p
+                    className={
+                      step.done || active
+                        ? "font-medium"
+                        : "text-muted-foreground"
+                    }
+                  >
                     {step.title}
                   </p>
                   <p className="text-muted-foreground">
