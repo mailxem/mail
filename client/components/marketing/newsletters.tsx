@@ -41,6 +41,7 @@ import {
   Status,
 } from "./shared";
 import { toast } from "sonner";
+import { SiteAnalytics } from "./site-analytics";
 import { PaidPlanNotice, usePaidPlan } from "@/components/billing/paid-plan";
 
 // Newsletter websites live on the marketing site, not in the app.
@@ -55,6 +56,7 @@ export function NewslettersPage() {
   const [editing, setEditing] = useState<Partial<Newsletter> | null>(null);
   const [history, setHistory] = useState<Newsletter | null>(null);
   const [site, setSite] = useState<Newsletter | null>(null);
+  const [stats, setStats] = useState<Newsletter | null>(null);
   const rows = q.data || [];
   // Newsletters, and their websites, come with Starter and up.
   const paid = usePaidPlan();
@@ -252,12 +254,20 @@ export function NewslettersPage() {
                               {liveUrl(n).replace(/^https?:\/\//, "")}
                               <ArrowUpRight size={12} />
                             </a>
-                            <button
-                              className="text-xs text-muted-foreground hover:text-foreground"
-                              onClick={() => setSite(n)}
-                            >
-                              Website settings
-                            </button>
+                            <span className="flex gap-3 text-xs text-muted-foreground">
+                              <button
+                                className="hover:text-foreground"
+                                onClick={() => setStats(n)}
+                              >
+                                Analytics
+                              </button>
+                              <button
+                                className="hover:text-foreground"
+                                onClick={() => setSite(n)}
+                              >
+                                Settings
+                              </button>
+                            </span>
                           </div>
                         ) : paid ? (
                           <Button
@@ -289,6 +299,11 @@ export function NewslettersPage() {
                             {paid && (
                               <DropdownMenuItem onClick={() => setSite(n)}>
                                 Website
+                              </DropdownMenuItem>
+                            )}
+                            {n.publicSlug && (
+                              <DropdownMenuItem onClick={() => setStats(n)}>
+                                Website analytics
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuItem
@@ -334,6 +349,14 @@ export function NewslettersPage() {
       )}{" "}
       {history && (
         <EditionHistory newsletter={history} close={() => setHistory(null)} />
+      )}
+      {stats && (
+        <SiteAnalytics
+          key={stats.id}
+          newsletter={stats}
+          url={liveUrl(stats)}
+          close={() => setStats(null)}
+        />
       )}
       {site && (
         <NewsletterWebsite

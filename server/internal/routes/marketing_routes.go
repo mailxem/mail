@@ -87,6 +87,7 @@ func SetupMarketingRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 	g.PUT("/newsletters/:id", h.SaveNewsletter, paidNewsletters, middleware.RequirePermissions(db, "campaigns:create"))
 	g.POST("/newsletters/:id/pause", h.PauseNewsletter, middleware.RequirePermissions(db, "campaigns:create"))
 	g.PUT("/newsletters/:id/site", h.SetNewsletterSite, paidNewsletters, middleware.RequirePermissions(db, "campaigns:create"))
+	g.GET("/newsletters/:id/site/analytics", h.SiteAnalytics, middleware.RequirePermissions(db, "campaigns:read"))
 	g.GET("/newsletters/:id/domain", h.NewsletterDomain, middleware.RequirePermissions(db, "campaigns:read"))
 	g.PUT("/newsletters/:id/domain", h.SetNewsletterDomain, paidNewsletters, middleware.RequirePermissions(db, "campaigns:create"))
 	g.GET("/campaigns/:id/report", h.CampaignReport, middleware.RequirePermissions(db, "campaigns:read"))
@@ -121,6 +122,8 @@ func SetupMarketingRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 	archive.GET("/:slug/issues/:id", h.PublicNewsletterIssue)
 	archive.POST("/:slug/subscribe", h.SubscribeNewsletter, em.BodyLimit("4K"))
 	archive.POST("/:slug/confirm", h.ConfirmNewsletter, em.BodyLimit("4K"))
+	// Page views and clicks come straight from readers' browsers.
+	e.POST("/public/newsletters/:slug/events", h.RecordSiteEvent, em.BodyLimit("2K"), em.RateLimiter(em.NewRateLimiterMemoryStore(rate.Limit(5))))
 	public.POST("/unsubscribe/:team/:contact/:token", h.Unsubscribe)
 	public.GET("/keep/:team/:contact/:token", h.KeepSending)
 	public.POST("/keep/:team/:contact/:token", h.KeepSending)
