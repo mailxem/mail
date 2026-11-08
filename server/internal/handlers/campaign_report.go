@@ -85,3 +85,25 @@ func (h *MarketingHandler) CampaignReport(c echo.Context) error {
 	}
 	return c.JSON(200, r)
 }
+
+// CampaignSentHTML returns the HTML a campaign went out with, for the click
+// map: the shared content its emails were built from, or else its template.
+func (h *MarketingHandler) CampaignSentHTML(c echo.Context) error {
+	var campaign models.Campaign
+	if err := h.scoped(c).First(&campaign, "id = ?", c.Param("id")).Error; err != nil {
+		return missing()
+	}
+	db := h.service.DB.WithContext(c.Request().Context())
+	var content models.EmailContent
+	err := db.Where("team_id = ? AND id = (?)", campaign.TeamID,
+		db.Model(&models.Email{}).Select("content_id").Where("campaign_id = ? AND team_id = ? AND content_id IS NOT NULL", campaign.ID, campaign.TeamID).Limit(1)).
+		First(&content).Error
+	if err == nil {
+		return c.JSON(200, map[string]string{"html": content.HTML, "source": "sent"})
+	}
+	var tpl models.Template
+	if campaign.TemplateID != "" && db.Where("id = ? AND team_id = ?", campaign.TemplateID, campaign.TeamID).First(&tpl).Error == nil && tpl.HTMLBody != "" {
+		return c.JSON(200, map[string]string{"html": tpl.HTMLBody, "source": "template"})
+	}
+	return c.JSON(200, map[string]string{"html": "", "source": ""})
+}
