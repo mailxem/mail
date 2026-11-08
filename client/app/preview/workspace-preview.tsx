@@ -147,6 +147,7 @@ const newsletters = [
   {
     id: "newsletter",
     name: "The Sunday Edit",
+    publicSlug: "sunday-edit",
     description: "Ideas for a slower Sunday.",
     subject: "Good things, delivered weekly",
     templateId: "template",
@@ -651,6 +652,28 @@ const createTransport = (
             .length,
           subscribed: contacts.filter((c) => c.status === "ACTIVE").length,
         },
+      } as T;
+    }
+    if (/^marketing\/newsletters\/[^/]+\/site\/analytics/.test(path)) {
+      const device = new URLSearchParams(path.split("?")[1]).get("device") || "desktop";
+      const daily = Array.from({ length: 30 }, (_, i) => {
+        const d = new Date(Date.UTC(2026, 9, 9 + i));
+        const visitors = 40 + Math.round(30 * Math.sin(i / 3) + i * 3);
+        return { key: d.toISOString().slice(0, 10), views: visitors * 2, visitors };
+      });
+      const cells = [
+        ...Array.from({ length: 14 }, (_, i) => ({ X: 26 + (i % 7), Y: 14 + Math.floor(i / 7), N: 18 + (i % 5) * 6 })),
+        ...Array.from({ length: 10 }, (_, i) => ({ X: 4 + i, Y: 32 + (i % 2), N: 6 + i })),
+        ...Array.from({ length: 8 }, (_, i) => ({ X: 8 + i * 3, Y: 50 + (i % 3) * 4, N: 3 + (i % 4) })),
+      ];
+      return {
+        days: 30, views: 4620, visitors: 2310, clicks: 1184, signups: 162,
+        daily,
+        pages: [{ key: "/", views: 2950, visitors: 1980 }, { key: "/issue-42", views: 820, visitors: 610 }, { key: "/issue-41", views: 410, visitors: 330 }],
+        referrers: [{ key: "x.com", views: 900, visitors: 720 }, { key: "google.com", views: 610, visitors: 540 }, { key: "linkedin.com", views: 240, visitors: 200 }],
+        devices: [{ key: "desktop", views: 2600, visitors: 1290 }, { key: "mobile", views: 1800, visitors: 920 }, { key: "tablet", views: 220, visitors: 100 }],
+        links: [{ link: "https://example.com/launch", clicks: 210 }, { link: "https://example.com/pricing", clicks: 96 }],
+        heatmap: { path: "/", device, clicks: 1184, height: 2400, cols: 40, rowPx: 20, cells },
       } as T;
     }
     const result =

@@ -108,8 +108,12 @@ export default function PrivacyPage() {
                 and see which pages are used; it sets cookies and sends Google
                 your IP address, browser details and the pages you view. We
                 don’t use it for advertising, and it isn’t loaded inside the
-                Xem app or on newsletter sites. This draft does not claim a
-                completed production-cookie audit.
+                Xem app or on newsletter sites. Newsletter websites hosted by
+                Xem count page views and clicks for the newsletter’s owner,
+                without cookies: we keep the page, the referring site, the
+                screen size class and where on the page someone clicked, plus
+                a random id that lasts only for that browser tab. This draft
+                does not claim a completed production-cookie audit.
               </p>
             </>
           ),

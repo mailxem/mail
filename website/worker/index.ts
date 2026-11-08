@@ -46,10 +46,17 @@ type Edition = {
   issue: Issue;
   html: string;
 };
-type Site = { slug: string; base: string; origin: string };
+/** api is the API origin; the page's tracker posts views and clicks there. */
+type Site = { slug: string; base: string; origin: string; api: string };
 
 // Fades content in as it scrolls into view; [data-r] marks what moves.
 const REVEAL = `const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");o.unobserve(e.target)}}),{rootMargin:"0px 0px -6% 0px"});document.querySelectorAll("[data-r]").forEach(el=>o.observe(el))`;
+
+// Counts views and clicks for the newsletter owner's analytics. No cookies:
+// the visit id lives in sessionStorage. Skipped inside frames, so the owner's
+// heatmap preview doesn't count itself.
+const tracker = (site: Site) =>
+  `(()=>{if(window.top!==window||!navigator.sendBeacon)return;const E=${JSON.stringify(`${site.api}/public/newsletters/${encodeURIComponent(site.slug)}/events`)},b=${JSON.stringify(site.base)};let s;try{s=sessionStorage.getItem("xem-v")}catch{}if(!s){s=(Math.random().toString(36).slice(2)+Date.now().toString(36)).replace(/[^a-z0-9]/g,"").slice(0,20);try{sessionStorage.setItem("xem-v",s)}catch{}}const d=document.documentElement,send=e=>{e.p=location.pathname.slice(b.length)||"/";e.s=s;e.w=innerWidth;e.h=d.scrollHeight;navigator.sendBeacon(E,JSON.stringify(e))};let r="";try{if(document.referrer&&new URL(document.referrer).host!==location.host)r=document.referrer}catch{}send({t:"view",r});addEventListener("click",ev=>{const a=ev.target instanceof Element?ev.target.closest("a"):null;send({t:"click",x:Math.min(1,Math.max(0,+(ev.pageX/d.scrollWidth).toFixed(4))),y:Math.round(ev.pageY),l:a?a.href:""})},{capture:true,passive:true})})()`;
 
 const SLUG = /^[a-z0-9](?:[a-z0-9-]{1,46}[a-z0-9])$/;
 const XEM_HOST =
@@ -67,12 +74,12 @@ function page(
 <title>${esc(head.title)}</title><meta name="description" content="${esc(head.description)}">
 <link rel="canonical" href="${esc(url)}"><link rel="alternate" type="application/rss+xml" href="${esc(site.base)}/feed.xml">
 <meta property="og:title" content="${esc(head.title)}"><meta property="og:description" content="${esc(head.description)}"><meta property="og:url" content="${esc(url)}"><meta property="og:type" content="website">
-<style>${stylesheet(theme)}</style><script nonce="${nonce}">document.documentElement.classList.add("js")</script></head><body class="t-${esc(theme)}${grainy(theme) ? " grain" : ""}">${body.replace(/<script>/g, `<script nonce="${nonce}">`)}<script nonce="${nonce}">${REVEAL}</script></body></html>`;
+<style>${stylesheet(theme)}</style><script nonce="${nonce}">document.documentElement.classList.add("js")</script></head><body class="t-${esc(theme)}${grainy(theme) ? " grain" : ""}">${body.replace(/<script>/g, `<script nonce="${nonce}">`)}<script nonce="${nonce}">${REVEAL}</script><script nonce="${nonce}">${tracker(site)}</script></body></html>`;
   return new Response(html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       "Cache-Control": "public, max-age=60",
-      "Content-Security-Policy": `default-src 'none'; img-src https: data:; style-src 'unsafe-inline'; font-src 'self'; script-src 'nonce-${nonce}'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'`,
+      "Content-Security-Policy": `default-src 'none'; img-src https: data:; style-src 'unsafe-inline'; font-src 'self'; script-src 'nonce-${nonce}'; connect-src ${site.api}; form-action 'self'; frame-ancestors https://app.xem.email; base-uri 'none'`,
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "strict-origin-when-cross-origin",
     },
@@ -292,6 +299,7 @@ export default {
 async function serve(request: Request, env: Env): Promise<Response> {
   {
     const url = new URL(request.url);
+    const apiOrigin = new URL(env.API_URL || "https://api.xem.email").origin;
     const parts = url.pathname.split("/").filter(Boolean);
     if (!XEM_HOST.test(url.hostname)) {
       // Template fonts are served on customer domains too, same origin.
@@ -302,7 +310,7 @@ async function serve(request: Request, env: Env): Promise<Response> {
       return route(
         env,
         request,
-        { slug, base: "", origin: url.origin },
+        { slug, base: "", origin: url.origin, api: apiOrigin },
         parts[0],
       );
     }
@@ -315,7 +323,7 @@ async function serve(request: Request, env: Env): Promise<Response> {
     return route(
       env,
       request,
-      { slug, base: `/${slug}`, origin: url.origin },
+      { slug, base: `/${slug}`, origin: url.origin, api: apiOrigin },
       rest,
     );
   }
