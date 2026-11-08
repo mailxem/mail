@@ -28,6 +28,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.6,
       },
     ]),
+    {
+      url: `${siteUrl}/research/email-authentication`,
+      changeFrequency: "yearly",
+      priority: 0.8,
+    },
     { url: `${siteUrl}/templates`, changeFrequency: "monthly", priority: 0.8 },
     ...galleryTemplates.map((t) => ({
       url: `${siteUrl}/templates/${t.key}`,

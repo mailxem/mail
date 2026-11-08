@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { EmailChecker } from "@/components/email-checker";
 
@@ -105,6 +106,14 @@ export default function EmailCheckerPage() {
             The lookups run in your browser, straight to Cloudflare&apos;s
             public DNS resolver. Xem has no server behind this page: we
             don&apos;t see, store or count the domains you check.
+          </p>
+          <p className="mt-3 max-w-2xl text-sm">
+            <Link
+              href="/research/email-authentication"
+              className="underline underline-offset-4 hover:text-iris"
+            >
+              See how the top 10,000 websites score →
+            </Link>
           </p>
         </section>
 
