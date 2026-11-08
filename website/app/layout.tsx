@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { DM_Sans, EB_Garamond } from "next/font/google";
 import { siteUrl } from "@/lib/site";
 import "./globals.css";
@@ -56,6 +57,17 @@ export default function RootLayout({
         </a>
         {children}
         <ReferralCapture />
+        {/* Google tag (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-GC39XF1JWS"
+          strategy="afterInteractive"
+        />
+        <Script id="google-tag" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-GC39XF1JWS');`}
+        </Script>
       </body>
     </html>
   );

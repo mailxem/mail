@@ -103,10 +103,13 @@ export default function PrivacyPage() {
               </ul>
               <p>
                 Sign-in uses session information. Providers that host or deliver
-                the website may process connection information. We will identify
-                any optional analytics or advertising technologies before
-                enabling them; this draft does not claim a completed
-                production-cookie audit.
+                the website may process connection information. Our marketing
+                website uses Google Analytics (the Google tag) to count visits
+                and see which pages are used; it sets cookies and sends Google
+                your IP address, browser details and the pages you view. We
+                don’t use it for advertising, and it isn’t loaded inside the
+                Xem app or on newsletter sites. This draft does not claim a
+                completed production-cookie audit.
               </p>
             </>
           ),
