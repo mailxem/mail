@@ -9,6 +9,7 @@ import { useAnalytics } from "@/lib/analytics/use-analytics";
 import {
   AnalyticsPage,
   BreakdownRow,
+  EmailReport,
   Rate,
   Report,
   formatRate,
@@ -75,6 +76,21 @@ export function OverviewHome() {
     [days],
   );
   const report = useAnalytics<Report>("report", params);
+  // Sent, opened and clicked cover every email, as on the Email tab; the
+  // audience report above only counts campaign sends.
+  const email = useAnalytics<EmailReport>("email-overview", params);
+  const earlier = useAnalytics<EmailReport>(
+    "email-overview",
+    useMemo(
+      () =>
+        new URLSearchParams({
+          from: day(-2 * days + 1),
+          to: day(-days + 1),
+          timezone: "UTC",
+        }),
+      [days],
+    ),
+  );
   const top = useAnalytics<AnalyticsPage<BreakdownRow>>(
     "breakdown",
     useMemo(() => {
@@ -87,6 +103,8 @@ export function OverviewHome() {
     }, [params]),
   );
   const r = report.data;
+  const e = email.data;
+  const prev = earlier.data;
 
   return (
     <section className={styles.overview} aria-labelledby="overview-title">
@@ -119,28 +137,34 @@ export function OverviewHome() {
       </header>
 
       <QueryState
-        loading={loading || (!!team && report.isPending)}
-        error={error || report.error}
-        retry={() => void (error ? refreshTeam() : report.refetch())}
+        loading={loading || (!!team && (report.isPending || email.isPending))}
+        error={error || report.error || email.error}
+        retry={() =>
+          void (error
+            ? refreshTeam()
+            : Promise.all([report.refetch(), email.refetch()]))
+        }
       />
 
-      {r && (
+      {r && e && (
         <>
           <div className={styles.kpis}>
             <Kpi
               label="Sent"
-              value={compact(r.summary.accepted)}
-              change={delta(r.summary.accepted, r.previous.accepted, "count")}
+              value={compact(e.summary.sent)}
+              change={
+                prev ? delta(e.summary.sent, prev.summary.sent, "count") : null
+              }
             />
             <Kpi
               label="Opened"
-              value={formatRate(r.summary.openRate)}
-              change={rateDelta(r.summary.openRate, r.previous.openRate)}
+              value={formatRate(e.openRate)}
+              change={prev ? rateDelta(e.openRate, prev.openRate) : null}
             />
             <Kpi
               label="Clicked"
-              value={formatRate(r.summary.clickRate)}
-              change={rateDelta(r.summary.clickRate, r.previous.clickRate)}
+              value={formatRate(e.clickRate)}
+              change={prev ? rateDelta(e.clickRate, prev.clickRate) : null}
             />
             <Kpi
               label="Unsubscribed"
