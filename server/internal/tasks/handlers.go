@@ -275,6 +275,7 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 			SMTPConfigID: smtpConfig.ID,
 			CategoryID:   campaign.Template.CategoryID,
 			CampaignID:   campaign.ID,
+			ReplyTo:      campaign.ReplyTo,
 		}, nil
 	}
 	send := func(emails []*models.Email) error {
