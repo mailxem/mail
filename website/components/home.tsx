@@ -6,23 +6,18 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
-  ChartColumn,
   Check,
-  ClipboardList,
-  Code2,
   ExternalLink,
   GitBranch,
   Github,
-  Inbox,
-  LayoutTemplate,
   Mail,
   Menu,
   Play,
   Plus,
   Star,
-  Users,
-  Workflow,
   X,
+  Monitor,
+  Smartphone,
 } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -35,6 +30,9 @@ import {
   docsUrl,
 } from "@/lib/site";
 import { SiteDialog } from "./site-dialog";
+import { PhonePreview } from "./phone-preview";
+import { AgentStrip } from "./agent-strip";
+import { FounderNote } from "./founder-note";
 import { McpSection } from "./mcp-section";
 import { AnalyticsSection } from "./analytics-section";
 import { AssistantShowcase } from "./assistant-showcase";
@@ -92,6 +90,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
   const rail = useRef<HTMLDivElement>(null);
   const [menu, setMenu] = useState(false);
   const [view, setView] = useState(0);
+  const [phone, setPhone] = useState(false);
   const [tour, setTour] = useState<number | null>(null);
   const [template, setTemplate] = useState<number | null>(null);
   const [faq, setFaq] = useState(0);
@@ -302,7 +301,6 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               ))}
             </p>
           </div>
-          <HeroFilm suspended={tour !== null || template !== null || menu} />
           <div className="mx-auto flex max-w-[1240px] items-center justify-between px-5 pb-7 text-[10px] uppercase tracking-[.13em] text-muted md:px-10">
             <a
               href="#product"
@@ -322,51 +320,10 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
 
         <section
           id="product"
-          className="relative scroll-mt-20 rounded-t-[36px] bg-forest px-5 pb-20 pt-16 text-cream md:rounded-t-[64px] md:px-10 md:pb-24 md:pt-24"
+          className="relative scroll-mt-20 rounded-t-[36px] bg-forest px-5 pb-20 pt-12 text-cream md:rounded-t-[64px] md:px-10 md:pb-24 md:pt-16"
         >
           <div className="mx-auto max-w-[1180px]">
-            <div
-              data-reveal
-              className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 border-b border-cream/20 pb-10 text-xs text-cream/80 md:gap-x-12"
-            >
-              {[
-                [Mail, "Campaigns & newsletters"],
-                [Workflow, "Automations"],
-                [Users, "Audience & CRM"],
-                [ClipboardList, "Forms"],
-                [Inbox, "Shared inbox"],
-                [ChartColumn, "Analytics"],
-                [LayoutTemplate, "Templates"],
-                [Code2, "API & webhooks"],
-              ].map(([Icon, label]) => {
-                const I = Icon as typeof Mail;
-                return (
-                  <span
-                    key={label as string}
-                    className="flex items-center gap-2"
-                  >
-                    <I size={16} strokeWidth={1.4} />
-                    {label as string}
-                  </span>
-                );
-              })}
-            </div>
-            <div
-              data-reveal
-              className="mx-auto mb-10 mt-14 max-w-3xl text-center"
-            >
-              <p className={sectionLabel}>Less busywork. More possibility.</p>
-              <h2 className={`${heading} mt-5`}>
-                Your whole email world.
-                <br />
-                <em>Finally, together.</em>
-              </h2>
-              <p className="mx-auto mt-6 max-w-[510px] text-base leading-relaxed text-cream/75">
-                The canvas, the audience, the perfect moment.
-                <br className="hidden md:block" /> Everything you need to turn a
-                message into a relationship.
-              </p>
-            </div>
+            <h2 className="sr-only">The Xem app</h2>
             <div
               role="tablist"
               aria-label="Explore Xem features"
@@ -410,7 +367,29 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
                   <i className="h-2 w-2 rounded-full bg-forest/20" />
                   <i className="h-2 w-2 rounded-full bg-forest/15" />
                 </span>
-                <span>Xem / {current.label}</span>
+                <span
+                  role="group"
+                  aria-label="Preview size"
+                  className="flex rounded-full bg-forest/10 p-0.5 text-[11px]"
+                >
+                  {(
+                    [
+                      [false, "Desktop", Monitor],
+                      [true, "Mobile", Smartphone],
+                    ] as const
+                  ).map(([value, label, Icon]) => (
+                    <button
+                      key={label}
+                      type="button"
+                      aria-pressed={phone === value}
+                      onClick={() => setPhone(value)}
+                      className={`flex min-h-7 items-center gap-1.5 rounded-full px-3 transition-colors ${phone === value ? "bg-white text-forest shadow-sm" : "text-forest hover:bg-white/50"}`}
+                    >
+                      <Icon size={12} aria-hidden="true" />
+                      {label}
+                    </button>
+                  ))}
+                </span>
                 <button
                   onClick={() => setTour(view)}
                   className="flex items-center gap-1.5 hover:underline"
@@ -431,8 +410,13 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
                   width={1512}
                   height={1100}
                   sizes="(max-width: 768px) 95vw, 1160px"
-                  className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.015] motion-reduce:transform-none"
+                  className={`h-full w-full object-cover object-top transition duration-700 group-hover:scale-[1.015] motion-reduce:transform-none ${phone ? "brightness-[.45] blur-[1px]" : ""}`}
                 />
+                {phone && (
+                  <span className="absolute inset-x-0 top-[6%] block">
+                    <PhonePreview />
+                  </span>
+                )}
                 <span className="absolute bottom-5 right-5 flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-xs text-cream shadow-md md:bottom-8 md:right-8">
                   Take a closer look <Plus size={14} />
                 </span>
@@ -447,15 +431,19 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
                   {current.description}
                 </p>
                 <p className="mt-3 text-[10px] text-cream/75">
-                  Actual Xem interface. Demo workspace with sample data.
+                  {phone
+                    ? "A Xem newsletter template in a phone’s mail app. Sample content."
+                    : "Actual Xem interface. Demo workspace with sample data."}
                 </p>
               </div>
             </div>
+            <AgentStrip />
           </div>
         </section>
 
         <PriceSection />
         <Testimonials />
+        <FounderNote />
 
         <AssistantShowcase />
         <SendingSection />
@@ -470,19 +458,18 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               className="flex flex-wrap items-end justify-between gap-8"
             >
               <div>
-                <p className={sectionLabel}>The Xem collection</p>
+                <p className={sectionLabel}>Templates</p>
                 <h2 className={`${heading} mt-5`}>
-                  A head start.
+                  200+ templates.
                   <br />
-                  <em>Never a blank canvas.</em>
+                  <em>Change every word.</em>
                 </h2>
               </div>
               <div className="max-w-[315px]">
                 <p className="text-sm leading-relaxed text-ink/75">
-                  200+ editable email templates.
-                  <br />
-                  Different moods, different stories. All yours to make your
-                  own.
+                  Newsletters, welcomes, launches and product updates, built
+                  from blocks in the visual editor. Nothing is locked to a
+                  layout.
                 </p>
                 <a href={appLink("/templates")} className={`${textLink} mt-5`}>
                   Explore the whole collection <Arrow />
@@ -596,16 +583,16 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
                 <GitBranch size={14} aria-hidden="true" /> Proudly open source
               </span>
               <h2 id="open-source-title" className={`${heading} mt-6`}>
-                Good things grow
+                Every line of Xem
                 <br />
-                <em>in the open.</em>
+                <em>is on GitHub.</em>
               </h2>
             </div>
             <div data-reveal>
               <p className="text-base leading-relaxed text-muted md:text-lg">
-                The app, Go backend, SDKs, and self-hosting tools live in one
-                repository. Run Xem on your own server, see how it works, and
-                help shape what comes next. There’s room for your ideas here.
+                The app, the Go backend, the SDKs and the self-hosting tools are
+                in one GPL-3.0 repository. Read how sending works, run it on
+                your own server, or send a fix.
               </p>
               <ul className="mt-6 space-y-3 text-sm">
                 {[
@@ -647,16 +634,22 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
         </section>
 
         <section
+          id="film"
+          aria-label="The Xem film"
+          className="scroll-mt-24 pb-6 pt-4"
+        >
+          <HeroFilm suspended={tour !== null || template !== null || menu} />
+        </section>
+
+        <section
           id="questions"
           className="scroll-mt-24 px-5 py-20 md:px-10 md:py-28"
         >
           <div className="mx-auto max-w-[1040px]">
             <div data-reveal className="text-center">
-              <p className={sectionLabel}>
-                A few things you might be wondering
-              </p>
+              <p className={sectionLabel}>Before you switch</p>
               <h2 className={`${heading} mt-5`}>
-                Good <em>questions.</em>
+                Questions people <em>ask us.</em>
               </h2>
             </div>
             <div className="mt-12 grid gap-2 rounded-[28px] bg-[#e8eadb] p-3 md:grid-cols-2 md:gap-4 md:p-4">

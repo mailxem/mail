@@ -100,9 +100,9 @@ export function SendingSection() {
               id="sending-title"
               className="mt-5 font-editorial text-[clamp(3rem,5.5vw,5rem)] leading-[1.02] tracking-[-.045em]"
             >
-              A good start.
+              Four steps from sign-up
               <br />
-              <em>One small step at a time.</em>
+              <em>to your first email.</em>
             </h2>
           </div>
           <p className="max-w-md text-sm leading-relaxed text-muted">

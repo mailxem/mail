@@ -9,7 +9,10 @@ test("film preview pauses offscreen and the full player loads on request", async
   page.on("request", (request) => requests.push(request.url()));
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
-  const preview = page.locator('#hero video[aria-hidden="true"]');
+  const preview = page.locator('#film video[aria-hidden="true"]');
+  // The film sits lower on the page and only plays while it is on screen.
+  await expect(preview).toHaveJSProperty("paused", true);
+  await page.locator("#film").scrollIntoViewIfNeeded();
   await expect(preview).toHaveJSProperty("paused", false);
   await expect(preview).toHaveJSProperty("muted", true);
   expect(requests.some((url) => url.endsWith("/xem-brand-film.mp4"))).toBe(
@@ -18,12 +21,12 @@ test("film preview pauses offscreen and the full player loads on request", async
 
   await page.locator("#templates").scrollIntoViewIfNeeded();
   await expect(preview).toHaveJSProperty("paused", true);
-  await page.locator("#hero").scrollIntoViewIfNeeded();
+  await page.locator("#film").scrollIntoViewIfNeeded();
   await expect(preview).toHaveJSProperty("paused", false);
   await page.getByRole("button", { name: "Pause film preview" }).click();
   await expect(preview).toHaveJSProperty("paused", true);
   await page.locator("#templates").scrollIntoViewIfNeeded();
-  await page.locator("#hero").scrollIntoViewIfNeeded();
+  await page.locator("#film").scrollIntoViewIfNeeded();
   await expect(
     page.getByRole("button", { name: "Play film preview" }),
   ).toBeVisible();
@@ -90,7 +93,7 @@ for (const preference of ["reduced motion", "save data"]) {
     await page.goto("/");
     const play = page.getByRole("button", { name: "Play film preview" });
     await expect(play).toBeVisible();
-    const preview = page.locator('#hero video[aria-hidden="true"]');
+    const preview = page.locator('#film video[aria-hidden="true"]');
     await expect(preview).not.toHaveAttribute("src");
     expect(mediaRequests).toEqual([]);
     await play.click();

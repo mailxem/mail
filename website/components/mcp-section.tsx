@@ -16,15 +16,12 @@ export function McpSection() {
             id="mcp-heading"
             className="mt-5 font-editorial text-4xl leading-[1.05] tracking-tight md:text-5xl"
           >
-            Your email workspace.
+            Run Xem from
             <br />
-            <em>Meet your AI assistant.</em>
+            <em>Claude, Cursor or Codex.</em>
           </h2>
           <p className="mt-5 max-w-md text-sm leading-relaxed text-muted">
-            Draft newsletters, organize contacts, and explore campaign results
-            through the Xem MCP server. Connect over HTTPS or run locally from
-            npm. Bring your email workflow into the tools where you already
-            think.
+            43 tools over MCP: draft newsletters, import contacts, read campaign results. Connect over HTTPS, or run it locally from npm.
           </p>
           <p className="mt-5 text-xs font-medium text-muted">Works with</p>
           <ul className="mt-2 flex flex-wrap gap-2 text-sm">
