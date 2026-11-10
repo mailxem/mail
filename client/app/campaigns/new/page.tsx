@@ -49,6 +49,7 @@ import {
 } from "@/components/campaigns/phone-preview";
 import { GmailClipNotice } from "@/components/campaigns/gmail-clip-notice";
 import { BestTimeHint } from "@/components/campaigns/best-time-hint";
+import { SendTest, type TestContact } from "@/components/campaigns/send-test";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -100,12 +101,7 @@ const campaignSchema = z.object({
   trackEngagement: z.boolean().default(true),
 });
 type CampaignFormValues = z.infer<typeof campaignSchema>;
-type ContactPreview = {
-  id: string;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-};
+type ContactPreview = TestContact;
 const timezones = [
   "UTC",
   "America/New_York",
@@ -445,28 +441,59 @@ function NewCampaignForm() {
             ) : (
               <Save className="size-4" />
             )}
-            {saving ? "Saving…" : isScheduled ? "Schedule campaign" : "Send now"}
+            {saving
+              ? "Saving…"
+              : isScheduled
+                ? "Schedule campaign"
+                : "Send now"}
           </Button>
         </PageHeader>
-        {!templateResource.isLoading && !listResource.isLoading && !senderResource.isLoading &&
+        {!templateResource.isLoading &&
+          !listResource.isLoading &&
+          !senderResource.isLoading &&
           (!lists.length || !senders.length || !templates.length) && (
             <div className="mb-6 rounded-xl border border-dashed p-5">
-              <p className="text-sm font-medium">Before you can send, set up these first</p>
+              <p className="text-sm font-medium">
+                Before you can send, set up these first
+              </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                A campaign needs people to send to, an address to send from and a design.
+                A campaign needs people to send to, an address to send from and
+                a design.
               </p>
               <ol className="mt-4 grid gap-2 sm:grid-cols-3">
                 {[
-                  { ok: !!lists.length, label: "A contact list", href: "/audience/lists" },
-                  { ok: !!senders.length, label: "A sender", href: "/settings/smtp" },
-                  { ok: !!templates.length, label: "A template", href: "/templates" },
+                  {
+                    ok: !!lists.length,
+                    label: "A contact list",
+                    href: "/audience/lists",
+                  },
+                  {
+                    ok: !!senders.length,
+                    label: "A sender",
+                    href: "/settings/smtp",
+                  },
+                  {
+                    ok: !!templates.length,
+                    label: "A template",
+                    href: "/templates",
+                  },
                 ].map((s, i) => (
-                  <li key={s.label} className="flex items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2 text-sm">
-                    <span className={s.ok ? "text-muted-foreground line-through" : ""}>
+                  <li
+                    key={s.label}
+                    className="flex items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2 text-sm"
+                  >
+                    <span
+                      className={
+                        s.ok ? "text-muted-foreground line-through" : ""
+                      }
+                    >
                       {i + 1}. {s.label}
                     </span>
                     {!s.ok && (
-                      <Link href={s.href} className="text-xs font-medium text-primary underline underline-offset-4">
+                      <Link
+                        href={s.href}
+                        className="text-xs font-medium text-primary underline underline-offset-4"
+                      >
                         Set up
                       </Link>
                     )}
@@ -1257,11 +1284,12 @@ function NewCampaignForm() {
                       </Select>
                       <FormDescription>
                         Readers you’ve emailed before get it right away. Readers
-                        you’ve never emailed get it in stages: a random 2% first,
-                        then 5% more, then everyone else, 30 minutes apart. If
-                        too many bounce or report it as spam, sending pauses so
-                        you can check the list. Automatic staging applies to Xem
-                        managed sending when there are 500 or more new readers.
+                        you’ve never emailed get it in stages: a random 2%
+                        first, then 5% more, then everyone else, 30 minutes
+                        apart. If too many bounce or report it as spam, sending
+                        pauses so you can check the list. Automatic staging
+                        applies to Xem managed sending when there are 500 or
+                        more new readers.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -1395,6 +1423,13 @@ function NewCampaignForm() {
                 subject={draft.subject}
                 sender={selectedSender?.fromEmail}
               />
+              <SendTest
+                templateId={selectedTemplate?.id}
+                smtpConfigId={draft.smtpConfigId}
+                subject={draft.subject}
+                data={draft.data}
+                contacts={contactsQuery.data ?? []}
+              />
             </section>
             <div className="flex items-center gap-2 px-1 text-xs text-muted-foreground">
               <Clock3 size={14} />
@@ -1415,7 +1450,11 @@ function NewCampaignForm() {
             ) : (
               <Save className="size-4" />
             )}
-            {saving ? "Saving…" : isScheduled ? "Schedule campaign" : "Send now"}
+            {saving
+              ? "Saving…"
+              : isScheduled
+                ? "Schedule campaign"
+                : "Send now"}
           </Button>
         </div>
       </form>
