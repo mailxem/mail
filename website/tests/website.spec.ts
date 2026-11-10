@@ -41,22 +41,18 @@ test("feature tabs work with keyboard and expose the right product view", async 
 }) => {
   await page.goto("/");
   const tabs = page.locator("#product").getByRole("tablist");
-  const design = tabs.getByRole("tab", { name: /Design/ });
-  await design.focus();
+  const write = tabs.getByRole("tab", { name: /Write/ });
+  await write.focus();
   await page.keyboard.press("ArrowRight");
-  await expect(tabs.getByRole("tab", { name: /Send/ })).toHaveAttribute(
+  await expect(tabs.getByRole("tab", { name: /Schedule/ })).toHaveAttribute(
     "aria-selected",
     "true",
   );
-  await expect(page.locator("#product-panel").getByRole("img")).toHaveAttribute(
-    "src",
-    /newsletters/,
+  await expect(page.locator("#product-panel")).toContainText(
+    "Best time to send",
   );
-  await tabs.getByRole("tab", { name: /Understand/ }).click();
-  await expect(page.locator("#product-panel").getByRole("img")).toHaveAttribute(
-    "src",
-    /analytics/,
-  );
+  await tabs.getByRole("tab", { name: /Stats/ }).click();
+  await expect(page.locator("#product-panel")).toContainText("New subscribers");
 });
 
 test("template gallery scrolls and opens complete editable-template previews", async ({
