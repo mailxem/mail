@@ -131,7 +131,11 @@ export function PriceSection() {
           </div>
 
           <div className="mt-8 grid gap-6" aria-live="polite">
-            <Invoices name={`${them.name} ${them.plan}`} price={them.price} muted />
+            <Invoices
+              name={`${them.name} ${them.plan}`}
+              price={them.price}
+              muted
+            />
             <Invoices name="Xem" price={xem} />
           </div>
 

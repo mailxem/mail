@@ -22,7 +22,7 @@ const Mark = ({
   label: string;
 }) => (
   <span
-    className="mx-0.5 inline-flex h-[1.35em] w-[1.35em] translate-y-[.22em] items-center justify-center rounded-md"
+    className="mx-0.5 inline-flex h-[1.2em] w-[1.2em] items-center justify-center rounded-[.3em] align-[-0.22em]"
     style={{ backgroundColor: bg, color: fg }}
   >
     <svg
@@ -37,13 +37,21 @@ const Mark = ({
     </svg>
   </span>
 );
-const Logo = ({ src, label }: { src: string; label: string }) => (
+const Logo = ({
+  src,
+  label,
+  className = "",
+}: {
+  src: string;
+  label: string;
+  className?: string;
+}) => (
   <Image
     src={src}
     alt={label}
     width={22}
     height={22}
-    className="mx-0.5 inline-block h-[1.3em] w-[1.3em] translate-y-[.2em] rounded-md object-contain"
+    className={`mx-0.5 inline-block h-[1.2em] w-[1.2em] rounded-[.3em] object-contain align-[-0.22em] ${className}`}
   />
 );
 const B = ({ children }: { children: ReactNode }) => (
@@ -66,10 +74,11 @@ export function FounderNote() {
         <div className="mt-10 space-y-6 text-[18px] leading-[1.8] text-ink/80 md:text-[19px]">
           <p>
             Hi, I’m{" "}
-            <span className="mx-0.5 inline-flex h-[1.5em] w-[1.5em] translate-y-[.28em] items-center justify-center rounded-full bg-lemon text-[.75em] font-semibold text-ink">
-              H
+            <span className="mx-0.5 inline-flex h-[1.25em] w-[1.25em] items-center justify-center rounded-full bg-lemon align-[-0.18em] font-semibold leading-none text-ink">
+              <span className="text-[.62em]">H</span>
             </span>{" "}
-            <B>Harsh</B>, and I build Xem.
+            <B>Harsh</B>, and I build{" "}
+            <Logo src="/brand/xem-mark.png" label="Xem" /> <B>Xem</B>.
           </p>
           <p>
             Sending an email is close to free.{" "}
@@ -88,10 +97,14 @@ export function FounderNote() {
             <B>beehiiv</B> wants $139 for the same list.
           </p>
           <p>
-            So Xem charges for the one thing it actually does, which is send
-            your email. That same newsletter costs <B>$19 a month</B>, and the
-            first <B>3,000 emails every month are free</B>. Teams at Hakopod,
-            Zunofy and SyneHQ already send through it.
+            So <Logo src="/brand/xem-mark.png" label="Xem" /> Xem charges for
+            the one thing it actually does, which is send your email. That same
+            newsletter costs <B>$19 a month</B>, and the first{" "}
+            <B>3,000 emails every month are free</B>. Teams at{" "}
+            <Logo src="/logos/hakopod.svg" label="" /> <B>Hakopod</B>,{" "}
+            <Logo src="/logos/zunofy.png" label="" className="scale-[1.4]" />{" "}
+            <B>Zunofy</B> and <Logo src="/logos/synehq.png" label="" />{" "}
+            <B>SyneHQ</B> already send through it.
           </p>
           <p>I built it around three things:</p>
           <ol className="list-decimal space-y-4 pl-7 marker:text-ink/60">
