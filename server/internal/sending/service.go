@@ -33,6 +33,9 @@ const (
 var ErrDenied = errors.New("sending is unavailable: check approval, pause status, domain readiness, and credential")
 var ErrLimit = errors.New("sending limit reached; review usage or contact your administrator")
 var ErrSuppressed = errors.New("recipient is suppressed or unsubscribed")
+var ErrInvalidLabel = errors.New("use 3 to 40 lowercase letters, numbers or single hyphens, not a reserved word")
+var ErrTaken = errors.New("that address is taken; try another name")
+var ErrHasShared = errors.New("this workspace already has a Xem address")
 var domainPattern = regexp.MustCompile(`^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$`)
 
 func validDomain(s string) bool { return len(s) <= 253 && domainPattern.MatchString(s) }
@@ -134,6 +137,70 @@ func (s *Service) AddDomain(ctx context.Context, team, name string) (Domain, err
 	})
 	return d, err
 }
+// sharedToken marks a live shared domain; removeDomain replaces it, so the
+// periodic check cannot bring a removed address back.
+const sharedToken = "xem-shared"
+
+var sharedLabel = regexp.MustCompile(`^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$`)
+var reservedLabels = map[string]bool{"www": true, "mail": true, "email": true, "smtp": true, "bounce": true, "app": true, "api": true, "admin": true, "support": true, "help": true, "security": true, "abuse": true, "postmaster": true, "noreply": true, "no-reply": true, "billing": true, "team": true, "xem": true, "status": true, "docs": true}
+
+// AddSharedAddress gives a team <label>.<SharedDomain>, ready without DNS. A
+// team has at most one; a label it gave up before can be taken again by it.
+func (s *Service) AddSharedAddress(ctx context.Context, team, label string) (Domain, error) {
+	label = strings.ToLower(strings.TrimSpace(label))
+	if !s.Config.Enabled || s.Config.SharedDomain == "" {
+		return Domain{}, ErrDenied
+	}
+	if !sharedLabel.MatchString(label) || reservedLabels[label] || strings.Contains(label, "--") {
+		return Domain{}, ErrInvalidLabel
+	}
+	if _, e := s.Account(ctx, team); e != nil {
+		return Domain{}, e
+	}
+	name := label + "." + s.Config.SharedDomain
+	var d Domain
+	err := s.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var a Account
+		if e := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&a, "team_id = ?", team).Error; e != nil {
+			return e
+		}
+		var live int64
+		if e := tx.Model(&Domain{}).Where("team_id = ? AND shared = true AND token = ?", team, sharedToken).Count(&live).Error; e != nil {
+			return e
+		}
+		if live > 0 {
+			return ErrHasShared
+		}
+		e := tx.First(&d, "name = ?", name).Error
+		if e == nil {
+			if d.TeamID != team {
+				return ErrTaken
+			}
+			d.Token, d.Ownership = sharedToken, true
+			return tx.Model(&d).Updates(map[string]any{"token": sharedToken, "ownership": true}).Error
+		}
+		if !errors.Is(e, gorm.ErrRecordNotFound) {
+			return e
+		}
+		var count int64
+		if e := tx.Model(&Domain{}).Where("team_id = ?", team).Count(&count).Error; e != nil {
+			return e
+		}
+		if count >= 10 {
+			return ErrLimit
+		}
+		d = Domain{ID: uuid.NewString(), TeamID: team, Name: name, Shared: true, Ownership: true, Token: sharedToken, IdentityStatus: "NOT_STARTED", DKIMStatus: "NOT_STARTED", MAILFROMStatus: "NOT_STARTED", DMARCStatus: "NOT_CHECKED"}
+		if e := tx.Create(&d).Error; e != nil {
+			return e
+		}
+		return QueueMilestone(tx, team, d.ID, "domain_added")
+	})
+	if err != nil {
+		return d, err
+	}
+	return s.RefreshDomain(ctx, team, d.ID)
+}
+
 func (s *Service) RefreshDomain(ctx context.Context, team, id string) (result Domain, err error) {
 	stage := "load_domain"
 	defer func() {
@@ -161,18 +228,27 @@ func (s *Service) RefreshDomain(ctx context.Context, team, id string) (result Do
 	}
 	d.Ready = false
 	d.Ownership = false
-	stage = "ownership_dns"
-	records, e := s.DNS.LookupTXT(ctx, "_xem."+d.Name)
-	if e != nil && !dnsRecordMissing(e) {
-		return d, e
-	}
-	if e == nil {
-		for _, r := range records {
-			if r == d.Token {
-				d.Ownership = true
+	// A shared domain's identity, MAIL FROM and DMARC belong to the operator's
+	// verified SharedDomain; the team only needs to still hold the address.
+	identityName := d.Name
+	if d.Shared {
+		identityName = s.Config.SharedDomain
+		d.Ownership = d.Token == sharedToken && identityName != ""
+	} else {
+		stage = "ownership_dns"
+		records, e := s.DNS.LookupTXT(ctx, "_xem."+d.Name)
+		if e != nil && !dnsRecordMissing(e) {
+			return d, e
+		}
+		if e == nil {
+			for _, r := range records {
+				if r == d.Token {
+					d.Ownership = true
+				}
 			}
 		}
 	}
+	var e error
 	now := s.Now()
 	d.CheckedAt = &now
 	if !d.Ownership {
@@ -194,21 +270,21 @@ func (s *Service) RefreshDomain(ctx context.Context, team, id string) (result Do
 	}
 	if !d.Provisioned {
 		stage = "provision"
-		if e = s.Provider.Provision(ctx, team, d.Name); e != nil {
+		if e = s.Provider.Provision(ctx, team, identityName); e != nil {
 			return d, fmt.Errorf("provider setup failed; contact the operator: %w", e)
 		}
 		d.Provisioned, d.EventsVersion = true, eventDestinationVersion
 	} else if d.EventsVersion < eventDestinationVersion {
 		// Provisioning is idempotent and updates the configuration set's event
 		// destination. A failure keeps the domain working; the next check retries.
-		if e = s.Provider.Provision(ctx, team, d.Name); e == nil {
+		if e = s.Provider.Provision(ctx, team, identityName); e == nil {
 			d.EventsVersion = eventDestinationVersion
 		} else {
 			logDomainCheckError(team, d.ID, s.Config.Region, &domainCheckError{stage: "event_destination", cause: e})
 		}
 	}
 	stage = "identity"
-	identity, e := s.Provider.Identity(ctx, d.Name)
+	identity, e := s.Provider.Identity(ctx, identityName)
 	if e != nil {
 		return d, e
 	}
@@ -218,7 +294,7 @@ func (s *Service) RefreshDomain(ctx context.Context, team, id string) (result Do
 	d.DKIMTokens = strings.Join(identity.Tokens, ",")
 	d.DMARCStatus = "MISSING_OR_INVALID"
 	stage = "dmarc_dns"
-	records, e = s.DNS.LookupTXT(ctx, "_dmarc."+d.Name)
+	records, e := s.DNS.LookupTXT(ctx, "_dmarc."+identityName)
 	if e != nil && !dnsRecordMissing(e) {
 		return d, e
 	}

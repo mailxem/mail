@@ -1,5 +1,6 @@
 "use client";
 import { CreateKey } from "@/components/api-keys/create-key";
+import { ConnectedApps } from "@/components/api-keys/connected-apps";
 import { useConfirmSheet } from "@/components/ui/confirm-sheet";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -61,5 +62,6 @@ export default function APIKeysPage() {
         <CollectionPagination page={page} limit={20} total={query.data?.total ?? 0} onPageChange={setPage}/>
       </>}
     </section>
+    <ConnectedApps/>
   </>;
 }

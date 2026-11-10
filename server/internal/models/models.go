@@ -205,11 +205,14 @@ type MailingList struct {
 
 type SMTPConfig struct {
 	Base
-	Provider     string `gorm:"not null" json:"provider" validate:"required,oneof=CUSTOM GMAIL OUTLOOK AMAZON"`
-	Host         string `gorm:"not null" json:"host" validate:"required,hostname"`
-	Port         int    `gorm:"not null" json:"port" validate:"required,min=1,max=65535"`
-	Username     string `json:"username" validate:"required"`
-	FromEmail    string `json:"fromEmail" validate:"required"`
+	Provider  string `gorm:"not null" json:"provider" validate:"required,oneof=CUSTOM GMAIL OUTLOOK AMAZON"`
+	Host      string `gorm:"not null" json:"host" validate:"required,hostname"`
+	Port      int    `gorm:"not null" json:"port" validate:"required,min=1,max=65535"`
+	Username  string `json:"username" validate:"required"`
+	FromEmail string `json:"fromEmail" validate:"required"`
+	// ReplyTo is used when an email sets none, e.g. for a shared Xem address
+	// that cannot receive mail.
+	ReplyTo      string `json:"replyTo" validate:"omitempty,email"`
 	Password     string `json:"password" validate:"required,min=8"`
 	IsDefault    bool   `gorm:"not null;default:false" json:"isDefault"`
 	IsActive     bool   `gorm:"not null;default:false" json:"isActive"`

@@ -11,6 +11,7 @@ import (
 	"kori/internal/keys"
 	"kori/internal/models/seeder/airley"
 	"kori/internal/notifications"
+	"kori/internal/oauth"
 	"kori/internal/receiving"
 	"kori/internal/sending"
 	"kori/internal/utils"
@@ -135,6 +136,9 @@ func main() {
 	receivingConfig, err := receiving.LoadConfig()
 	if err != nil {
 		log.Fatalf("Invalid managed receiving configuration: %v", err)
+	}
+	if err := oauth.Migrate(db_instance); err != nil {
+		log.Fatalf("OAuth migration failed: %v", err)
 	}
 	if err := receiving.Migrate(db_instance); err != nil {
 		log.Fatalf("Managed receiving migration failed: %v", err)
@@ -378,6 +382,7 @@ func main() {
 	managed.Register(apiServer.GetEcho(), cfg.JWT.Secret)
 	managedReceiving.Register(apiServer.GetEcho(), cfg.JWT.Secret)
 
+	oauth.Register(apiServer.GetEcho(), db_instance, cfg.JWT.Secret)
 	routes.SetupMarketingRoutes(apiServer.GetEcho(), db_instance, cfg)
 
 	// Register automation routes

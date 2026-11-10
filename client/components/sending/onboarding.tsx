@@ -64,6 +64,7 @@ export function Onboarding() {
   const { request, refresh } = useMarketing();
   const [selected, setSelected] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
+  const [wantShared, setWantShared] = useState(false);
   const sync = async () => {
     await refresh();
   };
@@ -257,61 +258,89 @@ export function Onboarding() {
                 <div className="overflow-hidden rounded-xl border border-border divide-y divide-border">
                   {[
                     {
+                      key: "domain",
                       mode: "MANAGED",
-                      title: "Let Xem handle delivery",
-                      body: "Connect your domain. We’ll provide the sending service and keep delivery details in one place.",
+                      title: "Xem sends, from your domain",
+                      body: "Connect your domain with a few DNS records. Best for trust, and we handle the sending.",
                       icon: Cloud,
                     },
+                    ...(state.sharedDomain
+                      ? [
+                          {
+                            key: "shared",
+                            mode: "MANAGED",
+                            title: "Xem sends, from a Xem address",
+                            body: `No domain or DNS needed. Send today from yourname.${state.sharedDomain}, and add your own domain later.`,
+                            icon: Send,
+                          },
+                        ]
+                      : []),
                     {
+                      key: "byo",
                       mode: "BYO",
-                      title: "Bring your own provider",
+                      title: "Bring your own SMTP",
                       body: "Already using SES, Postmark, or another SMTP provider? Keep your setup and connect it here.",
                       icon: PlugZap,
                     },
-                  ].map((option) => (
-                    <button
-                      key={option.mode}
-                      disabled={
-                        busy || (option.mode === "MANAGED" && !state.enabled)
-                      }
-                      onClick={() => void choose(option.mode)}
-                      aria-pressed={state.account.sendingMode === option.mode}
-                      className={`group flex w-full gap-4 p-5 text-left transition-colors hover:bg-muted/40 disabled:opacity-50 ${state.account.sendingMode === option.mode ? "bg-muted/60 ring-1 ring-inset ring-primary" : ""}`}
-                    >
-                      <option.icon
-                        size={20}
-                        className="mt-0.5 shrink-0 text-muted-foreground"
-                      />
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-medium">
-                          {option.title}
+                  ].map((option) => {
+                    const picked =
+                      state.account.sendingMode === option.mode &&
+                      (option.mode === "BYO" ||
+                        (option.key === "shared") ===
+                          (wantShared || !!domain?.shared));
+                    return (
+                      <button
+                        key={option.key}
+                        disabled={
+                          busy || (option.mode === "MANAGED" && !state.enabled)
+                        }
+                        onClick={() => {
+                          setWantShared(option.key === "shared");
+                          void choose(option.mode);
+                        }}
+                        aria-pressed={picked}
+                        className={`group flex w-full gap-4 p-5 text-left transition-colors hover:bg-muted/40 disabled:opacity-50 ${picked ? "bg-muted/60 ring-1 ring-inset ring-primary" : ""}`}
+                      >
+                        <option.icon
+                          size={20}
+                          className="mt-0.5 shrink-0 text-muted-foreground"
+                        />
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-medium">
+                            {option.title}
+                          </span>
+                          <span className="mt-2 block text-xs leading-6 text-muted-foreground">
+                            {option.body}
+                          </span>
+                          <span className="mt-3 flex items-center gap-2 text-xs font-medium text-primary">
+                            {option.mode === "MANAGED" && !state.enabled
+                              ? "Not enabled on this installation"
+                              : "Choose this path"}
+                            <ArrowRight size={15} />
+                          </span>
                         </span>
-                        <span className="mt-2 block text-xs leading-6 text-muted-foreground">
-                          {option.body}
-                        </span>
-                        <span className="mt-3 flex items-center gap-2 text-xs font-medium text-primary">
-                          {option.mode === "MANAGED" && !state.enabled
-                            ? "Not enabled on this installation"
-                            : "Choose this path"}
-                          <ArrowRight size={15} />
-                        </span>
-                      </span>
-                    </button>
-                  ))}
+                      </button>
+                    );
+                  })}
                 </div>
               ) : managed && active === 1 ? (
                 domain ? (
                   <div className="space-y-4">
                     <p className="font-medium break-all">{domain.name}</p>
                     <p className="text-sm text-muted-foreground">
-                      Your domain is saved. Let’s connect its DNS records.
+                      {domain.shared
+                        ? "Your address is ready. There’s no DNS to set up."
+                        : "Your domain is saved. Let’s connect its DNS records."}
                     </p>
-                    <Button onClick={() => setSelected(2)}>
-                      Continue to DNS <ArrowRight size={15} className="ml-2" />
+                    <Button onClick={() => setSelected(domain.shared ? 3 : 2)}>
+                      {domain.shared ? "Continue to sender" : "Continue to DNS"}{" "}
+                      <ArrowRight size={15} className="ml-2" />
                     </Button>
                   </div>
                 ) : (
                   <DomainForm
+                    sharedDomain={state.sharedDomain}
+                    initial={wantShared ? "shared" : "domain"}
                     onDone={async () => {
                       await sync();
                       setSelected(2);

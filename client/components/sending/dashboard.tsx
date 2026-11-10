@@ -212,7 +212,10 @@ function DashboardContent() {
                 label: "Today’s recipient sends",
                 used: state.account.dailyUsed,
                 // Paid plans have no daily limit; the API sends their month as the day.
-                limit: state.account.dailyLimit >= state.account.monthlyLimit ? 0 : state.account.dailyLimit,
+                limit:
+                  state.account.dailyLimit >= state.account.monthlyLimit
+                    ? 0
+                    : state.account.dailyLimit,
               },
               {
                 label: "This month’s recipient sends",
@@ -235,7 +238,9 @@ function DashboardContent() {
                   {metric.money ? "$" : ""}
                   {metric.used.toLocaleString()}
                   <span className="ml-2 text-sm font-normal text-muted-foreground">
-                    {metric.limit ? `/ ${metric.money ? "$" : ""}${metric.limit.toLocaleString()}` : "no daily limit"}
+                    {metric.limit
+                      ? `/ ${metric.money ? "$" : ""}${metric.limit.toLocaleString()}`
+                      : "no daily limit"}
                   </span>
                 </p>
                 <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-muted">
@@ -256,7 +261,9 @@ function DashboardContent() {
             reservation.
           </p>
           {state.account.dailyLimit < state.account.monthlyLimit && (
-            <PaidPlanNotice feature={`Sending more than ${state.account.dailyLimit.toLocaleString()} emails a day`} />
+            <PaidPlanNotice
+              feature={`Sending more than ${state.account.dailyLimit.toLocaleString()} emails a day`}
+            />
           )}
           <section className="space-y-4">
             <div className="flex items-center justify-between">
@@ -269,6 +276,7 @@ function DashboardContent() {
             {(add || !state.domains.length) && (
               <div className="rounded-xl border border-border bg-card p-5">
                 <DomainForm
+                  sharedDomain={state.sharedDomain}
                   onDone={() => {
                     setAdd(false);
                     sync();

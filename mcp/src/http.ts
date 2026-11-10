@@ -13,6 +13,8 @@ export interface HTTPConfig {
   apiBaseUrl?: string;
   allowedOrigins?: string[];
   fetch?: typeof fetch;
+  /** The Xem app's consent page; enables OAuth sign-in for MCP clients. */
+  authorizeUrl?: string;
 }
 const MAX_BODY = 2 * 1024 * 1024;
 function reply(res: ServerResponse, status: number, message: string) {
@@ -56,6 +58,44 @@ export function createHostedServer(config: HTTPConfig) {
     publicUrl.origin,
     ...(config.allowedOrigins ?? []).map((value) => new URL(value).origin),
   ]);
+  // OAuth (MCP authorization spec): this origin is the issuer. Clients find
+  // it from the 401, register, send the user to the app's consent page, and
+  // trade the code here; /register and /token are forwarded to the API.
+  const issuer = publicUrl.origin;
+  const apiBase = (config.apiBaseUrl ?? "https://api.xem.email/api/v1").replace(
+    /\/$/,
+    "",
+  );
+  const resourceMetadata = `${issuer}/.well-known/oauth-protected-resource`;
+  const challenge = config.authorizeUrl
+    ? `Bearer realm="Xem MCP", resource_metadata="${resourceMetadata}"`
+    : 'Bearer realm="Xem MCP"';
+  const discovery: Record<string, unknown> = config.authorizeUrl
+    ? {
+        "/.well-known/oauth-protected-resource": {
+          resource: publicUrl.href,
+          authorization_servers: [issuer],
+          bearer_methods_supported: ["header"],
+          resource_name: "Xem",
+        },
+        "/.well-known/oauth-authorization-server": {
+          issuer,
+          authorization_endpoint: config.authorizeUrl,
+          token_endpoint: `${issuer}/token`,
+          registration_endpoint: `${issuer}/register`,
+          response_types_supported: ["code"],
+          grant_types_supported: ["authorization_code", "refresh_token"],
+          code_challenge_methods_supported: ["S256"],
+          token_endpoint_auth_methods_supported: ["none"],
+        },
+      }
+    : {};
+  discovery["/.well-known/oauth-protected-resource/mcp"] =
+    discovery["/.well-known/oauth-protected-resource"];
+  const forwards: Record<string, string> = config.authorizeUrl
+    ? { "/register": "/oauth/register", "/token": "/oauth/token" }
+    : {};
+  const send = config.fetch ?? fetch;
   // Store only credential digests for a bounded, per-process rate limit.
   const limits = new Map<string, { count: number; until: number }>();
   let active = 0;
@@ -72,6 +112,62 @@ export function createHostedServer(config: HTTPConfig) {
     // Trust neither forwarded hosts nor cookies. TLS terminates at the ingress.
     if (req.headers.host !== publicUrl.host) {
       reply(res, 403, "Invalid host");
+      return;
+    }
+    const path = (req.url ?? "").split("?")[0];
+    if (path in discovery || path in forwards) {
+      // Public, credential-free endpoints: any origin may read them.
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type, MCP-Protocol-Version",
+      );
+      res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+      if (req.method === "OPTIONS") {
+        res.writeHead(204);
+        res.end();
+        return;
+      }
+      if (path in discovery && req.method === "GET" && discovery[path]) {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(discovery[path]));
+        return;
+      }
+      if (path in forwards && req.method === "POST") {
+        const chunks: Buffer[] = [];
+        let bytes = 0;
+        for await (const chunk of req) {
+          bytes += chunk.length;
+          if (bytes > 16_384) {
+            reply(res, 413, "Request too large");
+            return;
+          }
+          chunks.push(chunk);
+        }
+        try {
+          const upstream = await send(apiBase + forwards[path], {
+            method: "POST",
+            headers: {
+              "Content-Type": req.headers["content-type"] ?? "application/json",
+              Accept: "application/json",
+            },
+            body: Buffer.concat(chunks),
+          });
+          res.writeHead(upstream.status, {
+            "Content-Type":
+              upstream.headers.get("content-type") ?? "application/json",
+          });
+          res.end(await upstream.text());
+        } catch {
+          reply(res, 502, "Xem service unavailable");
+        }
+        return;
+      }
+      res.setHeader(
+        "Allow",
+        path in forwards ? "POST, OPTIONS" : "GET, OPTIONS",
+      );
+      reply(res, 405, "Method not allowed");
       return;
     }
     if (req.url !== "/mcp") {
@@ -106,8 +202,12 @@ export function createHostedServer(config: HTTPConfig) {
       req.headers.authorization ?? "",
     );
     if (!match) {
-      res.setHeader("WWW-Authenticate", 'Bearer realm="Xem MCP"');
-      reply(res, 401, "A Xem API key is required as a Bearer credential");
+      res.setHeader("WWW-Authenticate", challenge);
+      reply(
+        res,
+        401,
+        "Sign in to Xem, or send a Xem API key as a Bearer credential",
+      );
       return;
     }
     if (
@@ -171,13 +271,12 @@ export function createHostedServer(config: HTTPConfig) {
           [400, 401, 403, 413].includes(error.status ?? 0)
             ? error.status!
             : 502;
-        if (status === 401)
-          res.setHeader("WWW-Authenticate", 'Bearer realm="Xem MCP"');
+        if (status === 401) res.setHeader("WWW-Authenticate", challenge);
         reply(
           res,
           status,
           status === 401
-            ? "Invalid or expired Xem API key"
+            ? "Invalid or expired Xem credential"
             : status === 502
               ? "Xem service unavailable"
               : "Request rejected",
@@ -201,6 +300,9 @@ export async function startHTTPServer() {
   const server = createHostedServer({
     publicUrl: process.env.XEM_MCP_PUBLIC_URL ?? "https://mcp.xem.email/mcp",
     apiBaseUrl: process.env.XEM_API_BASE_URL,
+    authorizeUrl:
+      process.env.XEM_OAUTH_AUTHORIZE_URL ??
+      "https://app.xem.email/oauth/authorize",
     allowedOrigins: process.env.XEM_MCP_ALLOWED_ORIGINS?.split(",")
       .map((v) => v.trim())
       .filter(Boolean),

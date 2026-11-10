@@ -40,14 +40,21 @@ func ValidateActor(db *gorm.DB, key *models.APIKey) bool {
 // Issue grants only product resources. Keys cannot administer other credentials,
 // users, billing, or operator approvals. Every MCP call still checks permissions.
 func Issue(db *gorm.DB, user models.User) (string, time.Time, error) {
+	secret, expiry, _, err := IssueKey(db, user, "Xem assistant (short-lived)", 5*time.Minute)
+	return secret, expiry, err
+}
+
+// IssueKey is Issue with a name and lifetime, for apps a user connected over
+// OAuth. It also returns the key's ID so the caller can revoke it.
+func IssueKey(db *gorm.DB, user models.User, name string, ttl time.Duration) (string, time.Time, string, error) {
 	raw := make([]byte, 32)
 	if _, err := rand.Read(raw); err != nil {
-		return "", time.Time{}, err
+		return "", time.Time{}, "", err
 	}
 	secret := Prefix + hex.EncodeToString(raw)
-	expiry := time.Now().UTC().Add(5 * time.Minute)
+	expiry := time.Now().UTC().Add(ttl)
 	write := user.Role == models.UserRoleAdmin || user.Role == models.UserRoleSuperAdmin
-	key := models.APIKey{Name: "Xem assistant (short-lived)", Key: Lookup(secret), TeamID: user.TeamID, ExpiresAt: expiry, AssistantUserID: user.ID, AssistantWrite: write}
+	key := models.APIKey{Name: name, Key: Lookup(secret), TeamID: user.TeamID, ExpiresAt: expiry, AssistantUserID: user.ID, AssistantWrite: write}
 	err := db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&key).Error; err != nil {
 			return err
@@ -73,5 +80,5 @@ func Issue(db *gorm.DB, user models.User) (string, time.Time, error) {
 		// not accumulate one active key per chat turn.
 		return tx.Model(&models.APIKey{}).Where("assistant_user_id = ? AND expires_at < ?", user.ID, time.Now().UTC()).Update("is_deleted", true).Error
 	})
-	return secret, expiry, err
+	return secret, expiry, key.ID, err
 }

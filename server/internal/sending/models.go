@@ -46,9 +46,12 @@ type Domain struct {
 	CheckedAt      *time.Time `json:"checkedAt"`
 	SMTPConfigID   string     `json:"smtpConfigId"`
 	FromEmail      string     `json:"fromEmail"`
-	EventsVersion  int        `json:"-"`
-	CreatedAt      time.Time  `json:"createdAt"`
-	UpdatedAt      time.Time  `json:"updatedAt"`
+	// Shared domains are <label>.<Config.SharedDomain>: no DNS for the team,
+	// sent under the operator's verified identity.
+	Shared        bool      `gorm:"not null;default:false" json:"shared"`
+	EventsVersion int       `json:"-"`
+	CreatedAt     time.Time `json:"createdAt"`
+	UpdatedAt     time.Time `json:"updatedAt"`
 }
 
 func (Domain) TableName() string { return "managed_domains" }

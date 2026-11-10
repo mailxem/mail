@@ -48,46 +48,134 @@ export function CopyButton({
     </Button>
   );
 }
-export function DomainForm({ onDone }: { onDone: () => void | Promise<void> }) {
+export function DomainForm({
+  onDone,
+  sharedDomain,
+  initial = "domain",
+}: {
+  onDone: () => void | Promise<void>;
+  /** Xem's shared sending domain; offers "A Xem address" when set. */
+  sharedDomain?: string;
+  initial?: "domain" | "shared";
+}) {
   const { request } = useMarketing();
+  const [kind, setKind] = useState(sharedDomain ? initial : "domain");
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const shared = kind === "shared";
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError("");
     try {
-      await request("sending/domains", "POST", { name });
+      await request(shared ? "sending/shared" : "sending/domains", "POST", {
+        name,
+      });
       setName("");
       await onDone();
-      toast.success("Your domain is saved. Let’s connect it.");
+      toast.success(
+        shared
+          ? "Your address is ready. Save your sender next."
+          : "Your domain is saved. Let’s connect it.",
+      );
     } catch (e) {
       setError((e as Error).message);
     } finally {
       setBusy(false);
     }
   }
+  const label = name.trim().toLowerCase() || "yourname";
   return (
     <form onSubmit={submit} className="space-y-5">
-      <div className="space-y-2">
-        <Label htmlFor="sending-domain">Your sending domain</Label>
-        <Input
-          id="sending-domain"
-          autoComplete="off"
-          placeholder="updates.yourcompany.com"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          maxLength={253}
-          className="h-12"
-        />
-        <p className="text-sm text-muted-foreground">
-          Use a domain you own. A subdomain such as{" "}
-          <code>updates.yourcompany.com</code> keeps your marketing setup
-          organized.
-        </p>
-      </div>
+      {sharedDomain && (
+        <div
+          role="radiogroup"
+          aria-label="Where your emails come from"
+          className="grid gap-2 sm:grid-cols-2"
+        >
+          {(
+            [
+              [
+                "domain",
+                "My own domain",
+                "Best for trust. Needs a few DNS records.",
+              ],
+              [
+                "shared",
+                "A Xem address",
+                `Send today from ${sharedDomain}. No DNS.`,
+              ],
+            ] as const
+          ).map(([value, title, body]) => (
+            <button
+              key={value}
+              type="button"
+              role="radio"
+              aria-checked={kind === value}
+              onClick={() => {
+                setKind(value);
+                setError("");
+              }}
+              className={`rounded-xl border p-4 text-left transition-colors ${kind === value ? "border-primary bg-muted/60" : "border-border hover:bg-muted/40"}`}
+            >
+              <span className="block text-sm font-medium">{title}</span>
+              <span className="mt-1 block text-xs leading-5 text-muted-foreground">
+                {body}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+      {shared ? (
+        <div className="space-y-2">
+          <Label htmlFor="shared-name">Your name on Xem</Label>
+          <div className="flex h-12 items-center rounded-md border border-input bg-background pr-3 focus-within:ring-2 focus-within:ring-ring">
+            <Input
+              id="shared-name"
+              autoComplete="off"
+              placeholder="yourname"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              minLength={3}
+              maxLength={40}
+              pattern="[a-zA-Z0-9-]+"
+              className="h-full border-0 shadow-none focus-visible:ring-0"
+            />
+            <span className="shrink-0 text-sm text-muted-foreground">
+              .{sharedDomain}
+            </span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Your emails come from{" "}
+            <code className="break-all">
+              hello@{label}.{sharedDomain}
+            </code>
+            . Replies go to your own inbox. You can switch to your own domain
+            any time.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <Label htmlFor="sending-domain">Your sending domain</Label>
+          <Input
+            id="sending-domain"
+            autoComplete="off"
+            placeholder="updates.yourcompany.com"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            maxLength={253}
+            className="h-12"
+          />
+          <p className="text-sm text-muted-foreground">
+            Use a domain you own. A subdomain such as{" "}
+            <code>updates.yourcompany.com</code> keeps your marketing setup
+            organized.
+          </p>
+        </div>
+      )}
       {error && (
         <p role="alert" className="text-sm text-destructive">
           {error}
@@ -102,11 +190,13 @@ export function DomainForm({ onDone }: { onDone: () => void | Promise<void> }) {
         ) : (
           <Globe className="mr-2" size={16} />
         )}
-        Add my domain
+        {shared ? "Get my address" : "Add my domain"}
       </Button>
-      <p className="text-xs text-muted-foreground">
-        Your existing inbox keeps working. You won’t need to move it.
-      </p>
+      {!shared && (
+        <p className="text-xs text-muted-foreground">
+          Your existing inbox keeps working. You won’t need to move it.
+        </p>
+      )}
     </form>
   );
 }
@@ -120,6 +210,19 @@ export function DomainDNS({
   const { request } = useMarketing();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  if (domain.shared)
+    return (
+      <div className="space-y-3 rounded-xl bg-muted/50 p-5 text-sm leading-6">
+        <p className="flex items-center gap-2 font-medium">
+          <Check size={16} className="text-emerald-600" /> No DNS to set up
+        </p>
+        <p className="text-muted-foreground">
+          {domain.name} is on Xem’s domain, which already has DKIM, SPF and
+          DMARC. Want your own name in the address? Add your domain any time and
+          switch your sender to it.
+        </p>
+      </div>
+    );
   async function check() {
     setBusy(true);
     setError("");
@@ -339,6 +442,7 @@ export function SenderSetup({
 }) {
   const { request } = useMarketing();
   const [from, setFrom] = useState(domain.fromEmail || `hello@${domain.name}`);
+  const [replyTo, setReplyTo] = useState("");
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   async function act(kind: "sender" | "test") {
@@ -350,7 +454,12 @@ export function SenderSetup({
           ? `sending/domains/${domain.id}/sender`
           : "sending/test",
         "POST",
-        { from, domainId: domain.id, key: crypto.randomUUID() },
+        {
+          from,
+          domainId: domain.id,
+          key: crypto.randomUUID(),
+          ...(domain.shared && replyTo.trim() ? { replyTo } : {}),
+        },
       );
       await onDone();
       toast.success(
@@ -382,6 +491,23 @@ export function SenderSetup({
           read.
         </p>
       </div>
+      {domain.shared && (
+        <div className="space-y-2">
+          <Label htmlFor={`reply-${domain.id}`}>Replies go to</Label>
+          <Input
+            id={`reply-${domain.id}`}
+            type="email"
+            placeholder="Your sign-in email"
+            value={replyTo}
+            onChange={(e) => setReplyTo(e.target.value)}
+            className="h-12"
+          />
+          <p className="text-sm text-muted-foreground">
+            Addresses on Xem’s domain can’t receive mail, so readers’ replies go
+            here. Leave it empty to use your sign-in email.
+          </p>
+        </div>
+      )}
       <div className="flex flex-wrap gap-3">
         <Button
           onClick={() => void act("sender")}
