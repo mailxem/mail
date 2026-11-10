@@ -99,14 +99,8 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
     const mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       const ctx = gsap.context(() => {
-        gsap.from("[data-intro]", {
-          y: 28,
-          opacity: 0,
-          duration: 0.9,
-          stagger: 0.11,
-          ease: "power3.out",
-          clearProps: "all",
-        });
+        // The hero has no intro animation: hiding it until scripts run left
+        // the first screen blank on slow phones.
         gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) =>
           gsap.from(el, {
             y: 40,
@@ -268,7 +262,6 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
           <div className="relative z-10 mx-auto max-w-6xl px-5 text-center">
             <a
               href="#open-source"
-              data-intro
               className={`${sectionLabel} inline-flex items-center gap-2.5 rounded-full border border-forest/20 bg-forest/5 px-4 py-2 transition-colors hover:bg-forest/10`}
             >
               <GitBranch size={14} aria-hidden="true" /> Proudly open source
@@ -276,19 +269,17 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
             </a>
             <h1
               id="hero-title"
-              data-intro
               className="mt-5 font-editorial text-[clamp(3.25rem,7.8vw,6rem)] font-normal leading-[.94] tracking-[-.055em]"
             >
               All your email marketing,
               <HeroWheel />
             </h1>
-            <p
-              data-intro
-              className="mx-auto mt-6 max-w-[560px] text-[17px] leading-relaxed tracking-[-.02em] md:text-lg"
-            >
-              Campaigns, newsletters, automations, forms, a CRM and a shared
-              inbox in one open-source suite. Free for 3,000 emails a month,
-              then from $9: up to{" "}
+            <p className="mx-auto mt-6 max-w-[560px] text-[17px] leading-relaxed tracking-[-.02em] md:text-lg">
+              Pay for the emails you send, not the list you keep.{" "}
+              <strong className="font-semibold">
+                Free for 3,000 emails a month, then from $9.
+              </strong>{" "}
+              That&apos;s up to{" "}
               <a
                 href="#price"
                 className="font-medium underline decoration-ink/30 underline-offset-4 hover:decoration-ink"
@@ -297,10 +288,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               </a>{" "}
               for the same newsletter.
             </p>
-            <div
-              data-intro
-              className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2"
-            >
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
               <a href={appLink("/auth/register")} className={primary}>
                 Create your first email <Arrow />
               </a>
@@ -314,7 +302,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
                 Take a little tour
               </button>
             </div>
-            <p data-intro className="mt-4 text-xs text-muted">
+            <p className="mt-4 text-xs text-muted">
               Prefer your own server?{" "}
               <a
                 href={selfHostUrl}
