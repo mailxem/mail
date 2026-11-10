@@ -32,6 +32,7 @@ import { HeroWheel } from "./hero-wheel";
 import { PriceSection, biggestSaving } from "./price-section";
 import { primaryButton as primary } from "@/lib/brand";
 import { SiteFooter } from "./site-chrome";
+import { DeliveredCount, LiveNumbers } from "./live-numbers";
 import { cn } from "@/lib/utils";
 const textLink =
   "group inline-flex items-center gap-2 border-b border-current pb-1 text-sm font-medium transition-opacity hover:opacity-65";
@@ -294,7 +295,10 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
                   )}
                 </span>
               ))}
-              . Over <span className="font-medium text-ink">5,000 emails</span>{" "}
+              . Over{" "}
+              <span className="font-medium text-ink">
+                <DeliveredCount fallback={5000} />
+              </span>{" "}
               delivered so far.
             </p>
           </div>
@@ -327,6 +331,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
         </section>
 
         <Testimonials />
+        <LiveNumbers />
 
         <FeatureGrid />
 

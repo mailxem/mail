@@ -117,6 +117,7 @@ func SetupMarketingRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 	public.POST("/forms/:slug/events", h.RecordFormEvent)
 	public.GET("/unsubscribe/:team/:contact/:token", h.Unsubscribe)
 	// Web archives are read by page renders and crawlers, so they get a roomier limit.
+	e.GET("/public/stats", handlers.PublicStatsHandler(db), em.RateLimiter(em.NewRateLimiterMemoryStore(rate.Limit(5))))
 	archive := e.Group("/public/newsletters", em.RateLimiter(em.NewRateLimiterMemoryStore(rate.Limit(20))))
 	archive.GET("/by-domain/:host", h.PublicSiteByDomain)
 	archive.GET("/:slug", h.PublicNewsletter)
