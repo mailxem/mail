@@ -294,6 +294,8 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
                   )}
                 </span>
               ))}
+              . Over <span className="font-medium text-ink">5,000 emails</span>{" "}
+              delivered so far.
             </p>
           </div>
           <div className="mx-auto hidden max-w-[1240px] items-center justify-between px-5 pb-7 text-[10px] uppercase tracking-[.13em] text-muted md:flex md:px-10">
