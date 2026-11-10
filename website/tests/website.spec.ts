@@ -144,7 +144,7 @@ test("reduced motion retains all content without initializing WebGL", async ({
   await expect(page.locator("canvas")).toHaveCount(0);
   await page.locator("#templates").scrollIntoViewIfNeeded();
   await expect(
-    page.getByRole("heading", { name: /A head start/ }),
+    page.getByRole("heading", { name: /200\+ templates/ }),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Preview Thanks for Digging In", exact: true })
@@ -183,7 +183,9 @@ test("public metadata, headers, links, and every image resolve", async ({
   const response = await page.goto("/");
   expect(response?.headers()["x-content-type-options"]).toBe("nosniff");
   expect(response?.headers()["x-frame-options"]).toBe("DENY");
-  await expect(page).toHaveTitle("Xem — All your email marketing, at the price of email.");
+  await expect(page).toHaveTitle(
+    "Xem — All your email marketing, at the price of email.",
+  );
   const hrefs = await page
     .locator("a")
     .evaluateAll((es) => es.map((e) => e.getAttribute("href") || ""));
@@ -234,12 +236,12 @@ test("content and signup remain available when JavaScript is unavailable", async
   await expect(
     page.getByRole("link", { name: "Play the Xem brand film, 30 seconds" }),
   ).toHaveAttribute("href", "/videos/xem-brand-film.mp4");
-  await expect(page.locator("#hero video")).toHaveAttribute(
+  await expect(page.locator("#film video")).toHaveAttribute(
     "poster",
     "/videos/xem-brand-poster.webp",
   );
   await expect(
-    page.getByRole("heading", { name: /Your whole email world/ }),
+    page.getByRole("tablist", { name: "Explore Xem features" }),
   ).toBeVisible();
   await context.close();
 });

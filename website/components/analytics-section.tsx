@@ -43,17 +43,16 @@ export function AnalyticsSection() {
         <div className="mb-12 flex flex-wrap items-end justify-between gap-7 md:px-4">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[.17em]">
-              A clearer picture. A more thoughtful next move.
+              Analytics
             </p>
             <h2 className="mt-5 font-editorial text-[clamp(3rem,5.5vw,5rem)] leading-[1.02] tracking-[-.045em]">
-              Good emails connect.
+              Who opened, who clicked,
               <br />
-              <em>The numbers tell the story.</em>
+              <em>what to send next.</em>
             </h2>
           </div>
           <p className="max-w-[290px] text-sm leading-relaxed text-muted">
-            See what’s resonating, who’s engaging, and where to go next. Take
-            the controls below — there’s a whole story in these numbers.
+            Opens, clicks, devices and audience growth, with bot opens and link-scanner clicks left out. Try the controls below.
           </p>
         </div>
         {ready ? (

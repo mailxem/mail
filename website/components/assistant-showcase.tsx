@@ -272,23 +272,21 @@ export function AssistantShowcase() {
       <div className="mx-auto grid max-w-[1160px] items-center gap-16 lg:grid-cols-[.85fr_1.15fr] lg:gap-24">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[.17em] text-[#715080]">
-            A little less clicking. A little more creating.
+            Ask Xem
           </p>
           <h2
             id="assistant-heading"
             className="mt-6 font-editorial text-[clamp(3.2rem,5.4vw,4.9rem)] font-normal leading-[1.02] tracking-[-.045em]"
           >
-            Your workspace.
+            Ask a question.
             <br />
-            <em>In a conversation.</em>
+            <em>It does the clicking.</em>
           </h2>
           <p className="mt-7 max-w-sm text-sm leading-[1.9] text-[#6b507b]">
-            Find the story in your numbers. Give your next newsletter a starting
-            point. Or just ask where to begin.
+            Ask which campaign did best last month, or have it draft next week’s newsletter from your notes.
           </p>
           <p className="mt-4 max-w-sm text-sm leading-[1.9] text-[#6b507b]">
-            Ask Xem connects to your team’s tools, so help comes with context.
-            You review workspace changes before they happen.
+            It works inside your workspace, and you approve every change before it happens.
           </p>
           <div className="mt-8 flex items-center gap-2 text-[10px] text-[#77528a]">
             <span className="h-1.5 w-1.5 rounded-full bg-[#9775ae]" /> Available

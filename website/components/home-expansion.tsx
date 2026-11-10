@@ -76,17 +76,16 @@ export function MoreFeatures() {
         >
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[.17em] text-iris">
-              The rest of the relationship
+              Forms, contacts, inbox
             </p>
             <h2 className="mt-5 font-editorial text-[clamp(3rem,5vw,4.8rem)] leading-[1.02] tracking-[-.04em]">
-              More than
+              Sign-ups, contacts
               <br />
-              <em>the send button.</em>
+              <em>and replies, together.</em>
             </h2>
           </div>
           <p className="max-w-sm text-sm leading-relaxed text-muted">
-            The form that starts it. The contact you remember. The reply that
-            turns into a conversation. Give every part a home.
+            A signup form fills a list. Each contact keeps its history. Replies land in a shared inbox your team can answer.
           </p>
         </div>
         <div
@@ -267,18 +266,18 @@ export function Testimonials() {
       <div className="mx-auto grid max-w-[1160px] gap-12 lg:grid-cols-[.65fr_1.4fr]">
         <div data-reveal>
           <p className="text-[11px] font-medium uppercase tracking-[.17em] text-[#cbb9ef]">
-            In good company
+            Customers
           </p>
           <h2
             id="voices-heading"
             className="mt-5 font-editorial text-5xl leading-[1.04] tracking-tight"
           >
-            Real people.
+            What teams on Xem
             <br />
-            <em>Better email days.</em>
+            <em>tell us.</em>
           </h2>
           <p className="mt-6 max-w-xs text-sm leading-relaxed text-cream/65">
-            A few words from the teams who have made Xem part of their work.
+            In their own words.
           </p>
           <div className="mt-8 flex gap-2">
             <button
@@ -348,12 +347,12 @@ export function JournalPreview({ posts }: { posts: PostMeta[] }) {
         >
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[.17em] text-iris">
-              Fresh from the journal
+              Journal
             </p>
             <h2 className="mt-5 font-editorial text-[clamp(3rem,5vw,4.8rem)] leading-[1.02] tracking-[-.04em]">
-              Ideas worth
+              Guides and
               <br />
-              <em>opening.</em>
+              <em>research.</em>
             </h2>
           </div>
           <Link
