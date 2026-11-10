@@ -116,6 +116,7 @@ const footerColumns: [string, [string, string][]][] = [
       ["Self-host Xem ↗", selfHostUrl],
       ["Contribute to Xem ↗", contributeUrl],
       ["Affiliates · earn 30%", "/affiliates"],
+      ["Changelog", "/changelog"],
       ["Editorial approach", "/blog/editorial"],
       ["Contact the Xem team", "mailto:team@xem.email"],
     ],
