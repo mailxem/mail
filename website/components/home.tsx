@@ -79,6 +79,14 @@ function Arrow() {
     />
   );
 }
+// Teams the founder confirmed use Xem. researchandrise.com has no site yet,
+// so it isn't linked.
+const customers: [string, string?][] = [
+  ["Hakopod", "https://hakopod.com"],
+  ["Zunofy", "https://zunofy.com"],
+  ["SyneHQ", "https://synehq.com"],
+  ["Research and Rise"],
+];
 export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
   const root = useRef<HTMLDivElement>(null);
   const rail = useRef<HTMLDivElement>(null);
@@ -274,6 +282,24 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               >
                 Self-host Xem <span aria-hidden="true">↗</span>
               </a>
+            </p>
+            <p className="mx-auto mt-7 max-w-xl text-sm text-muted">
+              Used by teams at{" "}
+              {customers.map(([name, href], i) => (
+                <span key={name}>
+                  {i > 0 && (i === customers.length - 1 ? " and " : ", ")}
+                  {href ? (
+                    <a
+                      href={href}
+                      className="font-medium text-ink hover:underline"
+                    >
+                      {name}
+                    </a>
+                  ) : (
+                    <span className="font-medium text-ink">{name}</span>
+                  )}
+                </span>
+              ))}
             </p>
           </div>
           <HeroFilm suspended={tour !== null || template !== null || menu} />
