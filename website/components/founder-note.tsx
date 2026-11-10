@@ -74,9 +74,13 @@ export function FounderNote() {
         <div className="mt-10 space-y-6 text-[18px] leading-[1.8] text-ink/80 md:text-[19px]">
           <p>
             Hi, I’m{" "}
-            <span className="mx-0.5 inline-flex h-[1.25em] w-[1.25em] items-center justify-center rounded-full bg-lemon align-[-0.18em] font-semibold leading-none text-ink">
-              <span className="text-[.62em]">H</span>
-            </span>{" "}
+            <Image
+              src="/founder/harsh-avatar.jpg"
+              alt="Harsh"
+              width={40}
+              height={40}
+              className="mx-0.5 inline-block h-[1.4em] w-[1.4em] rounded-full object-cover align-[-0.32em] ring-2 ring-lemon"
+            />{" "}
             <B>Harsh</B>, and I build{" "}
             <Logo src="/brand/xem-mark.png" label="Xem" /> <B>Xem</B>.
           </p>
