@@ -330,9 +330,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
           </div>
         </section>
 
-        <PriceSection />
         <Testimonials />
-        <FounderNote />
 
         <FeatureGrid />
 
@@ -453,72 +451,49 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
           </div>
         </section>
 
-        <AnalyticsSection />
+        <FounderNote />
 
         <McpSection />
-        <JournalPreview posts={latestPosts} />
+
+        <AnalyticsSection />
+
+        <PriceSection />
         <section
           id="open-source"
           aria-labelledby="open-source-title"
-          className="scroll-mt-28 border-t border-ink/10 bg-lavender/30 px-5 py-20 md:px-10 md:py-28"
+          className="scroll-mt-28 border-t border-ink/10 bg-lavender/30 px-5 py-12 md:px-10 md:py-16"
         >
-          <div className="mx-auto grid max-w-[1160px] gap-10 md:grid-cols-2 md:items-center md:gap-20">
-            <div data-reveal>
-              <span
-                className={`${sectionLabel} inline-flex items-center gap-2`}
-              >
-                <GitBranch size={14} aria-hidden="true" /> Proudly open source
-              </span>
-              <h2 id="open-source-title" className={`${heading} mt-6`}>
-                Every line of Xem
-                <br />
-                <em>is on GitHub.</em>
-              </h2>
-            </div>
-            <div data-reveal>
-              <p className="text-base leading-relaxed text-muted md:text-lg">
-                The app, the Go backend, the SDKs and the self-hosting tools are
-                in one GPL-3.0 repository. Read how sending works, run it on
-                your own server, or send a fix.
-              </p>
-              <ul className="mt-6 space-y-3 text-sm">
-                {[
-                  "Clone once to explore the whole product",
-                  "Make a small fix, improve a guide, or share an idea",
-                  "Keep your SMTP provider and your infrastructure",
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-2.5">
-                    <Check
-                      size={16}
-                      className="shrink-0 text-forest"
-                      aria-hidden="true"
-                    />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
-                <a href={githubUrl} className={primary}>
-                  <Github size={18} aria-hidden="true" /> Explore the repository
-                  <Arrow />
-                </a>
-                <a href={contributeUrl} className={textLink}>
-                  Find a way to contribute <Arrow />
-                </a>
-              </div>
-              <p className="mt-5 text-sm text-muted">
-                Ready to try it on your server?{" "}
-                <a
-                  href={selfHostUrl}
-                  className="font-medium text-forest underline decoration-forest/30 underline-offset-4 hover:decoration-forest"
-                >
-                  Follow the self-hosting guide{" "}
-                  <span aria-hidden="true">↗</span>
-                </a>
-              </p>
+          <div data-reveal className="mx-auto max-w-[760px]">
+            <span className={`${sectionLabel} inline-flex items-center gap-2`}>
+              <GitBranch size={14} aria-hidden="true" /> Proudly open source
+            </span>
+            <h2
+              id="open-source-title"
+              className="mt-4 font-editorial text-[clamp(2rem,3.6vw,2.9rem)] leading-[1.05] tracking-[-.03em]"
+            >
+              Every line of Xem is on GitHub
+            </h2>
+            <p className="mt-3 text-base leading-relaxed text-muted">
+              The app, the Go backend, the SDKs and the self-hosting tools are
+              in one GPL-3.0 repository. Read how sending works, run it on your
+              own server, or send a fix.
+            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <a href={githubUrl} className={primary}>
+                <Github size={18} aria-hidden="true" /> Explore the repository
+                <Arrow />
+              </a>
+              <a href={selfHostUrl} className={textLink}>
+                Self-hosting guide <Arrow />
+              </a>
+              <a href={contributeUrl} className={textLink}>
+                Contribute <Arrow />
+              </a>
             </div>
           </div>
         </section>
+
+        <JournalPreview posts={latestPosts} />
 
         <section
           id="film"

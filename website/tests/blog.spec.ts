@@ -105,33 +105,15 @@ test("every article has unique metadata, structured data, working contents, and 
   expect((await request.get("/blog/not-a-real-post")).status()).toBe(404);
 });
 
-test("feature stories, testimonials, and iris calls to action work", async ({
+test("feature grid, testimonials, and iris calls to action work", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  const features = page.getByRole("tablist", { name: "More Xem features" });
-  await features.getByRole("tab", { name: "Lead forms" }).focus();
-  await page.keyboard.press("ArrowRight");
-  await expect(
-    features.getByRole("tab", { name: "Audience & CRM" }),
-  ).toBeFocused();
-  await expect(page.locator("#feature-panel img")).toHaveAttribute(
-    "src",
-    /crm/,
-  );
-  await features.getByRole("tab", { name: "Inbox & outbox" }).click();
-  await expect(page.locator("#feature-panel img")).toHaveAttribute(
-    "src",
-    /inbox/,
-  );
-  await expect
-    .poll(() =>
-      page
-        .locator("#feature-panel img")
-        .evaluate((e: HTMLImageElement) => e.complete && e.naturalWidth > 0),
-    )
-    .toBe(true);
+  const grid = page.locator("section:has(#features-title)");
+  await expect(grid.getByRole("heading", { level: 3 })).toHaveCount(8);
+  await expect(page.locator("#assistant")).toContainText("Ask Xem");
+  await expect(page.locator("#sending")).toContainText("Set up in four steps");
   await page.getByRole("button", { name: "Next testimonial" }).click();
   await expect(page.locator("#voices blockquote")).toContainText(
     "three different vendors",

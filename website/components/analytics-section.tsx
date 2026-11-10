@@ -1,22 +1,19 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-const Showcase = dynamic(() => import("./analytics-showcase"), {
-  ssr: false,
-  loading: () => (
-    <div className="min-h-[1300px] rounded-[30px] border border-ink/10 bg-[#f7f6fa] p-6">
-      <div className="h-12 w-1/3 rounded-xl bg-[#e9e3f0] motion-safe:animate-pulse" />
-      <div className="mt-7 grid grid-cols-2 gap-4 md:grid-cols-4">
-        {[0, 1, 2, 3].map((n) => (
-          <div key={n} className="h-28 rounded-xl bg-white" />
-        ))}
+const Showcase = dynamic(
+  () => import("./dashboard-demo").then((m) => m.DashboardDemo),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="min-h-[640px] rounded-[28px] border border-ink/10 bg-[#fcfcfa] p-7">
+        <p role="status" className="text-sm text-muted">
+          Loading the dashboard…
+        </p>
       </div>
-      <p role="status" className="mt-14 text-center text-sm text-muted">
-        Bringing the numbers into focus…
-      </p>
-    </div>
-  ),
-});
+    ),
+  },
+);
 export function AnalyticsSection() {
   const host = useRef<HTMLElement>(null);
   const [ready, setReady] = useState(false);
@@ -45,29 +42,26 @@ export function AnalyticsSection() {
             <p className="text-[11px] font-medium uppercase tracking-[.17em]">
               Analytics
             </p>
-            <h2 className="mt-5 font-editorial text-[clamp(3rem,5.5vw,5rem)] leading-[1.02] tracking-[-.045em]">
-              Who opened, who clicked,
-              <br />
-              <em>what to send next.</em>
+            <h2 className="mt-5 max-w-[640px] font-editorial text-[clamp(2.6rem,5vw,4.2rem)] leading-[1.02] tracking-[-.04em]">
+              See how every send did
             </h2>
           </div>
           <p className="max-w-[290px] text-sm leading-relaxed text-muted">
-            Opens, clicks, devices and audience growth, with bot opens and
-            link-scanner clicks left out. Try the controls below.
+            This is the Xem dashboard with sample data. Bot opens and
+            link-scanner clicks are left out of every number. Switch the period
+            or the tab.
           </p>
         </div>
         {ready ? (
           <Showcase />
         ) : (
-          <div className="min-h-[1300px] rounded-[30px] border border-ink/10 bg-[#f7f6fa] p-7">
+          <div className="min-h-[640px] rounded-[28px] border border-ink/10 bg-[#fcfcfa] p-7">
             <p className="text-sm text-muted">
-              Explore campaigns, audience growth, devices, and engagement.
+              Sent, opened, clicked and subscriber growth, on sample data.
             </p>
             <noscript>
               <p className="mt-4">
-                Enable JavaScript to interact with this synthetic analytics
-                demo. The Xem analytics workspace includes campaign comparisons,
-                date filters, audience cohorts, and delivery reports.
+                Enable JavaScript to try this dashboard demo.
               </p>
             </noscript>
           </div>
