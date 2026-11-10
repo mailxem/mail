@@ -5,6 +5,9 @@ import { weeklyEmails, xemMonthlyCost } from "@/lib/xem-pricing";
 // same data as /compare, so the headline never drifts from the tables.
 // Logos are each company's own icon, from its website.
 const rivals = [
+  { id: "mailchimp", logo: "/logos/mailchimp.svg" },
+  { id: "beehiiv", logo: "/logos/beehiiv.png" },
+  { id: "mailcheap", logo: "/logos/mailcheap.svg" },
   { id: "plunk", logo: "/logos/plunk.svg" },
   { id: "sequenzy", logo: "/logos/sequenzy.png" },
   { id: "ghost", logo: "/logos/ghost.png" },
