@@ -226,7 +226,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
             </a>
             <h1
               id="hero-title"
-              className="mt-5 font-editorial text-[clamp(3.25rem,7.8vw,6rem)] font-normal leading-[.94] tracking-[-.055em]"
+              className="mt-5 font-editorial text-[clamp(2.75rem,7.8vw,6rem)] font-normal leading-[.94] tracking-[-.055em] [container-type:inline-size]"
             >
               All your email marketing,
               <HeroWheel />

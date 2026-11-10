@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, MousePointer2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { docsUrl } from "@/lib/site";
-import { agents } from "./agent-strip";
+import { AgentStack, agents } from "./agent-strip";
 
 // Real tools from Xem's MCP server (mcp/src/tools.ts).
 const examples = [
@@ -18,11 +18,10 @@ const examples = [
   { agent: 0, does: "schedules the next issue", tool: "schedule_newsletter" },
   { agent: 1, does: "tags your best readers", tool: "set_contact_tags" },
 ];
-// The strip's three marks, plus Cursor, which has no open mark to use.
-const clients = [
-  ...agents.map((a) => ({ ...a, name: a.name.replace(" in VS Code", "") })),
-  { name: "Cursor", bg: "#1b1b1b", fg: "#ffffff", path: "" },
-];
+const clients = agents.map((a) => ({
+  ...a,
+  name: a.name.replace(" in VS Code", ""),
+}));
 
 export function McpSection() {
   const [i, setI] = useState(0);
@@ -52,31 +51,11 @@ export function McpSection() {
             Your AI agent can do everything you can
           </h2>
 
-          <ul className="mt-10 flex items-center justify-center gap-3 md:gap-4">
-            {clients.map((c, n) => (
-              <li key={c.name}>
-                <span
-                  title={c.name}
-                  className={`flex h-12 w-12 items-center justify-center rounded-2xl border transition duration-500 md:h-14 md:w-14 ${n === now.agent ? "scale-110 border-cream/60 opacity-100 shadow-[0_0_0_4px_rgba(255,254,240,.08)]" : "border-cream/10 opacity-45"}`}
-                  style={{ backgroundColor: c.bg, color: c.fg }}
-                >
-                  {c.path ? (
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="h-6 w-6 md:h-7 md:w-7"
-                      fill="currentColor"
-                      role="img"
-                      aria-label={c.name}
-                    >
-                      <path d={c.path} />
-                    </svg>
-                  ) : (
-                    <MousePointer2 size={24} aria-label={c.name} />
-                  )}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <AgentStack
+            ring="#164b3f"
+            active={now.agent}
+            className="mt-10 text-[52px] md:text-[64px]"
+          />
 
           <p
             aria-live="polite"
