@@ -19,14 +19,10 @@ import {
   Menu,
   Play,
   Plus,
-  Send,
-  ShieldCheck,
-  Sparkles,
   Star,
   Users,
   Workflow,
   X,
-  Zap,
 } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -91,7 +87,6 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
   const [tour, setTour] = useState<number | null>(null);
   const [template, setTemplate] = useState<number | null>(null);
   const [faq, setFaq] = useState(0);
-  const [journey, setJourney] = useState(0);
   const [railIndex, setRailIndex] = useState(0);
   const [railEnd, setRailEnd] = useState(false);
   useEffect(() => {
@@ -111,15 +106,6 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
             clearProps: "all",
           }),
         );
-        gsap.utils.toArray<HTMLElement>("[data-journey]").forEach((el, i) => {
-          ScrollTrigger.create({
-            trigger: el,
-            start: "top 60%",
-            end: "bottom 60%",
-            onEnter: () => setJourney(i),
-            onEnterBack: () => setJourney(i),
-          });
-        });
       }, root);
       return () => ctx.revert();
     });
@@ -162,35 +148,17 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
             >
               Templates
             </a>
-            <a
-              href="#analytics"
-              className="transition-colors hover:text-forest"
-            >
-              Analytics
-            </a>
-            <a
-              href="#assistant"
-              className="transition-colors hover:text-forest"
-            >
-              Ask Xem
-            </a>
-            <a href="#sending" className="transition-colors hover:text-forest">
-              Sending
-            </a>
             <a href="/pricing" className="transition-colors hover:text-iris">
               Pricing
+            </a>
+            <a href="/compare" className="transition-colors hover:text-iris">
+              Compare
             </a>
             <a href="/blog" className="transition-colors hover:text-iris">
               Journal
             </a>
             <a href={docsUrl} className="transition-colors hover:text-iris">
               Docs
-            </a>
-            <a
-              href="#questions"
-              className="transition-colors hover:text-forest"
-            >
-              FAQs
             </a>
           </nav>
           <div className="flex items-center gap-1 sm:gap-5">
@@ -229,14 +197,10 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
             {[
               ["Product", "#product"],
               ["Templates", "#templates"],
-              ["Analytics", "#analytics"],
-              ["Ask Xem", "#assistant"],
-              ["Sending & setup", "#sending"],
-              ["How it works", "#how-it-works"],
-              ["Open source", "#open-source"],
-              ["FAQs", "#questions"],
               ["Pricing", "/pricing"],
+              ["Compare", "/compare"],
               ["Journal", "/blog"],
+              ["FAQs", "#questions"],
               ["Docs", docsUrl],
               ["Log in", appLink("/auth/login")],
             ].map(([label, href]) => (
@@ -329,6 +293,9 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
             </a>
           </div>
         </section>
+
+        <PriceSection />
+        <Testimonials />
 
         <section
           id="product"
@@ -464,149 +431,8 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
           </div>
         </section>
 
-        <PriceSection />
         <AssistantShowcase />
         <SendingSection />
-
-        <section
-          id="how-it-works"
-          className="scroll-mt-24 px-5 py-20 md:px-10 md:py-28"
-        >
-          <div className="mx-auto max-w-[1120px]">
-            <div data-reveal className="mx-auto max-w-3xl text-center">
-              <p className={sectionLabel}>A little intention goes a long way</p>
-              <h2 className={`${heading} mt-5`}>
-                From the first hello
-                <br />
-                <em>to what comes next.</em>
-              </h2>
-            </div>
-            <div className="mt-14 grid gap-10 md:mt-20 md:grid-cols-[1fr_1fr] md:gap-24">
-              <div className="relative hidden md:block">
-                <div className="sticky top-[170px] overflow-hidden rounded-[28px] bg-[#e8ebda] p-10">
-                  <div className="mb-12 flex items-center justify-between text-[10px] uppercase tracking-widest">
-                    <span>A thoughtful journey</span>
-                    <span>0{journey + 1} / 03</span>
-                  </div>
-                  <div className="relative flex min-h-[380px] flex-col items-center justify-center gap-5">
-                    <div
-                      className={`w-[270px] rounded-xl border bg-cream p-4 shadow-sm transition-all duration-500 ${journey === 0 ? "scale-105 border-forest/40" : "border-ink/10"}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="rounded-lg bg-lemon p-2.5">
-                          <Users size={20} />
-                        </span>
-                        <div>
-                          <p className="text-[9px] uppercase tracking-wider text-muted">
-                            It starts with a person
-                          </p>
-                          <p className="mt-1 text-sm font-medium">
-                            A new contact joins
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="h-7 w-px bg-forest/30" />
-                    <div
-                      className={`w-[270px] rounded-xl border bg-cream p-4 shadow-sm transition-all duration-500 ${journey === 1 ? "scale-105 border-forest/40" : "border-ink/10"}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="rounded-lg bg-lavender p-2.5">
-                          <Mail size={20} />
-                        </span>
-                        <div>
-                          <p className="text-[9px] uppercase tracking-wider text-muted">
-                            Make the moment count
-                          </p>
-                          <p className="mt-1 text-sm font-medium">
-                            Send a warm welcome
-                          </p>
-                        </div>
-                      </div>
-                      <div className="mt-3 rounded-md bg-[#f2f0e8] px-3 py-2.5 font-editorial text-xl italic">
-                        “So glad you’re here.”
-                      </div>
-                    </div>
-                    <div className="h-7 w-px bg-forest/30" />
-                    <div
-                      className={`w-[270px] rounded-xl border bg-cream p-4 shadow-sm transition-all duration-500 ${journey === 2 ? "scale-105 border-forest/40" : "border-ink/10"}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="rounded-lg bg-[#efdbca] p-2.5">
-                          <GitBranch size={20} />
-                        </span>
-                        <div>
-                          <p className="text-[9px] uppercase tracking-wider text-muted">
-                            Keep the conversation going
-                          </p>
-                          <p className="mt-1 text-sm font-medium">
-                            Wait. Learn. Follow up.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="mt-10 text-center text-[10px] text-muted">
-                    A simple example of a welcome journey in Xem.
-                  </p>
-                </div>
-              </div>
-              <div>
-                {[
-                  {
-                    n: "01",
-                    icon: Users,
-                    title: "Meet your people.",
-                    body: "Turn a signup into the start of something. Bring contacts in through lead forms, organize them with lists and tags, and keep the context in your CRM.",
-                    link: "Explore your audience",
-                    path: "/crm",
-                  },
-                  {
-                    n: "02",
-                    icon: Mail,
-                    title: "Make it feel personal.",
-                    body: "A welcome note. A weekly ritual. A launch you can’t wait to share. Start with a beautiful template, make it yours, and send with intention.",
-                    link: "Find your starting point",
-                    path: "/templates",
-                  },
-                  {
-                    n: "03",
-                    icon: Workflow,
-                    title: "Let the good things follow.",
-                    body: "Build the next steps visually. Give people time, respond to their actions, and use audience insights to make your next message more thoughtful.",
-                    link: "Build a customer journey",
-                    path: "/automations",
-                  },
-                ].map((s, i) => (
-                  <article
-                    data-journey
-                    key={s.n}
-                    className={`relative py-9 md:min-h-[320px] md:py-14 ${i < 2 ? "border-b border-ink/15" : ""}`}
-                  >
-                    <div className="mb-6 flex items-center gap-3">
-                      <span className="text-xs text-muted">{s.n}</span>
-                      <span
-                        className={`flex h-10 w-10 items-center justify-center rounded-full ${i === 0 ? "bg-lemon" : i === 1 ? "bg-lavender" : "bg-[#efdbca]"}`}
-                      >
-                        <s.icon size={18} />
-                      </span>
-                    </div>
-                    <h3 className="font-editorial text-[40px] leading-none tracking-[-.04em]">
-                      {s.title}
-                    </h3>
-                    <p className="mt-5 max-w-[430px] text-sm leading-[1.8] text-muted">
-                      {s.body}
-                    </p>
-                    <a href={appLink(s.path)} className={`${textLink} mt-6`}>
-                      {s.link}
-                      <Arrow />
-                    </a>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
 
         <section
           id="templates"
@@ -728,197 +554,8 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
 
         <AnalyticsSection />
 
-        <section className="px-5 py-20 md:px-10 md:py-28">
-          <div className="mx-auto max-w-[1160px]">
-            <div data-reveal className="mb-12 text-center">
-              <p className={sectionLabel}>For the way you work</p>
-              <h2 className={`${heading} mt-5`}>
-                A little less doing.
-                <br />
-                <em>A little more creating.</em>
-              </h2>
-            </div>
-            <div
-              data-reveal
-              className="grid overflow-hidden rounded-[28px] bg-lemon lg:grid-cols-[.85fr_1.15fr]"
-            >
-              <div className="p-7 md:p-12">
-                <Sparkles size={26} strokeWidth={1.4} />
-                <h3 className="mt-10 font-editorial text-[43px] leading-[1.04] tracking-[-.045em]">
-                  Big idea?
-                  <br />
-                  <em>Start there.</em>
-                </h3>
-                <p className="mt-5 max-w-sm text-sm leading-relaxed text-ink/75">
-                  Tell Xem what you have in mind. AI turns your brief into an
-                  editable email design — with structure, copy, and room for
-                  your own touch.
-                </p>
-                <button
-                  onClick={() => setTour(0)}
-                  className={`${textLink} mt-7`}
-                >
-                  See the design editor <Arrow />
-                </button>
-                <div className="mt-10 rounded-xl border border-ink/15 bg-cream/70 p-4">
-                  <p className="text-[10px] uppercase tracking-widest text-muted">
-                    A little inspiration
-                  </p>
-                  <p className="mt-3 font-editorial text-xl leading-snug">
-                    “A bright product newsletter, with a bold hero and stories
-                    our community will love.”
-                  </p>
-                  <div className="mt-4 flex items-center gap-1.5 text-[10px] text-forest">
-                    <Sparkles size={12} /> Your idea. An editable starting
-                    point.
-                  </div>
-                </div>
-              </div>
-              <div className="relative min-h-[340px] overflow-hidden bg-[#dfe599] pt-9 pl-7 md:pt-12 md:pl-10">
-                <div className="absolute right-4 top-5 flex items-center gap-2 text-[10px] text-forest">
-                  <span className="h-1.5 w-1.5 rounded-full bg-forest" /> Actual
-                  Xem editor
-                </div>
-                <Image
-                  src="/images/product/editor-most-wanted-detail.webp"
-                  quality={90}
-                  alt="The actual Xem design editor with the vivid lime August’s Most Wanted template from the initial collection."
-                  width={2395}
-                  height={1680}
-                  sizes="(max-width: 1024px) 90vw, 680px"
-                  className="h-full min-h-[400px] w-[850px] max-w-none rounded-tl-xl object-cover object-left-top shadow-[0_0_40px_#294d3020]"
-                />
-              </div>
-            </div>
-            <div className="mt-6 grid gap-6 md:grid-cols-2">
-              <article
-                data-reveal
-                className="flex flex-col overflow-hidden rounded-[28px] bg-[#eee9e0] p-7 md:p-10"
-              >
-                <div className="relative flex h-40 items-center justify-center">
-                  <div className="flex h-24 w-24 items-center justify-center rounded-full border border-forest/30 bg-[#dde2ca]">
-                    <Users
-                      size={32}
-                      className="text-forest"
-                      strokeWidth={1.2}
-                    />
-                  </div>
-                  <span className="absolute left-[12%] top-2 rounded-full bg-cream px-4 py-2.5 text-[11px] shadow-sm">
-                    A new subscriber <span className="ml-2 text-forest">↗</span>
-                  </span>
-                  <span className="absolute bottom-3 right-[7%] rounded-full bg-forest px-4 py-2.5 text-[11px] text-cream">
-                    A familiar face <span className="ml-2">♡</span>
-                  </span>
-                  <span className="absolute right-[14%] top-3 h-3 w-3 rounded-full bg-[#c8b4dc]" />
-                  <span className="absolute bottom-8 left-[14%] h-2 w-2 rounded-full bg-[#b8c48d]" />
-                </div>
-                <h3 className="mt-9 font-editorial text-[38px] leading-none tracking-tight">
-                  People, <em>not just a list.</em>
-                </h3>
-                <p className="mt-5 text-sm leading-relaxed text-muted">
-                  Keep lists, tags, lifecycle stages, and contact details
-                  together. Your next conversation starts with knowing who’s on
-                  the other side.
-                </p>
-                <a
-                  href={appLink("/crm")}
-                  className={`${textLink} mt-6 self-start`}
-                >
-                  Meet your CRM <Arrow />
-                </a>
-              </article>
-              <article
-                data-reveal
-                className="flex flex-col overflow-hidden rounded-[28px] bg-[#29362b] p-7 text-cream md:p-10"
-              >
-                <div className="grid h-40 grid-cols-2 gap-3">
-                  {[
-                    [Mail, "SMTP & IMAP"],
-                    [Code2, "API keys"],
-                    [Zap, "Webhooks"],
-                    [Users, "Your team"],
-                  ].map(([Icon, label]) => {
-                    const I = Icon as typeof Mail;
-                    return (
-                      <div
-                        key={label as string}
-                        className="flex items-center gap-3 rounded-lg border border-cream/15 bg-cream/5 px-4 text-xs"
-                      >
-                        <I size={19} strokeWidth={1.2} />
-                        {label as string}
-                      </div>
-                    );
-                  })}
-                </div>
-                <h3 className="mt-9 font-editorial text-[38px] leading-none tracking-tight">
-                  Fits right <em>into your world.</em>
-                </h3>
-                <p className="mt-5 text-sm leading-relaxed text-cream/70">
-                  Bring your sending infrastructure. Connect your product
-                  through APIs and webhooks. Give your team one place to work.
-                </p>
-                <a
-                  href={appLink("/settings")}
-                  className={`${textLink} mt-6 self-start`}
-                >
-                  Connect your workspace <Arrow />
-                </a>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <section
-          id="control"
-          className="mx-auto max-w-[1240px] scroll-mt-28 px-5 md:px-10"
-        >
-          <div
-            data-reveal
-            className="grid items-center gap-9 rounded-[28px] border border-ink/15 px-7 py-10 md:grid-cols-[.9fr_1.3fr_auto] md:p-10"
-          >
-            <div>
-              <ShieldCheck size={26} strokeWidth={1.3} />
-              <h2 className="mt-5 font-editorial text-4xl leading-none tracking-tight">
-                Your relationships.
-                <br />
-                <em>Your rules.</em>
-              </h2>
-            </div>
-            <div>
-              <p className="text-sm leading-relaxed text-muted">
-                Choose your senders. Control workspace access. Give subscribers
-                a way to opt out. Thoughtful email starts with respecting the
-                people you reach.
-              </p>
-              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs">
-                {[
-                  "Workspace permissions",
-                  "Sender configuration",
-                  "Unsubscribe handling",
-                ].map((t) => (
-                  <span key={t} className="flex items-center gap-1.5">
-                    <Check size={13} className="text-forest" />
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div
-              aria-hidden="true"
-              className="hidden h-24 w-24 items-center justify-center rounded-full border border-forest/30 bg-[#edf0df] lg:flex"
-            >
-              <ShieldCheck
-                size={45}
-                strokeWidth={0.8}
-                className="text-forest"
-              />
-            </div>
-          </div>
-        </section>
-
         <McpSection />
         <MoreFeatures />
-        <Testimonials />
         <JournalPreview posts={latestPosts} />
         <section
           id="open-source"
@@ -1079,19 +716,28 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
           </div>
           <div data-reveal>
             <span className={`${sectionLabel} inline-flex items-center gap-2`}>
-              <Mail size={13} /> There’s someone on the other side.
+              <Mail size={13} /> Free for 3,000 emails a month
             </span>
             <h2 className="mt-7 font-editorial text-[clamp(4rem,8vw,7.5rem)] leading-[.93] tracking-[-.055em]">
-              Make their inbox
+              Pay for your sends.
               <br />
-              <em>a happier place.</em>
+              <em>Keep the rest.</em>
             </h2>
-            <p className="mt-7 text-sm text-ink/75 md:text-base">
-              Your next great connection starts with an email.
+            <p className="mx-auto mt-7 max-w-xl text-sm text-ink/75 md:text-base">
+              Then from $9 a month. Bring your list from Mailchimp, beehiiv,
+              Substack or Kit; unsubscribed contacts stay unsubscribed.
             </p>
-            <a href={appLink("/auth/register")} className={`${primary} mt-8`}>
-              Let’s make it Xem <Arrow />
-            </a>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+              <a href={appLink("/auth/register")} className={primary}>
+                Start free <Arrow />
+              </a>
+              <a
+                href="/compare"
+                className="text-sm font-medium underline decoration-ink/30 underline-offset-4 hover:decoration-ink"
+              >
+                Compare your current bill
+              </a>
+            </div>
           </div>
         </section>
       </main>
@@ -1157,11 +803,8 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
                 <a className="mb-3 block hover:underline" href="/mcp">
                   MCP server
                 </a>
-                <a className="mb-3 block hover:underline" href="#sending">
+                <a className="block hover:underline" href="#sending">
                   Sending & setup
-                </a>
-                <a className="block hover:underline" href="#control">
-                  Your controls
                 </a>
               </div>
               <div>

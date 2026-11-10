@@ -291,8 +291,8 @@ export function AssistantShowcase() {
             You review workspace changes before they happen.
           </p>
           <div className="mt-8 flex items-center gap-2 text-[10px] text-[#77528a]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#9775ae]" /> In
-            development · Preview the experience
+            <span className="h-1.5 w-1.5 rounded-full bg-[#9775ae]" /> Available
+            today in your workspace
           </div>
           <a
             href={appLink("/")}
