@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import { appLink, githubUrl } from "@/lib/site";
 import { primaryButton } from "@/lib/brand";
-import { agents } from "./agent-strip";
+import { AgentStack } from "./agent-strip";
 
 // In the founder's own voice. Every claim here is checkable: prices come
 // from the comparison pages, tool counts from the MCP server.
@@ -130,19 +130,10 @@ export function FounderNote() {
             </li>
             <li>
               <B>Your AI agent can use it too.</B> 43 MCP tools, so{" "}
-              <span className="whitespace-nowrap">
-                {agents.map((a) => (
-                  <Mark
-                    key={a.name}
-                    path={a.path}
-                    bg={a.bg}
-                    fg={a.fg}
-                    label={a.name}
-                  />
-                ))}
-              </span>{" "}
-              Claude, Codex or Cursor can import your list, draft a campaign or
-              read last week’s numbers. Nothing goes out until you schedule it.
+              <AgentStack ring="#ffffef" className="mx-1 text-[1.3em]" />{" "}
+              Claude, Codex, Cursor or Grok can import your list, draft a
+              campaign or read last week’s numbers. Nothing goes out until you
+              schedule it.
             </li>
           </ol>
           <p>

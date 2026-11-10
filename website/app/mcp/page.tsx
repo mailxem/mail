@@ -10,6 +10,7 @@ import {
   Users,
 } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
+import { AgentStack } from "@/components/agent-strip";
 import { siteUrl } from "@/lib/site";
 import { primaryButton } from "@/lib/brand";
 
@@ -169,6 +170,10 @@ export default function McpPage() {
             The Xem MCP server brings newsletters, contacts, and campaign
             analytics into your AI workflow. Turn an idea into a draft, a CSV
             into an audience, and results into your next question.
+          </p>
+          <p className="mt-6 flex items-center gap-3 text-sm text-muted">
+            <AgentStack ring="#ffffef" className="text-[36px]" />
+            Claude, Codex, Copilot, Cursor, Grok and any MCP client
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-6">
             <a href="#setup" className={primaryButton}>

@@ -30,7 +30,8 @@ const lines: Line[] = [
   }),
 ];
 
-// Each line holds, then rolls up like a wheel; the first line repeats at the
+// Sized in cqw of the heading: the longest line is about 10em wide, so 9.6cqw
+// always fits. Each line holds, then rolls up like a wheel; the first line repeats at the
 // end so the loop restarts without a jump.
 const hold = 2.6;
 const roll = 0.6;
@@ -52,7 +53,7 @@ export function HeroWheel() {
       <span className="sr-only">{lines[0].text}</span>
       <span
         aria-hidden="true"
-        className="relative block h-[1.1em] overflow-hidden text-[min(.86em,9.6vw)] [mask-image:linear-gradient(transparent,#000_22%,#000_78%,transparent)]"
+        className="relative block h-[1.1em] overflow-hidden text-[min(.86em,9.6cqw)] [mask-image:linear-gradient(transparent,#000_22%,#000_78%,transparent)]"
       >
         <span
           className="block animate-[hero-wheel_var(--wheel)_cubic-bezier(.65,0,.25,1.15)_infinite] motion-reduce:animate-none"

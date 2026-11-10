@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-// AI clients that connect to Xem's MCP server. Marks from Simple Icons (CC0).
+// AI clients that connect to Xem's MCP server. Marks from Simple Icons (CC0)
+// and, for Cursor and Grok, Lobe Icons (MIT).
 export const agents = [
   {
     name: "Claude",
@@ -20,7 +21,71 @@ export const agents = [
     fg: "#ffffff",
     path: "M23.922 16.997C23.061 18.492 18.063 22.02 12 22.02 5.937 22.02.939 18.492.078 16.997A.641.641 0 0 1 0 16.741v-2.869a.883.883 0 0 1 .053-.22c.372-.935 1.347-2.292 2.605-2.656.167-.429.414-1.055.644-1.517a10.098 10.098 0 0 1-.052-1.086c0-1.331.282-2.499 1.132-3.368.397-.406.89-.717 1.474-.952C7.255 2.937 9.248 1.98 11.978 1.98c2.731 0 4.767.957 6.166 2.093.584.235 1.077.546 1.474.952.85.869 1.132 2.037 1.132 3.368 0 .368-.014.733-.052 1.086.23.462.477 1.088.644 1.517 1.258.364 2.233 1.721 2.605 2.656a.841.841 0 0 1 .053.22v2.869a.641.641 0 0 1-.078.256Zm-11.75-5.992h-.344a4.359 4.359 0 0 1-.355.508c-.77.947-1.918 1.492-3.508 1.492-1.725 0-2.989-.359-3.782-1.259a2.137 2.137 0 0 1-.085-.104L4 11.746v6.585c1.435.779 4.514 2.179 8 2.179 3.486 0 6.565-1.4 8-2.179v-6.585l-.098-.104s-.033.045-.085.104c-.793.9-2.057 1.259-3.782 1.259-1.59 0-2.738-.545-3.508-1.492a4.359 4.359 0 0 1-.355-.508Zm2.328 3.25c.549 0 1 .451 1 1v2c0 .549-.451 1-1 1-.549 0-1-.451-1-1v-2c0-.549.451-1 1-1Zm-5 0c.549 0 1 .451 1 1v2c0 .549-.451 1-1 1-.549 0-1-.451-1-1v-2c0-.549.451-1 1-1Zm3.313-6.185c.136 1.057.403 1.913.878 2.497.442.544 1.134.938 2.344.938 1.573 0 2.292-.337 2.657-.751.384-.435.558-1.15.558-2.361 0-1.14-.243-1.847-.705-2.319-.477-.488-1.319-.862-2.824-1.025-1.487-.161-2.192.138-2.533.529-.269.307-.437.808-.438 1.578v.021c0 .265.021.562.063.893Zm-1.626 0c.042-.331.063-.628.063-.894v-.02c-.001-.77-.169-1.271-.438-1.578-.341-.391-1.046-.69-2.533-.529-1.505.163-2.347.537-2.824 1.025-.462.472-.705 1.179-.705 2.319 0 1.211.175 1.926.558 2.361.365.414 1.084.751 2.657.751 1.21 0 1.902-.394 2.344-.938.475-.584.742-1.44.878-2.497Z",
   },
-];
+  {
+    name: "Cursor",
+    bg: "#14120b",
+    fg: "#ffffff",
+    evenodd: true,
+    path: "M22.106 5.68L12.5.135a.998.998 0 00-.998 0L1.893 5.68a.84.84 0 00-.419.726v11.186c0 .3.16.577.42.727l9.607 5.547a.999.999 0 00.998 0l9.608-5.547a.84.84 0 00.42-.727V6.407a.84.84 0 00-.42-.726zm-.603 1.176L12.228 22.92c-.063.108-.228.064-.228-.061V12.34a.59.59 0 00-.295-.51l-9.11-5.26c-.107-.062-.063-.228.062-.228h18.55c.264 0 .428.286.296.514z",
+  },
+  {
+    name: "Grok",
+    bg: "#000000",
+    fg: "#ffffff",
+    evenodd: true,
+    path: "M9.27 15.29l7.978-5.897c.391-.29.95-.177 1.137.272.98 2.369.542 5.215-1.41 7.169-1.951 1.954-4.667 2.382-7.149 1.406l-2.711 1.257c3.889 2.661 8.611 2.003 11.562-.953 2.341-2.344 3.066-5.539 2.388-8.42l.006.007c-.983-4.232.242-5.924 2.75-9.383.06-.082.12-.164.179-.248l-3.301 3.305v-.01L9.267 15.292M7.623 16.723c-2.792-2.67-2.31-6.801.071-9.184 1.761-1.763 4.647-2.483 7.166-1.425l2.705-1.25a7.808 7.808 0 00-1.829-1A8.975 8.975 0 005.984 5.83c-2.533 2.536-3.33 6.436-1.962 9.764 1.022 2.487-.653 4.246-2.34 6.022-.599.63-1.199 1.259-1.682 1.925l7.62-6.815",
+  },
+] as {
+  name: string;
+  bg: string;
+  fg: string;
+  path: string;
+  evenodd?: boolean;
+}[];
+
+// Overlapping, slightly tilted app tiles. Tiles are 1em, so set the size with
+// font-size; `ring` is the background behind the stack, `active` lifts a tile.
+const TILT = [-6, 4, -3, 5, -4];
+
+export function AgentStack({
+  ring,
+  active,
+  className = "",
+}: {
+  ring: string;
+  active?: number;
+  className?: string;
+}) {
+  return (
+    <span className={`inline-flex items-center align-middle ${className}`}>
+      {agents.map((a, i) => (
+        <span
+          key={a.name}
+          title={a.name}
+          className={`relative inline-flex h-[1em] w-[1em] items-center justify-center rounded-[.26em] transition-transform duration-500 ${i ? "-ml-[.2em]" : ""}`}
+          style={{
+            backgroundColor: a.bg,
+            color: a.fg,
+            zIndex: active === i ? agents.length : i,
+            boxShadow: `0 0 0 .05em ${ring}, 0 .06em .16em rgba(0,0,0,.22)`,
+            transform: `rotate(${TILT[i % TILT.length]}deg)${active === i ? " translateY(-.14em) scale(1.12)" : ""}`,
+          }}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            className="h-[56%] w-[56%]"
+            fill="currentColor"
+            fillRule={a.evenodd ? "evenodd" : undefined}
+            role="img"
+            aria-label={a.name}
+          >
+            <path d={a.path} />
+          </svg>
+        </span>
+      ))}
+    </span>
+  );
+}
 
 export function AgentStrip() {
   return (
@@ -34,30 +99,10 @@ export function AgentStrip() {
           See how
         </Link>
       </p>
-      <ul className="flex flex-wrap items-center justify-center gap-3">
-        {agents.map((a) => (
-          <li key={a.name}>
-            <span
-              title={a.name}
-              className="flex h-11 w-11 items-center justify-center rounded-xl border border-cream/15 shadow-sm"
-              style={{ backgroundColor: a.bg, color: a.fg }}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                className="h-6 w-6"
-                fill="currentColor"
-                role="img"
-                aria-label={a.name}
-              >
-                <path d={a.path} />
-              </svg>
-            </span>
-          </li>
-        ))}
-        <li className="rounded-xl border border-cream/20 px-3 py-2.5 text-xs text-cream/80">
-          Cursor, and any MCP client
-        </li>
-      </ul>
+      <p className="flex items-center gap-3 text-xs text-cream/80">
+        <AgentStack ring="#164b3f" className="text-[40px]" />
+        and any MCP client
+      </p>
     </div>
   );
 }
