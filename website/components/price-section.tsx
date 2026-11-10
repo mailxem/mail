@@ -5,6 +5,8 @@ import { ArrowUpRight } from "lucide-react";
 import { CostCalculator } from "./cost-calculator";
 import { checked, competitors, sizes } from "@/lib/compare";
 import { weeklyEmails, xemMonthlyCost } from "@/lib/xem-pricing";
+import { primaryButton } from "@/lib/brand";
+import { appLink } from "@/lib/site";
 
 const MONTHS = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(" ");
 const count = (n: number) => n.toLocaleString("en-US");
@@ -143,12 +145,17 @@ export function PriceSection() {
             <p className="font-editorial text-3xl tracking-tight md:text-4xl">
               You keep {money((them.price - xem) * 12)} a year.
             </p>
-            <Link
-              href={`/compare/xem-vs-${them.id}`}
-              className="inline-flex items-center gap-2 border-b border-ink pb-1 text-sm font-medium"
-            >
-              Xem vs {them.name} <ArrowUpRight size={16} />
-            </Link>
+            <div className="flex flex-wrap items-center gap-5">
+              <a href={appLink("/auth/register")} className={primaryButton}>
+                Start free <ArrowUpRight size={16} />
+              </a>
+              <Link
+                href={`/compare/xem-vs-${them.id}`}
+                className="inline-flex items-center gap-2 border-b border-ink pb-1 text-sm font-medium"
+              >
+                Xem vs {them.name} <ArrowUpRight size={16} />
+              </Link>
+            </div>
           </div>
           <p className="mt-4 text-xs leading-relaxed text-muted">
             Monthly billing, four sends a month to the whole list, each
@@ -167,7 +174,7 @@ export function PriceSection() {
         <div className="mt-12">
           <p className="text-sm font-medium">Switching from another tool?</p>
           <ul className="mt-4 flex flex-wrap gap-2">
-            {competitors.map((c) => (
+            {competitors.slice(0, 6).map((c) => (
               <li key={c.id}>
                 <Link
                   href={`/migrate/${c.id}`}
@@ -177,6 +184,14 @@ export function PriceSection() {
                 </Link>
               </li>
             ))}
+            <li>
+              <Link
+                href="/compare"
+                className="inline-flex rounded-full px-4 py-2 text-sm underline decoration-ink/30 underline-offset-4 hover:text-iris"
+              >
+                {competitors.length - 6} more
+              </Link>
+            </li>
           </ul>
           <p className="mt-4 text-xs text-muted">
             Unsubscribed contacts stay unsubscribed when you import them.

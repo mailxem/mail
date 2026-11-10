@@ -5,11 +5,10 @@ import { weeklyEmails, xemMonthlyCost } from "@/lib/xem-pricing";
 // same data as /compare, so the headline never drifts from the tables.
 // Logos are each company's own icon, from its website.
 const rivals = [
-  { id: "beehiiv", logo: "/logos/beehiiv.png" },
-  { id: "mailcheap", logo: "/logos/mailcheap.svg" },
   { id: "mailchimp", logo: "/logos/mailchimp.svg" },
-  { id: "sequenzy", logo: "/logos/sequenzy.png" },
+  { id: "beehiiv", logo: "/logos/beehiiv.png" },
   { id: "plunk", logo: "/logos/plunk.svg" },
+  { id: "mailcheap", logo: "/logos/mailcheap.svg" },
 ];
 const xem = xemMonthlyCost(weeklyEmails(sizes[0])).cost;
 type Line = { text: string; name?: string; logo?: string };
@@ -51,7 +50,7 @@ export function HeroWheel() {
       <span className="sr-only">{lines[0].text}</span>
       <span
         aria-hidden="true"
-        className="relative block h-[1.1em] overflow-hidden text-[min(.86em,8.4vw)] [mask-image:linear-gradient(transparent,#000_22%,#000_78%,transparent)]"
+        className="relative block h-[1.1em] overflow-hidden text-[min(.86em,9.6vw)] [mask-image:linear-gradient(transparent,#000_22%,#000_78%,transparent)]"
       >
         <span
           className="block animate-[hero-wheel_var(--wheel)_cubic-bezier(.65,0,.25,1.15)_infinite] motion-reduce:animate-none"

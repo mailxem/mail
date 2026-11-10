@@ -61,38 +61,15 @@ export const productViews = [
   },
 ] as const;
 export { default as templates } from "./templates.json";
+// The questions that decide whether someone signs up; the rest live in the docs.
 export const faqs = [
-  {
-    q: "What can I do with Xem?",
-    a: "Create and send campaigns, publish recurring newsletters, design reusable email templates, and build visual automations. Contact lists, tags, lead forms, CRM, and analytics live alongside your email tools.",
-  },
   {
     q: "Can I use my own email provider?",
     a: "Yes. Connect your SMTP sender for outgoing email and an IMAP mailbox for your inbox. Your sender must be configured and verified in your workspace before you send.",
   },
   {
-    q: "Are the templates actually editable?",
-    a: "Yes. The library contains over 200 templates made from native editor blocks. Change the copy, images, colors, and structure, then reuse your saved design in campaigns, newsletters, and automations.",
-  },
-  {
-    q: "What does the AI writing tool create?",
-    a: "In the template editor, AI creates a structured, editable email design. In the outbox, it helps write a rich-text email. You can review and edit the result before using it.",
-  },
-  {
-    q: "Can I schedule a recurring newsletter?",
-    a: "Yes. Connect a newsletter to an audience, sender, and saved template, choose your cadence and timezone, and manage its editions from the newsletter workspace.",
-  },
-  {
-    q: "How should I read the analytics?",
-    a: "Xem separates messages accepted by your SMTP server from audience engagement. Opens are directional because privacy tools can inflate them. Use clicks, audience cohorts, and delivery health together to understand what happened.",
-  },
-  {
-    q: "Can I connect Xem to my own product?",
-    a: "Use API keys and webhooks to connect your product to Xem. Manage your integrations in Settings & workspace, alongside your sender connections and team.",
-  },
-  {
-    q: "Can Xem handle email delivery for me?",
-    a: "Yes. Xem supports managed sending through Amazon SES, with verified domains, workspace approval, delivery history, and revocable SMTP credentials. Complete the domain checks and approval steps in your workspace before sending. You can also connect your own SMTP provider.",
+    q: "Can I bring my list from Mailchimp or beehiiv?",
+    a: "Yes. Export a CSV from Mailchimp, beehiiv, Substack, Kit or most other tools and import it into a list. Unsubscribed contacts stay unsubscribed, and there's a switching guide for each of them.",
   },
   {
     q: "How does Xem protect deliverability?",
@@ -103,11 +80,7 @@ export const faqs = [
     a: "Yes. The Xem MCP server gives Claude, Cursor, Codex and any MCP client 43 tools for campaigns, newsletters, contacts, CSV imports, forms, automations, sending domains and analytics. Connect to the hosted server at mcp.xem.email with a workspace API key, or run @xem.email/mcp locally. Campaigns start as drafts and sending is a separate tool, so a person can approve every send.",
   },
   {
-    q: "Will managed sending replace my inbox?",
-    a: "No. Managed sending handles outgoing email. Keep your existing mailbox and receiving MX records, and use your mailbox address for replies. The domain setup uses separate records for email authentication and a dedicated bounce subdomain.",
-  },
-  {
-    q: "How can I help improve the new setup?",
-    a: "Xem is open source, with the app, backend, SDKs, and self-hosting tools together in the mailxem/mail repository. Start with a small fix, a clearer guide, an accessibility improvement, or a reproducible bug report. If you’re just exploring, a GitHub star helps others find the project. Discuss larger changes in an issue first, and keep credentials out of examples.",
+    q: "What do I get on the free plan?",
+    a: "3,000 emails a month, up to 100 a day, with no card needed. Campaigns, automations, forms, the CRM, analytics, templates and the API are all included. Free emails end with a small “Sent with Xem” link; paid plans start at $9 and remove it.",
   },
 ];
