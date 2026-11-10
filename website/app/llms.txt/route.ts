@@ -19,6 +19,8 @@ export function GET() {
 - [Email deliverability checker](${siteUrl}/tools/email-checker): free browser-only check of a domain's MX, SPF (including the 10-lookup limit), DMARC and DKIM records, with the record to add for each problem
 - [Email authentication research](${siteUrl}/research/email-authentication): SPF, DMARC, BIMI and MTA-STS adoption across the top 10,000 websites, with the method and the aggregate data
 - [Source code](${githubUrl}): app, Go backend, SDKs and self-hosting tools
+- [OpenAPI spec](https://raw.githubusercontent.com/mailxem/mail/undefined/server/openapi.json): the REST API at https://api.xem.email/api/v1 as OpenAPI JSON; send a workspace API key as X-API-Key
+- [Changelog](${siteUrl}/changelog): what's new, newest first, each entry linked to its pull request
 
 ## Compare and switch
 
