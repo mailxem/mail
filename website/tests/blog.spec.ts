@@ -124,7 +124,7 @@ test("feature grid, testimonials, and iris calls to action work", async ({
   );
   await expect(page.locator("#journal article")).toHaveCount(3);
   const cta = page
-    .getByRole("link", { name: "Get started", exact: false })
+    .getByRole("link", { name: "Start free", exact: false })
     .first();
   expect(await cta.evaluate((e) => getComputedStyle(e).backgroundColor)).toBe(
     "rgb(91, 60, 196)",

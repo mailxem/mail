@@ -127,6 +127,11 @@ const faqs = [
 
 const money = (n: number) => (n === 0 ? "$0" : `$${n}`);
 const count = (n: number) => n.toLocaleString("en-US");
+// Readers a weekly newsletter can reach on the included emails (4.33 sends a month).
+const weeklyReaders = (included: number) => {
+  const r = included / 4.33;
+  return count(Math.round(r / (r < 1000 ? 10 : 100)) * (r < 1000 ? 10 : 100));
+};
 
 export default function PricingPage() {
   const structuredData = {
@@ -204,7 +209,11 @@ export default function PricingPage() {
                   </span>
                 )}
               </div>
-              <p className="mt-6">
+              <p className="mt-3 text-sm font-medium text-forest">
+                A weekly send to about {weeklyReaders(p.included)} readers
+                {p.price === 0 ? ". No card." : ""}
+              </p>
+              <p className="mt-5">
                 <span className="font-editorial text-5xl tracking-tight">
                   {money(p.price)}
                 </span>

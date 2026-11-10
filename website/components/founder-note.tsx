@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
-import { githubUrl } from "@/lib/site";
+import { appLink, githubUrl } from "@/lib/site";
+import { primaryButton } from "@/lib/brand";
 import { agents } from "./agent-strip";
 
 // In the founder's own voice. Every claim here is checkable: prices come
@@ -148,6 +149,11 @@ export function FounderNote() {
             Oh, and on paid plans there’s no “Sent with Xem” line at the bottom
             of your emails. The free plan carries a small one; that’s the trade
             for not paying.
+          </p>
+          <p>
+            <a href={appLink("/auth/register")} className={primaryButton}>
+              Start free, 3,000 emails a month
+            </a>
           </p>
         </div>
       </div>

@@ -23,23 +23,22 @@ const wave = (i: number, seed: number) =>
   0.55 +
   0.45 * Math.abs(Math.sin(i * 1.7 + seed) * Math.cos(i * 0.6 + seed / 2));
 
-function series(days: Range, offset = 0) {
-  const start = new Date(Date.UTC(2026, 9, 31 - days - offset));
+function series(days: Range) {
+  const start = new Date(Date.UTC(2026, 9, 31 - days));
   return Array.from({ length: days }, (_, i) => {
     const d = new Date(start);
     d.setUTCDate(start.getUTCDate() + i + 1);
-    const k = i + offset * 3;
     // Weekly issue on Sundays, smaller sends in between.
     const big = d.getUTCDay() === 0;
-    const sent = Math.round((big ? 2150 : 180) * wave(k, 1));
+    const sent = Math.round((big ? 2150 : 180) * wave(i, 1));
     return {
       date: d.toISOString().slice(0, 10),
       sent,
-      pending: Math.round(sent * 0.02 * wave(k, 3)),
-      failed: Math.round(sent * 0.006 * wave(k, 5)),
-      opened: Math.round(sent * (0.42 + 0.1 * wave(k, 7))),
-      clicked: Math.round(sent * (0.05 + 0.03 * wave(k, 9))),
-      unsubscribed: Math.round(sent * 0.0016 * wave(k, 11)),
+      pending: Math.round(sent * 0.02 * wave(i, 3)),
+      failed: Math.round(sent * 0.006 * wave(i, 5)),
+      opened: Math.round(sent * (0.42 + 0.1 * wave(i, 7))),
+      clicked: Math.round(sent * (0.05 + 0.03 * wave(i, 9))),
+      unsubscribed: Math.round(sent * 0.0016 * wave(i, 11)),
       subscribers: 0,
     };
   });
@@ -133,17 +132,24 @@ export function DashboardDemo() {
   const [tab, setTab] = useState<"overview" | "email">("overview");
   const { rows, now, before, growth } = useMemo(() => {
     const rows = series(days);
-    const prev = series(days, days);
     // Subscribers: a steady climb with dips on unsubscribes.
     let active = 8900 - days * 6;
     for (const r of rows) {
       active += Math.round(14 * wave(rows.indexOf(r), 13)) - r.unsubscribed;
       r.subscribers = active;
     }
+    const now = totals(rows);
+    // The previous period is a fixed step behind, so the demo shows modest growth.
+    const before = {
+      sent: Math.round(now.sent / 1.04),
+      openRate: now.openRate - 0.008,
+      clickRate: now.clickRate - 0.003,
+      unsubscribed: Math.round(now.unsubscribed * 1.08),
+    };
     return {
       rows,
-      now: totals(rows),
-      before: totals(prev),
+      now,
+      before,
       growth: active - (8900 - days * 6),
     };
   }, [days]);

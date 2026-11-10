@@ -17,13 +17,7 @@ import {
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { productViews, templates, faqs } from "@/lib/content";
-import {
-  appLink,
-  githubUrl,
-  selfHostUrl,
-  contributeUrl,
-  docsUrl,
-} from "@/lib/site";
+import { appLink, githubUrl, selfHostUrl, docsUrl } from "@/lib/site";
 import { SiteDialog } from "./site-dialog";
 import { HeroDemo } from "./hero-demo";
 import { FeatureGrid } from "./feature-grid";
@@ -37,6 +31,7 @@ import { HeroFilm } from "./hero-film";
 import { HeroWheel } from "./hero-wheel";
 import { PriceSection, biggestSaving } from "./price-section";
 import { primaryButton as primary } from "@/lib/brand";
+import { SiteFooter } from "./site-chrome";
 import { cn } from "@/lib/utils";
 const textLink =
   "group inline-flex items-center gap-2 border-b border-current pb-1 text-sm font-medium transition-opacity hover:opacity-65";
@@ -173,7 +168,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
                 "min-h-10 gap-2 whitespace-nowrap px-3 py-2.5 text-xs sm:px-4 md:text-sm",
               )}
             >
-              Get started <Arrow />
+              Start free <Arrow />
             </a>
             <button
               aria-label={menu ? "Close menu" : "Open menu"}
@@ -219,7 +214,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
         <section
           id="hero"
           aria-labelledby="hero-title"
-          className="relative isolate pt-[116px] md:pt-[120px]"
+          className="relative isolate pt-[100px] md:pt-[104px]"
         >
           <div className="relative z-10 mx-auto max-w-6xl px-5 text-center">
             <a
@@ -252,7 +247,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
               <a href={appLink("/auth/register")} className={primary}>
-                Create your first email <Arrow />
+                Start free <Arrow />
               </a>
               <button
                 onClick={() => setTour(0)}
@@ -265,7 +260,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               </button>
             </div>
             <p className="mt-4 text-xs text-muted">
-              Prefer your own server?{" "}
+              No card needed. Prefer your own server?{" "}
               <a
                 href={selfHostUrl}
                 className="font-medium text-forest underline decoration-forest/30 underline-offset-4 hover:decoration-forest"
@@ -273,7 +268,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
                 Self-host Xem <span aria-hidden="true">↗</span>
               </a>
             </p>
-            <p className="mx-auto mt-7 max-w-xl text-sm text-muted">
+            <p className="mx-auto mt-6 max-w-xl pb-4 text-sm text-muted md:pb-0">
               Used by teams at{" "}
               {customers.map(([name, logo, href], i) => (
                 <span key={name}>
@@ -301,7 +296,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
               ))}
             </p>
           </div>
-          <div className="mx-auto flex max-w-[1240px] items-center justify-between px-5 pb-7 text-[10px] uppercase tracking-[.13em] text-muted md:px-10">
+          <div className="mx-auto hidden max-w-[1240px] items-center justify-between px-5 pb-7 text-[10px] uppercase tracking-[.13em] text-muted md:flex md:px-10">
             <a
               href="#product"
               className="flex items-center gap-2 hover:text-ink"
@@ -320,7 +315,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
 
         <section
           id="product"
-          className="relative scroll-mt-20 rounded-t-[36px] bg-forest px-5 pb-20 pt-12 text-cream md:rounded-t-[64px] md:px-10 md:pb-24 md:pt-16"
+          className="relative scroll-mt-20 rounded-t-[36px] bg-forest px-5 pb-20 pt-12 text-cream md:rounded-t-[64px] md:px-10 md:pb-24 md:pt-10"
         >
           <div className="mx-auto max-w-[1180px]">
             <h2 className="sr-only">The Xem app</h2>
@@ -457,15 +452,6 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
         <FounderNote />
 
         <PriceSection />
-        <JournalPreview posts={latestPosts} />
-
-        <section
-          id="film"
-          aria-label="The Xem film"
-          className="scroll-mt-24 pb-6 pt-4"
-        >
-          <HeroFilm suspended={tour !== null || template !== null || menu} />
-        </section>
 
         <section
           id="questions"
@@ -585,145 +571,16 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
             </div>
           </div>
         </section>
+        <JournalPreview posts={latestPosts} />
+        <section
+          id="film"
+          aria-label="The Xem film"
+          className="scroll-mt-24 pb-6 pt-4"
+        >
+          <HeroFilm suspended={tour !== null || template !== null || menu} />
+        </section>
       </main>
-      <footer className="bg-[#222d25] px-5 pb-7 pt-14 text-cream md:px-10 md:pt-16">
-        <div className="mx-auto max-w-[1160px]">
-          <div className="flex flex-wrap justify-between gap-12 border-b border-cream/20 pb-12">
-            <div>
-              <Brand light />
-              <p className="mt-5 max-w-[240px] text-sm leading-relaxed text-cream/60">
-                An open-source home for your email marketing. A little more
-                human.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-x-12 gap-y-8 text-sm sm:grid-cols-3 md:gap-x-20">
-              <div>
-                <p className={`${sectionLabel} mb-5 text-cream/65`}>
-                  Make something
-                </p>
-                <a
-                  className="mb-3 block hover:underline"
-                  href={appLink("/campaigns")}
-                >
-                  Campaigns
-                </a>
-                <a
-                  className="mb-3 block hover:underline"
-                  href={appLink("/newsletters")}
-                >
-                  Newsletters
-                </a>
-                <a
-                  className="mb-3 block hover:underline"
-                  href={appLink("/automations")}
-                >
-                  Automations
-                </a>
-                <a className="block hover:underline" href="#templates">
-                  Templates
-                </a>
-              </div>
-              <div>
-                <p className={`${sectionLabel} mb-5 text-cream/65`}>
-                  Go a little deeper
-                </p>
-                <a
-                  className="mb-3 block hover:underline"
-                  href={appLink("/crm")}
-                >
-                  Audience & CRM
-                </a>
-                <a
-                  className="mb-3 block hover:underline"
-                  href={appLink("/forms")}
-                >
-                  Lead forms
-                </a>
-                <a
-                  className="mb-3 block hover:underline"
-                  href={appLink("/analytics")}
-                >
-                  Analytics
-                </a>
-                <a className="mb-3 block hover:underline" href="/mcp">
-                  MCP server
-                </a>
-                <a className="block hover:underline" href="#sending">
-                  Sending & setup
-                </a>
-              </div>
-              <div>
-                <p className={`${sectionLabel} mb-5 text-cream/65`}>
-                  Come on in
-                </p>
-                <a
-                  className="mb-3 block hover:underline"
-                  href={appLink("/auth/login")}
-                >
-                  Log in <span aria-hidden="true">↗</span>
-                </a>
-                <a
-                  className="mb-3 block hover:underline"
-                  href={appLink("/auth/register")}
-                >
-                  Get started <span aria-hidden="true">↗</span>
-                </a>
-                <button
-                  className="mb-3 block hover:underline"
-                  onClick={() => setTour(0)}
-                >
-                  Product tour
-                </button>
-                <a className="mb-3 block hover:underline" href="/blog">
-                  Journal
-                </a>
-                <a
-                  className="mb-3 block hover:underline"
-                  href="/blog/editorial"
-                >
-                  Editorial approach
-                </a>
-                <a className="mb-3 block hover:underline" href={githubUrl}>
-                  Open source on GitHub <span aria-hidden="true">↗</span>
-                </a>
-                <a className="mb-3 block hover:underline" href={selfHostUrl}>
-                  Self-host Xem <span aria-hidden="true">↗</span>
-                </a>
-                <a className="mb-3 block hover:underline" href={contributeUrl}>
-                  Contribute to Xem <span aria-hidden="true">↗</span>
-                </a>
-                <a className="mb-3 block hover:underline" href="/google-mail">
-                  Google mail · limited testing
-                </a>
-                <a className="mb-3 block hover:underline" href="/privacy">
-                  Privacy policy · draft
-                </a>
-                <a className="mb-3 block hover:underline" href="/data-deletion">
-                  Delete your data
-                </a>
-                <a
-                  className="mb-3 block hover:underline"
-                  href="mailto:team@xem.email"
-                >
-                  Contact the Xem team
-                </a>
-                <a className="block hover:underline" href="#questions">
-                  FAQs
-                </a>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-6 text-[11px] text-cream/50">
-            <p>
-              © {new Date().getFullYear()} Xem. Made for meaningful connections.
-            </p>
-            <p className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-lemon" /> An email is
-              only the beginning.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
 
       {tour !== null && (
         <SiteDialog title="A little tour of Xem" onClose={() => setTour(null)}>

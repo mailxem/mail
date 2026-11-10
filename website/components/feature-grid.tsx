@@ -152,12 +152,28 @@ export function FeatureGrid() {
             tone="lemon"
             body="Put a form on your site. New subscribers land in a list and can get a welcome email straight away."
           >
-            <div className="flex items-center gap-2 rounded-full bg-cream p-1 pl-3.5 shadow-sm">
-              <span className="flex-1 text-ink/70">you@example.com</span>
-              <span className="rounded-full bg-ink px-3 py-1.5 text-cream">
-                Subscribe
-              </span>
+            <div className="rounded-2xl bg-cream p-4 shadow-sm">
+              <p className="font-editorial text-[1.15rem] leading-tight">
+                The Sunday Edit
+              </p>
+              <p className="mt-1 text-ink/70">
+                One good thing to read, every Sunday.
+              </p>
+              <div className="mt-3 flex items-center gap-2 rounded-full border border-ink/15 p-1 pl-3.5">
+                <span className="flex-1 text-ink/70">you@example.com</span>
+                <span className="rounded-full bg-ink px-3 py-1.5 text-cream">
+                  Subscribe
+                </span>
+              </div>
             </div>
+            <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-ink/80">
+              <span className="inline-flex items-center gap-1">
+                <Check size={12} aria-hidden="true" /> Added to Readers
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Check size={12} aria-hidden="true" /> Welcome email sent
+              </span>
+            </p>
           </Card>
 
           <Card
@@ -263,21 +279,31 @@ export function FeatureGrid() {
             tone="sand"
             body="See each campaign as it went out, with every link coloured by how many people clicked it."
           >
-            <p className="pt-3 leading-loose">
-              This week:{" "}
-              <span className="relative whitespace-nowrap rounded px-1 underline outline outline-2 outline-[#facc15]">
-                Read the essay
-                <span className="absolute -right-3 -top-3 rounded-full bg-[#facc15] px-1.5 text-[10px] font-semibold no-underline">
-                  41
+            <div className="rounded-2xl bg-white p-4 shadow-sm">
+              <p className="font-editorial text-[1.15rem] leading-tight">
+                The Sunday Edit #42
+              </p>
+              <div className="mt-2 space-y-1.5" aria-hidden="true">
+                <span className="block h-1.5 w-full rounded-full bg-ink/10" />
+                <span className="block h-1.5 w-4/5 rounded-full bg-ink/10" />
+              </div>
+              <p className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-4">
+                <span className="relative whitespace-nowrap rounded px-1 underline outline outline-2 outline-[#facc15]">
+                  Read the essay
+                  <span className="absolute -right-3 -top-3 rounded-full bg-[#facc15] px-1.5 text-[10px] font-semibold no-underline">
+                    41
+                  </span>
                 </span>
-              </span>{" "}
-              or{" "}
-              <span className="relative ml-2 whitespace-nowrap rounded bg-ink px-2 py-0.5 text-cream outline outline-2 outline-offset-2 outline-[#b91c1c]">
-                Join the launch
-                <span className="absolute -right-3 -top-3 rounded-full bg-[#b91c1c] px-1.5 text-[10px] font-semibold text-white">
-                  84
+                <span className="relative whitespace-nowrap rounded bg-ink px-2 py-0.5 text-cream outline outline-2 outline-offset-2 outline-[#b91c1c]">
+                  Join the launch
+                  <span className="absolute -right-3 -top-3 rounded-full bg-[#b91c1c] px-1.5 text-[10px] font-semibold text-white">
+                    84
+                  </span>
                 </span>
-              </span>
+              </p>
+            </div>
+            <p className="mt-3 text-ink/80">
+              125 clicks from 2,141 sent. The button got two in three.
             </p>
           </Card>
         </div>

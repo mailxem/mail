@@ -103,11 +103,11 @@ test("mobile navigation, FAQ, and previews fit narrow screens", async ({
     page.getByRole("navigation", { name: "Mobile navigation" }),
   ).not.toBeVisible();
   const question = page.getByRole("button", {
-    name: "Are the templates actually editable?",
+    name: "Can I bring my list from Mailchimp or beehiiv?",
   });
   await question.click();
   await expect(question).toHaveAttribute("aria-expanded", "true");
-  await expect(page.locator("#faq-mobile-2")).toBeVisible();
+  await expect(page.locator("#faq-mobile-1")).toBeVisible();
   await page
     .getByRole("button", { name: "Preview Thanks for Digging In", exact: true })
     .click();
@@ -227,7 +227,7 @@ test("content and signup remain available when JavaScript is unavailable", async
   await page.goto(process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3002");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Create your first email" }),
+    page.getByRole("link", { name: "Start free" }).first(),
   ).toHaveAttribute("href", /\/auth\/register$/);
   await expect(
     page.getByRole("link", { name: "Play the Xem brand film, 30 seconds" }),
