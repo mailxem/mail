@@ -6,6 +6,15 @@ const nextConfig = {
       source: "/assets/template-starters/brand/:path*",
       headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
     },
+    // Only the app may frame its pages (clickjacking). Signup forms under /f/
+    // stay embeddable: forms/embed.js frames them on customers' sites.
+    {
+      source: "/:path((?!f/).*)",
+      headers: [
+        { key: "X-Frame-Options", value: "SAMEORIGIN" },
+        { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+      ],
+    },
   ],
   redirects: async () => {
     const redirects = [
