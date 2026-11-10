@@ -12,13 +12,21 @@ let counted = false; // effects run twice in development; count the click once
  */
 export function ReferralCapture() {
   useEffect(() => {
-    const code = new URLSearchParams(location.search).get("via")?.trim().toLowerCase();
+    const code = new URLSearchParams(location.search)
+      .get("via")
+      ?.trim()
+      .toLowerCase();
     if (counted || !code || !/^[a-z0-9]{4,32}$/.test(code)) return;
     counted = true;
-    const parent = location.hostname.endsWith("xem.email") ? "; domain=.xem.email" : "";
+    const parent = location.hostname.endsWith("xem.email")
+      ? "; domain=.xem.email"
+      : "";
     document.cookie = `xem_via=${code}; path=/; max-age=${SIXTY_DAYS}; samesite=lax${parent}${location.protocol === "https:" ? "; secure" : ""}`;
     // A beacon needs no CORS preflight and survives the visitor leaving the page.
-    navigator.sendBeacon?.(`${apiUrl}/api/v1/affiliates/clicks`, JSON.stringify({ code }));
+    navigator.sendBeacon?.(
+      `${apiUrl}/api/v1/affiliates/clicks`,
+      JSON.stringify({ code }),
+    );
   }, []);
   return null;
 }

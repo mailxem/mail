@@ -27,13 +27,12 @@ import {
 } from "@/lib/site";
 import { SiteDialog } from "./site-dialog";
 import { HeroDemo } from "./hero-demo";
+import { FeatureGrid } from "./feature-grid";
 import { AgentStrip } from "./agent-strip";
 import { FounderNote } from "./founder-note";
 import { McpSection } from "./mcp-section";
 import { AnalyticsSection } from "./analytics-section";
-import { AssistantShowcase } from "./assistant-showcase";
-import { SendingSection } from "./sending-section";
-import { MoreFeatures, Testimonials, JournalPreview } from "./home-expansion";
+import { Testimonials, JournalPreview } from "./home-expansion";
 import type { PostMeta } from "@/lib/blog-types";
 import { HeroFilm } from "./hero-film";
 import { HeroWheel } from "./hero-wheel";
@@ -75,11 +74,11 @@ function Arrow() {
 }
 // Teams the founder confirmed use Xem. researchandrise.com has no site yet,
 // so it isn't linked.
-const customers: [string, string?][] = [
-  ["Hakopod", "https://hakopod.com"],
-  ["Zunofy", "https://zunofy.com"],
-  ["SyneHQ", "https://synehq.com"],
-  ["Research and Rise"],
+const customers: [string, string, string?][] = [
+  ["Hakopod", "/logos/hakopod.svg", "https://hakopod.com"],
+  ["Zunofy", "/logos/zunofy.png", "https://zunofy.com"],
+  ["SyneHQ", "/logos/synehq.png", "https://synehq.com"],
+  ["Research and Rise", ""],
 ];
 export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
   const root = useRef<HTMLDivElement>(null);
@@ -277,7 +276,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
             </p>
             <p className="mx-auto mt-7 max-w-xl text-sm text-muted">
               Used by teams at{" "}
-              {customers.map(([name, href], i) => (
+              {customers.map(([name, logo, href], i) => (
                 <span key={name}>
                   {i > 0 && (i === customers.length - 1 ? " and " : ", ")}
                   {href ? (
@@ -285,6 +284,15 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
                       href={href}
                       className="font-medium text-ink hover:underline"
                     >
+                      {logo && (
+                        <Image
+                          src={logo}
+                          alt=""
+                          width={20}
+                          height={20}
+                          className="mr-1.5 inline-block h-[1.25em] w-[1.25em] -translate-y-px rounded-[5px]"
+                        />
+                      )}
                       {name}
                     </a>
                   ) : (
@@ -326,8 +334,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
         <Testimonials />
         <FounderNote />
 
-        <AssistantShowcase />
-        <SendingSection />
+        <FeatureGrid />
 
         <section
           id="templates"
@@ -449,7 +456,6 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
         <AnalyticsSection />
 
         <McpSection />
-        <MoreFeatures />
         <JournalPreview posts={latestPosts} />
         <section
           id="open-source"

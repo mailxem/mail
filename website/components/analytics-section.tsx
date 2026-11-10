@@ -52,7 +52,8 @@ export function AnalyticsSection() {
             </h2>
           </div>
           <p className="max-w-[290px] text-sm leading-relaxed text-muted">
-            Opens, clicks, devices and audience growth, with bot opens and link-scanner clicks left out. Try the controls below.
+            Opens, clicks, devices and audience growth, with bot opens and
+            link-scanner clicks left out. Try the controls below.
           </p>
         </div>
         {ready ? (
