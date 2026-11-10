@@ -96,6 +96,9 @@ const campaignSchema = z.object({
   timezone: z.string().default("UTC"),
   subject: z.string().trim().min(1, "Add a subject line"),
   smtpConfigId: z.string().uuid("Choose a sender"),
+  replyTo: z
+    .union([z.literal(""), z.string().trim().email("Enter an email address")])
+    .optional(),
   archiveNewsletterId: z.string().optional(),
   stages: z.enum(["auto", "on", "off"]).default("auto"),
   trackEngagement: z.boolean().default(true),
@@ -385,6 +388,7 @@ function NewCampaignForm() {
         body: JSON.stringify({
           ...values,
           archiveNewsletterId: values.archiveNewsletterId || undefined,
+          replyTo: values.replyTo?.trim() || undefined,
           stages: undefined,
           sendInStages:
             values.stages === "auto" ? undefined : values.stages === "on",
@@ -777,6 +781,32 @@ function NewCampaignForm() {
                       </Select>
                       <FormDescription>
                         Use one of your connected email senders.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="replyTo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Replies go to (optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          className="h-11"
+                          placeholder={
+                            selectedSender?.replyTo ||
+                            selectedSender?.fromEmail ||
+                            "you@yourcompany.com"
+                          }
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Leave empty to use the sender’s own reply address.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

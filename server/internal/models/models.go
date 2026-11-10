@@ -580,10 +580,12 @@ type Campaign struct {
 	PauseReason string `json:"pauseReason,omitempty"`
 	// Stage counts staged-sending stages cleared; NextStageAt is when the
 	// next stage's results check is due.
-	Stage             int                       `gorm:"not null;default:0" json:"stage"`
-	NextStageAt       *time.Time                `json:"nextStageAt,omitempty"`
-	HTMLBody          string                    `gorm:"type:text" json:"htmlBody,omitempty"`
-	Subject           string                    `json:"subject"`
+	Stage       int        `gorm:"not null;default:0" json:"stage"`
+	NextStageAt *time.Time `json:"nextStageAt,omitempty"`
+	HTMLBody    string     `gorm:"type:text" json:"htmlBody,omitempty"`
+	Subject     string     `json:"subject"`
+	// ReplyTo is where readers' replies go; empty uses the sender's own.
+	ReplyTo           string                    `json:"replyTo,omitempty" validate:"omitempty,email"`
 	PostalAddress     string                    `json:"postalAddress"`
 	AudienceCursor    string                    `json:"-"`
 	AudienceCutoff    *time.Time                `json:"-"`

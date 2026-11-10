@@ -11,6 +11,7 @@ export const formSchema = z.object({
   username: z.string().min(1, "Username is required"),
   requiresAuth: z.boolean().default(true),
   fromEmail: z.string().min(1, "From Email is required"),
+  replyTo: z.string().optional(),
   password: z.string().default(""),
   isActive: z.boolean().default(true),
   supportsTls: z.boolean().default(true),
