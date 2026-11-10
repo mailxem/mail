@@ -39,7 +39,7 @@ export function McpSection() {
       aria-labelledby="mcp-heading"
       className="px-5 py-16 md:px-10 md:py-24"
     >
-      <div className="relative mx-auto max-w-[1160px] overflow-hidden rounded-[28px] bg-[#1d1f1a] px-6 py-16 text-center text-cream md:px-12 md:py-20">
+      <div className="relative mx-auto max-w-[1160px] overflow-hidden rounded-[28px] bg-forest px-6 py-16 text-center text-cream md:px-12 md:py-20">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 opacity-[.18] [background-image:radial-gradient(#fffef0_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]"
