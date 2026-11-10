@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 // AI clients that connect to Xem's MCP server. Marks from Simple Icons (CC0).
-const agents = [
+export const agents = [
   {
     name: "Claude",
     bg: "#f4ede4",

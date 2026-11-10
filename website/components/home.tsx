@@ -7,17 +7,13 @@ import {
   ArrowRight,
   ArrowUpRight,
   Check,
-  ExternalLink,
   GitBranch,
   Github,
   Mail,
   Menu,
   Play,
-  Plus,
   Star,
   X,
-  Monitor,
-  Smartphone,
 } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -30,7 +26,7 @@ import {
   docsUrl,
 } from "@/lib/site";
 import { SiteDialog } from "./site-dialog";
-import { PhonePreview } from "./phone-preview";
+import { HeroDemo } from "./hero-demo";
 import { AgentStrip } from "./agent-strip";
 import { FounderNote } from "./founder-note";
 import { McpSection } from "./mcp-section";
@@ -89,8 +85,6 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
   const root = useRef<HTMLDivElement>(null);
   const rail = useRef<HTMLDivElement>(null);
   const [menu, setMenu] = useState(false);
-  const [view, setView] = useState(0);
-  const [phone, setPhone] = useState(false);
   const [tour, setTour] = useState<number | null>(null);
   const [template, setTemplate] = useState<number | null>(null);
   const [faq, setFaq] = useState(0);
@@ -136,7 +130,6 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
         : "smooth",
     });
   };
-  const current = productViews[view];
   return (
     <div ref={root} className="overflow-clip">
       <header className="fixed inset-x-0 top-3 z-40 mx-auto w-[calc(100%-32px)] max-w-[1080px] md:top-5">
@@ -324,119 +317,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
         >
           <div className="mx-auto max-w-[1180px]">
             <h2 className="sr-only">The Xem app</h2>
-            <div
-              role="tablist"
-              aria-label="Explore Xem features"
-              className="mx-auto mb-7 flex w-fit max-w-full rounded-full border border-cream/20 p-1"
-            >
-              {productViews.map((p, i) => (
-                <button
-                  key={p.id}
-                  role="tab"
-                  id={`product-tab-${i}`}
-                  aria-controls="product-panel"
-                  aria-selected={view === i}
-                  tabIndex={view === i ? 0 : -1}
-                  onKeyDown={(e) => {
-                    if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
-                      e.preventDefault();
-                      const next = (i + (e.key === "ArrowRight" ? 1 : 3)) % 4;
-                      setView(next);
-                      document.getElementById(`product-tab-${next}`)?.focus();
-                    }
-                  }}
-                  onClick={() => setView(i)}
-                  className={`min-h-10 rounded-full px-3.5 text-xs transition-colors md:px-7 md:text-sm ${view === i ? "bg-lemon text-forest" : "text-cream/80 hover:bg-cream/10"}`}
-                >
-                  <span className="mr-2 hidden text-[10px] opacity-90 sm:inline">
-                    0{i + 1}
-                  </span>
-                  {p.label}
-                </button>
-              ))}
-            </div>
-            <div
-              id="product-panel"
-              role="tabpanel"
-              aria-labelledby={`product-tab-${view}`}
-              className="overflow-hidden rounded-xl border border-cream/20 bg-[#dce4cd] p-2 pb-0 md:rounded-2xl md:p-3 md:pb-0"
-            >
-              <div className="flex items-center justify-between px-2 pb-3 pt-1 text-[10px] text-forest/80">
-                <span className="flex gap-1.5">
-                  <i className="h-2 w-2 rounded-full bg-forest/25" />
-                  <i className="h-2 w-2 rounded-full bg-forest/20" />
-                  <i className="h-2 w-2 rounded-full bg-forest/15" />
-                </span>
-                <span
-                  role="group"
-                  aria-label="Preview size"
-                  className="flex rounded-full bg-forest/10 p-0.5 text-[11px]"
-                >
-                  {(
-                    [
-                      [false, "Desktop", Monitor],
-                      [true, "Mobile", Smartphone],
-                    ] as const
-                  ).map(([value, label, Icon]) => (
-                    <button
-                      key={label}
-                      type="button"
-                      aria-pressed={phone === value}
-                      onClick={() => setPhone(value)}
-                      className={`flex min-h-7 items-center gap-1.5 rounded-full px-3 transition-colors ${phone === value ? "bg-white text-forest shadow-sm" : "text-forest hover:bg-white/50"}`}
-                    >
-                      <Icon size={12} aria-hidden="true" />
-                      {label}
-                    </button>
-                  ))}
-                </span>
-                <button
-                  onClick={() => setTour(view)}
-                  className="flex items-center gap-1.5 hover:underline"
-                >
-                  Explore this view <ExternalLink size={11} />
-                </button>
-              </div>
-              <button
-                aria-label={`Open ${current.label.toLowerCase()} product tour`}
-                onClick={() => setTour(view)}
-                className="group relative block aspect-[1.53] w-full overflow-hidden rounded-t-lg bg-white"
-              >
-                <Image
-                  key={current.image}
-                  quality={90}
-                  src={`/images/product/${current.image}.webp`}
-                  alt={current.alt}
-                  width={1512}
-                  height={1100}
-                  sizes="(max-width: 768px) 95vw, 1160px"
-                  className={`h-full w-full object-cover object-top transition duration-700 group-hover:scale-[1.015] motion-reduce:transform-none ${phone ? "brightness-[.45] blur-[1px]" : ""}`}
-                />
-                {phone && (
-                  <span className="absolute inset-x-0 top-[6%] block">
-                    <PhonePreview />
-                  </span>
-                )}
-                <span className="absolute bottom-5 right-5 flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-xs text-cream shadow-md md:bottom-8 md:right-8">
-                  Take a closer look <Plus size={14} />
-                </span>
-              </button>
-            </div>
-            <div className="mt-7 grid items-start gap-4 md:grid-cols-[1fr_1.1fr]">
-              <h3 className="font-editorial text-3xl leading-tight tracking-tight">
-                {current.title}
-              </h3>
-              <div>
-                <p className="text-sm leading-relaxed text-cream/80">
-                  {current.description}
-                </p>
-                <p className="mt-3 text-[10px] text-cream/75">
-                  {phone
-                    ? "A Xem newsletter template in a phone’s mail app. Sample content."
-                    : "Actual Xem interface. Demo workspace with sample data."}
-                </p>
-              </div>
-            </div>
+            <HeroDemo />
             <AgentStrip />
           </div>
         </section>
