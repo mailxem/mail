@@ -320,9 +320,6 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
           </div>
         </section>
 
-        <PriceSection />
-        <Testimonials />
-
         <section
           id="product"
           className="relative scroll-mt-20 rounded-t-[36px] bg-forest px-5 pb-20 pt-16 text-cream md:rounded-t-[64px] md:px-10 md:pb-24 md:pt-24"
@@ -456,6 +453,9 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
             </div>
           </div>
         </section>
+
+        <PriceSection />
+        <Testimonials />
 
         <AssistantShowcase />
         <SendingSection />
