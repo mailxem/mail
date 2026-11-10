@@ -94,7 +94,7 @@ export function SendingSection() {
         >
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[.17em] text-forest">
-              A preview of your first steps
+              Your first send, step by step
             </p>
             <h2
               id="sending-title"
@@ -106,9 +106,9 @@ export function SendingSection() {
             </h2>
           </div>
           <p className="max-w-md text-sm leading-relaxed text-muted">
-            We’re building a calmer path to your first send: a checklist you can
-            come back to, clear domain checks, and a little progress at every
-            step. Take a look at the new setup flow below.
+            Every new workspace gets a checklist you can come back to: verify
+            your domain, add an API key or SMTP, then send yourself a test. Take
+            a look at the setup flow below.
           </p>
         </div>
 
