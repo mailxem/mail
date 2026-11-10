@@ -8,7 +8,6 @@ import {
   ArrowUpRight,
   Check,
   GitBranch,
-  Github,
   Mail,
   Menu,
   Play,
@@ -224,7 +223,7 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
         >
           <div className="relative z-10 mx-auto max-w-6xl px-5 text-center">
             <a
-              href="#open-source"
+              href={githubUrl}
               className={`${sectionLabel} inline-flex items-center gap-2.5 rounded-full border border-forest/20 bg-forest/5 px-4 py-2 transition-colors hover:bg-forest/10`}
             >
               <GitBranch size={14} aria-hidden="true" /> Proudly open source
@@ -451,48 +450,13 @@ export function Home({ latestPosts }: { latestPosts: PostMeta[] }) {
           </div>
         </section>
 
-        <FounderNote />
+        <AnalyticsSection />
 
         <McpSection />
 
-        <AnalyticsSection />
+        <FounderNote />
 
         <PriceSection />
-        <section
-          id="open-source"
-          aria-labelledby="open-source-title"
-          className="scroll-mt-28 border-t border-ink/10 bg-lavender/30 px-5 py-12 md:px-10 md:py-16"
-        >
-          <div data-reveal className="mx-auto max-w-[760px]">
-            <span className={`${sectionLabel} inline-flex items-center gap-2`}>
-              <GitBranch size={14} aria-hidden="true" /> Proudly open source
-            </span>
-            <h2
-              id="open-source-title"
-              className="mt-4 font-editorial text-[clamp(2rem,3.6vw,2.9rem)] leading-[1.05] tracking-[-.03em]"
-            >
-              Every line of Xem is on GitHub
-            </h2>
-            <p className="mt-3 text-base leading-relaxed text-muted">
-              The app, the Go backend, the SDKs and the self-hosting tools are
-              in one GPL-3.0 repository. Read how sending works, run it on your
-              own server, or send a fix.
-            </p>
-            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <a href={githubUrl} className={primary}>
-                <Github size={18} aria-hidden="true" /> Explore the repository
-                <Arrow />
-              </a>
-              <a href={selfHostUrl} className={textLink}>
-                Self-hosting guide <Arrow />
-              </a>
-              <a href={contributeUrl} className={textLink}>
-                Contribute <Arrow />
-              </a>
-            </div>
-          </div>
-        </section>
-
         <JournalPreview posts={latestPosts} />
 
         <section
