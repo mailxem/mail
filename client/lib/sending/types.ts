@@ -12,6 +12,8 @@ export type SendingDomain = {
   checkedAt: string | null;
   smtpConfigId: string;
   fromEmail: string;
+  /** An address on Xem's verified domain: no DNS to set up. */
+  shared?: boolean;
   records: { type: string; name: string; value: string }[];
 };
 export type SendingCredential = {
@@ -35,6 +37,8 @@ export type SendingMessage = {
 };
 export type SendingState = {
   enabled: boolean;
+  /** Xem's domain for shared addresses; empty when they are off. */
+  sharedDomain?: string;
   account: {
     approved: boolean;
     suspended: boolean;
@@ -109,13 +113,19 @@ export function checklist(state: SendingState) {
           done: true,
         },
         {
-          title: "Make it your domain",
-          detail: "Your name in every inbox.",
+          title: domain?.shared ? "Pick your address" : "Make it your domain",
+          detail: domain?.shared
+            ? "Your name on Xem’s domain."
+            : "Your name in every inbox.",
           done: !!domain,
         },
         {
-          title: "Give your domain the green light",
-          detail: "A few DNS records build trust.",
+          title: domain?.shared
+            ? "Already verified"
+            : "Give your domain the green light",
+          detail: domain?.shared
+            ? "Xem’s domain is set up for you."
+            : "A few DNS records build trust.",
           done: !!domain?.ready,
         },
         {

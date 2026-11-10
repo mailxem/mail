@@ -134,3 +134,67 @@ test("HTTP rejects missing auth, untrusted origins, hosts and oversized input", 
     await f.close();
   }
 });
+
+test("hosted MCP advertises OAuth sign-in and forwards registration and tokens", async () => {
+  const reservation = createNetServer();
+  reservation.listen(0, "127.0.0.1");
+  await once(reservation, "listening");
+  const port = reservation.address().port;
+  await new Promise((resolve) => reservation.close(resolve));
+  const base = `http://127.0.0.1:${port}`;
+  const forwarded = [];
+  const server = createHostedServer({
+    publicUrl: `${base}/mcp`,
+    apiBaseUrl: "http://127.0.0.1:1/api/v1",
+    authorizeUrl: "https://app.example/oauth/authorize",
+    fetch: async (url, options) => {
+      forwarded.push([url, options.headers["Content-Type"], String(options.body)]);
+      return new Response(JSON.stringify({ access_token: "t" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    },
+  });
+  server.listen(port, "127.0.0.1");
+  await once(server, "listening");
+  try {
+    const unauth = await fetch(`${base}/mcp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    });
+    assert.equal(unauth.status, 401);
+    assert.match(
+      unauth.headers.get("www-authenticate"),
+      new RegExp(`resource_metadata="${base}/.well-known/oauth-protected-resource"`),
+    );
+    const resource = await (
+      await fetch(`${base}/.well-known/oauth-protected-resource`)
+    ).json();
+    assert.deepEqual(resource.authorization_servers, [base]);
+    const meta = await (
+      await fetch(`${base}/.well-known/oauth-authorization-server`)
+    ).json();
+    assert.equal(meta.authorization_endpoint, "https://app.example/oauth/authorize");
+    assert.equal(meta.token_endpoint, `${base}/token`);
+    assert.deepEqual(meta.code_challenge_methods_supported, ["S256"]);
+
+    const token = await fetch(`${base}/token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "grant_type=refresh_token&refresh_token=r",
+    });
+    assert.equal(token.status, 200);
+    assert.deepEqual(forwarded[0], [
+      "http://127.0.0.1:1/api/v1/oauth/token",
+      "application/x-www-form-urlencoded",
+      "grant_type=refresh_token&refresh_token=r",
+    ]);
+    assert.equal((await fetch(`${base}/token`)).status, 405);
+  } finally {
+    await new Promise((resolve) => {
+      server.close(resolve);
+      server.closeAllConnections();
+    });
+  }
+});

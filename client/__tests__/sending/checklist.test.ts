@@ -62,3 +62,10 @@ test("BYO setup requires a provider, then a draft, before the first send", () =>
   s.journey.acceptedEmails = 1;
   expect(checklist(s).every((step) => step.done)).toBe(true);
 });
+test("a shared Xem address skips DNS and is named as an address", () => {
+  const s = state();
+  s.domains = [{ ...s.domains[0], shared: true, ready: true }];
+  const steps = checklist(s);
+  expect(steps[1].title).toBe("Pick your address");
+  expect(steps[2].done).toBe(true);
+});

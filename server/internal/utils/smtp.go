@@ -190,6 +190,8 @@ func buildMessage(email *models.Email) (*gomail.Message, string, error) {
 
 	if email.ReplyTo != "" {
 		m.SetHeader("Reply-To", email.ReplyTo)
+	} else if email.SMTPConfig != nil && email.SMTPConfig.ReplyTo != "" {
+		m.SetHeader("Reply-To", email.SMTPConfig.ReplyTo)
 	}
 	if email.InReplyTo != "" {
 		m.SetHeader("In-Reply-To", email.InReplyTo)

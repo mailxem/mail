@@ -437,9 +437,8 @@ export const competitors: Competitor[] = [
     cheaperAnswer:
       "For a weekly newsletter to 10,000 subscribers, MailCheap is $39 a month and Xem is $19. At 50,000 it is $79 against $59, and at 100,000 it is $149 against $99. Both are open source and can be self-hosted for the cost of your email provider.",
     chooseThem: [
-      "You want an MCP server that covers every API endpoint, including billing and team, with OAuth sign-in for ChatGPT and Claude.",
-      "You want a public website for your issues as part of the product, with a simple newsletter-only feature set.",
-      "You like its safeguards: staged first sends, and campaigns that pause on high bounce or spam rates.",
+      "You want an MCP server with a tool for every API endpoint, including billing and team settings.",
+      "You want a simple, newsletter-only feature set and don't need automations, a CRM or a shared inbox.",
     ],
     exportSteps:
       "MailCheap exports contacts as a CSV download link, valid for an hour, through its API (GET /api/v1/contacts/export, or the export_contacts MCP tool) with a full-access API key. Keep each contact’s status in the file.",

@@ -47,6 +47,12 @@ func httpError(e error) error {
 	if errors.Is(e, ErrLimit) {
 		return echo.NewHTTPError(429, e.Error())
 	}
+	if errors.Is(e, ErrInvalidLabel) {
+		return echo.NewHTTPError(400, e.Error())
+	}
+	if errors.Is(e, ErrTaken) || errors.Is(e, ErrHasShared) {
+		return echo.NewHTTPError(409, e.Error())
+	}
 	if errors.Is(e, ErrSuppressed) {
 		return echo.NewHTTPError(422, e.Error())
 	}
@@ -58,6 +64,7 @@ func (s *Service) Register(e *echo.Echo, jwtSecret string) {
 	g.GET("", s.status)
 	g.PUT("/onboarding", s.onboarding)
 	g.POST("/domains", s.addDomain)
+	g.POST("/shared", s.addShared)
 	g.POST("/domains/:id/check", s.checkDomain)
 	g.POST("/domains/:id/sender", s.activateSender)
 	g.DELETE("/domains/:id", s.removeDomain)
@@ -83,6 +90,9 @@ type DomainView struct {
 }
 
 func (s *Service) view(d Domain) DomainView {
+	if d.Shared {
+		return DomainView{d, []DNSRecord{}}
+	}
 	records := []DNSRecord{{"TXT", "_xem." + d.Name, d.Token}}
 	for _, t := range strings.Split(d.DKIMTokens, ",") {
 		if t != "" {
@@ -142,7 +152,7 @@ func (s *Service) status(c echo.Context) error {
 		views = append(views, s.view(d))
 	}
 	c.Response().Header().Set("Cache-Control", "no-store")
-	return c.JSON(200, map[string]any{"enabled": s.Config.Enabled, "account": a, "domains": views, "credentials": credentials, "messages": messages, "smtp": map[string]any{"enabled": s.Config.SMTPEnabled, "host": s.Config.SMTPHost, "port": 587, "security": "STARTTLS"}, "costPerRecipientMicros": s.Config.CostMicros, "maxMessageBytes": s.Config.MaxBytes, "journey": map[string]any{"byoSenders": byo, "campaigns": campaigns, "acceptedEmails": sent, "testedDomainIds": testedDomains, "apiKeys": apiKeys, "testEmails": testEmails}})
+	return c.JSON(200, map[string]any{"enabled": s.Config.Enabled, "sharedDomain": s.Config.SharedDomain, "account": a, "domains": views, "credentials": credentials, "messages": messages, "smtp": map[string]any{"enabled": s.Config.SMTPEnabled, "host": s.Config.SMTPHost, "port": 587, "security": "STARTTLS"}, "costPerRecipientMicros": s.Config.CostMicros, "maxMessageBytes": s.Config.MaxBytes, "journey": map[string]any{"byoSenders": byo, "campaigns": campaigns, "acceptedEmails": sent, "testedDomainIds": testedDomains, "apiKeys": apiKeys, "testEmails": testEmails}})
 }
 func (s *Service) addDomain(c echo.Context) error {
 	var in struct {
@@ -154,6 +164,24 @@ func (s *Service) addDomain(c echo.Context) error {
 	d, e := s.AddDomain(c.Request().Context(), workspace(c), in.Name)
 	if e != nil {
 		return httpError(e)
+	}
+	return c.JSON(201, s.view(d))
+}
+func (s *Service) addShared(c echo.Context) error {
+	var in struct {
+		Name string `json:"name"`
+	}
+	if c.Bind(&in) != nil {
+		return echo.NewHTTPError(400, "Invalid name")
+	}
+	ctx, cancel := context.WithTimeout(c.Request().Context(), 25*time.Second)
+	defer cancel()
+	d, e := s.AddSharedAddress(ctx, workspace(c), in.Name)
+	if e != nil {
+		if errors.Is(e, ErrInvalidLabel) || errors.Is(e, ErrTaken) || errors.Is(e, ErrHasShared) || errors.Is(e, ErrLimit) || errors.Is(e, ErrDenied) {
+			return httpError(e)
+		}
+		return domainCheckHTTPError(e)
 	}
 	return c.JSON(201, s.view(d))
 }
@@ -206,7 +234,8 @@ func (s *Service) pause(c echo.Context) error {
 }
 func (s *Service) activateSender(c echo.Context) error {
 	var in struct {
-		From string `json:"from"`
+		From    string `json:"from"`
+		ReplyTo string `json:"replyTo"`
 	}
 	if c.Bind(&in) != nil {
 		return echo.NewHTTPError(400, "Invalid sender")
@@ -214,6 +243,12 @@ func (s *Service) activateSender(c echo.Context) error {
 	from, err := address(in.From)
 	if err != nil {
 		return httpError(err)
+	}
+	replyTo := ""
+	if strings.TrimSpace(in.ReplyTo) != "" {
+		if replyTo, err = address(in.ReplyTo); err != nil {
+			return httpError(err)
+		}
 	}
 	err = s.DB.WithContext(c.Request().Context()).Transaction(func(tx *gorm.DB) error {
 		var account Account
@@ -230,8 +265,12 @@ func (s *Service) activateSender(c echo.Context) error {
 		if !d.Ownership || !d.Provisioned || d.CheckedAt == nil || s.Now().Sub(*d.CheckedAt) > 24*time.Hour || strings.Split(from, "@")[1] != d.Name {
 			return ErrDenied
 		}
+		// A shared address cannot receive mail, so replies go to a real inbox.
+		if d.Shared && replyTo == "" {
+			replyTo, _ = c.Get("email").(string)
+		}
 		if d.SMTPConfigID != "" {
-			result := tx.Session(&gorm.Session{SkipHooks: true}).Model(&models.SMTPConfig{}).Where("id = ? AND team_id = ? AND provider = ? AND is_active = true AND is_deleted = false", d.SMTPConfigID, d.TeamID, "MANAGED").Update("from_email", from)
+			result := tx.Session(&gorm.Session{SkipHooks: true}).Model(&models.SMTPConfig{}).Where("id = ? AND team_id = ? AND provider = ? AND is_active = true AND is_deleted = false", d.SMTPConfigID, d.TeamID, "MANAGED").Updates(map[string]any{"from_email": from, "reply_to": replyTo})
 			if result.Error != nil {
 				return result.Error
 			}
@@ -244,7 +283,7 @@ func (s *Service) activateSender(c echo.Context) error {
 			return QueueMilestone(tx, d.TeamID, d.ID, "sender_connected")
 		}
 		id := uuid.NewString()
-		sender := models.SMTPConfig{Base: models.Base{ID: id}, Provider: "MANAGED", Host: "managed.internal", Port: 587, Username: "managed", FromEmail: from, TeamID: d.TeamID, IsActive: true, SupportsTLS: true, RequiresAuth: true, MaxSendRate: HandoffRate}
+		sender := models.SMTPConfig{Base: models.Base{ID: id}, Provider: "MANAGED", Host: "managed.internal", Port: 587, Username: "managed", FromEmail: from, ReplyTo: replyTo, TeamID: d.TeamID, IsActive: true, SupportsTLS: true, RequiresAuth: true, MaxSendRate: HandoffRate}
 		if e := tx.Session(&gorm.Session{SkipHooks: true}).Create(&sender).Error; e != nil {
 			return e
 		}

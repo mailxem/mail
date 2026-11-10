@@ -16,6 +16,8 @@ export async function middleware(request: NextRequest) {
     // Published newsletter archives are public web pages.
     request.nextUrl.pathname.startsWith("/n/") ||
     request.nextUrl.pathname === "/forms/embed.js" ||
+    // The OAuth consent page sends signed-out people to login with a return path.
+    request.nextUrl.pathname === "/oauth/authorize" ||
     (process.env.NODE_ENV === "development" &&
       request.nextUrl.pathname === "/preview")
   )

@@ -24,10 +24,14 @@ type Config struct {
 	// EventsPollers per process read SES feedback from it in batches.
 	EventsQueueURL string
 	EventsPollers  int64
+	// SharedDomain is a domain the operator verified in SES (DKIM, custom MAIL
+	// FROM and DMARC). Teams without their own domain send from
+	// name@<label>.<SharedDomain>; empty turns shared addresses off.
+	SharedDomain string
 }
 
 func LoadConfig() (Config, error) {
-	c := Config{Enabled: os.Getenv("MANAGED_SENDING_ENABLED") == "true", Region: os.Getenv("MANAGED_SES_REGION"), AccountID: os.Getenv("MANAGED_AWS_ACCOUNT_ID"), TopicARN: os.Getenv("MANAGED_SNS_TOPIC_ARN"), SMTPEnabled: os.Getenv("MANAGED_SMTP_ENABLED") == "true", SMTPAddr: os.Getenv("MANAGED_SMTP_ADDR"), SMTPHost: os.Getenv("MANAGED_SMTP_HOST"), TLSCert: os.Getenv("MANAGED_SMTP_TLS_CERT"), TLSKey: os.Getenv("MANAGED_SMTP_TLS_KEY"), EventsQueueURL: os.Getenv("SES_EVENTS_QUEUE_URL")}
+	c := Config{Enabled: os.Getenv("MANAGED_SENDING_ENABLED") == "true", Region: os.Getenv("MANAGED_SES_REGION"), AccountID: os.Getenv("MANAGED_AWS_ACCOUNT_ID"), TopicARN: os.Getenv("MANAGED_SNS_TOPIC_ARN"), SMTPEnabled: os.Getenv("MANAGED_SMTP_ENABLED") == "true", SMTPAddr: os.Getenv("MANAGED_SMTP_ADDR"), SMTPHost: os.Getenv("MANAGED_SMTP_HOST"), TLSCert: os.Getenv("MANAGED_SMTP_TLS_CERT"), TLSKey: os.Getenv("MANAGED_SMTP_TLS_KEY"), EventsQueueURL: os.Getenv("SES_EVENTS_QUEUE_URL"), SharedDomain: strings.ToLower(strings.TrimSpace(os.Getenv("MANAGED_SHARED_DOMAIN")))}
 	if c.SMTPAddr == "" {
 		c.SMTPAddr = ":587"
 	}
@@ -63,6 +67,9 @@ func LoadConfig() (Config, error) {
 	}
 	if c.EventsQueueURL != "" && !regexp.MustCompile(`^https://sqs\.`+c.Region+`\.amazonaws\.com/`+c.AccountID+`/[A-Za-z0-9_-]{1,80}$`).MatchString(c.EventsQueueURL) {
 		return c, fmt.Errorf("SES event queue must belong to the configured AWS account and region")
+	}
+	if c.SharedDomain != "" && !validDomain(c.SharedDomain) {
+		return c, fmt.Errorf("invalid MANAGED_SHARED_DOMAIN")
 	}
 	if c.MaxBytes > 10*1024*1024 {
 		return c, fmt.Errorf("managed message size must not exceed 10 MiB")

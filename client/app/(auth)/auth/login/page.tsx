@@ -11,7 +11,7 @@ import styles from "@/components/auth/auth.module.css";
 export default function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; code?: string }>;
+  searchParams: Promise<{ error?: string; code?: string; next?: string }>;
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,7 +19,10 @@ export default function LoginPage({
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-  const { error, code } = use(searchParams);
+  const { error, code, next: nextParam } = use(searchParams);
+  // Only same-site paths, so a link can't send someone elsewhere after sign-in.
+  const next =
+    nextParam?.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/";
   const { data: session } = useSession();
   useEffect(() => {
     if (error) {
@@ -31,7 +34,7 @@ export default function LoginPage({
       router.replace("/auth/login");
     }
   }, [error, code, router]);
-  if (session) redirect("/");
+  if (session) redirect(next);
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (busy) return;
@@ -42,7 +45,7 @@ export default function LoginPage({
         email,
         password,
         redirect: true,
-        callbackUrl: "/",
+        callbackUrl: next,
       });
     } catch {
       setMessage("We couldn’t sign you in. Please try again.");
@@ -113,7 +116,7 @@ export default function LoginPage({
             className={styles.google}
             disabled={busy}
             variant="outline"
-            onClick={() => signIn("google")}
+            onClick={() => signIn("google", { callbackUrl: next })}
           >
             <GoogleIcon />
             Continue with Google
