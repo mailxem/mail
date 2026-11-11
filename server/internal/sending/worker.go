@@ -41,7 +41,7 @@ func (s *Service) ProcessOne(ctx context.Context) error {
 func (s *Service) claim(ctx context.Context, n int) ([]Message, error) {
 	var claimed []Message
 	err := s.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		ranked := tx.Model(&Message{}).Select("id, created_at, ROW_NUMBER() OVER (PARTITION BY team_id ORDER BY created_at) AS team_turn").Where("status = ?", "QUEUED").Where("EXISTS (SELECT 1 FROM managed_accounts a WHERE a.team_id = managed_messages.team_id AND a.paused = false)").Where("EXISTS (SELECT 1 FROM managed_domains d WHERE d.id = managed_messages.domain_id AND d.team_id = managed_messages.team_id AND d.ready = true)")
+		ranked := tx.Model(&Message{}).Select("id, created_at, ROW_NUMBER() OVER (PARTITION BY team_id ORDER BY created_at) AS team_turn").Where("status = ?", "QUEUED").Where("hold_until IS NULL OR hold_until <= ?", s.Now()).Where("EXISTS (SELECT 1 FROM managed_accounts a WHERE a.team_id = managed_messages.team_id AND a.paused = false)").Where("EXISTS (SELECT 1 FROM managed_domains d WHERE d.id = managed_messages.domain_id AND d.team_id = managed_messages.team_id AND d.ready = true)")
 		fair := tx.Table("(?) AS ranked", ranked).Select("id").Order("team_turn, created_at").Limit(n)
 		if e := tx.Clauses(clause.Locking{Strength: "UPDATE", Options: "SKIP LOCKED"}).Where("status = ? AND id IN (?)", "QUEUED", fair).Find(&claimed).Error; e != nil {
 			return e
@@ -126,6 +126,18 @@ func (s *Service) send(ctx context.Context, m Message) error {
 	if err == nil && (len(raw) == 0 || m.CreatedAt.Before(s.Now().Add(-7*24*time.Hour))) {
 		err = ErrDenied
 		detail = "Queued message expired before dispatch."
+	}
+	if err == nil {
+		ok, perr := s.reserveGmail(ctx, d, gmailRecipients(m.Recipients))
+		if perr != nil {
+			// Not the message's fault: put it back for the next claim.
+			log.Printf("managed delivery could not check the Gmail pace: message_id=%s error=%v", m.ID, perr)
+			s.release([]Message{m})
+			return perr
+		}
+		if !ok {
+			return s.hold(ctx, m)
+		}
 	}
 	if err == nil {
 		sendCtx, cancel := context.WithTimeout(ctx, 25*time.Second)

@@ -137,6 +137,7 @@ func (s *Service) AddDomain(ctx context.Context, team, name string) (Domain, err
 	})
 	return d, err
 }
+
 // sharedToken marks a live shared domain; removeDomain replaces it, so the
 // periodic check cannot bring a removed address back.
 const sharedToken = "xem-shared"
