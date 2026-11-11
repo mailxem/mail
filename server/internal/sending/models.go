@@ -70,23 +70,25 @@ type Credential struct {
 func (Credential) TableName() string { return "managed_credentials" }
 
 type Message struct {
-	IsTest         bool      `json:"isTest"`
-	ID             string    `gorm:"primaryKey;type:uuid" json:"id"`
-	TeamID         string    `gorm:"index;type:uuid;not null" json:"-"`
-	DomainID       string    `gorm:"type:uuid;not null" json:"domainId"`
-	CredentialID   string    `json:"-"`
-	EmailID        string    `gorm:"index" json:"emailId,omitempty"`
-	IdempotencyKey string    `gorm:"uniqueIndex:managed_idempotency" json:"-"`
-	PayloadHash    string    `json:"-"`
-	From           string    `json:"from"`
-	Recipients     string    `json:"recipients"`
-	Subject        string    `json:"subject"`
-	Raw            []byte    `json:"-"`
-	Status         string    `gorm:"index" json:"status"`
-	Detail         string    `json:"detail"`
-	ProviderID     string    `gorm:"index" json:"providerId,omitempty"`
-	CreatedAt      time.Time `gorm:"index" json:"createdAt"`
-	UpdatedAt      time.Time `json:"updatedAt"`
+	IsTest         bool   `json:"isTest"`
+	ID             string `gorm:"primaryKey;type:uuid" json:"id"`
+	TeamID         string `gorm:"index;type:uuid;not null" json:"-"`
+	DomainID       string `gorm:"type:uuid;not null" json:"domainId"`
+	CredentialID   string `json:"-"`
+	EmailID        string `gorm:"index" json:"emailId,omitempty"`
+	IdempotencyKey string `gorm:"uniqueIndex:managed_idempotency" json:"-"`
+	PayloadHash    string `json:"-"`
+	From           string `json:"from"`
+	Recipients     string `json:"recipients"`
+	Subject        string `json:"subject"`
+	Raw            []byte `json:"-"`
+	Status         string `gorm:"index" json:"status"`
+	Detail         string `json:"detail"`
+	ProviderID     string `gorm:"index" json:"providerId,omitempty"`
+	// HoldUntil keeps a queued message back, e.g. for the Gmail pace.
+	HoldUntil *time.Time `json:"holdUntil,omitempty"`
+	CreatedAt time.Time  `gorm:"index" json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
 }
 
 func (Message) TableName() string { return "managed_messages" }
@@ -112,7 +114,7 @@ type Suppression struct {
 func (Suppression) TableName() string { return "managed_suppressions" }
 
 func Migrate(db *gorm.DB) error {
-	if err := db.AutoMigrate(&Account{}, &Domain{}, &Credential{}, &Message{}, &Event{}, &Suppression{}, &Audit{}, &MilestoneEmail{}, &Postmaster{}); err != nil {
+	if err := db.AutoMigrate(&Account{}, &Domain{}, &Credential{}, &Message{}, &Event{}, &Suppression{}, &Audit{}, &MilestoneEmail{}, &Postmaster{}, &GmailPace{}); err != nil {
 		return err
 	}
 	if err := baselineMilestones(db); err != nil {
