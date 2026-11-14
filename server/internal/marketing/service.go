@@ -276,11 +276,33 @@ func (s *Service) PrepareEdition(ctx context.Context, id string) error {
 			}
 			contentID = id
 		}
+		// Nobody gets an edition with nothing in it: checked for everyone
+		// before the first batch, and for each reader as they're prepared.
+		pause := func(readers int) error {
+			return tx.Model(&c).Updates(map[string]interface{}{"status": models.CampaignStatusPaused, "pause_reason": EmptyEmailReason(readers)}).Error
+		}
+		sections, err := NewSectionPicker(tx, c.TeamID, c.HTMLBody)
+		if err != nil {
+			return err
+		}
+		if len(contacts) > 0 && c.Processed == 0 {
+			old, fresh := Recipients(tx, &c)
+			reach, err := Reach(tx, c.TeamID, c.HTMLBody, old, fresh)
+			if err != nil {
+				return err
+			}
+			if reach.Empty > 0 {
+				return pause(reach.Empty)
+			}
+		}
 		for _, contact := range contacts {
 			key := c.ID + ":" + contact.ID
 			messageID := uuid.NewString()
 			unsub := s.PublicURL + "/public/unsubscribe/" + c.TeamID + "/" + contact.ID + "/" + s.MessageToken(c.TeamID, contact.ID, messageID) + "?message=" + messageID
 			values := contactValues(contact)
+			if !sections.Pick(contact.ID, values) {
+				return pause(1)
+			}
 			data, err := json.Marshal(values)
 			if err != nil {
 				return err

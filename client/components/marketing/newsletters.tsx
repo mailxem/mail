@@ -43,6 +43,7 @@ import {
 import { toast } from "sonner";
 import { SiteAnalytics } from "./site-analytics";
 import { AuthorSelect, useHasAuthors } from "./authors";
+import { SectionReach } from "@/components/campaigns/section-reach";
 import { PaidPlanNotice, usePaidPlan } from "@/components/billing/paid-plan";
 
 // Newsletter websites live on the marketing site, not in the app.
@@ -401,6 +402,8 @@ function NewsletterEditor({
     authorId: value.authorId || "",
   });
   const [at, setAt] = useState(localDate(value.nextSendAt));
+  // Readers whose edition would show nothing; the server pauses such sends.
+  const [emptyReaders, setEmptyReaders] = useState(0);
   const [status, setStatus] = useState(
     value.status === "SCHEDULED" ? "SCHEDULED" : "DRAFT",
   );
@@ -649,6 +652,13 @@ function NewsletterEditor({
             <GmailClipNotice html={templateHTML} className="mt-2" />
           </div>
         )}
+        {review && (
+          <SectionReach
+            templateId={draft.templateId}
+            listId={draft.listId}
+            onEmpty={setEmptyReaders}
+          />
+        )}
         {error && (
           <div role="alert" className={workspaceClassName("product-error")}>
             {error}
@@ -660,7 +670,7 @@ function NewsletterEditor({
           </Button>
           <Button
             className={workspaceClassName("product-primary")}
-            disabled={busy}
+            disabled={busy || (review && emptyReaders > 0)}
           >
             {busy
               ? "Saving…"

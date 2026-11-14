@@ -26,7 +26,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Settings, Mail, Send, Sparkles } from "lucide-react";
+import { Settings, Mail, Send, Sparkles, Rows3 } from "lucide-react";
 import { toast } from "sonner";
 import { useApi } from "@/hooks/use-api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -49,6 +49,8 @@ import { FieldSuggestInput } from "@/components/campaigns/field-suggest-input";
 const MERGE_TAGS = Object.fromEntries(
   CONTACT_FIELDS.map((f) => [f.key, { name: f.label, value: `{{${f.key}}}` }]),
 );
+import { TemplateSections } from "@/components/templates/template-sections";
+import { splitRules, withRules, type SectionRules } from "@/lib/sections";
 
 const testEmailSchema = z.object({
   to: z.string().email(),
@@ -91,6 +93,10 @@ export function TemplateEditor({
   const [designError, setDesignError] = useState("");
   const [designAttempt, setDesignAttempt] = useState(0);
   const editorAssetSources = useRef(new Map<string, string>());
+  // Rows kept for some readers or places; saved in the design (lib/sections).
+  const [sectionRules, setSectionRules] = useState<SectionRules>({});
+  const sectionRulesRef = useRef(sectionRules);
+  sectionRulesRef.current = sectionRules;
 
   const [template, setTemplate] = useState<EmailTemplate>({
     id: "",
@@ -207,7 +213,10 @@ export function TemplateEditor({
     editor?.addEventListener("design:loaded", loaded);
     setDesignLoading(true);
     setDesignError("");
-    prepareEditorAssets(template.design, controller.signal)
+    // Designs without rules (AI drafts) keep the rules already set.
+    const { design: loadable, rules } = splitRules(template.design);
+    if ("xemSections" in template.design) setSectionRules(rules);
+    prepareEditorAssets(loadable, controller.signal)
       .then(({ design, sources }) => {
         if (controller.signal.aborted) return;
         editorAssetSources.current = sources;
@@ -265,7 +274,11 @@ export function TemplateEditor({
       try {
         editor.exportHtml((data) => {
           clearTimeout(timeout);
-          resolve(restoreEditorAssets(data, editorAssetSources.current));
+          const exported = restoreEditorAssets(data, editorAssetSources.current);
+          resolve({
+            ...exported,
+            design: withRules(exported.design, sectionRulesRef.current),
+          });
         });
       } catch (error) {
         clearTimeout(timeout);
@@ -570,6 +583,14 @@ export function TemplateEditor({
                 <Mail className="h-4 w-4" />
                 Design
               </TabsTrigger>
+              <TabsTrigger
+                value="sections"
+                className="flex items-center gap-2"
+                disabled={!editorReady || designLoading || !!designError}
+              >
+                <Rows3 className="h-4 w-4" />
+                Sections
+              </TabsTrigger>
             </TabsList>
             <div className="flex flex-wrap items-center gap-2">
               <Button
@@ -695,6 +716,24 @@ export function TemplateEditor({
                   </Select>
                 </div>
               </div>
+            </TabsContent>
+
+            <TabsContent value="sections" className="h-full">
+              <TemplateSections
+                readDesign={() =>
+                  new Promise((resolve, reject) => {
+                    const editor = emailEditorRef.current?.editor;
+                    if (!editor)
+                      return reject(new Error("The editor is still loading."));
+                    editor.saveDesign(resolve);
+                  })
+                }
+                rules={sectionRules}
+                onChange={(rules) => {
+                  revision.current++;
+                  setSectionRules(rules);
+                }}
+              />
             </TabsContent>
 
             <TabsContent

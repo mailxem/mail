@@ -444,6 +444,45 @@ export function createTools(api: XemClient) {
     true,
     (a) => api.request(`/marketing/templates/${a.templateId}/preview`),
   );
+  const sectionRule = z
+    .object({
+      name: z.string().trim().max(80).optional(),
+      audience: z.enum(["only", "except"]).optional(),
+      tags: z.array(z.string().trim().min(1).max(100)).max(50).optional(),
+      segments: z.array(id).max(50).optional(),
+      show: z.enum(["email", "web"]).optional(),
+    })
+    .strict()
+    .refine(
+      (r) => !r.audience === !(r.tags?.length || r.segments?.length),
+      "Give audience together with at least one tag or segment",
+    );
+  add(
+    "get_template_sections",
+    "List a template's conditional sections and its editor rows (id and start of text). With listId, also counts how many of the list's active readers get each section and how many would get an email with nothing in it.",
+    z.object({ templateId: id, listId: id.optional() }).strict(),
+    true,
+    (a) =>
+      api.request(
+        `/marketing/templates/${a.templateId}/sections${a.listId ? `?listId=${a.listId}` : ""}`,
+      ),
+  );
+  add(
+    "set_template_sections",
+    "Replace all conditional sections of a template made in the editor. Keys are row IDs from get_template_sections. audience 'only' keeps a row for readers with any of the tags (names) or segments (IDs); 'except' keeps it for everyone else. show 'email' or 'web' limits it to the email or the newsletter website. Rows left out show to everyone. Decided on the server per reader when sending.",
+    z
+      .object({
+        templateId: id,
+        sections: z.record(z.string().min(1).max(100), sectionRule),
+      })
+      .strict(),
+    false,
+    (a) =>
+      api.request(`/marketing/templates/${a.templateId}/sections`, "PUT", {
+        sections: a.sections,
+      }),
+    true,
+  );
   add(
     "import_template_starter",
     "Create a template from a starter key returned by get_marketing_options.",

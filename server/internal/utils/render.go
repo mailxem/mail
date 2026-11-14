@@ -79,7 +79,7 @@ func RenderEmail(email *models.Email, content *models.EmailContent, cfg *config.
 		// Campaigns go to a list, so they are always marketing.
 		return fillVariables(affiliates.WithBadge(content.HTML, content.Badge), data, email.ID, cfg, tracked, true), nil
 	case ContentNewsletter:
-		body := Personalize(content.HTML, data) + `<footer style="padding:24px;text-align:center;color:#71717a;font:12px Arial">` + html.EscapeString(content.PostalAddress) + `<br><a href="` + email.UnsubscribeURL + `">Unsubscribe</a></footer>` + content.Badge
+		body := Personalize(EmailSections(content.HTML, data), data) + `<footer style="padding:24px;text-align:center;color:#71717a;font:12px Arial">` + html.EscapeString(content.PostalAddress) + `<br><a href="` + email.UnsubscribeURL + `">Unsubscribe</a></footer>` + content.Badge
 		if tracked {
 			// marketing.Service tracks with PUBLIC_API_URL, not PUBLIC_URL.
 			body = TrackEmailHTML(body, email.ID, strings.TrimRight(os.Getenv("PUBLIC_API_URL"), "/"), cfg.JWT.Secret)

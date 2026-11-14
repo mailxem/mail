@@ -186,9 +186,14 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		return nil
 	}
 
+	// Readers emailed before go out now, a page at a time; never-emailed
+	// readers only as far as the current stage allows, picked at random.
+	old, fresh := marketing.Recipients(h.db, campaign)
+
 	// Fetched and stored on first use, so a list with no one left completes
 	// without it. Every email shares it and keeps only its own variables.
 	var contentID string
+	var sections *marketing.SectionPicker
 	badge := affiliates.Badge(ctx, h.db, campaign.TeamID)
 	author, err := marketing.CampaignAuthor(h.db, campaign.TeamID, campaign.AuthorID)
 	if err != nil {
@@ -219,6 +224,18 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 			id, err := utils.StoreEmailContent(h.db, models.EmailContent{TeamID: campaign.TeamID, Kind: utils.ContentCampaign, HTML: marketing.WithByline(htmlFromTemplate, author), Subject: campaign.Template.Subject, Badge: badge})
 			if err != nil {
 				return nil, h.logger.Error("❌ failed to store campaign content: %w", err)
+			}
+			// Nobody gets an email with nothing in it: if the sections leave
+			// anyone left to email without content, nobody is emailed.
+			reach, err := marketing.Reach(h.db, campaign.TeamID, htmlFromTemplate, old, fresh)
+			if err != nil {
+				return nil, h.logger.Error("❌ failed to check campaign sections: %w", err)
+			}
+			if reach.Empty > 0 {
+				return nil, emptyEmails(reach.Empty)
+			}
+			if sections, err = marketing.NewSectionPicker(h.db, campaign.TeamID, htmlFromTemplate); err != nil {
+				return nil, h.logger.Error("❌ failed to load campaign sections: %w", err)
 			}
 			contentID = id
 		}
@@ -252,6 +269,11 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 			return nil, h.logger.Error("❌ failed to convert campaign data to map: %w", err)
 		}
 		mergeCampaignValues(variables, data)
+		// The sections this reader gets; a tag or segment may have changed
+		// since the check above.
+		if !sections.Pick(contact.ID, variables) {
+			return nil, emptyEmails(1)
+		}
 
 		messageID := uuid.NewString()
 		// A campaign goes to a list, so it's marketing: every email gets an
@@ -298,19 +320,19 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 		return h.db.Model(campaign).UpdateColumn("processed", campaign.Processed).Error
 	}
 
-	// Readers emailed before go out now, a page at a time; never-emailed
-	// readers only as far as the current stage allows, picked at random.
-	old, fresh := marketing.Recipients(h.db, campaign)
 	sent, err := sendCampaignPages(h.db, old, false, campaignPageSize(), -1, build, send)
+	if err == nil && limit != 0 {
+		var n int
+		n, err = sendCampaignPages(h.db, fresh, limit > 0, campaignPageSize(), limit, build, send)
+		sent += n
+	}
+	if empty := emptyEmails(0); errors.As(err, &empty) {
+		reason := marketing.EmptyEmailReason(int(empty))
+		h.logger.Info("⏸️ Paused campaign %s: %s", campaign.ID, reason)
+		return h.db.Model(campaign).Updates(map[string]any{"status": models.CampaignStatusPaused, "pause_reason": reason}).Error
+	}
 	if err != nil {
 		return h.logger.Error("❌ failed to send campaign emails: %w", err)
-	}
-	if limit != 0 {
-		n, err := sendCampaignPages(h.db, fresh, limit > 0, campaignPageSize(), limit, build, send)
-		sent += n
-		if err != nil {
-			return h.logger.Error("❌ failed to send campaign emails: %w", err)
-		}
 	}
 	if sent == 0 && wait > 0 {
 		return nextStage(wait)
@@ -352,6 +374,11 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 
 	return nil
 }
+
+// emptyEmails stops a send: this many readers would get an email showing nothing.
+type emptyEmails int
+
+func (n emptyEmails) Error() string { return marketing.EmptyEmailReason(int(n)) }
 
 // campaignInsertBatch is how many campaign emails go in one INSERT.
 const campaignInsertBatch = 500

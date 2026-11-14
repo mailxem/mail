@@ -93,8 +93,22 @@ export function SendTest({
   async function send() {
     setBusy(true);
     const contact = contacts.find((c) => c.id === as);
-    const variables = { ...contactVariables(contact), ...(data ?? {}) };
     try {
+      // The sections this contact gets, decided by the server as in a send.
+      let sections: Record<string, string> = {};
+      if (contact) {
+        const r = await apiFetch(
+          `marketing/templates/${templateId}/sections?contactId=${contact.id}`,
+        );
+        if (!r.ok) throw new Error("Couldn’t check which sections they get");
+        const found = await r.json();
+        if (found.sections?.length) sections = { xem_sections: found.plan ?? "" };
+      }
+      const variables = {
+        ...contactVariables(contact),
+        ...(data ?? {}),
+        ...sections,
+      };
       const results = await Promise.all(
         list.map((address) =>
           apiFetch("emails", {
@@ -164,7 +178,9 @@ export function SendTest({
             ))}
           </select>
           <p className="text-xs text-muted-foreground">
-            They don’t get the email. Their name and fields fill it in.
+            They don’t get the email. Their name and fields fill it in, and
+            sections show the way they get them. With nobody picked, sections
+            kept for some readers are left out.
           </p>
         </div>
       )}

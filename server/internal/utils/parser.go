@@ -54,6 +54,7 @@ var fallbackField = regexp.MustCompile(`{{\s*\w+(?:\.\w+)*\s*\|([^{}]*)}}`)
 // {{first_name|there}} prints "there" when the reader has no first name;
 // {{first_name}} prints the value as it is, even blank.
 func fillVariables(input string, variables map[string]string, mailId string, cfg *config.Config, trackLinks bool, isMarketing bool) string {
+	input = EmailSections(input, variables)
 	for _, variable := range slices.Sorted(maps.Keys(variables)) {
 		value := variables[variable]
 		re := regexp.MustCompile(`{{\s*` + regexp.QuoteMeta(variable) + `(?:\.\w+)*\s*(\|[^{}]*)?}}`)
