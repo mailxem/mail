@@ -189,6 +189,8 @@ export interface MailingList {
   updatedAt: Date;
 }
 
+export type CampaignAudience = "not_opened" | "not_clicked";
+
 export interface Campaign {
   id: string;
   name: string;
@@ -211,6 +213,14 @@ export interface Campaign {
   recurringSchedule?: string;
   cronExpression?: string;
   smtpConfigId: string;
+  replyTo?: string;
+  data?: Record<string, string>;
+  archiveNewsletterId?: string;
+  /** Emails created so far; above 0 once the campaign has sent. */
+  processed?: number;
+  /** A follow-up: sends only to readers of this campaign who did not open (or click) it. */
+  audienceCampaignId?: string;
+  audienceFilter?: CampaignAudience;
   teamId: string;
   userId: string;
   analytics?: Record<string, any>;

@@ -270,6 +270,19 @@ export function createTools(api: XemClient) {
     (a) => api.request("/marketing/campaign-drafts", "POST", a),
   );
   add(
+    "duplicate_campaign",
+    'Copy a campaign into a new DRAFT named "<name> (copy)" with the same template, list, sender, subject, Reply-To, tracking and data; this never sends or schedules mail. For a campaign that has sent, audience "not_opened" or "not_clicked" sends the copy only to readers it reached who did not open or click it. Unsubscribed and suppressed contacts are always left out.',
+    z
+      .object({
+        campaignId: id,
+        audience: z.enum(["not_opened", "not_clicked"]).optional(),
+      })
+      .strict(),
+    false,
+    ({ campaignId, ...a }) =>
+      api.request(`/marketing/campaigns/${campaignId}/duplicate`, "POST", a),
+  );
+  add(
     "get_campaign_metrics",
     "Get campaign analytics: accepted messages, opens, clicks, bounces, complaints, unsubscribes and rates. Defaults to the last 30 calendar days; to is exclusive.",
     z.object({ campaignId: id, ...period }).strict(),

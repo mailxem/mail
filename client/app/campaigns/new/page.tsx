@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm, type FieldErrors } from "react-hook-form";
@@ -50,6 +50,10 @@ import {
 import { GmailClipNotice } from "@/components/campaigns/gmail-clip-notice";
 import { BestTimeHint } from "@/components/campaigns/best-time-hint";
 import { SendTest, type TestContact } from "@/components/campaigns/send-test";
+import {
+  FollowUpNotice,
+  useCampaignCopy,
+} from "@/components/campaigns/copy-campaign";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -271,6 +275,12 @@ function NewCampaignForm() {
       trackEngagement: true,
     },
   });
+  const [copy, setCopy] = useCampaignCopy(
+    useCallback(
+      (values) => form.reset({ ...form.getValues(), ...values }),
+      [form],
+    ),
+  );
   const archives = (
     useMarketingQuery<Newsletter[]>("marketing/newsletters").data ?? []
   ).filter((n) => n.publicSlug);
@@ -389,6 +399,8 @@ function NewCampaignForm() {
           ...values,
           archiveNewsletterId: values.archiveNewsletterId || undefined,
           replyTo: values.replyTo?.trim() || undefined,
+          audienceCampaignId: copy?.audience ? copy.id : undefined,
+          audienceFilter: copy?.audience || undefined,
           stages: undefined,
           sendInStages:
             values.stages === "auto" ? undefined : values.stages === "on",
@@ -598,6 +610,10 @@ function NewCampaignForm() {
                 icon={<Users size={20} />}
                 complete={!!selectedList}
               >
+                <FollowUpNotice
+                  copy={copy}
+                  onWholeList={() => setCopy(copy && { ...copy, audience: "" })}
+                />
                 <ResourceFeedback
                   loading={listResource.isLoading}
                   error={listResource.error}

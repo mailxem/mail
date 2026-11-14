@@ -14,7 +14,7 @@ test("stdio handshake, tool discovery and invalid call stay protocol-compatible"
   try {
     await client.connect(transport);
     const { tools } = await client.listTools();
-    assert.equal(tools.length, 43);
+    assert.equal(tools.length, 44);
     const response = await client.callTool({
       name: "get_contact",
       arguments: { contactId: "invalid" },

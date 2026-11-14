@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { Button } from "./ui/button";
 import { PageHeader } from "./page-header";
 import { CreateKey } from "./api-keys/create-key";
+import { NewCampaignMenu } from "@/components/campaigns/copy-campaign";
 const pageTitles: Record<string, { title: string; description?: string }> = {
   "/": { title: "Ask Xem", description: "Plan, write, and manage your email." },
   "/campaigns": {
@@ -127,7 +128,6 @@ export function AppHeader() {
   const pathname = usePathname();
   const { title, description } = getPageTitle(pathname);
   const actions: Record<string, [string, string]> = {
-    "/campaigns": ["Create campaign", "/campaigns/new"],
     "/settings/smtp": ["Add sender", "/settings/smtp?dialog=true"],
     "/settings/imap": ["Add mailbox", "/settings/imap?dialog=true"],
   };
@@ -135,6 +135,7 @@ export function AppHeader() {
   return (
     <PageHeader heading={title} description={description}>
       {action && <Button asChild><Link href={action[1]}><Plus size={15} strokeWidth={1.65} />{action[0]}</Link></Button>}
+      {pathname === "/campaigns" && <NewCampaignMenu />}
       {pathname === "/settings/api-keys" && <CreateKey />}
     </PageHeader>
   );

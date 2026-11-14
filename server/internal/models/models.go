@@ -611,7 +611,21 @@ type Campaign struct {
 	BatchDelay        Duration                  `gorm:"not null;default:3600" json:"batchDelay"` // nanoseconds between batches
 	Timezone          string                    `gorm:"not null;default:'America/New_York'" json:"timezone"`
 	Data              datatypes.JSON            `gorm:"type:jsonb;default:'{}'" json:"data" validate:"omitempty,json"`
+
+	// AudienceCampaignID narrows a follow-up to the readers that campaign
+	// reached who did not engage as AudienceFilter says.
+	AudienceCampaignID *string        `gorm:"type:uuid" json:"audienceCampaignId,omitempty"`
+	AudienceFilter     AudienceFilter `json:"audienceFilter,omitempty"`
 }
+
+// AudienceFilter picks a follow-up's readers from an earlier campaign.
+type AudienceFilter string
+
+const (
+	AudienceNotOpened  AudienceFilter = "not_opened"
+	AudienceNotClicked AudienceFilter = "not_clicked"
+)
+
 type RateLimit struct {
 	Base
 	APIKeyID  string        `gorm:"type:uuid;not null" json:"apiKeyId"`

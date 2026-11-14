@@ -24,7 +24,8 @@ import { CampaignReport } from "@/components/campaigns/campaign-report";
 import { Status } from "@/components/marketing/shared";
 import { useMarketingQuery } from "@/lib/marketing/api";
 import type { Options } from "@/lib/marketing/types";
-import { AlertTriangle, CalendarClock, Save, Trash2 } from "lucide-react";
+import { AlertTriangle, CalendarClock, Copy, Save, Trash2 } from "lucide-react";
+import { CopyCampaignDialog } from "@/components/campaigns/copy-campaign";
 import { useQuery } from "@tanstack/react-query";
 
 const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
@@ -39,6 +40,7 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
   >({});
   const [isSaving, setIsSaving] = useState(false);
   const [loadingTemplate, setLoadingTemplate] = useState(false);
+  const [copying, setCopying] = useState(false);
 
   const {
     data: campaign,
@@ -223,6 +225,15 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
       >
         <div className="flex gap-2 items-center">
           <Status value={campaign.status} />
+          <Button variant="outline" onClick={() => setCopying(true)}>
+            <Copy className="mr-2 h-4 w-4" />
+            Copy
+          </Button>
+          <CopyCampaignDialog
+            open={copying}
+            onOpenChange={setCopying}
+            campaign={campaign}
+          />
           <Button variant="destructive" onClick={handleDelete}>
             <Trash2 className="mr-2 h-4 w-4" />
             Delete Campaign

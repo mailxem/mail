@@ -72,6 +72,9 @@ func (c *Campaign) BeforeCreate(tx *gorm.DB) error {
 	if err := c.checkArchiveNewsletter(tx, true); err != nil {
 		return err
 	}
+	if err := c.checkAudience(tx); err != nil {
+		return err
+	}
 	// AfterCreate queues the send, so a saved campaign is scheduled, not a draft.
 	// Drafts that must not send (MCP) are created with SkipHooks.
 	if c.NewsletterID == nil && (c.Status == "" || c.Status == CampaignStatusDraft) {
@@ -83,7 +86,29 @@ func (c *Campaign) BeforeCreate(tx *gorm.DB) error {
 // BeforeUpdate keeps the archive in the campaign's workspace. A newsletter
 // deleted later still passes, so status updates on old campaigns don't fail.
 func (c *Campaign) BeforeUpdate(tx *gorm.DB) error {
+	if err := c.checkAudience(tx); err != nil {
+		return err
+	}
 	return c.checkArchiveNewsletter(tx, false)
+}
+
+// checkAudience keeps a follow-up's source campaign inside its workspace.
+func (c *Campaign) checkAudience(tx *gorm.DB) error {
+	if c.AudienceCampaignID == nil || *c.AudienceCampaignID == "" {
+		c.AudienceCampaignID, c.AudienceFilter = nil, ""
+		return nil
+	}
+	if c.AudienceFilter != AudienceNotOpened && c.AudienceFilter != AudienceNotClicked {
+		return errors.New("audience filter must be not_opened or not_clicked")
+	}
+	var n int64
+	if err := tx.Session(&gorm.Session{NewDB: true}).Model(&Campaign{}).Where("id = ? AND team_id = ?", *c.AudienceCampaignID, c.TeamID).Count(&n).Error; err != nil {
+		return err
+	}
+	if n == 0 {
+		return errors.New("audience campaign not found")
+	}
+	return nil
 }
 
 // checkArchiveNewsletter keeps a campaign's archive inside its own workspace.
