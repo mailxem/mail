@@ -70,10 +70,14 @@ func (w *Worker) recipient(ctx context.Context, n models.ServiceNotice) (string,
 	address.Address = strings.ToLower(address.Address)
 	d.Name, d.Email = user.FirstName, address.Address
 	template, ok := onboardingemails.FindService(n.Kind)
-	if !ok {
+	summary := n.Kind == models.SummaryNoticeKind
+	if !ok && !summary {
 		return "", d, "", errSkip
 	}
 	link := w.BaseURL + template.Path
+	if summary {
+		link = w.BaseURL + "/dashboard"
+	}
 	if n.Kind == "password_reset" {
 		var reset models.PasswordReset
 		if err := w.DB.WithContext(ctx).Where("id = ? AND user_id = ? AND used = false AND is_deleted = false AND expires_at > ?", n.ReferenceID, user.ID, w.Now().Add(30*time.Second)).First(&reset).Error; err != nil {
@@ -92,7 +96,7 @@ func (w *Worker) recipient(ctx context.Context, n models.ServiceNotice) (string,
 			return "", d, "", errSkip
 		}
 	}
-	if !template.Account {
+	if !template.Account && !summary {
 		reasons, err := models.TopAlertReasons(w.DB.WithContext(ctx), n.TeamID, n.Kind, n.CreatedAt)
 		if err != nil {
 			return "", d, "", err
@@ -130,11 +134,20 @@ func (w *Worker) ProcessOne(ctx context.Context) error {
 	status := "SKIPPED"
 	if n.CreatedAt.After(now.Add(-48 * time.Hour)) {
 		recipient, data, link, err := w.recipient(ctx, n)
-		if err == nil {
+		var subject, html, text string
+		if err == nil && n.Kind == models.SummaryNoticeKind {
+			var email onboardingemails.SummaryEmail
+			if email, err = w.summary(ctx, n, data.Workspace); err == nil {
+				subject, html, text = email.Render(link)
+			}
+		} else if err == nil {
 			t, _ := onboardingemails.FindService(n.Kind)
-			html, text := t.Render(data, link)
+			subject = t.Subject
+			html, text = t.Render(data, link)
+		}
+		if err == nil {
 			sendCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
-			uncertain, sendErr := w.Send(sendCtx, n.Key, recipient, t.Subject, html, text)
+			uncertain, sendErr := w.Send(sendCtx, n.Key, recipient, subject, html, text)
 			cancel()
 			status = "ACCEPTED"
 			if sendErr != nil {

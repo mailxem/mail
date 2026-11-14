@@ -24,6 +24,7 @@ type User struct {
 	Provider         string           `gorm:"default:'local'" json:"provider"`          // 'local', 'google', etc.
 	ProviderID       string           `gorm:"index" json:"providerId,omitempty"`        // ID from the OAuth provider
 	ProviderData     datatypes.JSON   `gorm:"type:jsonb" json:"providerData,omitempty"` // Additional data from provider
+	SummaryEmails    bool             `gorm:"not null;default:false" json:"-"`          // an admin also gets the owner's sending summary
 }
 
 type PasswordReset struct {
