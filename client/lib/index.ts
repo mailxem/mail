@@ -222,7 +222,6 @@ export interface Campaign {
   smtpConfigId: string;
   replyTo?: string;
   data?: Record<string, string>;
-  archiveNewsletterId?: string;
   /** Emails created so far; above 0 once the campaign has sent. */
   processed?: number;
   /** A follow-up: sends only to readers of this campaign who did not open (or click) it. */
