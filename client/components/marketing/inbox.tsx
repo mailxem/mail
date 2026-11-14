@@ -189,6 +189,11 @@ function MailboxPage({ mode }: { mode: "inbox" | "outbox" }) {
     !outbox && !!configId,
   );
   const [folder, setFolder] = useState(outbox ? "SENT" : "INBOX");
+  // Alerts link straight to a status, e.g. /developer/logs/emails?folder=BOUNCED.
+  useEffect(() => {
+    const linked = new URLSearchParams(window.location.search).get("folder");
+    if (outbox && linked && /^[A-Z_]+$/.test(linked)) setFolder(linked);
+  }, [outbox]);
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<MailMessage | null>(null);

@@ -48,7 +48,7 @@ func postmasterSetup(t *testing.T) (*Service, string, *fakePostmaster) {
 	t.Helper()
 	s, team, _, _ := setup(t)
 	s.NotifyAlerts = true
-	require.NoError(t, s.DB.AutoMigrate(&models.ServiceNotice{}, &models.ServiceNoticeEvent{}, &models.User{}))
+	require.NoError(t, s.DB.AutoMigrate(&models.ServiceNotice{}, &models.ServiceNoticeEvent{}, &models.Alert{}, &models.User{}))
 	fake := fakeGoogle(t)
 	raw, _ := json.Marshal(oauth2.Token{RefreshToken: "refresh", Expiry: time.Now().Add(-time.Hour)})
 	sealed, err := crypto.SealSecret(raw, postmasterAAD)

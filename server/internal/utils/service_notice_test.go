@@ -15,7 +15,7 @@ import (
 func TestSMTPStatusAndAlertCommitTogether(t *testing.T) {
 	database, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, Logger: logger.Default.LogMode(logger.Silent)})
 	require.NoError(t, err)
-	require.NoError(t, database.AutoMigrate(&models.Email{}, &models.ServiceNotice{}, &models.ServiceNoticeEvent{}))
+	require.NoError(t, database.AutoMigrate(&models.Email{}, &models.ServiceNotice{}, &models.ServiceNoticeEvent{}, &models.Alert{}))
 	raw, err := database.DB()
 	require.NoError(t, err)
 	raw.SetMaxOpenConns(1)

@@ -20,6 +20,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"kori/internal/models"
 )
 
 // Starter ceilings apply only to automatic approval. Operators can review and
@@ -232,6 +233,7 @@ func (s *Service) RefreshDomain(ctx context.Context, team, id string) (result Do
 	if e := s.DB.WithContext(ctx).First(&d, "id = ? AND team_id = ?", id, team).Error; e != nil {
 		return d, e
 	}
+	d.wasReady = d.Ready
 	// A newer check invalidates any in-flight result before it can approve an account.
 	stage = "invalidate_check"
 	d.CheckID = uuid.NewString()
@@ -514,6 +516,12 @@ func (s *Service) persistDomain(ctx context.Context, d *Domain) error {
 		}
 		if a.Suspended {
 			d.Ready = false
+		}
+		if d.wasReady && !d.Ready && !a.Suspended {
+			// A domain that was sending stopped verifying: tell the dashboard bell.
+			if err := models.RecordAlert(tx, d.TeamID, "domain_unready", d.ID+":"+s.Now().UTC().Format("2006-01-02"), d.ID, "DNS records for "+d.Name+" no longer verify", 1, s.Now()); err != nil {
+				return err
+			}
 		}
 		r := tx.Model(&Domain{}).Where("id = ? AND team_id = ? AND token = ? AND check_id = ?", d.ID, d.TeamID, d.Token, d.CheckID).Updates(map[string]any{"ready": d.Ready, "ownership": d.Ownership, "provisioned": d.Provisioned, "identity_status": d.IdentityStatus, "dkim_status": d.DKIMStatus, "mailfrom_status": d.MAILFROMStatus, "dmarc_status": d.DMARCStatus, "dkim_tokens": d.DKIMTokens, "checked_at": d.CheckedAt, "events_version": d.EventsVersion})
 		if r.Error != nil {

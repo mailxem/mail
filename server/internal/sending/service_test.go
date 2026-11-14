@@ -67,7 +67,7 @@ func setup(t *testing.T) (*Service, string, Domain, *fakeProvider) {
 	db, e := gorm.Open(dialect, &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, Logger: logger.Default.LogMode(logger.Silent)})
 	require.NoError(t, e)
 	require.NoError(t, Migrate(db))
-	require.NoError(t, db.AutoMigrate(&models.Contact{}, &models.SuppressionList{}, &models.Email{}, &models.SMTPConfig{}, &models.Campaign{}, &models.APIKey{}))
+	require.NoError(t, db.AutoMigrate(&models.Contact{}, &models.SuppressionList{}, &models.Email{}, &models.SMTPConfig{}, &models.Campaign{}, &models.APIKey{}, &models.Alert{}))
 	raw, e := db.DB()
 	require.NoError(t, e)
 	if os.Getenv("POSTHOOT_TEST_DATABASE_URL") == "" {
@@ -294,6 +294,16 @@ func TestDomainFailsClosedAndDoesNotResurrectRevocation(t *testing.T) {
 	require.ErrorIs(t, s.persistDomain(ctx, &d), ErrDenied)
 	require.False(t, validDMARC([]string{"v=DMARC1; p=none", "v=DMARC1; p=reject"}))
 	require.False(t, validDMARC([]string{"v=DMARC1; p=invalid"}))
+}
+func TestDomainThatStopsVerifyingRaisesAlert(t *testing.T) {
+	s, team, d, _ := setup(t)
+	require.NoError(t, s.DB.Model(&Domain{}).Where("id = ?", d.ID).Update("ready", true).Error)
+	s.DNS = fakeDNS{}
+	_, e := s.RefreshDomain(context.Background(), team, d.ID)
+	require.NoError(t, e)
+	var kinds []string
+	require.NoError(t, s.DB.Model(&models.Alert{}).Where("team_id = ?", team).Pluck("kind", &kinds).Error)
+	require.Equal(t, []string{"domain_unready"}, kinds)
 }
 func TestSNSRejectsUntrustedCertificatesBeforeNetwork(t *testing.T) {
 	s := New(nil, Config{Enabled: true, Region: "us-east-1", TopicARN: "arn:aws:sns:us-east-1:123456789012:events"}, nil)

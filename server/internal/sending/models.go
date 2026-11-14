@@ -44,6 +44,7 @@ type Domain struct {
 	DKIMTokens     string     `json:"-"`
 	Ready          bool       `json:"ready"`
 	CheckedAt      *time.Time `json:"checkedAt"`
+	wasReady       bool       // as loaded, before a refresh clears it
 	SMTPConfigID   string     `json:"smtpConfigId"`
 	FromEmail      string     `json:"fromEmail"`
 	// Shared domains are <label>.<Config.SharedDomain>: no DNS for the team,

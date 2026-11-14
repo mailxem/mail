@@ -14,7 +14,7 @@ import (
 func enableAlerts(t *testing.T, s *Service) {
 	t.Helper()
 	s.NotifyAlerts = true
-	require.NoError(t, s.DB.AutoMigrate(&models.ServiceNotice{}, &models.ServiceNoticeEvent{}))
+	require.NoError(t, s.DB.AutoMigrate(&models.ServiceNotice{}, &models.ServiceNoticeEvent{}, &models.Alert{}))
 }
 func TestSendingFailureAndUnknownAlertHooks(t *testing.T) {
 	s, team, d, p := setup(t)

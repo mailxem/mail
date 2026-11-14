@@ -32,7 +32,7 @@ func fixture(t *testing.T) (*Worker, models.User) {
 	}
 	db, err := gorm.Open(dialect, &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, Logger: logger.Default.LogMode(logger.Silent)})
 	require.NoError(t, err)
-	require.NoError(t, db.AutoMigrate(&models.User{}, &models.Team{}, &models.PasswordReset{}, &models.ServiceNotice{}, &models.ServiceNoticeEvent{}))
+	require.NoError(t, db.AutoMigrate(&models.User{}, &models.Team{}, &models.PasswordReset{}, &models.ServiceNotice{}, &models.ServiceNoticeEvent{}, &models.Alert{}))
 	raw, err := db.DB()
 	require.NoError(t, err)
 	if os.Getenv("POSTHOOT_TEST_DATABASE_URL") == "" {

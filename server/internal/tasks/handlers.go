@@ -427,7 +427,8 @@ func (h *TaskHandler) failImport(ci *models.ContactImport, reason string) error 
 			return err
 		}
 		if os.Getenv("SERVICE_NOTIFICATIONS_ENABLED") != "true" {
-			return nil
+			// No email, but the dashboard bell still shows it.
+			return models.RecordAlert(tx, ci.TeamID, "import_failed", ci.ID, ci.ID, reason, 1, time.Now())
 		}
 		return models.QueueAlert(tx, ci.TeamID, "import", ci.ID, "import_failed", reason, time.Now())
 	})
@@ -615,7 +616,20 @@ func (h *TaskHandler) HandleContactImport(ctx context.Context, t *asynq.Task) er
 	}
 
 	contact_import.Status = models.ContactImportStatusCompleted
-	if err := h.db.Save(contact_import).Error; err != nil {
+	news := fmt.Sprintf("Added %d contacts", len(contacts))
+	left := 0
+	for _, n := range skipped {
+		left += n
+	}
+	if left > 0 {
+		news += fmt.Sprintf(" and left out %d rows", left)
+	}
+	if err := h.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Save(contact_import).Error; err != nil {
+			return err
+		}
+		return models.RecordAlert(tx, contact_import.TeamID, "import_finished", contact_import.ID, contact_import.ID, news, 1, time.Now())
+	}); err != nil {
 		return h.logger.Error("❌ failed to update contact import status: %w", err)
 	}
 

@@ -39,6 +39,7 @@ import {
   Workflow,
 } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
+import { AlertsBell } from "@/components/alerts-bell";
 import { UpgradeSheet } from "@/components/billing/paid-plan";
 import { XemMark } from "@/components/assistant/xem-mark";
 import { Modal } from "@/components/marketing/shared";
@@ -371,6 +372,13 @@ export function AppShell({
         </nav>
         <div className={styles.sidebarBottom}>
           {!compact && <UpgradeSheet />}
+          {!isMobile && (
+            <AlertsBell
+              className={styles.navItem}
+              label={!compact}
+              side="right"
+            />
+          )}
           <Link
             href="/onboarding"
             title={compact ? "Getting started" : undefined}
@@ -478,6 +486,7 @@ export function AppShell({
             <span aria-current="page">{currentPage}</span>
           </nav>
           <div className={styles.topbarActions}>
+            <AlertsBell className={cn(styles.searchTrigger, styles.mobileOnly)} />
             <button
               type="button"
               aria-label="Search your workspace"

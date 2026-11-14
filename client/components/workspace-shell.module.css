@@ -387,7 +387,8 @@
   padding: 0;
   overflow: hidden;
 }
-.mobileMenu {
+.mobileMenu,
+.mobileOnly {
   display: none;
 }
 .mobileSidebar {
@@ -540,7 +541,8 @@
   .sidebar {
     display: none;
   }
-  .mobileMenu {
+  .mobileMenu,
+  .mobileOnly {
     display: inline-flex;
   }
   .topbar {
