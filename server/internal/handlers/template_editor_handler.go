@@ -14,6 +14,7 @@ import (
 	"gorm.io/gorm/clause"
 	"kori/internal/marketing"
 	"kori/internal/models"
+	"kori/internal/utils"
 )
 
 // SaveTemplate serializes editor saves with ordinary CRUD updates via a row lock.
@@ -41,6 +42,10 @@ func (h *MarketingHandler) SaveTemplate(c echo.Context) error {
 	}
 	if len(in.Name) < 2 || len(in.Name) > 200 || len(in.Subject) == 0 || len(in.Subject) > 200 || strings.ContainsAny(in.Subject, "\r\n") || uuid.Validate(in.CategoryID) != nil || len(in.HTMLBody) == 0 || len(in.HTMLBody) > 1_000_000 || len(data) > 1_000_000 || err != nil || json.Unmarshal(data, &design) != nil || design.SchemaVersion < 1 || design.Body.Rows == nil {
 		return bad("A name, subject, category and editable design are required")
+	}
+	// Rows the sender limited to some readers or places are marked in the HTML.
+	if in.HTMLBody, err = utils.MarkSections(in.HTMLBody, data); err != nil {
+		return bad(err.Error())
 	}
 	id := c.Param("id")
 	if id == "" && uuid.Validate(in.CreationID) != nil {

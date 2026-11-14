@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 	"kori/internal/marketing"
 	"kori/internal/models"
+	"kori/internal/utils"
 )
 
 type archiveIssue struct {
@@ -59,7 +60,7 @@ func (h *MarketingHandler) PublicNewsletter(c echo.Context) error {
 		if r.PageTitle != nil {
 			r.Subject, r.HTMLBody = *r.PageTitle, *r.PageHTML
 		}
-		cover := marketing.EditionCover(r.HTMLBody)
+		cover := marketing.EditionCover(utils.WebSections(r.HTMLBody))
 		if r.PageCover != nil && *r.PageCover != "" {
 			cover = *r.PageCover
 		}
@@ -120,6 +121,6 @@ func (h *MarketingHandler) PublicNewsletterIssue(c echo.Context) error {
 		"issue":       archiveIssue{ID: e.ID, Subject: marketing.PublicEditionSubject(title), SentAt: e.ScheduledFor, Cover: cover},
 		"description": description,
 		"author":      marketing.Byline(author),
-		"html":        marketing.PublicEditionHTML(body),
+		"html":        marketing.PublicEditionHTML(utils.WebSections(body)),
 	})
 }
