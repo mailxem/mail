@@ -54,6 +54,9 @@ func Recipients(db *gorm.DB, c *models.Campaign) (old, fresh *gorm.DB) {
 		if c.AudienceCampaignID != nil {
 			q = followUp(db, q, c)
 		}
+		if c.SegmentID != nil {
+			q = q.Where("id IN (?)", db.Session(&gorm.Session{NewDB: true}).Table("segment_contacts").Select("contact_id").Where("segment_id = ?", *c.SegmentID))
+		}
 		return q.Session(&gorm.Session{})
 	}
 	return base().Where("LOWER(email) IN (?)", emailedBefore(db, c)), base().Where("LOWER(email) NOT IN (?)", emailedBefore(db, c))

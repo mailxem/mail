@@ -22,7 +22,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import type { Campaign } from "@/lib";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ClickMap } from "./click-map";
+import { CampaignRecipients, CampaignTimeline } from "./recipients-report";
 
 export type CampaignReportData = {
   delivery: {
@@ -131,67 +133,81 @@ export function CampaignReport({ campaign }: { campaign: Campaign }) {
 
       {r.stages && <Stages campaign={campaign} r={r} />}
 
-      <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Top links</CardTitle>
-            <CardDescription>People who clicked each link.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {e.clickedLinks?.length ? (
-              <ul className="divide-y">
-                {[...e.clickedLinks]
-                  .sort((a, b) => b.uniqueClicks - a.uniqueClicks)
-                  .slice(0, 8)
-                  .map((l) => (
-                    <li
-                      key={l.url}
-                      className="flex items-center gap-3 py-2.5 text-sm"
-                    >
-                      <Link2 className="size-4 shrink-0 text-muted-foreground" />
-                      <a
-                        href={l.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="min-w-0 flex-1 truncate hover:underline"
-                      >
-                        {l.url.replace(/^https?:\/\//, "")}
-                      </a>
-                      <span className="tabular-nums font-medium">
-                        {l.uniqueClicks}
-                      </span>
-                      <span className="w-12 text-right tabular-nums text-xs text-muted-foreground">
-                        {pct(l.clickRate)}
-                      </span>
-                    </li>
-                  ))}
-              </ul>
-            ) : (
-              <p className="py-6 text-center text-sm text-muted-foreground">
-                No clicks yet.
+      <Tabs defaultValue="timeline">
+        <TabsList>
+          <TabsTrigger value="timeline">Timeline</TabsTrigger>
+          <TabsTrigger value="links">Links</TabsTrigger>
+          <TabsTrigger value="recipients">Recipients</TabsTrigger>
+        </TabsList>
+        <TabsContent value="timeline" className="mt-4 space-y-6">
+          <CampaignTimeline campaign={campaign} />
+          <Card>
+            <CardHeader>
+              <CardTitle>Devices</CardTitle>
+              <CardDescription>
+                Where people opened and clicked.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Bars data={e.deviceBreakdown || {}} />
+              <p className="border-t pt-3 text-xs leading-relaxed text-muted-foreground">
+                {machines > 0
+                  ? `Left out of these numbers: ${count(e.proxyOpens, "privacy-proxy open")}, ${count(e.botOpens, "bot open")} and ${count(e.botClicks, "link-scanner click")}.`
+                  : "Bot opens and link-scanner clicks are left out of these numbers."}
+                {e.untracked > 0 &&
+                  ` ${count(e.untracked, "email was", "emails were")} sent without tracking.`}
               </p>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Devices</CardTitle>
-            <CardDescription>Where people opened and clicked.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Bars data={e.deviceBreakdown || {}} />
-            <p className="border-t pt-3 text-xs leading-relaxed text-muted-foreground">
-              {machines > 0
-                ? `Left out of these numbers: ${count(e.proxyOpens, "privacy-proxy open")}, ${count(e.botOpens, "bot open")} and ${count(e.botClicks, "link-scanner click")}.`
-                : "Bot opens and link-scanner clicks are left out of these numbers."}
-              {e.untracked > 0 &&
-                ` ${count(e.untracked, "email was", "emails were")} sent without tracking.`}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <SentClickMap campaign={campaign} links={e.clickedLinks || []} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="links" className="mt-4 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Top links</CardTitle>
+              <CardDescription>People who clicked each link.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {e.clickedLinks?.length ? (
+                <ul className="divide-y">
+                  {[...e.clickedLinks]
+                    .sort((a, b) => b.uniqueClicks - a.uniqueClicks)
+                    .slice(0, 8)
+                    .map((l) => (
+                      <li
+                        key={l.url}
+                        className="flex items-center gap-3 py-2.5 text-sm"
+                      >
+                        <Link2 className="size-4 shrink-0 text-muted-foreground" />
+                        <a
+                          href={l.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="min-w-0 flex-1 truncate hover:underline"
+                        >
+                          {l.url.replace(/^https?:\/\//, "")}
+                        </a>
+                        <span className="tabular-nums font-medium">
+                          {l.uniqueClicks}
+                        </span>
+                        <span className="w-12 text-right tabular-nums text-xs text-muted-foreground">
+                          {pct(l.clickRate)}
+                        </span>
+                      </li>
+                    ))}
+                </ul>
+              ) : (
+                <p className="py-6 text-center text-sm text-muted-foreground">
+                  No clicks yet.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+          <SentClickMap campaign={campaign} links={e.clickedLinks || []} />
+        </TabsContent>
+        <TabsContent value="recipients" className="mt-4">
+          <CampaignRecipients campaign={campaign} />
+        </TabsContent>
+      </Tabs>
 
       <Link
         href={`/analytics/campaigns?campaignId=${campaign.id}`}
