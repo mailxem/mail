@@ -48,6 +48,9 @@ import {
   useTemplatePreviewHtml,
 } from "@/components/campaigns/phone-preview";
 import { GmailClipNotice } from "@/components/campaigns/gmail-clip-notice";
+import { ContentChecks } from "@/components/campaigns/content-checks";
+import { FieldFallbacks } from "@/components/campaigns/field-fallbacks";
+import { FieldSuggestInput } from "@/components/campaigns/field-suggest-input";
 import { BestTimeHint } from "@/components/campaigns/best-time-hint";
 import { SendTest, type TestContact } from "@/components/campaigns/send-test";
 import {
@@ -884,14 +887,18 @@ function NewCampaignForm() {
                     <FormItem>
                       <FormLabel>Subject line</FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
+                        <FieldSuggestInput
+                          name={field.name}
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          onBlur={field.onBlur}
                           placeholder="Give your readers a reason to open"
                           className="h-11"
                         />
                       </FormControl>
                       <FormDescription>
-                        Keep it clear, personal, and true to your message.
+                        Keep it clear, personal, and true to your message. Type{" "}
+                        {"{{"} to add a contact field.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -1489,7 +1496,16 @@ function NewCampaignForm() {
           <p className="text-xs text-muted-foreground">
             Your next great connection starts with an email.
           </p>
-          <GmailClipNotice html={templateHtml} className="max-w-md" />
+          <div className="w-full max-w-md space-y-2">
+            <GmailClipNotice html={templateHtml} />
+            <ContentChecks subject={draft.subject} html={templateHtml} />
+            <FieldFallbacks
+              listId={draft.listId}
+              subject={draft.subject}
+              html={templateHtml}
+              data={draft.data}
+            />
+          </div>
           <Button type="submit" disabled={saving || !team?.id}>
             {saving ? (
               <Loader2 className="size-4 animate-spin" />

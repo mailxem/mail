@@ -44,15 +44,30 @@ func ReplaceVariables(input string, variables map[string]string, mailId string, 
 	return base64.EncodeToBase64(fillVariables(input, variables, mailId, cfg, trackLinks, isMarketing))
 }
 
+// fallbackField is {{field|fallback}} for any field; the fallback is whatever
+// sits between the bar and the closing braces, trimmed.
+var fallbackField = regexp.MustCompile(`{{\s*\w+(?:\.\w+)*\s*\|([^{}]*)}}`)
+
 // fillVariables is ReplaceVariables without the base64. Variables go in key
 // order, so a value that itself holds a {{variable}} comes out the same every
 // time: bulk emails are rendered again when sent and when shown.
+// {{first_name|there}} prints "there" when the reader has no first name;
+// {{first_name}} prints the value as it is, even blank.
 func fillVariables(input string, variables map[string]string, mailId string, cfg *config.Config, trackLinks bool, isMarketing bool) string {
 	for _, variable := range slices.Sorted(maps.Keys(variables)) {
 		value := variables[variable]
-		re := regexp.MustCompile(`{{\s*` + regexp.QuoteMeta(variable) + `(?:\.\w+)*\s*}}`)
-		input = re.ReplaceAllStringFunc(input, func(string) string { return value })
+		re := regexp.MustCompile(`{{\s*` + regexp.QuoteMeta(variable) + `(?:\.\w+)*\s*(\|[^{}]*)?}}`)
+		input = re.ReplaceAllStringFunc(input, func(match string) string {
+			if fallback := re.FindStringSubmatch(match)[1]; fallback != "" && strings.TrimSpace(value) == "" {
+				return strings.TrimSpace(fallback[1:])
+			}
+			return value
+		})
 	}
+	// A field this reader has no value for at all.
+	input = fallbackField.ReplaceAllStringFunc(input, func(match string) string {
+		return strings.TrimSpace(fallbackField.FindStringSubmatch(match)[1])
+	})
 
 	if trackLinks || isMarketing {
 		input = ReplaceLinksWithRedirect(input, mailId, cfg, isMarketing, trackLinks)
