@@ -14,7 +14,7 @@ export function ContactsHeader() {
       <div className="flex gap-4 items-center">
         <div className="relative">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search contacts..." className="pl-8 bg-card" />
+          <Input placeholder="Name, company or @domain.com…" className="pl-8 bg-card" />
         </div>
         <Button>
           <Plus className="mr-2 h-4 w-4" /> Add Contact

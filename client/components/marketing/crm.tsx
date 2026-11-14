@@ -130,7 +130,8 @@ export function CRMPage() {
             <input
               aria-label="Search contacts"
               className={workspaceClassName("product-input !pl-9 !w-64")}
-              placeholder="Search people or companies…"
+              placeholder="Name, company or @domain.com…"
+              title="Search any part of a name, company or address. Use * for any characters, like jane*@example.com."
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);

@@ -39,6 +39,13 @@ type CRMPage struct {
 	Summary CRMCounts    `json:"summary"`
 }
 
+// contactSearchPattern matches search anywhere, so "@example.com" finds a
+// domain. Only * is a wildcard; % and _ are searched as literal text.
+func contactSearchPattern(search string) string {
+	escaped := strings.NewReplacer("!", "!!", "%", "!%", "_", "!_", "*", "%").Replace(strings.ToLower(search))
+	return "%" + escaped + "%"
+}
+
 // CRMContacts counts the filtered collection before fetching a page. The summary
 // covers the workspace, so its values do not change as the user changes pages.
 func (h *MarketingHandler) CRMContacts(c echo.Context) error {
@@ -90,9 +97,7 @@ func (h *MarketingHandler) CRMContacts(c echo.Context) error {
 			filtered = filtered.Where("COALESCE(NULLIF(contacts.lifecycle_stage, ''), 'LEAD') = ?", stage)
 		}
 		if search != "" {
-			// Search literal text, including % and _, rather than accepting SQL wildcards.
-			escaped := strings.NewReplacer("!", "!!", "%", "!%", "_", "!_").Replace(strings.ToLower(search))
-			filtered = filtered.Where("LOWER(COALESCE(contacts.first_name, '') || ' ' || COALESCE(contacts.last_name, '') || ' ' || contacts.email || ' ' || COALESCE(contacts.company, '')) LIKE ? ESCAPE '!'", "%"+escaped+"%")
+			filtered = filtered.Where("LOWER(COALESCE(contacts.first_name, '') || ' ' || COALESCE(contacts.last_name, '') || ' ' || contacts.email || ' ' || COALESCE(contacts.company, '')) LIKE ? ESCAPE '!'", contactSearchPattern(search))
 		}
 		if err := filtered.Count(&result.Total).Error; err != nil {
 			return err
