@@ -6,6 +6,7 @@ import { Bell, Clock, CreditCard, Globe, Palette, PenLine, User } from "lucide-r
 import { ProfileSettings } from "./profile-settings";
 import { BrandingSettings, TrackingConsentSettings } from "./branding-settings";
 import { SendingRulesSettings } from "./sending-rules-settings";
+import { SummaryEmailSettings } from "./summary-email-settings";
 import { CustomDomains } from "./custom-domains";
 import { AuthorsSettings } from "@/components/marketing/authors";
 import dynamic from "next/dynamic";
@@ -48,18 +49,7 @@ export function SettingsTabs() {
       <TabsContent value="authors" className={styles.content}><AuthorsSettings /></TabsContent>
       <TabsContent value="domains" className={styles.content}><CustomDomains /></TabsContent>
       <TabsContent value="sending-rules" className={styles.content}><SendingRulesSettings /></TabsContent>
-      <TabsContent value="notifications" className={styles.content}>
-        <section className={styles.section} aria-labelledby="notification-settings-heading">
-          <div className={styles.sectionIntro}>
-            <h2 id="notification-settings-heading">Notifications</h2>
-            <p>Account and campaign updates.</p>
-          </div>
-          <div className={styles.unavailable}>
-            <Bell size={18} strokeWidth={1.65} />
-            <div><h3>Preferences are not available yet</h3><p>Campaign delivery and engagement are available in Analytics. Delivery failures are recorded in Outbox.</p></div>
-          </div>
-        </section>
-      </TabsContent>
+      <TabsContent value="notifications" className={styles.content}><SummaryEmailSettings /></TabsContent>
       <TabsContent value="billing" className={styles.content}><BillingWrapper /></TabsContent>
     </Tabs>
   );

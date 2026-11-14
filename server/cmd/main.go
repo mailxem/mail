@@ -269,6 +269,11 @@ func main() {
 	if managedConfig.Enabled {
 		taskHandler.PostmasterSync = managed.SyncPostmaster
 	}
+	if os.Getenv("SERVICE_NOTIFICATIONS_ENABLED") == "true" {
+		taskHandler.QueueSummaries = func(ctx context.Context) error {
+			return notifications.QueueSummaries(ctx, db_instance, time.Now())
+		}
+	}
 
 	// Initialize task client for automation engine
 	taskClient := tasks.NewTaskClient(cfg.Redis.Addr, cfg.Redis.Username, cfg.Redis.Password, cfg.Redis.DB, cfg.Redis.UseTLS)

@@ -67,6 +67,9 @@ func (s *Scheduler) registerTasks() error {
 	if _, err := s.scheduler.Register("@every 6h", asynq.NewTask(TaskTypePostmasterTick, nil), asynq.Queue(QueueLow), asynq.Unique(time.Hour)); err != nil {
 		return err
 	}
+	if _, err := s.scheduler.Register("@every 15m", asynq.NewTask(TaskTypeSummaryTick, nil), asynq.Queue(QueueLow), asynq.Unique(14*time.Minute)); err != nil {
+		return err
+	}
 	if _, err := s.scheduler.Register("@every 5m", asynq.NewTask(TaskTypeAutomationSegmentTick, nil), asynq.Queue(QueueDefault), asynq.Unique(4*time.Minute)); err != nil {
 		return err
 	}

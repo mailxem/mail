@@ -40,6 +40,8 @@ type TaskHandler struct {
 	engine         interface{} // Will be set to *automation.Engine to avoid circular dependency
 	// PostmasterSync reads Gmail spam rates; set by main when managed sending is on.
 	PostmasterSync func(context.Context) error
+	// QueueSummaries queues due summary emails; set by main when service emails are on.
+	QueueSummaries func(context.Context) error
 	triggers       AutomationTriggers
 }
 
