@@ -89,6 +89,7 @@ For local development, build directly with `docker build -t xem-mcp:local .`, th
 | `create_campaign`, `duplicate_campaign`, `get_campaigns`, `get_campaign` | Safe campaign drafts (new, or copied from a past campaign with an optional "didn't open" or "didn't click" audience) and status lookup |
 | `get_campaign_metrics`, `get_audience_metrics` | Opens, clicks, accepted messages, bounces, unsubscribes and rates |
 | `create_newsletter`, `get_newsletters` | Reusable draft newsletters; listing capped at 200 |
+| `get_authors`, `create_author`, `assign_author` | Authors who sign campaigns and newsletter issues; replies go to the author unless a campaign sets its own Reply-To |
 | `schedule_newsletter`, `pause_newsletter` | Activate delivery on an explicit future schedule, or pause future editions |
 | `get_newsletter_metrics` | Delivery counts for the latest 50 editions; use edition IDs for campaign engagement metrics |
 | `send_email` | Queue an authorized individual email |

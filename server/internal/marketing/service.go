@@ -159,7 +159,7 @@ func (s *Service) MaterializeDue(ctx context.Context, now time.Time) error {
 				return err
 			}
 			cutoff := now
-			campaign := models.Campaign{NewsletterID: &n.ID, Name: n.Name, TeamID: n.TeamID, TemplateID: n.TemplateID, ListID: n.ListID, SMTPConfigID: n.SMTPConfigID, Status: models.CampaignStatusScheduled, Schedule: models.CampaignScheduleOneTime, ScheduledFor: *n.NextSendAt, HTMLBody: body, Subject: n.Subject, PostalAddress: n.PostalAddress, TrackEngagement: n.TrackEngagement, AudienceCutoff: &cutoff, BatchSize: 100, Timezone: n.Timezone}
+			campaign := models.Campaign{NewsletterID: &n.ID, Name: n.Name, TeamID: n.TeamID, TemplateID: n.TemplateID, ListID: n.ListID, SMTPConfigID: n.SMTPConfigID, Status: models.CampaignStatusScheduled, Schedule: models.CampaignScheduleOneTime, ScheduledFor: *n.NextSendAt, HTMLBody: body, Subject: n.Subject, PostalAddress: n.PostalAddress, TrackEngagement: n.TrackEngagement, AuthorID: n.AuthorID, AudienceCutoff: &cutoff, BatchSize: 100, Timezone: n.Timezone}
 			if err := tx.Omit(clause.Associations).Create(&campaign).Error; err != nil {
 				return err
 			}
@@ -261,11 +261,16 @@ func (s *Service) PrepareEdition(ctx context.Context, id string) error {
 			}
 		}
 		prepared := 0
-		var contentID string
+		var contentID, replyTo string
 		if len(contacts) > 0 {
+			author, err := CampaignAuthor(tx, c.TeamID, c.AuthorID)
+			if err != nil {
+				return err
+			}
+			replyTo = ReplyTo(c.ReplyTo, author)
 			// The edition is stored once; utils.RenderEmail adds each reader's
 			// fields, the footer, the badge and tracking when sent or shown.
-			id, err := utils.StoreEmailContent(tx, models.EmailContent{TeamID: c.TeamID, Kind: utils.ContentNewsletter, HTML: c.HTMLBody, Subject: c.Subject, PostalAddress: c.PostalAddress, Badge: badge})
+			id, err := utils.StoreEmailContent(tx, models.EmailContent{TeamID: c.TeamID, Kind: utils.ContentNewsletter, HTML: WithByline(c.HTMLBody, author), Subject: c.Subject, PostalAddress: c.PostalAddress, Badge: badge})
 			if err != nil {
 				return err
 			}
@@ -281,7 +286,7 @@ func (s *Service) PrepareEdition(ctx context.Context, id string) error {
 				return err
 			}
 			tracking := models.ShouldTrack(tx, c.TeamID, contact.Email, c.TrackEngagement, true)
-			email := models.Email{Base: models.Base{ID: messageID}, ClickTrackingEnabled: &tracking, DeliveryKey: &key, UnsubscribeURL: unsub, From: sender.FromEmail, To: contact.Email, Subject: utils.Personalize(c.Subject, values), ContentID: &contentID, Data: data, Status: models.EmailStatusPending, TeamID: c.TeamID, ContactID: contact.ID, TemplateID: c.TemplateID, SMTPConfigID: c.SMTPConfigID, CategoryID: tpl.CategoryID, CampaignID: c.ID}
+			email := models.Email{Base: models.Base{ID: messageID}, ClickTrackingEnabled: &tracking, DeliveryKey: &key, UnsubscribeURL: unsub, From: sender.FromEmail, To: contact.Email, Subject: utils.Personalize(c.Subject, values), ContentID: &contentID, Data: data, Status: models.EmailStatusPending, TeamID: c.TeamID, ContactID: contact.ID, TemplateID: c.TemplateID, SMTPConfigID: c.SMTPConfigID, CategoryID: tpl.CategoryID, CampaignID: c.ID, ReplyTo: replyTo}
 			created := tx.Omit(clause.Associations).Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "delivery_key"}}, DoNothing: true}).Create(&email)
 			if created.Error != nil {
 				return created.Error

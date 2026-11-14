@@ -44,6 +44,10 @@ type Edition = {
   theme: string;
   logo: string;
   issue: Issue;
+  /** Set when the team edited the issue's web page. */
+  description?: string;
+  /** The author's byline, when they show it on the web. */
+  author?: { name: string; photo: string } | null;
   html: string;
 };
 /** api is the API origin; the page's tracker posts views and clicks there. */
@@ -65,7 +69,7 @@ const XEM_HOST =
 function page(
   site: Site,
   theme: string,
-  head: { title: string; description: string; path: string },
+  head: { title: string; description: string; path: string; image?: string },
   body: string,
 ) {
   const nonce = crypto.randomUUID().replace(/-/g, "");
@@ -73,7 +77,7 @@ function page(
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(head.title)}</title><meta name="description" content="${esc(head.description)}">
 <link rel="canonical" href="${esc(url)}"><link rel="alternate" type="application/rss+xml" href="${esc(site.base)}/feed.xml">
-<meta property="og:title" content="${esc(head.title)}"><meta property="og:description" content="${esc(head.description)}"><meta property="og:url" content="${esc(url)}"><meta property="og:type" content="website">
+<meta property="og:title" content="${esc(head.title)}"><meta property="og:description" content="${esc(head.description)}"><meta property="og:url" content="${esc(url)}"><meta property="og:type" content="website">${head.image?.startsWith("https://") ? `<meta property="og:image" content="${esc(head.image)}">` : ""}
 <style>${stylesheet(theme)}</style><script nonce="${nonce}">document.documentElement.classList.add("js")</script></head><body class="t-${esc(theme)}${grainy(theme) ? " grain" : ""}">${body.replace(/<script>/g, `<script nonce="${nonce}">`)}<script nonce="${nonce}">${REVEAL}</script><script nonce="${nonce}">${tracker(site)}</script></body></html>`;
   return new Response(html, {
     headers: {
@@ -160,15 +164,19 @@ async function issue(env: Env, request: Request, site: Site, id: string) {
       status: 503,
     });
   const e: Edition = await res.json();
+  const byline = e.author
+    ? `<p class="byline">${e.author.photo?.startsWith("https://") ? `<img src="${esc(e.author.photo)}" alt="">` : ""}<span>By ${esc(e.author.name)}</span></p>`
+    : "";
   return page(
     site,
     e.theme,
     {
       title: `${e.issue.subject} · ${e.newsletter}`,
-      description: `An issue of ${e.newsletter}.`,
+      description: e.description || `An issue of ${e.newsletter}.`,
       path: `/${id}`,
+      image: e.issue.cover,
     },
-    `${bar(site.base, e.newsletter, e.logo)}<main class="reader">${backLink(site.base)}<time class="meta mono" datetime="${esc(e.issue.sentAt)}">${day(e.issue.sentAt)}</time><h1>${esc(e.issue.subject)}</h1>
+    `${bar(site.base, e.newsletter, e.logo)}<main class="reader">${backLink(site.base)}<time class="meta mono" datetime="${esc(e.issue.sentAt)}">${day(e.issue.sentAt)}</time><h1>${esc(e.issue.subject)}</h1>${byline}
 <iframe title="${esc(e.issue.subject)}" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" referrerpolicy="no-referrer" srcdoc="${esc(FRAME_POLICY + e.html)}"></iframe></main>
 <section class="end"><h2>Get the next issue in your inbox.</h2>${subscribe(site.base, { readers: 0, cadence: "" })}</section>${foot(site.base, e.newsletter)}${FIT}`,
   );

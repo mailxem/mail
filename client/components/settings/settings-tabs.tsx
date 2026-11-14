@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bell, Clock, CreditCard, Globe, Palette, User } from "lucide-react";
+import { Bell, Clock, CreditCard, Globe, Palette, PenLine, User } from "lucide-react";
 import { ProfileSettings } from "./profile-settings";
 import { BrandingSettings, TrackingConsentSettings } from "./branding-settings";
 import { SendingRulesSettings } from "./sending-rules-settings";
 import { CustomDomains } from "./custom-domains";
+import { AuthorsSettings } from "@/components/marketing/authors";
 import dynamic from "next/dynamic";
 import styles from "./settings-tabs.module.css";
 
@@ -18,6 +19,7 @@ const BillingWrapper = dynamic(
 const sections = [
   { id: "profile", title: "Profile", icon: User },
   { id: "branding", title: "Branding", icon: Palette },
+  { id: "authors", title: "Authors", icon: PenLine },
   { id: "domains", title: "Domains", icon: Globe },
   { id: "sending-rules", title: "Sending rules", icon: Clock },
   { id: "notifications", title: "Notifications", icon: Bell },
@@ -43,6 +45,7 @@ export function SettingsTabs() {
         </section>
       </TabsContent>
       <TabsContent value="branding" className={styles.content}><BrandingSettings /><TrackingConsentSettings /></TabsContent>
+      <TabsContent value="authors" className={styles.content}><AuthorsSettings /></TabsContent>
       <TabsContent value="domains" className={styles.content}><CustomDomains /></TabsContent>
       <TabsContent value="sending-rules" className={styles.content}><SendingRulesSettings /></TabsContent>
       <TabsContent value="notifications" className={styles.content}>

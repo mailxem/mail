@@ -11,7 +11,7 @@ const api = new XemClient({ apiKey: "secret" }, async (url, options) => {
 });
 const tools = createTools(api);
 test("tool schemas do not expose credentials or workspace overrides", () => {
-  assert.equal(tools.size, 44);
+  assert.equal(tools.size, 49);
   for (const { tool } of tools.values()) {
     assert.equal(tool.inputSchema.type, "object");
     assert.equal(tool.inputSchema.additionalProperties, false);
@@ -155,4 +155,19 @@ test("tag replacement and dispatch resumption are annotated as destructive", () 
     assert.equal(tools.get(name).tool.annotations.readOnlyHint, false);
     assert.equal(tools.get(name).tool.annotations.destructiveHint, true);
   }
+});
+test("template sections are read and replaced by row ID", async () => {
+  await tools.get("get_template_sections").execute({ templateId: id, listId: id });
+  assert.ok(calls.at(-1).url.endsWith(`/marketing/templates/${id}/sections?listId=${id}`));
+  const sections = { u_row_2: { name: "Offer", audience: "only", tags: ["vip"], show: "email" } };
+  await tools.get("set_template_sections").execute({ templateId: id, sections });
+  assert.equal(calls.at(-1).options.method, "PUT");
+  assert.deepEqual(JSON.parse(calls.at(-1).options.body), { sections });
+  const before = calls.length;
+  for (const rule of [{ audience: "only" }, { tags: ["vip"] }, { show: "everywhere" }])
+    await assert.rejects(
+      tools.get("set_template_sections").execute({ templateId: id, sections: { u_row_1: rule } }),
+      /Invalid arguments/,
+    );
+  assert.equal(calls.length, before);
 });

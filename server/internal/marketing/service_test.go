@@ -44,7 +44,7 @@ func testDB(t *testing.T) *gorm.DB {
 	}
 	db, err := gorm.Open(dialect, &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true, Logger: logger.Default.LogMode(logger.Silent)})
 	require.NoError(t, err)
-	require.NoError(t, db.AutoMigrate(&models.Team{}, &models.MailingList{}, &models.Contact{}, &models.Template{}, &models.SMTPConfig{}, &models.Campaign{}, &models.Email{}, &models.EmailContent{}, &models.Newsletter{}, &models.ContactNote{}, &models.Form{}, &models.FormField{}, &models.FormSubmission{}, &models.FormReceipt{}, &models.FormRevision{}, &models.FormProgress{}, &models.FormAnalyticsEvent{}, &models.FormCompletionEvent{}, &models.SuppressionList{}, &models.File{}, &models.EmailCategory{}, &models.AutomationNodeEdge{}, &models.Automation{}, &models.TeamSendTimeDefaults{}))
+	require.NoError(t, db.AutoMigrate(&models.Team{}, &models.MailingList{}, &models.Contact{}, &models.Template{}, &models.SMTPConfig{}, &models.Campaign{}, &models.Email{}, &models.EmailContent{}, &models.Newsletter{}, &models.ContactNote{}, &models.Form{}, &models.FormField{}, &models.FormSubmission{}, &models.FormReceipt{}, &models.FormRevision{}, &models.FormProgress{}, &models.FormAnalyticsEvent{}, &models.FormCompletionEvent{}, &models.SuppressionList{}, &models.File{}, &models.EmailCategory{}, &models.AutomationNodeEdge{}, &models.Automation{}, &models.TeamSendTimeDefaults{}, &models.Author{}))
 	raw, err := db.DB()
 	require.NoError(t, err)
 	raw.SetMaxOpenConns(1)

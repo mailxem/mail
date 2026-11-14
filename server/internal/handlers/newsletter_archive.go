@@ -46,14 +46,24 @@ func (h *MarketingHandler) PublicNewsletter(c echo.Context) error {
 		Subject      string
 		ScheduledFor time.Time
 		HTMLBody     string
+		// An edited web page's title and card image, if any.
+		PageTitle, PageCover, PageHTML *string
 	}
-	if err := h.sentEditions(c, n).Select("id, subject, scheduled_for, html_body").
+	if err := h.sentEditions(c, n).Select("campaigns.id, subject, scheduled_for, html_body, issue_pages.title AS page_title, issue_pages.cover AS page_cover, issue_pages.html AS page_html").
+		Joins("LEFT JOIN issue_pages ON issue_pages.campaign_id = campaigns.id").
 		Order("scheduled_for DESC").Limit(200).Scan(&rows).Error; err != nil {
 		return err
 	}
 	issues := make([]archiveIssue, 0, len(rows))
 	for _, r := range rows {
-		issues = append(issues, archiveIssue{ID: r.ID, Subject: marketing.PublicEditionSubject(r.Subject), SentAt: r.ScheduledFor, Cover: marketing.EditionCover(r.HTMLBody)})
+		if r.PageTitle != nil {
+			r.Subject, r.HTMLBody = *r.PageTitle, *r.PageHTML
+		}
+		cover := marketing.EditionCover(r.HTMLBody)
+		if r.PageCover != nil && *r.PageCover != "" {
+			cover = *r.PageCover
+		}
+		issues = append(issues, archiveIssue{ID: r.ID, Subject: marketing.PublicEditionSubject(r.Subject), SentAt: r.ScheduledFor, Cover: cover})
 	}
 	var readers int64
 	if err := h.service.DB.WithContext(c.Request().Context()).Model(&models.Contact{}).
@@ -85,10 +95,31 @@ func (h *MarketingHandler) PublicNewsletterIssue(c echo.Context) error {
 		}
 		return err
 	}
+	db := h.service.DB.WithContext(c.Request().Context())
+	// An edited web page replaces the emailed subject and body here only.
+	title, description, body := e.Subject, "", e.HTMLBody
+	cover := marketing.EditionCover(body)
+	page, err := issuePage(db, e.ID)
+	if err != nil {
+		return err
+	}
+	if page != nil {
+		title, description, body = page.Title, page.Description, page.HTML
+		cover = page.Cover
+		if cover == "" {
+			cover = marketing.EditionCover(body)
+		}
+	}
+	author, err := marketing.CampaignAuthor(db, e.TeamID, e.AuthorID)
+	if err != nil {
+		return err
+	}
 	c.Response().Header().Set("Cache-Control", "public, max-age=300")
 	return c.JSON(200, map[string]interface{}{
 		"newsletter": n.Name, "slug": *n.PublicSlug, "theme": n.SiteTheme, "logo": n.SiteLogoURL,
-		"issue": archiveIssue{ID: e.ID, Subject: marketing.PublicEditionSubject(e.Subject), SentAt: e.ScheduledFor},
-		"html":  marketing.PublicEditionHTML(e.HTMLBody),
+		"issue":       archiveIssue{ID: e.ID, Subject: marketing.PublicEditionSubject(title), SentAt: e.ScheduledFor, Cover: cover},
+		"description": description,
+		"author":      marketing.Byline(author),
+		"html":        marketing.PublicEditionHTML(body),
 	})
 }
