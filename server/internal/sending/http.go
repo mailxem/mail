@@ -53,6 +53,9 @@ func httpError(e error) error {
 	if errors.Is(e, ErrTaken) || errors.Is(e, ErrHasShared) {
 		return echo.NewHTTPError(409, e.Error())
 	}
+	if taken := (DomainTakenError{}); errors.As(e, &taken) {
+		return echo.NewHTTPError(409, taken.Error())
+	}
 	if errors.Is(e, ErrSuppressed) {
 		return echo.NewHTTPError(422, e.Error())
 	}

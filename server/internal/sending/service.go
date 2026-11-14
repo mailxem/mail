@@ -36,6 +36,14 @@ var ErrSuppressed = errors.New("recipient is suppressed or unsubscribed")
 var ErrInvalidLabel = errors.New("use 3 to 40 lowercase letters, numbers or single hyphens, not a reserved word")
 var ErrTaken = errors.New("that address is taken; try another name")
 var ErrHasShared = errors.New("this workspace already has a Xem address")
+
+// DomainTakenError means another workspace already added the domain. It never
+// says which one.
+type DomainTakenError struct{ Name string }
+
+func (e DomainTakenError) Error() string {
+	return fmt.Sprintf("%s is already used by another Xem workspace. Add a subdomain instead, like mail.%s, or ask that workspace to remove it.", e.Name, e.Name)
+}
 var domainPattern = regexp.MustCompile(`^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$`)
 
 func validDomain(s string) bool { return len(s) <= 253 && domainPattern.MatchString(s) }
@@ -122,6 +130,13 @@ func (s *Service) AddDomain(ctx context.Context, team, name string) (Domain, err
 		var a Account
 		if e := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&a, "team_id = ?", team).Error; e != nil {
 			return e
+		}
+		var taken int64
+		if e := tx.Model(&Domain{}).Where("name = ? AND team_id <> ?", name, team).Count(&taken).Error; e != nil {
+			return e
+		}
+		if taken > 0 {
+			return DomainTakenError{name}
 		}
 		var count int64
 		if e := tx.Model(&Domain{}).Where("team_id = ?", team).Count(&count).Error; e != nil {
