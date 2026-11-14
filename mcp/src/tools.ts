@@ -349,6 +349,53 @@ export function createTools(api: XemClient) {
     (a) => api.request(`/marketing/newsletters/${a.newsletterId}/editions`),
   );
   add(
+    "get_authors",
+    "List the workspace's authors: name, photo, reply email, where their byline shows, and which one is the default.",
+    z.object({}).strict(),
+    true,
+    () => api.request("/marketing/authors"),
+  );
+  add(
+    "create_author",
+    "Add an author who signs campaigns and newsletter issues. Readers see their byline, and replies go to their email unless a campaign sets its own Reply-To. isDefault makes them sign anything that picks no author.",
+    z
+      .object({
+        name: z.string().trim().min(1).max(80),
+        email: z.string().email().optional(),
+        photoUrl: z.string().url().startsWith("https://").max(500).optional(),
+        bylineEmail: z.boolean().default(true),
+        bylineWeb: z.boolean().default(true),
+        isDefault: z.boolean().default(false),
+      })
+      .strict(),
+    false,
+    (a) => api.request("/marketing/authors", "POST", a),
+  );
+  add(
+    "assign_author",
+    "Set the author of a campaign or a newsletter (give exactly one ID). Omit authorId to go back to the workspace's default author. On a sent campaign this changes the web page byline only.",
+    z
+      .object({
+        authorId: id.optional(),
+        campaignId: id.optional(),
+        newsletterId: id.optional(),
+      })
+      .strict()
+      .refine(
+        (a) => !a.campaignId !== !a.newsletterId,
+        "Give either campaignId or newsletterId",
+      ),
+    false,
+    (a) =>
+      api.request(
+        a.campaignId
+          ? `/marketing/campaigns/${a.campaignId}/author`
+          : `/marketing/newsletters/${a.newsletterId}/author`,
+        "PUT",
+        { authorId: a.authorId ?? "" },
+      ),
+  );
+  add(
     "send_email",
     "Queue an individual email. Use only with user authorization to send; writes are never retried automatically.",
     z

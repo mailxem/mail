@@ -305,6 +305,7 @@ func runMigrations() error {
 		&models.AuthTransaction{},
 		&models.Campaign{},
 		&models.Newsletter{}, &models.NewsletterSignup{}, &models.SiteEvent{}, &models.ContactNote{}, &models.FormReceipt{}, &models.TrackingConsent{}, &models.ContactEvent{},
+		&models.Author{}, &models.IssuePage{},
 
 		// Subscriber models
 		&models.ContactImport{},

@@ -62,6 +62,8 @@ func (h *MarketingHandler) SaveNewsletter(c echo.Context) error {
 		TrackEngagement *bool
 		// Absent keeps the website's current look.
 		SiteTheme, SiteLogoURL *string
+		// Absent keeps the current author; "" uses the workspace default.
+		AuthorID *string
 	}
 	if err := c.Bind(&input); err != nil {
 		return bad("Invalid newsletter")
@@ -90,6 +92,13 @@ func (h *MarketingHandler) SaveNewsletter(c echo.Context) error {
 		}
 		n.SiteLogoURL = strings.TrimSpace(*input.SiteLogoURL)
 	}
+	if input.AuthorID != nil {
+		id, err := h.authorID(c, *input.AuthorID)
+		if err != nil {
+			return err
+		}
+		n.AuthorID = id
+	}
 	if n.NextSendAt != nil {
 		loc, _ := time.LoadLocation(n.Timezone) // Validated above.
 		n.MonthDay = n.NextSendAt.In(loc).Day()
@@ -112,6 +121,9 @@ func (h *MarketingHandler) SaveNewsletter(c echo.Context) error {
 			}
 			if input.SiteLogoURL == nil {
 				n.SiteLogoURL = old.SiteLogoURL
+			}
+			if input.AuthorID == nil {
+				n.AuthorID = old.AuthorID
 			}
 			if n.NextSendAt != nil && old.NextSendAt != nil && n.NextSendAt.Equal(*old.NextSendAt) && n.Timezone == old.Timezone {
 				n.MonthDay = old.MonthDay

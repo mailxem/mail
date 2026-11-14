@@ -206,6 +206,11 @@ export interface Campaign {
   timezone?: string;
   /** Off sends without the open pixel or click-tracking links. */
   trackEngagement?: boolean;
+  /** The newsletter this is an edition of, or whose website it's published on. */
+  newsletterId?: string;
+  archiveNewsletterId?: string;
+  /** Signs the campaign; unset uses the workspace's default author. */
+  authorId?: string;
   templateId: string;
   listId: string;
   /** Narrows the list to this segment's members, as a follow-up does. */

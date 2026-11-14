@@ -68,6 +68,14 @@ func (h *MarketingHandler) RecordSiteEvent(c echo.Context) error {
 	return c.NoContent(204)
 }
 
+// siteDay is the SQL for a site event's day, "YYYY-MM-DD".
+func siteDay(db *gorm.DB) string {
+	if db.Dialector.Name() == "sqlite" {
+		return "strftime('%Y-%m-%d', created_at)"
+	}
+	return "to_char(created_at, 'YYYY-MM-DD')"
+}
+
 type siteCount struct {
 	Key      string `json:"key"`
 	Views    int64  `json:"views"`
@@ -109,11 +117,7 @@ func (h *MarketingHandler) SiteAnalytics(c echo.Context) error {
 		err := q.Select(col + " AS key, COUNT(*) AS views, COUNT(DISTINCT session) AS visitors").Group(col).Order("views DESC").Limit(limit).Scan(&out).Error
 		return out, err
 	}
-	day := "to_char(created_at, 'YYYY-MM-DD')"
-	if db.Dialector.Name() == "sqlite" {
-		day = "strftime('%Y-%m-%d', created_at)"
-	}
-	daily, err := group(day, days+1, "")
+	daily, err := group(siteDay(db), days+1, "")
 	if err != nil {
 		return err
 	}

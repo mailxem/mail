@@ -17,7 +17,7 @@ import (
 func TestArchiveListsEditionsAndPublishedCampaignsOnly(t *testing.T) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true})
 	require.NoError(t, err)
-	require.NoError(t, db.AutoMigrate(&models.Newsletter{}, &models.Campaign{}, &models.Form{}))
+	require.NoError(t, db.AutoMigrate(&models.Newsletter{}, &models.Campaign{}, &models.Form{}, &models.IssuePage{}))
 	team, other := uuid.NewString(), uuid.NewString()
 	slug := "founder-notes"
 	n := models.Newsletter{Base: models.Base{ID: uuid.NewString()}, TeamID: team, Name: "Founder Notes", ListID: uuid.NewString(), PublicSlug: &slug}

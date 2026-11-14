@@ -53,6 +53,20 @@ export type Newsletter = {
   siteDomainStatus?: string;
   /** Off sends editions without the open pixel or click-tracking links. */
   trackEngagement?: boolean;
+  /** Signs each edition; unset uses the workspace's default author. */
+  authorId?: string | null;
+};
+/** Someone campaigns and newsletter issues are signed by. */
+export type Author = {
+  id: string;
+  name: string;
+  /** A square https:// photo; "" shows none. */
+  photoUrl: string;
+  /** Where replies go, unless a campaign sets its own reply address. */
+  email: string;
+  bylineEmail: boolean;
+  bylineWeb: boolean;
+  isDefault: boolean;
 };
 export type FormField = {
   id?: string;

@@ -42,6 +42,7 @@ import {
 } from "./shared";
 import { toast } from "sonner";
 import { SiteAnalytics } from "./site-analytics";
+import { AuthorSelect, useHasAuthors } from "./authors";
 import { PaidPlanNotice, usePaidPlan } from "@/components/billing/paid-plan";
 
 // Newsletter websites live on the marketing site, not in the app.
@@ -397,6 +398,7 @@ function NewsletterEditor({
       value.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
     postalAddress: value.postalAddress || "",
     trackEngagement: value.trackEngagement ?? true,
+    authorId: value.authorId || "",
   });
   const [at, setAt] = useState(localDate(value.nextSendAt));
   const [status, setStatus] = useState(
@@ -405,6 +407,7 @@ function NewsletterEditor({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [review, setReview] = useState(false);
+  const hasAuthors = useHasAuthors();
   const template = options?.templates.find((t) => t.id === draft.templateId);
   const preview = useMarketingQuery<{ htmlBody: string }>(
     `marketing/templates/${draft.templateId}/preview`,
@@ -577,6 +580,11 @@ function NewsletterEditor({
                 placeholder="Asia/Kolkata"
               />
             </Field>
+            {hasAuthors && (
+              <Field label="Author" hint="Signs each edition. Replies go to the author.">
+                <AuthorSelect value={draft.authorId} onChange={(v) => set("authorId", v)} />
+              </Field>
+            )}
             <Field
               label="Sender postal address"
               hint="Included in every edition with an unsubscribe link."
@@ -775,7 +783,7 @@ function EditionStatus({
 }
 
 /** Where a newsletter's website is live: its own domain once active, else xem.email/{slug}. */
-function liveUrl(n: Newsletter) {
+export function liveUrl(n: Newsletter) {
   return n.siteDomain && n.siteDomainStatus === "active"
     ? `https://${n.siteDomain}`
     : `${siteUrl}/${n.publicSlug}`;

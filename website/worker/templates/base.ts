@@ -96,6 +96,8 @@ form.sub input::placeholder{color:var(--muted)}
 .reader .back svg{transform:rotate(180deg)}
 .reader .meta{display:block;color:var(--muted);margin-top:44px}
 .reader h1{font:var(--head-weight,400) clamp(2.2rem,5vw,3.4rem)/1.04 var(--head);letter-spacing:var(--head-track,-.02em);margin:14px 0 36px;text-wrap:balance}
+.reader h1+.byline{display:flex;align-items:center;gap:10px;margin:-18px 0 32px;color:var(--muted)}
+.reader .byline img{width:32px;height:32px;border-radius:50%;object-fit:cover}
 .reader iframe{display:block;width:100%;min-height:420px;border:1px solid var(--line);border-radius:14px;background:#fff}
 .end,.panel{max-width:760px;margin:0 auto;padding:72px 28px 96px;display:flex;flex-direction:column;align-items:center;text-align:center}
 .end h2,.panel h1{font:var(--head-weight,400) clamp(1.9rem,4vw,2.6rem)/1.08 var(--head);letter-spacing:var(--head-track,-.02em);margin:0 0 24px;text-wrap:balance}

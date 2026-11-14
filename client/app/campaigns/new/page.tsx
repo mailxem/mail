@@ -51,12 +51,14 @@ import { GmailClipNotice } from "@/components/campaigns/gmail-clip-notice";
 import { ContentChecks } from "@/components/campaigns/content-checks";
 import { FieldFallbacks } from "@/components/campaigns/field-fallbacks";
 import { FieldSuggestInput } from "@/components/campaigns/field-suggest-input";
+import { AuthorSelect, useHasAuthors } from "@/components/marketing/authors";
 import { BestTimeHint } from "@/components/campaigns/best-time-hint";
 import { SendTest, type TestContact } from "@/components/campaigns/send-test";
 import {
   FollowUpNotice,
   useCampaignCopy,
 } from "@/components/campaigns/copy-campaign";
+import { SectionReach } from "@/components/campaigns/section-reach";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -107,6 +109,7 @@ const campaignSchema = z.object({
     .union([z.literal(""), z.string().trim().email("Enter an email address")])
     .optional(),
   archiveNewsletterId: z.string().optional(),
+  authorId: z.string().optional(),
   stages: z.enum(["auto", "on", "off"]).default("auto"),
   trackEngagement: z.boolean().default(true),
 });
@@ -257,6 +260,8 @@ function NewCampaignForm() {
   const { apiFetch, session } = useApi();
   const [currentStep, setCurrentStep] = useState("audience");
   const [isScheduled, setIsScheduled] = useState(false);
+  // Readers whose email would show nothing; the send is refused for them.
+  const [emptyReaders, setEmptyReaders] = useState(0);
   const [deviceTimezone, setDeviceTimezone] = useState("UTC");
   const form = useForm<CampaignFormValues>({
     resolver: zodResolver(campaignSchema),
@@ -287,6 +292,7 @@ function NewCampaignForm() {
   const archives = (
     useMarketingQuery<Newsletter[]>("marketing/newsletters").data ?? []
   ).filter((n) => n.publicSlug);
+  const hasAuthors = useHasAuthors();
   useEffect(() => {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     setDeviceTimezone(timezone);
@@ -364,6 +370,12 @@ function NewCampaignForm() {
     toast.error("Complete the highlighted campaign details.");
   };
   const onSubmit = async (values: CampaignFormValues) => {
+    if (emptyReaders > 0) {
+      toast.error(
+        "Some readers would get this email with nothing in it. Change who the template’s sections are for first.",
+      );
+      return;
+    }
     if (
       isScheduled &&
       (!values.scheduledFor || values.scheduledFor.getTime() <= Date.now())
@@ -401,6 +413,7 @@ function NewCampaignForm() {
         body: JSON.stringify({
           ...values,
           archiveNewsletterId: values.archiveNewsletterId || undefined,
+          authorId: values.authorId || undefined,
           replyTo: values.replyTo?.trim() || undefined,
           audienceCampaignId: copy?.audience ? copy.id : undefined,
           audienceFilter: copy?.audience || undefined,
@@ -454,7 +467,10 @@ function NewCampaignForm() {
           <Button type="button" variant="outline" asChild>
             <Link href="/campaigns">Cancel</Link>
           </Button>
-          <Button type="submit" disabled={saving || !team?.id}>
+          <Button
+            type="submit"
+            disabled={saving || !team?.id || emptyReaders > 0}
+          >
             {saving ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
@@ -825,12 +841,35 @@ function NewCampaignForm() {
                         />
                       </FormControl>
                       <FormDescription>
-                        Leave empty to use the sender’s own reply address.
+                        Leave empty to use the author’s email, or else the
+                        sender’s own reply address.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                {hasAuthors && (
+                  <FormField
+                    control={form.control}
+                    name="authorId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Author</FormLabel>
+                        <FormControl>
+                          <AuthorSelect
+                            className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
+                            value={field.value ?? ""}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Readers see “By” and the author’s name at the top of
+                          the email.
+                        </FormDescription>
+                      </FormItem>
+                    )}
+                  />
+                )}
                 {selectedSender && (
                   <div className="flex items-center gap-3 rounded-xl border border-primary/10 bg-primary/5 p-4">
                     <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white text-primary">
@@ -1461,6 +1500,11 @@ function NewCampaignForm() {
               </div>
             </section>
 
+            <SectionReach
+              templateId={selectedTemplate?.id}
+              listId={draft.listId}
+              onEmpty={setEmptyReaders}
+            />
             <section
               className="overflow-hidden rounded-[20px] border border-border bg-card shadow-sm"
               aria-labelledby="inbox-preview-heading"
@@ -1506,7 +1550,10 @@ function NewCampaignForm() {
               data={draft.data}
             />
           </div>
-          <Button type="submit" disabled={saving || !team?.id}>
+          <Button
+            type="submit"
+            disabled={saving || !team?.id || emptyReaders > 0}
+          >
             {saving ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (

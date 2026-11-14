@@ -23,6 +23,8 @@ type Newsletter struct {
 	PostalAddress string     `json:"postalAddress"`
 	// TrackEngagement: nil or true tracks opens and clicks in each edition.
 	TrackEngagement *bool `json:"trackEngagement,omitempty"`
+	// AuthorID signs each edition; nil uses the workspace's default author.
+	AuthorID *string `gorm:"type:uuid" json:"authorId,omitempty"`
 	// PublicSlug publishes sent editions at /n/{slug}; nil keeps the archive private.
 	PublicSlug *string `gorm:"uniqueIndex" json:"publicSlug"`
 	// SiteTheme (a template name) and SiteLogoURL style the public website.

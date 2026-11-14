@@ -58,7 +58,7 @@ func campaignContent(t *testing.T, free, track bool) {
 				t.Fatal(err)
 			}
 		}
-		must(database.AutoMigrate(&models.Campaign{}, &models.Template{}, &models.MailingList{}, &models.EmailContent{}, &models.File{}, &models.Team{}, &models.User{}, &models.Affiliate{}, &models.TrackingConsent{}))
+		must(database.AutoMigrate(&models.Campaign{}, &models.Template{}, &models.MailingList{}, &models.EmailContent{}, &models.File{}, &models.Team{}, &models.User{}, &models.Affiliate{}, &models.TrackingConsent{}, &models.Author{}))
 		cfg := &config.Config{JWT: config.JWTConfig{Secret: "campaign-secret"}, Server: config.ServerConfig{PublicURL: "https://api.example.com"}}
 		oldDB, oldCfg, oldBatch := db.DB, utils.RenderConfig, utils.ManagedDeliveryBatch
 		t.Cleanup(func() { db.DB, utils.RenderConfig, utils.ManagedDeliveryBatch = oldDB, oldCfg, oldBatch })

@@ -81,8 +81,23 @@ func (h *UploadHandler) UploadFile(c echo.Context) error {
 		})
 	}
 
+	// public=true is for images readers see, such as author photos: anyone
+	// can open them, so the response includes their address.
+	acl, public := h.acl, c.FormValue("public") == "true"
+	if public {
+		switch file.Header.Get("Content-Type") {
+		case "image/png", "image/jpeg", "image/webp":
+		default:
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Upload a PNG, JPEG or WebP image"})
+		}
+		if len(content) > 2<<20 {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Images can be up to 2 MB"})
+		}
+		acl = types.ObjectCannedACLPublicRead
+	}
+
 	// Upload file to S3
-	url, err := storage.UploadFile(c.Request().Context(), content, file.Filename, h.acl, file.Header.Get("Content-Type"))
+	url, err := storage.UploadFile(c.Request().Context(), content, file.Filename, acl, file.Header.Get("Content-Type"))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"error": "Failed to upload file",
@@ -115,8 +130,12 @@ func (h *UploadHandler) UploadFile(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
+	response := map[string]interface{}{
 		"message": "File uploaded successfully",
 		"file":    fileModel.ID,
-	})
+	}
+	if public {
+		response["url"] = url
+	}
+	return c.JSON(http.StatusOK, response)
 }

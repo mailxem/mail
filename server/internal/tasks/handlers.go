@@ -188,6 +188,11 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 	// without it. Every email shares it and keeps only its own variables.
 	var contentID string
 	badge := affiliates.Badge(ctx, h.db, campaign.TeamID)
+	author, err := marketing.CampaignAuthor(h.db, campaign.TeamID, campaign.AuthorID)
+	if err != nil {
+		return h.logger.Error("❌ failed to get campaign author: %w", err)
+	}
+	replyTo := marketing.ReplyTo(campaign.ReplyTo, author)
 	// Builds one contact's email; the pages below call it for each contact.
 	build := func(contact models.Contact) (*models.Email, error) {
 		if contentID == "" {
@@ -202,7 +207,14 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 				}
 				htmlFromTemplate = html
 			}
-			id, err := utils.StoreEmailContent(h.db, models.EmailContent{TeamID: campaign.TeamID, Kind: utils.ContentCampaign, HTML: htmlFromTemplate, Subject: campaign.Template.Subject, Badge: badge})
+			// The campaign keeps the body it was emailed with, for its web page.
+			if campaign.HTMLBody == "" {
+				if err := h.db.Model(campaign).UpdateColumn("html_body", htmlFromTemplate).Error; err != nil {
+					return nil, h.logger.Error("❌ failed to keep the campaign body: %w", err)
+				}
+				campaign.HTMLBody = htmlFromTemplate
+			}
+			id, err := utils.StoreEmailContent(h.db, models.EmailContent{TeamID: campaign.TeamID, Kind: utils.ContentCampaign, HTML: marketing.WithByline(htmlFromTemplate, author), Subject: campaign.Template.Subject, Badge: badge})
 			if err != nil {
 				return nil, h.logger.Error("❌ failed to store campaign content: %w", err)
 			}
@@ -275,7 +287,7 @@ func (h *TaskHandler) HandleCampaignProcess(ctx context.Context, t *asynq.Task) 
 			SMTPConfigID: smtpConfig.ID,
 			CategoryID:   campaign.Template.CategoryID,
 			CampaignID:   campaign.ID,
-			ReplyTo:      campaign.ReplyTo,
+			ReplyTo:      replyTo,
 		}, nil
 	}
 	send := func(emails []*models.Email) error {
