@@ -65,6 +65,7 @@ func SetupMarketingRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 	g.PUT("/webhooks/:id/status", h.WebhookStatus)
 	g.GET("/webhooks/:id/deliveries", h.WebhookDeliveries)
 	g.GET("/options", h.Options, middleware.RequirePermissions(db, "lists:read", "templates:read", "smtp_configs:read"))
+	g.GET("/lists/:id/empty-fields", h.ListEmptyFields, middleware.RequirePermissions(db, "contacts:read"))
 	g.POST("/contact-batch", h.ImportContactBatch, em.BodyLimit("2M"), middleware.RequirePermissions(db, "contacts:create"))
 	g.POST("/campaign-drafts", h.CreateCampaignDraft, em.BodyLimit("1M"), middleware.RequirePermissions(db, "campaigns:create"))
 	g.POST("/contacts/:id/unsubscribe", h.UnsubscribeContact, middleware.RequirePermissions(db, "contacts:create"))

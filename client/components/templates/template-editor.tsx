@@ -41,6 +41,14 @@ import {
   restoreEditorAssets,
 } from "@/lib/template-starters/editor-assets";
 import { QueryState } from "@/components/marketing/shared";
+import { CONTACT_FIELDS } from "@/lib/email/fields";
+import { FieldSuggestInput } from "@/components/campaigns/field-suggest-input";
+
+// Typing { in a text block suggests contact fields, narrowed as you type:
+// Unlayer takes the trigger from the first character of the tag values.
+const MERGE_TAGS = Object.fromEntries(
+  CONTACT_FIELDS.map((f) => [f.key, { name: f.label, value: `{{${f.key}}}` }]),
+);
 
 const testEmailSchema = z.object({
   to: z.string().email(),
@@ -655,12 +663,11 @@ export function TemplateEditor({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="subject">Subject</Label>
-                  <Input
+                  <FieldSuggestInput
                     id="subject"
                     value={template.subject}
-                    onChange={(e) => (
-                      revision.current++,
-                      setTemplate({ ...template, subject: e.target.value })
+                    onValueChange={(subject) => (
+                      revision.current++, setTemplate({ ...template, subject })
                     )}
                     placeholder="Enter email subject"
                   />
@@ -723,6 +730,7 @@ export function TemplateEditor({
                   onReady={onReady}
                   options={{
                     locale: "en",
+                    mergeTags: MERGE_TAGS,
                     fonts: {
                       showDefaultFonts: true,
                       customFonts: [
