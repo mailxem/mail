@@ -340,6 +340,15 @@ export function DomainDNS({
             <DNSRecordCard key={record.name + record.type} record={record} />
           ))}
       </section>
+      {domain.dkimStatus === "CLOUDFLARE_PROXIED" && (
+        <p
+          role="alert"
+          className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100"
+        >
+          DKIM record is proxied by Cloudflare: turn the orange cloud off (DNS
+          only), then check again.
+        </p>
+      )}
       {domain.provisioned && domain.dmarcStatus !== "VALID" && (
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
           <strong>Check your DMARC policy</strong>

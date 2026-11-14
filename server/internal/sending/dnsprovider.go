@@ -48,6 +48,28 @@ type nsResolver interface {
 	LookupNS(context.Context, string) ([]*net.NS, error)
 }
 
+type cnameResolver interface {
+	LookupCNAME(context.Context, string) (string, error)
+}
+
+// dkimProxied reports whether a DKIM CNAME answers with addresses instead of
+// pointing at SES, which is what Cloudflare's orange cloud does. LookupCNAME
+// returns the name itself when it resolves to A/AAAA records with no CNAME.
+func (s *Service) dkimProxied(ctx context.Context, domain string, tokens []string) bool {
+	r, ok := s.DNS.(cnameResolver)
+	if !ok {
+		return false
+	}
+	for _, t := range tokens {
+		name := t + "._domainkey." + domain
+		target, e := r.LookupCNAME(ctx, name)
+		if e == nil && strings.EqualFold(strings.TrimSuffix(target, "."), name) {
+			return true
+		}
+	}
+	return false
+}
+
 // zoneOf walks up from name to the first label with NS records: the zone the
 // records are added to, and which registrar serves it.
 func (s *Service) zoneOf(ctx context.Context, name string) (zone, host string) {
