@@ -58,6 +58,8 @@ func SetupMarketingRoutes(e *echo.Echo, db *gorm.DB, cfg *config.Config) {
 	g.PUT("/branding", h.Branding, middleware.RequirePermissions(db, "branding_settings:update"))
 	g.GET("/tracking-consent", h.TrackingConsent)
 	g.PUT("/tracking-consent", h.TrackingConsent, middleware.RequirePermissions(db, "branding_settings:update"))
+	g.GET("/alerts", h.Alerts)
+	g.POST("/alerts/read", h.ReadAlerts, em.BodyLimit("1K"))
 	g.GET("/sending-rules", h.SendingRules, middleware.RequirePermissions(db, "automations:read"))
 	g.PUT("/sending-rules", h.SendingRules, middleware.RequirePermissions(db, "automations:write"))
 	g.POST("/domains", h.AddDomain, middleware.RequirePermissions(db, "domains:create"))

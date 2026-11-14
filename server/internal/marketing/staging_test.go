@@ -19,7 +19,7 @@ import (
 // readers the workspace emailed before, sent through provider.
 func stagedEdition(t *testing.T, db *gorm.DB, provider string, fresh, old int) models.Campaign {
 	t.Helper()
-	require.NoError(t, db.AutoMigrate(&models.ServiceNotice{}, &models.ServiceNoticeEvent{}))
+	require.NoError(t, db.AutoMigrate(&models.ServiceNotice{}, &models.ServiceNoticeEvent{}, &models.Alert{}))
 	team, list, tpl, sender := uuid.NewString(), uuid.NewString(), uuid.NewString(), uuid.NewString()
 	seed(t, db, &models.MailingList{Base: models.Base{ID: list}, TeamID: team, Name: "Imported"})
 	seed(t, db, &models.Template{Base: models.Base{ID: tpl}, TeamID: team, CategoryID: uuid.NewString(), Name: "Editorial", Subject: "Hello", HTMLBody: "<p>Hi</p>"})

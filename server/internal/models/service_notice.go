@@ -120,12 +120,25 @@ func QueueAlert(tx *gorm.DB, team, source, resource, kind, reason string, now ti
 	}
 	due := now.Add(time.Minute)
 	reached := "service_notices.status = 'COUNTING' AND service_notices.event_count + 1 >= ?"
-	n := ServiceNotice{Key: noticeKey(team, kind, now.UTC().Format("2006-01-02")), Kind: kind, TeamID: team, Status: status, EventCount: 1, NextAttemptAt: due, CreatedAt: now, UpdatedAt: now}
-	return tx.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "key"}}, DoUpdates: clause.Assignments(map[string]any{
+	day := now.UTC().Format("2006-01-02")
+	n := ServiceNotice{Key: noticeKey(team, kind, day), Kind: kind, TeamID: team, Status: status, EventCount: 1, NextAttemptAt: due, CreatedAt: now, UpdatedAt: now}
+	if err := tx.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "key"}}, DoUpdates: clause.Assignments(map[string]any{
 		"event_count":     gorm.Expr("service_notices.event_count + 1"),
 		"status":          gorm.Expr("CASE WHEN "+reached+" THEN 'QUEUED' ELSE service_notices.status END", threshold),
 		"next_attempt_at": gorm.Expr("CASE WHEN "+reached+" THEN ? ELSE service_notices.next_attempt_at END", threshold, due),
-	})}).Create(&n).Error
+	})}).Create(&n).Error; err != nil {
+		return err
+	}
+	// The dashboard shows the same alerts once they would email the owner:
+	// one per paused campaign or failed import, one a day for routine counts.
+	if threshold <= 1 {
+		return RecordAlert(tx, team, kind, resource, resource, reason, 1, now)
+	}
+	var count []int64
+	if err := tx.Model(&ServiceNotice{}).Where("key = ?", n.Key).Pluck("event_count", &count).Error; err != nil || len(count) == 0 || count[0] < threshold {
+		return err
+	}
+	return RecordAlert(tx, team, kind, day, "", reason, count[0], now)
 }
 
 // TopAlertReasons returns up to three of the day's most common reasons for a
