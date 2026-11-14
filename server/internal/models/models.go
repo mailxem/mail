@@ -32,6 +32,9 @@ type Team struct {
 	Models              []Model         `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"models,omitempty"`
 	EmailCategories     []EmailCategory `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"emailCategories,omitempty"`
 	Campaigns           []Campaign      `gorm:"foreignKey:TeamID;references:ID;constraint:OnDelete:CASCADE" json:"campaigns,omitempty"`
+
+	// SummaryFrequency is daily, weekly or off: how often the owner gets a sending summary.
+	SummaryFrequency string `gorm:"not null;default:'weekly'" json:"summaryFrequency"`
 }
 
 func (t *Team) BeforeCreate(tx *gorm.DB) error {
@@ -586,6 +589,8 @@ type Campaign struct {
 	Subject     string     `json:"subject"`
 	// ReplyTo is where readers' replies go; empty uses the sender's own.
 	ReplyTo           string                    `json:"replyTo,omitempty" validate:"omitempty,email"`
+	// AuthorID signs the campaign; nil uses the workspace's default author.
+	AuthorID          *string                   `gorm:"type:uuid" json:"authorId,omitempty"`
 	PostalAddress     string                    `json:"postalAddress"`
 	AudienceCursor    string                    `json:"-"`
 	AudienceCutoff    *time.Time                `json:"-"`
@@ -616,6 +621,8 @@ type Campaign struct {
 	// reached who did not engage as AudienceFilter says.
 	AudienceCampaignID *string        `gorm:"type:uuid" json:"audienceCampaignId,omitempty"`
 	AudienceFilter     AudienceFilter `json:"audienceFilter,omitempty"`
+	// SegmentID narrows the list to one segment's members, as a follow-up does.
+	SegmentID *string `gorm:"type:uuid" json:"segmentId,omitempty"`
 }
 
 // AudienceFilter picks a follow-up's readers from an earlier campaign.

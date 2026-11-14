@@ -208,6 +208,8 @@ export interface Campaign {
   trackEngagement?: boolean;
   templateId: string;
   listId: string;
+  /** Narrows the list to this segment's members, as a follow-up does. */
+  segmentId?: string;
   schedule?: string;
   scheduledFor?: Date;
   recurringSchedule?: string;

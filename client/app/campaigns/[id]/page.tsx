@@ -21,10 +21,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CampaignReport } from "@/components/campaigns/campaign-report";
+import { CampaignAuthor, IssueWebPage } from "@/components/campaigns/issue-web";
 import { Status } from "@/components/marketing/shared";
 import { useMarketingQuery } from "@/lib/marketing/api";
 import type { Options } from "@/lib/marketing/types";
-import { AlertTriangle, CalendarClock, Copy, Save, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  CalendarClock,
+  Copy,
+  Save,
+  Send,
+  Trash2,
+} from "lucide-react";
 import { CopyCampaignDialog } from "@/components/campaigns/copy-campaign";
 import { useQuery } from "@tanstack/react-query";
 
@@ -186,6 +194,36 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
     }
   };
 
+  const { data: segment } = useQuery({
+    queryKey: ["segment", session?.user?.teamId, campaign?.segmentId],
+    queryFn: async () => {
+      const response = await apiFetch(`segments/${campaign!.segmentId}`);
+      if (!response.ok) throw new Error();
+      return (await response.json()).data as {
+        name: string;
+        contactCount: number;
+      };
+    },
+    enabled: !!campaign?.segmentId && !!session?.accessToken,
+  });
+
+  const handleSendDraft = async () => {
+    setResuming(true);
+    try {
+      const response = await apiFetch(`marketing/campaigns/${id}/send`, {
+        method: "POST",
+      });
+      if (!response.ok) throw new Error();
+      toast.success("Sending now.");
+      await reloadCampaign();
+      refetch();
+    } catch {
+      toast.error("Couldn’t send this campaign. Please try again.");
+    } finally {
+      setResuming(false);
+    }
+  };
+
   const handleDelete = async () => {
     const response = await apiFetch("campaigns/" + id, {
       method: "DELETE",
@@ -302,7 +340,29 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
             </Button>
           </div>
         )}
+        {campaign.status === "DRAFT" && (
+          <div
+            role="status"
+            className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-muted/50 p-4 text-sm"
+          >
+            <Send className="size-4 shrink-0 text-muted-foreground" />
+            <p className="min-w-0 flex-1">
+              {campaign.segmentId
+                ? `Draft. It goes only to the ${segment ? `${segment.contactCount.toLocaleString()} people in “${segment.name}”` : "people in its segment"} who are still subscribed.`
+                : "Draft. Nothing is sent until you send it."}
+            </p>
+            <Button
+              size="sm"
+              onClick={() => void handleSendDraft()}
+              disabled={resuming}
+            >
+              {resuming ? "Sending…" : "Send now"}
+            </Button>
+          </div>
+        )}
+        <CampaignAuthor campaign={campaign} saved={reloadCampaign} />
         <CampaignReport campaign={campaign} />
+        <IssueWebPage campaign={campaign} />
 
         <Card>
           <CardHeader>
@@ -315,8 +375,13 @@ const CampaignViewPage = ({ params }: { params: Promise<{ id: string }> }) => {
                   ["Subject", campaign.subject],
                   [
                     "Audience",
-                    options.data?.lists.find((l) => l.id === campaign.listId)
-                      ?.name,
+                    [
+                      options.data?.lists.find((l) => l.id === campaign.listId)
+                        ?.name,
+                      segment && `only “${segment.name}”`,
+                    ]
+                      .filter(Boolean)
+                      .join(", "),
                   ],
                   [
                     "From",
