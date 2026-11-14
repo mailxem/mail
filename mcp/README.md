@@ -86,7 +86,7 @@ For local development, build directly with `docker build -t xem-mcp:local .`, th
 | `import_contacts` | Inline CSV, explicit column mapping, preview by default |
 | `export_contacts_csv` | One page of CSV with page/total/hasMore metadata and formula escaping |
 | `unsubscribe_contact` | Suppress an active contact, preserving existing bounce/complaint suppression |
-| `create_campaign`, `get_campaigns`, `get_campaign` | Safe campaign drafts and status lookup |
+| `create_campaign`, `duplicate_campaign`, `get_campaigns`, `get_campaign` | Safe campaign drafts (new, or copied from a past campaign with an optional "didn't open" or "didn't click" audience) and status lookup |
 | `get_campaign_metrics`, `get_audience_metrics` | Opens, clicks, accepted messages, bounces, unsubscribes and rates |
 | `create_newsletter`, `get_newsletters` | Reusable draft newsletters; listing capped at 200 |
 | `schedule_newsletter`, `pause_newsletter` | Activate delivery on an explicit future schedule, or pause future editions |

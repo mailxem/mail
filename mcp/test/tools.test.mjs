@@ -11,7 +11,7 @@ const api = new XemClient({ apiKey: "secret" }, async (url, options) => {
 });
 const tools = createTools(api);
 test("tool schemas do not expose credentials or workspace overrides", () => {
-  assert.equal(tools.size, 43);
+  assert.equal(tools.size, 44);
   for (const { tool } of tools.values()) {
     assert.equal(tool.inputSchema.type, "object");
     assert.equal(tool.inputSchema.additionalProperties, false);
@@ -56,6 +56,12 @@ test("campaign creation stays a draft and cannot smuggle status", async () => {
   await assert.rejects(
     tools.get("create_campaign").execute({ ...input, status: "SENDING" }),
   );
+});
+test("duplicating a campaign posts only the audience", async () => {
+  await tools.get("duplicate_campaign").execute({ campaignId: id, audience: "not_opened" });
+  assert.ok(calls.at(-1).url.endsWith(`/marketing/campaigns/${id}/duplicate`));
+  assert.deepEqual(JSON.parse(calls.at(-1).options.body), { audience: "not_opened" });
+  await assert.rejects(tools.get("duplicate_campaign").execute({ campaignId: id, audience: "everyone" }));
 });
 test("CSV handles BOM, quoted commas/newlines and mapping", () => {
   assert.deepEqual(

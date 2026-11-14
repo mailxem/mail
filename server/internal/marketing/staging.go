@@ -51,9 +51,30 @@ func Recipients(db *gorm.DB, c *models.Campaign) (old, fresh *gorm.DB) {
 		if c.AudienceCutoff != nil {
 			q = q.Where("created_at <= ?", *c.AudienceCutoff)
 		}
+		if c.AudienceCampaignID != nil {
+			q = followUp(db, q, c)
+		}
 		return q.Session(&gorm.Session{})
 	}
 	return base().Where("LOWER(email) IN (?)", emailedBefore(db, c)), base().Where("LOWER(email) NOT IN (?)", emailedBefore(db, c))
+}
+
+// followUp narrows q to the readers send c's source campaign reached who did
+// not open (or click) it. Opens and clicks count as reports do: people only,
+// not bots or privacy proxies. Suppressed addresses are left out too.
+func followUp(db *gorm.DB, q *gorm.DB, c *models.Campaign) *gorm.DB {
+	events := []models.EmailTrackingEvent{models.EmailTrackingEventClick}
+	if c.AudienceFilter != models.AudienceNotClicked {
+		events = append(events, models.EmailTrackingEventOpen)
+	}
+	sub := func() *gorm.DB { return db.Session(&gorm.Session{NewDB: true}) }
+	reached := sub().Table("emails").Select("contact_id").
+		Where("team_id = ? AND campaign_id = ? AND test = ? AND status IN ? AND contact_id IS NOT NULL", c.TeamID, *c.AudienceCampaignID, false, reachedStatuses)
+	engaged := sub().Table("emails e").Joins("JOIN email_trackings t ON t.email_id = e.id").Select("e.contact_id").
+		Where("e.team_id = ? AND e.campaign_id = ? AND e.contact_id IS NOT NULL AND t.event IN ? AND t.machine = '' AND t.is_deleted = ?", c.TeamID, *c.AudienceCampaignID, events, false)
+	suppressed := sub().Model(&models.SuppressionList{}).Select("LOWER(email_address)").
+		Where("team_id = ? AND is_active = ? AND is_deleted = ? AND (expires_at IS NULL OR expires_at > ?)", c.TeamID, true, false, time.Now())
+	return q.Where("id IN (?)", reached).Where("id NOT IN (?)", engaged).Where("LOWER(email) NOT IN (?)", suppressed)
 }
 
 // StagePlan is how a staged send splits its audience: returning readers go

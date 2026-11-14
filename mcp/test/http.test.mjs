@@ -74,7 +74,7 @@ test("hosted MCP isolates simultaneous clients and rechecks revocation", async (
     assert.doesNotMatch(responses[1].content[0].text, /alpha/);
     f.revoked.add("alpha");
     await assert.rejects(clients[0].listTools());
-    assert.equal((await clients[1].listTools()).tools.length, 43);
+    assert.equal((await clients[1].listTools()).tools.length, 44);
   } finally {
     await Promise.all(clients.map((c) => c.close()));
     await f.close();

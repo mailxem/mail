@@ -159,6 +159,29 @@ func (h *MarketingHandler) ResumeCampaign(c echo.Context) error {
 	return c.JSON(200, map[string]string{"status": string(models.CampaignStatusSending)})
 }
 
+// DuplicateCampaign saves a draft copy of a campaign. With audience
+// "not_opened" or "not_clicked" the copy goes only to the readers the original
+// reached who did not open or click it.
+func (h *MarketingHandler) DuplicateCampaign(c echo.Context) error {
+	var in struct {
+		Audience models.AudienceFilter `json:"audience"`
+	}
+	if err := c.Bind(&in); err != nil || (in.Audience != "" && in.Audience != models.AudienceNotOpened && in.Audience != models.AudienceNotClicked) {
+		return bad("audience must be empty, not_opened or not_clicked")
+	}
+	campaign, err := h.service.DuplicateCampaign(c.Request().Context(), team(c), c.Param("id"), in.Audience)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return missing()
+	}
+	if errors.Is(err, marketing.ErrNotSent) {
+		return bad(err.Error())
+	}
+	if err != nil {
+		return err
+	}
+	return c.JSON(201, campaign)
+}
+
 // CancelCampaign stops a paused campaign or edition: the rest is never sent.
 // CancelCampaign stops a paused campaign's remaining sends, or a scheduled one
 // before it starts. The queued task skips completed campaigns.
