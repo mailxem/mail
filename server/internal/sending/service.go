@@ -308,6 +308,10 @@ func (s *Service) RefreshDomain(ctx context.Context, team, id string) (result Do
 	d.DKIMStatus = identity.DKIM
 	d.MAILFROMStatus = identity.MAILFROM
 	d.DKIMTokens = strings.Join(identity.Tokens, ",")
+	if !d.Shared && s.dkimProxied(ctx, d.Name, identity.Tokens) {
+		// Receivers cannot read a proxied DKIM key, so the domain is not ready.
+		d.DKIMStatus = "CLOUDFLARE_PROXIED"
+	}
 	d.DMARCStatus = "MISSING_OR_INVALID"
 	stage = "dmarc_dns"
 	records, e := s.DNS.LookupTXT(ctx, "_dmarc."+identityName)
