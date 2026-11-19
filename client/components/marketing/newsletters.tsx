@@ -843,7 +843,7 @@ function WebsiteBanner({
                   <Link href="/settings/billing">See plans</Link>
                 </Button>
                 <span className="text-xs text-background/60">
-                  Included with Starter and up, 7-day free trial.
+                  Included with Starter and up.
                 </span>
               </>
             )}

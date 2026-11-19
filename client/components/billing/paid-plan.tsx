@@ -40,7 +40,7 @@ export function PaidPlanNotice({ feature }: { feature: string }) {
       <div>
         <p className="text-sm font-medium">{feature} comes with a paid plan.</p>
         <p className="mt-1 text-xs text-muted-foreground">
-          Starter and up include it, with a 7-day free trial.
+          Starter and up include it, with a 30-day money-back guarantee.
         </p>
       </div>
       <Button asChild size="sm">
@@ -83,7 +83,7 @@ export function UpgradeSheet() {
         <SheetHeader>
           <SheetTitle>Do more with a paid plan</SheetTitle>
           <SheetDescription>
-            You’re on Free. Every paid plan starts with a 7-day free trial and you can cancel any time.
+            You’re on Free. Every paid plan has a 30-day money-back guarantee, and you can cancel any time.
           </SheetDescription>
         </SheetHeader>
         <ul className="mt-6 space-y-4 px-4">
@@ -100,7 +100,7 @@ export function UpgradeSheet() {
         <div className="mt-8 grid gap-2 px-4">
           <SheetClose asChild>
             <Button asChild>
-              <Link href="/settings/billing">Start free trial</Link>
+              <Link href="/settings/billing">See plans</Link>
             </Button>
           </SheetClose>
           <SheetClose asChild>
