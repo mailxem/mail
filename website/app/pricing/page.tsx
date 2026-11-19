@@ -97,7 +97,7 @@ const faqs = [
   },
   {
     q: "Is there a daily sending limit?",
-    a: "Only on Free, which sends up to 100 emails a day. Starter, Growth and Scale have no daily limit, so you can send your whole newsletter at once. During a paid plan's free trial, you can send up to that plan's included emails.",
+    a: "Only on Free, which sends up to 100 emails a day. Starter, Growth and Scale have no daily limit, so you can send your whole newsletter at once.",
   },
   {
     q: "Do I pay for contacts or subscribers?",

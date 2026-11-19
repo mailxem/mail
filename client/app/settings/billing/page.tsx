@@ -218,7 +218,7 @@ export default function BillingPage() {
           <>
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
               <p className="text-xs text-muted-foreground">
-                Paid plans start with a 7-day free trial. Extra emails are billed per 1,000.
+                Paid plans have a 30-day money-back guarantee. Extra emails are billed per 1,000.
               </p>
               <FilterTabs
                 items={["Monthly", "Yearly · 2 months free"]}

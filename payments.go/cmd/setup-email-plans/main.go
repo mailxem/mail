@@ -231,7 +231,7 @@ func seedSQL(ids map[string]string) string {
 	row := func(id, dodo, name, desc string, cents, order int, popular bool, quota int64, cycle string) {
 		sql += fmt.Sprintf(`INSERT INTO plans (id, dodo_plan_id, name, description, status, price, currency, price_per_seat, billing_cycle, trial_period_days, trial_enabled, display_order, is_popular, is_enterprise, metadata, created_at, updated_at)
 VALUES ('%[1]s', '%[2]s', '%[3]s', '%[4]s', 'active', %[5]d/100.0, 'USD', %[5]d/100.0, '%[9]s', 0, false, %[6]d, %[7]t, false, '{}', NOW(), NOW())
-ON CONFLICT (id) DO UPDATE SET dodo_plan_id = EXCLUDED.dodo_plan_id, name = EXCLUDED.name, description = EXCLUDED.description, status = 'active', price = EXCLUDED.price, price_per_seat = EXCLUDED.price_per_seat, billing_cycle = EXCLUDED.billing_cycle, display_order = EXCLUDED.display_order, is_popular = EXCLUDED.is_popular, updated_at = NOW();
+ON CONFLICT (id) DO UPDATE SET trial_period_days = 0, trial_enabled = false, dodo_plan_id = EXCLUDED.dodo_plan_id, name = EXCLUDED.name, description = EXCLUDED.description, status = 'active', price = EXCLUDED.price, price_per_seat = EXCLUDED.price_per_seat, billing_cycle = EXCLUDED.billing_cycle, display_order = EXCLUDED.display_order, is_popular = EXCLUDED.is_popular, updated_at = NOW();
 INSERT INTO plan_features (id, plan_id, quota, feature, created_at, updated_at, trail)
 VALUES ('%[1]s-emails', '%[1]s', %[8]d, 'emails_per_month', NOW(), NOW(), false)
 ON CONFLICT (id) DO UPDATE SET quota = EXCLUDED.quota, updated_at = NOW();

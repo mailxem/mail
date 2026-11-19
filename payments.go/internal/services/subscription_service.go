@@ -123,12 +123,7 @@ func (s *subscriptionService) CreateSubscription(ctx context.Context, teamID, pl
 		StartDate:    time.Now(),
 	}
 
-	// Set trial period if plan supports trials
-	if plan.TrialEnabled && plan.TrialPeriodDays > 0 {
-		trialEnd := time.Now().AddDate(0, 0, plan.TrialPeriodDays)
-		subscription.TrialEndsAt = &trialEnd
-		subscription.Status = dodopayments.SubscriptionStatusPending
-	}
+	// No plan has a free trial: a paid plan starts when it's paid for.
 
 	// Calculate next billing date
 	if !plan.Price.IsZero() {
@@ -150,8 +145,6 @@ func (s *subscriptionService) CreateSubscription(ctx context.Context, teamID, pl
 		time.Sleep(1 * time.Second)
 		if subscription.PlanID != s.cfg.Plans.FreePlanID {
 			s.emailService.sendReminderEmail(context.Background(), subscription)
-		} else {
-			s.emailService.ScheduleFreeTrialEmails(context.Background(), subscription, *subscription.TrialEndsAt)
 		}
 	}()
 
@@ -389,12 +382,6 @@ func (s *subscriptionService) RecordUsage(ctx context.Context, teamID string, us
 		return fmt.Errorf("subscription is cancelled, expired, failed, or paused")
 	}
 
-	// if subscription is pending and trial ends at is in the future, let them unlimited usage
-	if subscription.PlanID != s.cfg.Plans.FreePlanID && subscription.Status == dodopayments.SubscriptionStatusPending && subscription.TrialEndsAt != nil && subscription.TrialEndsAt.After(time.Now()) {
-		// let them use without checking limits
-		return nil
-	}
-
 	currentPeriod := time.Date(time.Now().Year(), time.Now().Month(), 1, 0, 0, 0, 0, time.UTC)
 
 	// Find the feature quota and use atomic check-and-update to prevent race conditions
@@ -585,22 +572,12 @@ func (s *paymentService) CreateCheckoutSession(ctx context.Context, req Checkout
 		DodoCustomerID: &customer.ID,
 	}
 
-	// Handle free plan scenario - create trial subscription without payment processing
+	// The free plan needs no payment and has no end date.
 	if plan.ID == s.cfg.Plans.FreePlanID {
-		// Calculate trial end date based on plan's trial period
-		trialEnd := time.Now().AddDate(0, 0, plan.TrialPeriodDays)
-		subscription.Status = models.SubscriptionStatusTrial
-		subscription.TrialEndsAt = &trialEnd
-
-		// Save trial subscription to database
+		subscription.Status = dodopayments.SubscriptionStatusActive
 		if err = s.subscriptionRepo.Create(ctx, subscription); err != nil {
 			return nil, fmt.Errorf("failed to create subscription: %w", err)
 		}
-
-		go func() {
-			time.Sleep(1 * time.Second)
-			s.emailService.ScheduleFreeTrialEmails(context.Background(), subscription, *subscription.TrialEndsAt)
-		}()
 
 		// Return success URL directly since no payment is required for free plan
 		return &CheckoutSessionResponse{

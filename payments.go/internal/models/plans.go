@@ -156,8 +156,8 @@ type Plan struct {
 	BillingCycle BillingCycle    `json:"billing_cycle" gorm:"default:MONTHLY"`
 
 	// Trial settings
-	TrialPeriodDays int  `json:"trial_period_days" gorm:"default:7"`
-	TrialEnabled    bool `json:"trial_enabled" gorm:"default:true"`
+	TrialPeriodDays int  `json:"trial_period_days" gorm:"default:0"`
+	TrialEnabled    bool `json:"trial_enabled" gorm:"default:false"`
 
 	// Display & Ordering
 	DisplayOrder  int            `json:"display_order" gorm:"default:0"`

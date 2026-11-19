@@ -40,7 +40,7 @@ export function PricingCard({
     withCommas(included),
     overage ? `${overage} after that` : "Stops at the limit, no overage",
     isFree ? "Up to 100 emails a day" : "No daily limit",
-    isFree ? "No card needed" : "7-day free trial",
+    isFree ? "No card needed" : "30-day money-back guarantee",
     isFree ? "“Sent with Xem” link under each email" : "No Xem link in your emails",
   ];
 
@@ -85,7 +85,7 @@ export function PricingCard({
         variant={plan.is_popular && !isCurrentPlan ? "default" : "outline"}
         className="mt-6 w-full"
       >
-        {isCurrentPlan ? "Current plan" : isFree ? "Switch to Free" : currentPlanId && currentPlanId !== FREE_PLAN_ID ? "Switch plan" : "Start free trial"}
+        {isCurrentPlan ? "Current plan" : isFree ? "Switch to Free" : currentPlanId && currentPlanId !== FREE_PLAN_ID ? "Switch plan" : "Choose plan"}
       </Button>
     </article>
   );
