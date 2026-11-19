@@ -99,6 +99,7 @@ MANAGED_SMTP_TLS_CERT = "/app/certificates/smtp/tls.crt"
 MANAGED_SMTP_TLS_KEY = "/app/certificates/smtp/tls.key"
 # Keep account ID and this environment's SNS topic ARN in Infisical as well.
 MANAGED_SES_REGION = "us-east-2"
+MANAGED_SHARED_DOMAIN = "mailbox.xem.email"
 HAKOPOD_AWS_IDENTITIES_FILE="/etc/hakopod/aws-identities.toml"
 
 [services.backend.secrets]
